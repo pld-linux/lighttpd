@@ -4,7 +4,7 @@ Summary:	Fast and light http server
 Summary(pl):	Szybki i lekki serwer http
 Name:		lighttpd
 Version:	1.1.9
-Release:	0.2
+Release:	0.3
 Group:		Networking/Daemons
 License:	QPL
 Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}.tar.gz
@@ -92,7 +92,7 @@ install %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
 rm -rf $RPM_BUILD_ROOT
 
 %pre
-if [ -n "`getgid lighhttpd`" ]; then
+if [ -n "`getgid lighttpd`" ]; then
 	if [ "`getgid lighttpd`" != "109" ]; then
 		echo "Error: group lighttpd doesn't have gid=109. Correct this before installing %{name}." 1>&2
 		exit 1
