@@ -3,6 +3,7 @@
 # - test ldap and mysql (failed at this time)
 # - documentroot specified in config doesn't exist
 # - mysql issue: http://www.freebsd.org/cgi/query-pr.cgi?pr=76866
+# - trigger for new configfile changes
 #
 # Conditional build for lighttpd:
 %bcond_without	xattr		# without support of extended attributes
@@ -15,10 +16,10 @@
 %bcond_with	mysql		# with mysql
 %bcond_with	ldap		# with ldap
 %bcond_with	valgrind	# enable valgrind fixes in code.
-%bcond_with	dirhide		# with 'hide from dirlisting' hack 
+%bcond_with	dirhide		# with 'hide from dirlisting' hack
 #
 # Prerelease snapshot: DATE-TIME
-##define _snap 20050116-1743
+%define _snap 20050402-1520
 
 %if 0%{?_snap}
 %define _source http://www.lighttpd.net/download/%{name}-%{version}-%{_snap}.tar.gz
@@ -26,17 +27,18 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 2
+%define		_rel 0
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.3.13
-Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}
+Version:	1.4.0
+Release:	%{!?_snap:%{_rel}}%{?_snap:0.%(echo %{_snap}|tr - _).%{_rel}}
 Group:		Networking/Daemons
 License:	BSD
 Source0:	%{_source}
-# Source0-md5:	2f017b936be376ad6f6c2ee26db93467
+# NoSource0-md5:	8258fae46a501c166bac69a929451059
+%{?_snap:NoSource:	0}
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
