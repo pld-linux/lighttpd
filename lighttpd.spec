@@ -1,3 +1,6 @@
+# Conditional build:
+%bcond_without	xattr	# with support extended attributes
+#
 Summary:	Fast and light http server
 Summary(pl):	Szybki i lekki serwer http
 Name:		lighttpd
@@ -14,8 +17,9 @@ Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
 Source4:	%{name}.logrotate
-Patch0:	%{name}-xattr.patch
+Patch0:		%{name}-xattr.patch
 URL:		http://jan.kneschke.de/projects/lighttpd/
+BuildRequires:	%{?with_xattr:attr-devel}
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	bzip2-devel
@@ -37,6 +41,7 @@ Provides:	webserver
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_libdir		%{_prefix}/%{_lib}/%{name}
+%define		_lighttpddir	/home/services/%{name}
 %define		_sysconfdir	/etc/%{name}
 
 %description
@@ -60,7 +65,7 @@ z powodu problemów z obci±¿eniem.
 
 %prep
 %setup -q
-%patch0 -p1
+%{?with_xattr:%patch0 -p1}
 
 %build
 %{__libtoolize}
@@ -71,14 +76,14 @@ z powodu problemów z obci±¿eniem.
 	--enable-mod-chat \
 	--enable-mod-cache \
 	--enable-mod-localizer \
-	--with-attr \
+	%{?with_xattr:--with-attr} \
 	--with-openssl
 	
 %{__make}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{/home/services/%{name}/cgi-bin,/etc/{logrotate.d,rc.d/init.d,%{name}}} \
+install -d $RPM_BUILD_ROOT{%{_lighttpddir}/cgi-bin,/etc/{logrotate.d,rc.d/init.d},%{_sysconfdir}} \
 	$RPM_BUILD_ROOT/var/log/{%{name},archiv/%{name}}
 
 %{__make} install \
@@ -106,7 +111,7 @@ if [ -n "`id -u lighttpd 2>/dev/null`" ]; then
 		exit 1
 	fi
 else
-	/usr/sbin/useradd -u 116 -r -d /home/services/lighttpd -s /bin/false -c "HTTP User" -g lighttpd lighttpd 1>&2
+	/usr/sbin/useradd -u 116 -r -d %{_lighttpddir} -s /bin/false -c "HTTP User" -g lighttpd lighttpd 1>&2
 fi
 
 %post
@@ -139,9 +144,9 @@ fi
 %attr(755,root,root) %{_libdir}/*.so
 %attr(750,root,root) %dir /var/log/archiv/%{name}
 %dir %attr(750,lighttpd,root) /var/log/%{name}
-%attr(-, lighttpd, lighttpd) /home/services/%{name}
+%attr(-, lighttpd, lighttpd) %{_lighttpddir}
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
-%dir %attr(754,root,root) /etc/%{name}
+%dir %attr(754,root,root) %{_sysconfdir}
 %attr(640,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/*.*
 %attr(640,root,root) /etc/logrotate.d/%{name}
 %{_mandir}/man?/*
