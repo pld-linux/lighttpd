@@ -9,10 +9,11 @@
 # - documentroot specified in config doesn't exist
 #
 # Conditional build for lighttpd:
-%bcond_without	xattr	# without support of extended attributes
-%bcond_with	mysql	# with mysql
-%bcond_with	ldap	# with ldap
+%bcond_without	xattr		# without support of extended attributes
+%bcond_with	mysql		# with mysql
+%bcond_with	ldap		# with ldap
 %bcond_with	valgrind	# enable valgrind fixes in code.
+%bcond_without	ipv6		# IPv4-only version (doesn't require IPv6 in kernel)
 %bcond_without	largefile	# without largefile support,
 # use it if you have 2.4 kernel to get sendfile() support,
 # and don't need > 2GB file requests,
@@ -28,29 +29,22 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define _rel 0.18
+%define		_rel 0.1
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.3.7
+Version:	1.3.8
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}
 Group:		Networking/Daemons
 License:	BSD
 Source0:	%{_source}
-# Source0-md5:	40ac1d07d9efb0366720d081c3e02224
+# Source0-md5:	4ac341879497064b334e776288ad5e0f
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
 Source4:	%{name}.logrotate
 Source5:	%{name}.sysconfig
-Patch0:		%{name}-mod_status.patch
-Patch1:		%{name}-doublefree.patch
-Patch2:		%{name}-avg-req.patch
-Patch3:		%{name}-readpost-timeout.patch
-Patch4:		%{name}-fcgi-fdevent.patch
-Patch5:		%{name}-write-EINTR.patch
-Patch6:		%{name}-getsockname.patch
 URL:		http://www.lighttpd.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -120,13 +114,6 @@ pomocy serwera WWW ani samego programu.
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
 
 %build
 %{__libtoolize}
@@ -139,6 +126,7 @@ pomocy serwera WWW ani samego programu.
 	%{?with_xattr:--with-attr} \
 	%{?with_mysql:--with-mysql} \
 	%{?with_ldap:--with-ldap} \
+	%{!?with_ipv6:--disable-ipv6} \
 	%{!?with_largefile:--disable-lfs} \
 	--with-openssl
 	
@@ -146,7 +134,7 @@ pomocy serwera WWW ani samego programu.
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_lighttpddir}/cgi-bin,/etc/{logrotate.d,rc.d/init.d,sysconfig},%{_sysconfdir}} \
+install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d/init.d,sysconfig},%{_sysconfdir}} \
 	$RPM_BUILD_ROOT/var/log/{%{name},archiv/%{name}}
 
 %{__make} install \
