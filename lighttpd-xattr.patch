@@ -1,8 +1,6 @@
-Only in lighttpd-1.2.7: aclocal.m4
-Only in lighttpd-1.2.7-new: autom4te.cache
-diff -ur lighttpd-1.2.7/config.h.in lighttpd-1.2.7-new/config.h.in
---- lighttpd-1.2.7/config.h.in	2004-08-29 04:03:44.000000000 -0600
-+++ lighttpd-1.2.7-new/config.h.in	2004-08-29 16:14:05.000000000 -0600
+diff -ur lighttpd-1.2.7-orig/config.h.in lighttpd-1.2.7-xattr/config.h.in
+--- lighttpd-1.2.7-orig/config.h.in	2004-08-29 04:03:44.000000000 -0600
++++ lighttpd-1.2.7-xattr/config.h.in	2004-08-29 21:02:37.604255730 -0600
 @@ -356,3 +356,10 @@
  
  /* Define as `fork' if `vfork' does not work. */
@@ -14,10 +12,9 @@ diff -ur lighttpd-1.2.7/config.h.in lighttpd-1.2.7-new/config.h.in
 +/* Whether to enable xattr support */
 +#undef HAVE_XATTR
 +
-Only in lighttpd-1.2.7: configure
-diff -ur lighttpd-1.2.7/configure.in lighttpd-1.2.7-new/configure.in
---- lighttpd-1.2.7/configure.in	2004-08-29 04:03:07.000000000 -0600
-+++ lighttpd-1.2.7-new/configure.in	2004-08-29 16:14:05.000000000 -0600
+diff -ur lighttpd-1.2.7-orig/configure.in lighttpd-1.2.7-xattr/configure.in
+--- lighttpd-1.2.7-orig/configure.in	2004-08-29 04:03:07.000000000 -0600
++++ lighttpd-1.2.7-xattr/configure.in	2004-08-29 21:02:37.604255730 -0600
 @@ -164,9 +164,22 @@
      AC_DEFINE([HAVE_LIBLDAP], [1], [libldap])
      AC_DEFINE([HAVE_LDAP_H], [1])
@@ -41,11 +38,9 @@ diff -ur lighttpd-1.2.7/configure.in lighttpd-1.2.7-new/configure.in
  AC_CHECK_LIB(lber, ber_printf, [
    AC_CHECK_HEADERS([lber.h],[
      LBER_LIB=-llber
-Only in lighttpd-1.2.7/debian: Makefile.in
-Only in lighttpd-1.2.7-new: .deps
-diff -ur lighttpd-1.2.7/doc/lighttpd.conf lighttpd-1.2.7-new/doc/lighttpd.conf
---- lighttpd-1.2.7/doc/lighttpd.conf	2004-08-29 03:44:53.000000000 -0600
-+++ lighttpd-1.2.7-new/doc/lighttpd.conf	2004-08-29 16:14:05.000000000 -0600
+diff -ur lighttpd-1.2.7-orig/doc/lighttpd.conf lighttpd-1.2.7-xattr/doc/lighttpd.conf
+--- lighttpd-1.2.7-orig/doc/lighttpd.conf	2004-08-29 03:44:53.000000000 -0600
++++ lighttpd-1.2.7-xattr/doc/lighttpd.conf	2004-08-29 21:02:37.605255591 -0600
 @@ -82,6 +82,9 @@
  				".wmv" =>       "video/x-ms-wmv"
   )
@@ -56,23 +51,10 @@ diff -ur lighttpd-1.2.7/doc/lighttpd.conf lighttpd-1.2.7-new/doc/lighttpd.conf
  #### accesslog module
  accesslog.filename          = "/www/logs/access.log"
  
-Only in lighttpd-1.2.7-new/doc: lighttpd.conf.orig
-Only in lighttpd-1.2.7/doc: Makefile.in
-Only in lighttpd-1.2.7: lighttpd.spec
-Only in lighttpd-1.2.7-new: Makefile.am
-Only in lighttpd-1.2.7: Makefile.in
-diff -ur lighttpd-1.2.7/src/base.h lighttpd-1.2.7-new/src/base.h
---- lighttpd-1.2.7/src/base.h	2004-08-29 02:51:53.000000000 -0600
-+++ lighttpd-1.2.7-new/src/base.h	2004-08-29 17:02:59.853176345 -0600
-@@ -144,6 +144,7 @@
- 	enum { 
- 		HTTP_TRANSFER_ENCODING_IDENTITY, HTTP_TRANSFER_ENCODING_CHUNKED
- 	} transfer_encoding;
-+
- } response;
- 
- typedef struct {
-@@ -163,6 +164,7 @@
+diff -ur lighttpd-1.2.7-orig/src/base.h lighttpd-1.2.7-xattr/src/base.h
+--- lighttpd-1.2.7-orig/src/base.h	2004-08-29 02:51:53.000000000 -0600
++++ lighttpd-1.2.7-xattr/src/base.h	2004-08-29 21:23:21.977559690 -0600
+@@ -163,6 +163,7 @@
  	size_t is_dirty;
  	
  	time_t stat_ts;
@@ -80,7 +62,7 @@ diff -ur lighttpd-1.2.7/src/base.h lighttpd-1.2.7-new/src/base.h
  } file_cache_entry;
  
  typedef struct {
-@@ -199,6 +201,9 @@
+@@ -199,6 +200,9 @@
  	unsigned short max_keep_alive_idle;
  	unsigned short max_read_idle;
  	unsigned short max_write_idle;
@@ -90,10 +72,10 @@ diff -ur lighttpd-1.2.7/src/base.h lighttpd-1.2.7-new/src/base.h
  	
  } specific_config;
  
-Only in lighttpd-1.2.7-new/src: base.h~
-diff -ur lighttpd-1.2.7/src/config.c lighttpd-1.2.7-new/src/config.c
---- lighttpd-1.2.7/src/config.c	2004-08-29 02:54:27.000000000 -0600
-+++ lighttpd-1.2.7-new/src/config.c	2004-08-29 16:20:51.985029213 -0600
+Only in lighttpd-1.2.7-xattr/src: base.h~
+diff -ur lighttpd-1.2.7-orig/src/config.c lighttpd-1.2.7-xattr/src/config.c
+--- lighttpd-1.2.7-orig/src/config.c	2004-08-29 02:54:27.000000000 -0600
++++ lighttpd-1.2.7-xattr/src/config.c	2004-08-29 21:02:37.606255451 -0600
 @@ -163,8 +163,9 @@
  		{ "server.max-keep-alive-requests", NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION }, /* 21 */
  		{ "server.name",                 NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },  /* 22 */
@@ -139,11 +121,9 @@ diff -ur lighttpd-1.2.7/src/config.c lighttpd-1.2.7-new/src/config.c
  			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("server.name"))) {
  				buffer_copy_string_buffer(con->server_name, s->server_name);
  			}
-Only in lighttpd-1.2.7-new/src: config.c~
-Only in lighttpd-1.2.7/src: configparser.c
-diff -ur lighttpd-1.2.7/src/file_cache.c lighttpd-1.2.7-new/src/file_cache.c
---- lighttpd-1.2.7/src/file_cache.c	2004-06-05 13:20:22.000000000 -0600
-+++ lighttpd-1.2.7-new/src/file_cache.c	2004-08-29 17:32:10.000000000 -0600
+diff -ur lighttpd-1.2.7-orig/src/file_cache.c lighttpd-1.2.7-xattr/src/file_cache.c
+--- lighttpd-1.2.7-orig/src/file_cache.c	2004-06-05 13:20:22.000000000 -0600
++++ lighttpd-1.2.7-xattr/src/file_cache.c	2004-08-29 21:29:03.890833672 -0600
 @@ -17,6 +17,10 @@
  #include "fdevent.h"
  #include "etag.h"
@@ -173,39 +153,53 @@ diff -ur lighttpd-1.2.7/src/file_cache.c lighttpd-1.2.7-new/src/file_cache.c
  	
  	if (fce->mmap_p) munmap(fce->mmap_p, fce->mmap_length);
  	
-@@ -115,6 +123,7 @@
+@@ -91,6 +99,20 @@
  	
- 	/* check the cache */
- 	for (i = 0; i < fc->used; i++) {
-+		int attrlen;
- 		fce = fc->ptr[i];
- 		
- 		if (buffer_is_equal(name, fce->name)) {
-@@ -136,6 +145,18 @@
+ }
+ 
++#ifdef HAVE_XATTR
++int fce_attr_get(buffer *buf, char *name) {
++	int attrlen;
++	int ret;
++	attrlen = 1024;
++	buffer_prepare_copy(buf, attrlen);
++	if(0 == (ret = attr_get(name, "Content-Type", buf->ptr, &attrlen, 0))) {
++		buf->used = attrlen + 1;
++		buf->ptr[attrlen] = '\0';
++	}
++	return ret;
++}
++#endif
++
+ file_cache_entry * file_cache_get_entry(server *srv, connection *con, buffer *name, file_cache_entry *o_fce) {
+ 	file_cache_entry *fce = NULL;
+ 	file_cache *fc = srv->file_cache;
+@@ -136,6 +158,10 @@
  				return NULL;
  			}
  			fce->stat_ts = srv->cur_ts;
 +
 +#ifdef HAVE_XATTR
-+			attrlen = 1024;
-+			buffer_prepare_copy(fce->content_type, attrlen);
-+			if(0 == attr_get(name->ptr, "Content-Type", fce->content_type->ptr, &attrlen, 0)) {
-+				fce->content_type->used = attrlen + 1;
-+				fce->content_type->ptr[attrlen] = '\0';
-+				log_error_write(srv, __FILE__, __LINE__, "sbs", "attr_get: ", name, fce->content_type->ptr);
-+			} else {
-+				log_error_write(srv, __FILE__, __LINE__, "sbs", "attr_get failed: ", name, strerror(errno));
-+			}
++			fce_attr_get(fce->content_type, name);
 +#endif
  			
  			etag_create(srv->file_cache_etag, &(fce->st));
  			
-Only in lighttpd-1.2.7-new/src: file_cache.c~
-Only in lighttpd-1.2.7-new/src: lighttpd.conf
-Only in lighttpd-1.2.7-new/src: lighttpd.conf~
-diff -ur lighttpd-1.2.7/src/Makefile.am lighttpd-1.2.7-new/src/Makefile.am
---- lighttpd-1.2.7/src/Makefile.am	2004-08-03 05:26:31.000000000 -0600
-+++ lighttpd-1.2.7-new/src/Makefile.am	2004-08-29 16:49:40.070814090 -0600
+@@ -222,6 +248,10 @@
+ 			return NULL;
+ 		}
+ 		
++#ifdef HAVE_XATTR
++		fce_attr_get(fce->content_type, name->ptr);
++#endif
++		
+ 		etag_create(fce->etag, &(fce->st));
+ 	} else if (S_ISDIR(fce->st.st_mode)) {
+ #ifdef USE_LINUX_SIGIO
+Only in lighttpd-1.2.7-xattr/src: file_cache.c~
+diff -ur lighttpd-1.2.7-orig/src/Makefile.am lighttpd-1.2.7-xattr/src/Makefile.am
+--- lighttpd-1.2.7-orig/src/Makefile.am	2004-08-03 05:26:31.000000000 -0600
++++ lighttpd-1.2.7-xattr/src/Makefile.am	2004-08-29 21:02:37.607255312 -0600
 @@ -152,7 +152,7 @@
  DEFS= @DEFS@ -DLIBRARY_DIR="\"$(libdir)\""
  
@@ -215,12 +209,9 @@ diff -ur lighttpd-1.2.7/src/Makefile.am lighttpd-1.2.7-new/src/Makefile.am
  lighttpd_LDFLAGS = -export-dynamic
  lighttpd_CCPFLAGS = $(MYSQL_INCLUDES)
  
-Only in lighttpd-1.2.7-new/src: Makefile.am~
-Only in lighttpd-1.2.7/src: Makefile.in
-Only in lighttpd-1.2.7/src: mod_ssi_exprparser.c
-diff -ur lighttpd-1.2.7/src/response.c lighttpd-1.2.7-new/src/response.c
---- lighttpd-1.2.7/src/response.c	2004-08-29 02:52:01.000000000 -0600
-+++ lighttpd-1.2.7-new/src/response.c	2004-08-29 20:03:37.123454292 -0600
+diff -ur lighttpd-1.2.7-orig/src/response.c lighttpd-1.2.7-xattr/src/response.c
+--- lighttpd-1.2.7-orig/src/response.c	2004-08-29 02:52:01.000000000 -0600
++++ lighttpd-1.2.7-xattr/src/response.c	2004-08-29 21:22:28.477027570 -0600
 @@ -31,6 +31,9 @@
  
  #include "plugin.h"
@@ -347,9 +338,3 @@ diff -ur lighttpd-1.2.7/src/response.c lighttpd-1.2.7-new/src/response.c
  			
  			/* generate e-tag */
  			etag_mutate(con->physical.etag, con->fce->etag);
-Only in lighttpd-1.2.7-new/src: response.c~
-Only in lighttpd-1.2.7/tests/docroot/123: Makefile.in
-Only in lighttpd-1.2.7/tests/docroot: Makefile.in
-Only in lighttpd-1.2.7/tests/docroot/www/go: Makefile.in
-Only in lighttpd-1.2.7/tests/docroot/www: Makefile.in
-Only in lighttpd-1.2.7/tests: Makefile.in
