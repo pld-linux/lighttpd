@@ -11,6 +11,7 @@
 %bcond_with	valgrind	# enable valgrind fixes in code.
 %bcond_without	ipv6		# IPv4-only version (doesn't require IPv6 in kernel)
 %bcond_without	largefile	# without largefile support,
+%bcond_without	ssl		# disable ssl support
 # use it if you have 2.4 kernel to get sendfile() support,
 # and don't need > 2GB file requests,
 # see http://article.gmane.org/gmane.comp.web.lighttpd:722
@@ -47,7 +48,7 @@ BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	bzip2-devel
 BuildRequires:	libtool
-BuildRequires:	openssl-devel
+%{?with_ssl:BuildRequires:	openssl-devel}
 BuildRequires:	pcre-devel
 BuildRequires:	rpmbuild(macros) >= 1.159
 BuildRequires:	zlib-devel
@@ -126,7 +127,7 @@ pomocy serwera WWW ani samego programu.
 	%{?with_ldap:--with-ldap} \
 	%{!?with_ipv6:--disable-ipv6} \
 	%{!?with_largefile:--disable-lfs} \
-	--with-openssl
+	%{?with_ssl:--with-openssl}
 	
 %{__make}
 
