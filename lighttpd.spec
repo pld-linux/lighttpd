@@ -26,6 +26,7 @@ BuildRequires:	bzip2-devel
 BuildRequires:	libtool
 BuildRequires:	openssl-devel
 BuildRequires:	pcre-devel
+BuildRequires:	rpmbuild(macros) >= 1.159
 BuildRequires:	zlib-devel
 %if %{with xattr}
 BuildRequires:	attr-devel
@@ -37,9 +38,11 @@ Requires(pre):	/usr/bin/getgid
 Requires(pre):	/usr/sbin/groupadd
 Requires(pre):	/usr/sbin/useradd
 Requires(post,preun):	/sbin/chkconfig
-Requires(postun):	/usr/sbin/userdel
 Requires(postun):	/usr/sbin/groupdel
+Requires(postun):	/usr/sbin/userdel
+Provides:	group(lighttpd)
 Provides:	httpd
+Provides:	user(lighttpd)
 Provides:	webserver
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -103,21 +106,22 @@ install %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
 rm -rf $RPM_BUILD_ROOT
 
 %pre
-if [ -n "`getgid lighttpd`" ]; then
-	if [ "`getgid lighttpd`" != "109" ]; then
+if [ -n "`/usr/bin/getgid lighttpd`" ]; then
+	if [ "`/usr/bin/getgid lighttpd`" != 109 ]; then
 		echo "Error: group lighttpd doesn't have gid=109. Correct this before installing %{name}." 1>&2
 		exit 1
 	fi
 else
-	/usr/sbin/groupadd -g 109 -r -f lighttpd
+	/usr/sbin/groupadd -g 109 lighttpd
 fi
-if [ -n "`id -u lighttpd 2>/dev/null`" ]; then
-	if [ "`id -u lighttpd`" != "116" ]; then
+if [ -n "`/bin/id -u lighttpd 2>/dev/null`" ]; then
+	if [ "`/bin/id -u lighttpd`" != 116 ]; then
 		echo "Error: user lighhttpd doesn't have uid=116. Correct this before installing %{name}." 1>&2
 		exit 1
 	fi
 else
-	/usr/sbin/useradd -u 116 -r -d %{_lighttpddir} -s /bin/false -c "HTTP User" -g lighttpd lighttpd 1>&2
+	/usr/sbin/useradd -u 116 -d %{_lighttpddir} -s /bin/false \
+		-c "HTTP User" -g lighttpd lighttpd 1>&2
 fi
 
 %post
@@ -138,8 +142,8 @@ fi
 
 %postun
 if [ "$1" = "0" ]; then
-	/usr/sbin/userdel lighttpd
-	/usr/sbin/groupdel lighttpd
+	%userremove lighttpd
+	%groupremove lighttpd
 fi
 
 %files
@@ -150,7 +154,7 @@ fi
 %attr(755,root,root) %{_libdir}/*.so
 %attr(750,root,root) %dir /var/log/archiv/%{name}
 %dir %attr(750,lighttpd,root) /var/log/%{name}
-%attr(-, lighttpd, lighttpd) %{_lighttpddir}
+%attr(755,lighttpd,lighttpd) %{_lighttpddir}
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %dir %attr(754,root,root) %{_sysconfdir}
 %attr(640,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/*.*
