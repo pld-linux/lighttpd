@@ -1,0 +1,446 @@
+diff -ur lighttpd-1.2.6-orig/config.h.in lighttpd-1.2.6-new/config.h.in
+--- lighttpd-1.2.6-orig/config.h.in	2004-08-22 11:24:40.000000000 -0600
++++ lighttpd-1.2.6-new/config.h.in	2004-08-28 13:31:55.417071176 -0600
+@@ -356,3 +356,10 @@
+ 
+ /* Define as `fork' if `vfork' does not work. */
+ #undef vfork
++
++/* Define to 1 if you have <attr/attributes.h> */
++#undef HAVE_ATTR_ATTRIBUTES_H
++
++/* Whether to enable xattr support */
++#undef HAVE_XATTR
++
+diff -ur lighttpd-1.2.6-orig/configure.in lighttpd-1.2.6-new/configure.in
+--- lighttpd-1.2.6-orig/configure.in	2004-08-15 15:44:25.000000000 -0600
++++ lighttpd-1.2.6-new/configure.in	2004-08-28 13:31:55.417071176 -0600
+@@ -164,9 +164,22 @@
+     AC_DEFINE([HAVE_LIBLDAP], [1], [libldap])
+     AC_DEFINE([HAVE_LDAP_H], [1])
+   ])
++ ])
+ ])
+ AC_SUBST(LDAP_LIB)
+ 
++AC_MSG_CHECKING(for extended attributes support)
++AC_ARG_WITH(attr, AC_HELP_STRING([--with-attr],[enable extended attribute support]),
++[AC_MSG_RESULT(yes)
++ AC_CHECK_LIB(attr, attr_get, [
++	AC_CHECK_HEADERS([attr/attributes.h],[
++		ATTR_LIB=-lattr
++		AC_DEFINE([HAVE_XATTR], [1], [libattr])
++		AC_DEFINE([HAVE_ATTR_ATTRIBUTES_H], [1])
++	])
++])
++AC_SUBST(ATTR_LIB)
++
+ AC_CHECK_LIB(lber, ber_printf, [
+   AC_CHECK_HEADERS([lber.h],[
+     LBER_LIB=-llber
+diff -ur lighttpd-1.2.6-orig/doc/lighttpd.conf lighttpd-1.2.6-new/doc/lighttpd.conf
+--- lighttpd-1.2.6-orig/doc/lighttpd.conf	2004-08-21 11:07:19.000000000 -0600
++++ lighttpd-1.2.6-new/doc/lighttpd.conf	2004-08-28 16:00:21.357503090 -0600
+@@ -83,6 +83,9 @@
+ 				".wmv" =>       "video/x-ms-wmv"
+  )
+ 
++# Use the "Content-Type" extended attribute to obtain mime type if possible
++# mimetypes.use-xattr = "enable"
++
+ #### accesslog module
+ accesslog.filename          = "/www/logs/access.log"
+ 
+Only in lighttpd-1.2.6-new/doc: lighttpd.conf~
+diff -ur lighttpd-1.2.6-orig/Makefile.am lighttpd-1.2.6-new/Makefile.am
+--- lighttpd-1.2.6-orig/Makefile.am	2004-04-05 01:44:33.000000000 -0600
++++ lighttpd-1.2.6-new/Makefile.am	2004-08-28 15:58:59.752016407 -0600
+@@ -1,3 +1,180 @@
+-SUBDIRS=src doc tests debian
++noinst_PROGRAMS=array chunk lemon # simple-fcgi #graphic evalo bench ajp ssl error_test adserver gen-license
++sbin_PROGRAMS=lighttpd
++YACC=$(top_builddir)/src/lemon
+ 
+-EXTRA_DIST=lighttpd.spec
++lemon_SOURCES=lemon.c
++
++#simple_fcgi_SOURCES=simple-fcgi.c
++#simple_fcgi_LDADD=-lfcgi
++
++
++configparser.c configparser.h: configparser.y lemon
++	$(YACC) -q $(srcdir)/configparser.y $(srcdir)/lempar.c
++	
++mod_ssi_exprparser.c mod_ssi_exprparser.h: mod_ssi_exprparser.y lemon
++	$(YACC) -q $(srcdir)/mod_ssi_exprparser.y $(srcdir)/lempar.c
++	
++config.c: configparser.h
++mod_ssi_expr.c: mod_ssi_exprparser.h
++
++clean-local:
++	rm -f configparser.c configparser.h mod_ssi_exprparser.c \
++	       mod_ssi_exprparser.h
++	
++lib_LTLIBRARIES = 
++
++lib_LTLIBRARIES += mod_cgi.la
++mod_cgi_la_SOURCES = cgi.c
++mod_cgi_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++
++lib_LTLIBRARIES += mod_usertrack.la
++mod_usertrack_la_SOURCES = mod_usertrack.c
++mod_usertrack_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++
++lib_LTLIBRARIES += mod_proxy.la
++mod_proxy_la_SOURCES = mod_proxy.c
++mod_proxy_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++
++lib_LTLIBRARIES += mod_ssi.la
++mod_ssi_la_SOURCES = mod_ssi.c mod_ssi_exprparser.c mod_ssi_expr.c
++mod_ssi_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++
++lib_LTLIBRARIES += mod_secdownload.la
++mod_secdownload_la_SOURCES = mod_secure_download.c
++mod_secdownload_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++
++lib_LTLIBRARIES += mod_httptls.la
++mod_httptls_la_SOURCES = mod_httptls.c
++mod_httptls_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++
++lib_LTLIBRARIES += mod_expire.la
++mod_expire_la_SOURCES = mod_expire.c
++mod_expire_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++
++if MOD_LOCALIZER
++lib_LTLIBRARIES += mod_localizer.la
++mod_localizer_la_SOURCES = mod_localizer.c
++mod_localizer_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++mod_localizer_la_LIBADD = $(LOCALIZER_LIB)
++endif
++
++lib_LTLIBRARIES += mod_evhost.la
++mod_evhost_la_SOURCES = mod_evhost.c
++mod_evhost_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++
++lib_LTLIBRARIES += mod_simple_vhost.la
++mod_simple_vhost_la_SOURCES = mod_simple_vhost.c
++mod_simple_vhost_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++		
++lib_LTLIBRARIES += mod_fastcgi.la
++mod_fastcgi_la_SOURCES = fcgi.c
++mod_fastcgi_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++
++lib_LTLIBRARIES += mod_access.la
++mod_access_la_SOURCES = mod_access.c
++mod_access_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++
++lib_LTLIBRARIES += mod_compress.la
++mod_compress_la_SOURCES = mod_compress.c crc32.c
++mod_compress_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++mod_compress_la_LIBADD = $(Z_LIB) $(BZ_LIB)
++
++if MOD_CACHE
++#lib_LTLIBRARIES += mod_cache.la
++#mod_cache_la_SOURCES = cache.c
++#mod_cache_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++endif
++
++lib_LTLIBRARIES += mod_auth.la
++mod_auth_la_SOURCES = mod_auth.c http_auth_digest.c http_auth.c
++mod_auth_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++mod_auth_la_LIBADD = $(CRYPT_LIB) $(LDAP_LIB) $(LBER_LIB)
++
++lib_LTLIBRARIES += mod_rewrite.la
++mod_rewrite_la_SOURCES = mod_rewrite.c
++mod_rewrite_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++mod_rewrite_la_LIBADD = $(PCRE_LIB)
++
++lib_LTLIBRARIES += mod_redirect.la
++mod_redirect_la_SOURCES = mod_redirect.c
++mod_redirect_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++mod_redirect_la_LIBADD = $(PCRE_LIB)
++
++if MOD_CHAT
++#lib_LTLIBRARIES += mod_chat.la
++#mod_chat_la_SOURCES = chat.c chat_misc.c chat_endec.c chat_user.c chat_channel.c
++#mod_chat_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++#mod_chat_la_LIBADD = $(MYSQL_LIBS)
++endif
++
++lib_LTLIBRARIES += mod_status.la
++mod_status_la_SOURCES = mod_status.c
++mod_status_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++
++lib_LTLIBRARIES += mod_accesslog.la
++mod_accesslog_la_SOURCES = mod_accesslog.c
++mod_accesslog_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++
++lib_LTLIBRARIES += mod_maps.la
++mod_maps_la_SOURCES = mod_maps.c
++mod_maps_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++mod_maps_la_LIBADD = #-llocalizer -lbz2 
++
++src = server.c buffer.c network.c log.c \
++      keyvalue.c response.c request.c chunk.c config.c \
++      http_chunk.c stream.c fdevent.c connections.c \
++      file_cache.c plugin.c joblist.c etag.c array.c \
++      data_string.c data_count.c data_array.c \
++      data_integer.c md5.c data_fastcgi.c \
++      fdevent_select.c fdevent_linux_rtsig.c \
++      fdevent_poll.c fdevent_linux_sysepoll.c \
++      fdevent_solaris_devpoll.c fdevent_freebsd_kqueue.c \
++      network_write.c network_linux_sendfile.c \
++      network_freebsd_sendfile.c network_writev.c \
++      network_solaris_sendfilev.c network_openssl.c \
++      data_config.c bitset.c  configparser.c \
++      # license.c
++      
++hdr = server.h buffer.h network.h log.h keyvalue.h \
++      response.h request.h fastcgi.h chunk.h \
++      settings.h http_chunk.h http_auth_digest.h \
++      md5.h md5_global.h http_auth.h cache.h stream.h \
++      fdevent.h connections.h base.h file_cache.h \
++      plugin.h mod_rewrite.h mod_auth.h mod_status.h \
++      mod_maps.h etag.h joblist.h array.h crc32.h \
++      network_backends.h configfile.h bitset.h \
++      mod_ssi.h mod_ssi_expr.h
++      # license.h
++      
++#hdr += chat.h chat_misc.h chat_endec.h chat_user.h \
++#       chat_channel.h
++
++DEFS= @DEFS@ -DLIBRARY_DIR="\"$(libdir)\""
++
++lighttpd_SOURCES = $(src)
++lighttpd_LDADD = $(PCRE_LIB) $(DL_LIB) $(SENDFILE_LIB) $(ATTR_LIB)
++lighttpd_LDFLAGS = -export-dynamic
++lighttpd_CCPFLAGS = $(MYSQL_INCLUDES)
++
++array_SOURCES = array.c buffer.c data_string.c data_count.c
++array_CPPFLAGS= -DDEBUG_ARRAY
++
++chunk_SOURCES = buffer.c chunk.c
++chunk_CPPFLAGS= -DDEBUG_CHUNK
++
++#gen_license_SOURCES = license.c md5.c buffer.c gen_license.c
++
++#ssl_SOURCES = ssl.c
++
++
++#adserver_SOURCES = buffer.c iframe.c
++#adserver_LDADD = -lfcgi -lmysqlclient
++
++#error_test_SOURCES = error_test.c
++
++#evalo_SOURCES = buffer.c eval.c
++#bench_SOURCES = buffer.c bench.c
++#ajp_SOURCES = ajp.c
++
++noinst_HEADERS   = $(hdr)
++EXTRA_DIST = mod_skeleton.c configparser.y mod_ssi_exprparser.y lempar.c
+diff -ur lighttpd-1.2.6-orig/src/base.h lighttpd-1.2.6-new/src/base.h
+--- lighttpd-1.2.6-orig/src/base.h	2004-08-15 15:15:36.000000000 -0600
++++ lighttpd-1.2.6-new/src/base.h	2004-08-28 15:44:47.283856641 -0600
+@@ -144,6 +144,8 @@
+ 	enum { 
+ 		HTTP_TRANSFER_ENCODING_IDENTITY, HTTP_TRANSFER_ENCODING_CHUNKED
+ 	} transfer_encoding;
++
++	int has_content_type;
+ } response;
+ 
+ typedef struct {
+@@ -208,6 +210,9 @@
+ 	
+ 	unsigned short dir_listing;
+ 	unsigned short use_keep_alive;
++#ifdef HAVE_XATTR
++	unsigned short use_xattr;
++#endif
+ } specific_config;
+ 
+ typedef enum { CONNECT, REQUEST_START, READ, REQUEST_END, READ_POST, HANDLE_REQUEST, RESPONSE_START, WRITE, RESPONSE_END, ERROR, CLOSE } connection_state_t;
+diff -ur lighttpd-1.2.6-orig/src/config.c lighttpd-1.2.6-new/src/config.c
+--- lighttpd-1.2.6-orig/src/config.c	2004-08-26 14:35:55.000000000 -0600
++++ lighttpd-1.2.6-new/src/config.c	2004-08-28 15:44:47.283856641 -0600
+@@ -162,6 +162,7 @@
+ 		{ "mimetype.assign",             NULL, T_CONFIG_ARRAY, T_CONFIG_SCOPE_CONNECTION },   /* 20 */
+ 		{ "server.use-keep-alive",       NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION }, /* 21 */
+ 		{ "server.name",                 NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },  /* 22 */
++		{ "mimetype.use-xattr",                 NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION },  /* 23 */
+ 		
+ 		
+ 		{ "server.host",                 "use server.bind instead", T_CONFIG_DEPRECATED, T_CONFIG_SCOPE_UNSET },
+@@ -208,6 +209,7 @@
+ 		s->mimetypes     = array_init();
+ 		s->use_keep_alive = 1;
+ 		s->server_name   = buffer_init();
++		s->use_xattr     = 0;
+ 		
+ 		cv[17].destination = s->document_root;
+ 		cv[18].destination = &(s->dir_listing);
+@@ -216,6 +218,7 @@
+ 		cv[20].destination = s->mimetypes;
+ 		cv[21].destination = &(s->use_keep_alive);
+ 		cv[22].destination = s->server_name;
++		cv[23].destination = &(s->use_xattr);
+ 		
+ 		srv->config_storage[i] = s;
+ 		srv->config = ((data_config *)srv->config_context->data[i])->value;
+@@ -291,6 +294,7 @@
+ 	PATCH(dir_listing);
+ 	PATCH(indexfiles);
+ 	PATCH(use_keep_alive);
++	PATCH(use_xattr);
+ 	buffer_copy_string_buffer(con->server_name, s->server_name);
+ 	
+ 	return 0;
+@@ -324,6 +328,8 @@
+ 				PATCH(mimetypes);
+ 			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("server.use-keep-alive"))) {
+ 				PATCH(use_keep_alive);
++			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("mimetype.use-xattr"))) {
++				PATCH(use_xattr);
+ 			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("server.name"))) {
+ 				buffer_copy_string_buffer(con->server_name, s->server_name);
+ 			}
+diff -ur lighttpd-1.2.6-orig/src/response.c lighttpd-1.2.6-new/src/response.c
+--- lighttpd-1.2.6-orig/src/response.c	2004-08-26 15:13:20.000000000 -0600
++++ lighttpd-1.2.6-new/src/response.c	2004-08-28 15:44:47.283856641 -0600
+@@ -31,6 +31,9 @@
+ 
+ #include "plugin.h"
+ 
++#ifdef HAVE_ATTR_ATTRIBUTES_H
++#include <attr/attributes.h>
++#endif
+ 
+ /*
+  * This was 'borrowed' from tcpdump.
+@@ -660,26 +663,43 @@
+ 			buffer_append_string_rfill(b, "directory", 28);
+ 		} else {
+ 			size_t k;
++#ifdef HAVE_XATTR
++			char attrval[128];
++			int attrlen;
++#endif
++			unsigned short have_content_type;
++			have_content_type	= 0;
++
++#ifdef HAVE_XATTR
++		 	attrlen = 127;
++			if(con->conf.use_xattr && 0 == attr_get(srv->tmp_buf->ptr, "Content-Type", attrval, &attrlen, 0)) {
++				attrval[attrlen] = 0;
++				buffer_append_string_rfill(b, attrval, 28);
++				have_content_type = 1;
++			}
++#endif
+ 			
+-			for (k = 0; k < con->conf.mimetypes->used; k++) {
+-				data_string *ds = (data_string *)con->conf.mimetypes->data[k];
+-				size_t ct_len;
+-				
+-				if (ds->key->used == 0) continue;
+-				
+-				ct_len = ds->key->used - 1;
+-				
+-				if (s_len < ct_len) continue;
++			if(!have_content_type) {
++				for (k = 0; k < con->conf.mimetypes->used; k++) {
++					data_string *ds = (data_string *)con->conf.mimetypes->data[k];
++					size_t ct_len;
++					
++					if (ds->key->used == 0) continue;
++					
++					ct_len = ds->key->used - 1;
++					
++					if (s_len < ct_len) continue;
++					
++					if (0 == strncmp(sb->ptr[i] + s_len - ct_len, ds->key->ptr, ct_len)) {
++						buffer_append_string_rfill(b, ds->value->ptr, 28);
++						break;
++					}
++				}
+ 				
+-				if (0 == strncmp(sb->ptr[i] + s_len - ct_len, ds->key->ptr, ct_len)) {
+-					buffer_append_string_rfill(b, ds->value->ptr, 28);
+-					break;
++				if (k == con->conf.mimetypes->used) {
++					buffer_append_string_rfill(b, "application/octet-type", 28);
+ 				}
+ 			}
+-			
+-			if (k == con->conf.mimetypes->used) {
+-				buffer_append_string_rfill(b, "application/octet-type", 28);
+-			}
+ 		}
+ 		
+ 		/* URL */
+@@ -1111,30 +1131,53 @@
+ 		/* ok, noone has handled the file up to now, so we do the fileserver-stuff */
+ 		if (r == HANDLER_GO_ON) {
+ 			size_t s_len = 0;
++#ifdef HAVE_XATTR
++			int attrlen = 16000;
++			char * attrval;
++#endif
+ 			/* DIRECT */
+ 			
+ 			if (con->physical.path->used == 0) SEGFAULT();
+ 			
+ 			/* set response content-type */
+ 			s_len = con->physical.path->used - 1;
++
++#ifdef HAVE_XATTR
++			attrval = malloc(attrlen);
++			if(con->conf.use_xattr && 0 == attr_get(con->physical.path->ptr, "Content-Type", attrval, &attrlen, 0)) {
++				response_header_insert(srv, con, CONST_STR_LEN("Content-Type"), attrval, attrlen);
++				con->response.has_content_type = 1;
++			}
++			free(attrval);
++#endif
+ 			
+-			for (k = 0; k < con->conf.mimetypes->used; k++) {
+-				data_string *ds = (data_string *)con->conf.mimetypes->data[k];
+-				
+-				if (buffer_is_equal_right_len(con->physical.path, ds->key, ds->key->used - 1)) {
+-					if (con->http_status == 200) {
+-						response_header_insert(srv, con, CONST_STR_LEN("Content-Type"), CONST_BUF_LEN(ds->value));
+-					}
++			if(!con->response.has_content_type) {
++				for (k = 0; k < con->conf.mimetypes->used; k++) {
++					data_string *ds = (data_string *)con->conf.mimetypes->data[k];
++					size_t ct_len;
+ 					
+-					break;
++					if (ds->key->used == 0) continue;
++					
++					ct_len = ds->key->used - 1;
++					
++					if (s_len < ct_len) continue;
++					
++					if (0 == strncmp(con->physical.path->ptr + s_len - ct_len, ds->key->ptr, ct_len)) {
++						if (con->http_status == 200) {
++							response_header_insert(srv, con, CONST_STR_LEN("Content-Type"), CONST_BUF_LEN(ds->value));
++						}
++						
++						break;
++					}
+ 				}
+-			}
+ 			
+-			if (k == con->conf.mimetypes->used) {
+-				/* not found, set a default  */
+-				
+-				response_header_insert(srv, con, CONST_STR_LEN("Content-Type"), CONST_STR_LEN("application/octet-stream"));
++				if (k == con->conf.mimetypes->used) {
++					/* not found, set a default  */
++					
++					response_header_insert(srv, con, CONST_STR_LEN("Content-Type"), CONST_STR_LEN("application/octet-stream"));
++				}
+ 			}
++		
+ 			
+ 			/* generate e-tag */
+ 			etag_mutate(con->physical.etag, con->fce->etag);
