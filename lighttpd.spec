@@ -6,7 +6,7 @@ Summary:	Fast and light http server
 Summary(pl):	Szybki i lekki serwer http
 Name:		lighttpd
 Version:	1.3.3
-Release:	1.0
+Release:	1
 Group:		Networking/Daemons
 License:	BSD
 ## do not remove next two lines because atomic revisions are common in lighttpd
