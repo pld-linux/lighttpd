@@ -35,7 +35,7 @@ Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}
 Group:		Networking/Daemons
 License:	BSD
 Source0:	%{_source}
-# Source0-md5:	fd279ce61634b8a134ff4b27e13fa526
+# Source0-md5:	4ac341879497064b334e776288ad5e0f
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
