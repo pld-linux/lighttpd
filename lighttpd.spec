@@ -6,10 +6,12 @@ Name:		lighttpd
 Version:	1.1.2a
 Release:	0.1
 Group:		Networking/Daemons
-License:	GPL
+License:	QPL
 Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}.tar.gz
 # Source0-md5:	2b5d247d2f62ac5255fa711a0c85bf06
 Source1:	%{name}.init
+Source2:	%{name}.conf
+Source3:	%{name}.user
 URL:		http://jan.kneschke.de/projects/lighttpd/
 Provides:	httpd
 Provides:	webserver
@@ -22,6 +24,9 @@ Requires(pre):	/usr/sbin/useradd
 Requires(post,preun):	/sbin/chkconfig
 Requires(postun):	/usr/sbin/userdel
 Requires(postun):	/usr/sbin/groupdel
+BuildRequires:	automake
+BuildRequires:	autoconf
+BuildRequires:	libtool
 BuildRequires:	mysql-devel
 BuildRequires:	zlib-devel
 BuildRequires:	bzip2-devel
@@ -55,6 +60,10 @@ problemów z obci±¿eniem.
 %setup -q
 
 %build
+%{__libtoolize}
+%{__aclocal}
+%{__autoconf}
+%{__automake}
 %configure \
 	--enable-mod-chat \
 	--enable-mod-cache \
@@ -72,7 +81,7 @@ install -d $RPM_BUILD_ROOT{/home/services/httpd/cgi-bin,/etc/{rc.d/init.d,%{name
 	DESTDIR=$RPM_BUILD_ROOT
 
 install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
-install doc/lighttpd.{conf,user} $RPM_BUILD_ROOT%{_sysconfdir}
+install %{SOURCE2} %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -122,7 +131,7 @@ fi
 %doc NEWS README doc/*.txt
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}
-%attr(644,root,root) %{_libdir}/*.a
+%attr(755,root,root) %{_libdir}/*.so
 %attr(-, http, http) /home/services/httpd
 %attr(754,root,root) /etc/rc.d/init.d/lighttpd
 %dir %attr(754,root,root) /etc/%{name}
