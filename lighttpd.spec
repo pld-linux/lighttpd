@@ -26,7 +26,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 1
+%define		_rel 2
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -44,6 +44,7 @@ Source4:	%{name}.logrotate
 Source5:	%{name}.sysconfig
 URL:		http://www.lighttpd.net/
 Patch0:		%{name}-empty_cgi_handler.patch
+Patch1:		%{name}-error_format.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	bzip2-devel
@@ -112,6 +113,7 @@ pomocy serwera WWW ani samego programu.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p0
 
 %build
 %{__libtoolize}
