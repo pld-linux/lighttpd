@@ -1,6 +1,14 @@
 #
+# TODO
+#  mod_localizer   : disabled (liblocalizer missing)
+#  mod_maps        : disabled (liblocalizer missing)
+#  mod_chat        : disabled, buy your license :)
+#  mod_cache       : disabled, buy your license :)
+#
 # Conditional build for lighttpd:
 %bcond_without	xattr	# without support of extended attributes
+%bcond_with	mysql	# with mysql
+%bcond_with	ldap	# with ldap
 #
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -31,6 +39,8 @@ BuildRequires:	zlib-devel
 %if %{with xattr}
 BuildRequires:	attr-devel
 %endif
+%{?with_ldap:BuildRequires:	openldap-devel}
+%{?with_mysql:BuildRequires:	mysql-devel}
 PreReq:		rc-scripts
 Requires(pre):	sh-utils
 Requires(pre):	/bin/id
@@ -83,6 +93,8 @@ z powodu problemów z obci±¿eniem.
 	--enable-mod-cache \
 	--enable-mod-localizer \
 	%{?with_xattr:--with-attr} \
+	%{?with_mysql:--with-mysql} \
+	%{?with_ldap:--with-ldap} \
 	--with-openssl
 	
 %{__make}
@@ -113,7 +125,7 @@ else
 fi
 if [ -n "`/bin/id -u lighttpd 2>/dev/null`" ]; then
 	if [ "`/bin/id -u lighttpd`" != 116 ]; then
-		echo "Error: user lighhttpd doesn't have uid=116. Correct this before installing %{name}." 1>&2
+		echo "Error: user lighttpd doesn't have uid=116. Correct this before installing %{name}." 1>&2
 		exit 1
 	fi
 else
