@@ -6,11 +6,11 @@ Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.3.6
-Release:	0.1
+Release:	0.2
 Group:		Networking/Daemons
 License:	BSD
 ## do not remove next two lines because atomic revisions are common in lighttpd
-#%define		_rel	20041102-1041
+%define		_rel	20041102-1041
 Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}-%{_rel}.tar.gz
 # Source0-md5:	41c814c091e1baa50734c43e4bfb0aa2
 #Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}.tar.gz
