@@ -1,12 +1,8 @@
 #
 # TODO
-# - fix modules:
-#  mod_localizer   : disabled (liblocalizer missing)
-#  mod_maps        : disabled (liblocalizer missing)
-#  mod_chat        : disabled, buy your license :)
-#  mod_cache       : disabled, buy your license :)
 # - test ldap and mysql (failed at this time)
 # - documentroot specified in config doesn't exist
+# - mysql issue: http://www.freebsd.org/cgi/query-pr.cgi?pr=76866
 #
 # Conditional build for lighttpd:
 %bcond_without	xattr		# without support of extended attributes
@@ -29,7 +25,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 0.1
+%define		_rel 0.23
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -39,12 +35,13 @@ Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}
 Group:		Networking/Daemons
 License:	BSD
 Source0:	%{_source}
-# Source0-md5:	4ac341879497064b334e776288ad5e0f
+# Source0-md5:	fd279ce61634b8a134ff4b27e13fa526
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
 Source4:	%{name}.logrotate
 Source5:	%{name}.sysconfig
+Patch0:		%{name}-proto-code.patch
 URL:		http://www.lighttpd.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -114,6 +111,7 @@ pomocy serwera WWW ani samego programu.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 %{__libtoolize}
@@ -144,6 +142,8 @@ install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 install %{SOURCE2} %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}
 install %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
 install %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
+
+rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 
 # could use automake patch, but automake generation fails...
 mv $RPM_BUILD_ROOT%{_bindir}/spawn-fcgi $RPM_BUILD_ROOT%{_sbindir}/spawn-fcgi
@@ -201,7 +201,6 @@ spawn-fcgi program is now available separately from spawn-fcgi package.
 EOF
 fi
 
-
 %files
 %defattr(644,root,root,755)
 %doc NEWS README ChangeLog doc/lighttpd.conf doc/*.txt doc/rrdtool-graph.sh
@@ -221,4 +220,5 @@ fi
 
 %files -n spawn-fcgi
 %defattr(644,root,root,755)
+%doc doc/spawn-php.sh
 %attr(755,root,root) %{_sbindir}/spawn-fcgi
