@@ -14,7 +14,7 @@ Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
 Source4:	%{name}.logrotate
-#Patch0:	%{name}-xattr.patch
+Patch0:	%{name}-xattr.patch
 URL:		http://jan.kneschke.de/projects/lighttpd/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -61,7 +61,7 @@ z powodu problemów z obci±¿eniem.
 
 %prep
 %setup -q
-#%patch0 -p1
+%patch0 -p1
 
 %build
 %{__libtoolize}
