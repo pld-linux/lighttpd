@@ -27,7 +27,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 4
+%define		_rel 6
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -203,7 +203,7 @@ spawn-fcgi program is now available separately from spawn-fcgi package.
 EOF
 fi
 
-%triggerpostun -- %{name} < 1.4.0-0.20050402_1520.4
+%triggerpostun -- %{name} < 1.4.0-0.20050402_1520.6
 # upgraded
 if [ "$1" = "2" ]; then
 	# keep backup
