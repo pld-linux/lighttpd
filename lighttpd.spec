@@ -143,7 +143,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc NEWS README 
+%doc NEWS README ChangeLog doc/*.txt doc/rrdtool-graph.sh
 %attr(755,root,root) %{_sbindir}/*
 %attr(755,root,root) %{_bindir}/*
 %dir %{_libdir}
