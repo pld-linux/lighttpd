@@ -6,7 +6,7 @@ Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.3.5
-Release:	0.1
+Release:	0.9
 Group:		Networking/Daemons
 License:	BSD
 ## do not remove next two lines because atomic revisions are common in lighttpd
@@ -72,9 +72,9 @@ z powodu problemów z obci±¿eniem.
 %prep
 %setup -q
 
-%ifarch amd64
-%patch1 
-%endif
+#%ifarch amd64
+#%patch1 
+#%endif
 
 %build
 %{__libtoolize}
