@@ -57,7 +57,6 @@ BuildRequires:	attr-devel
 %{?with_ldap:BuildRequires:	openldap-devel}
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?with_valgrind:BuildRequires:	valgrind}
-%{!?with_valgrind:BuildConflicts:	valgrind}
 PreReq:		rc-scripts
 Requires(pre):	sh-utils
 Requires(pre):	/bin/id
@@ -117,9 +116,7 @@ pomocy serwera WWW ani samego programu.
 %{__aclocal}
 %{__autoconf}
 %configure \
-	--enable-mod-chat \
-	--enable-mod-cache \
-	--enable-mod-localizer \
+	%{?with_valgrind:--with-valgrind} \
 	%{?with_xattr:--with-attr} \
 	%{?with_mysql:--with-mysql} \
 	%{?with_ldap:--with-ldap} \
