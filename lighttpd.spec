@@ -5,7 +5,7 @@
 Summary:	Fast and light http server
 Summary(pl):	Szybki i lekki serwer http
 Name:		lighttpd
-Version:	1.2.8
+Version:	1.3.2
 Release:	1
 Group:		Networking/Daemons
 License:	BSD
@@ -13,7 +13,7 @@ License:	BSD
 #%define		_rel	20080401-0000	
 #Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}-%{_rel}.tar.gz
 Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}.tar.gz
-# Source0-md5:	72bca49aa35d073551e9a0489098f973
+# Source0-md5:	53f1ddfeabf37b7c19021973e824db2a
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -77,7 +77,7 @@ z powodu problemów z obci±¿eniem.
 %{__libtoolize}
 %{__aclocal}
 %{__autoconf}
-%{__automake}
+#%{__automake}
 %configure \
 	--enable-mod-chat \
 	--enable-mod-cache \
