@@ -27,7 +27,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 6
+%define		_rel 7
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -253,11 +253,11 @@ if [ "$1" = "2" ]; then
 #   server.modules = ( ..., "mod_staticfile", ... )
 #
 #   static-file.exclude-extensions = ( ".php", ".cgi", ".fcgi" )
-	if ! grep -q 'mod_dirlisting' %{_sysconfdir}/%{name}.conf; then
+	if ! grep -q 'mod_staticfile' %{_sysconfdir}/%{name}.conf; then
 		sed -i -e '
-			# append mod_dirlisting module
+			# append mod_staticfile module
 			/server\.modules[ \t=]\+(/,/)/{
-				/)/i\	"mod_dirlisting",
+				/)/i\	"mod_staticfile",
 			}
 		' %{_sysconfdir}/%{name}.conf
 	fi
