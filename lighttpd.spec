@@ -44,6 +44,7 @@ Source4:	%{name}.logrotate
 Source5:	%{name}.sysconfig
 Patch0:		%{name}-proto-code.patch
 Patch1:		%{name}-nph.patch
+Patch2:		%{name}-pathinfo.patch
 URL:		http://www.lighttpd.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -115,6 +116,7 @@ pomocy serwera WWW ani samego programu.
 %setup -q
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 %build
 %{__libtoolize}
