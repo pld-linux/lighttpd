@@ -17,7 +17,7 @@ Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.3.7
-Release:	0.4
+Release:	0.6
 Group:		Networking/Daemons
 License:	BSD
 ## do not remove next two lines because atomic revisions are common in lighttpd
@@ -29,6 +29,7 @@ Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
 Source4:	%{name}.logrotate
+Source5:	%{name}.sysconfig
 URL:		http://jan.kneschke.de/projects/lighttpd/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -114,7 +115,7 @@ pomocy serwera WWW ani samego programu.
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_lighttpddir}/cgi-bin,/etc/{logrotate.d,rc.d/init.d},%{_sysconfdir}} \
+install -d $RPM_BUILD_ROOT{%{_lighttpddir}/cgi-bin,/etc/{logrotate.d,rc.d/init.d,sysconfig},%{_sysconfdir}} \
 	$RPM_BUILD_ROOT/var/log/{%{name},archiv/%{name}}
 
 %{__make} install \
@@ -123,6 +124,7 @@ install -d $RPM_BUILD_ROOT{%{_lighttpddir}/cgi-bin,/etc/{logrotate.d,rc.d/init.d
 install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 install %{SOURCE2} %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}
 install %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
+install %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 
 # could use automake patch, but automake generation fails...
 mv $RPM_BUILD_ROOT%{_bindir}/spawn-fcgi $RPM_BUILD_ROOT%{_sbindir}/spawn-fcgi
@@ -191,6 +193,7 @@ fi
 %dir %attr(750,lighttpd,root) /var/log/%{name}
 %attr(755,lighttpd,lighttpd) %{_lighttpddir}
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
+%config(noreplace) %verify(not size mtime md5) /etc/sysconfig/*
 %dir %attr(750,root,lighttpd) %{_sysconfdir}
 %attr(640,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/%{name}.conf
 %attr(640,root,lighttpd) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/*.user
