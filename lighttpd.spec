@@ -1,9 +1,11 @@
 #
 # TODO
+# - fix modules:
 #  mod_localizer   : disabled (liblocalizer missing)
 #  mod_maps        : disabled (liblocalizer missing)
 #  mod_chat        : disabled, buy your license :)
 #  mod_cache       : disabled, buy your license :)
+# - test ldap and mysql (failed at this time)
 #
 # Conditional build for lighttpd:
 %bcond_without	xattr	# without support of extended attributes
