@@ -12,6 +12,7 @@ Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}.ta
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
+Source4:	%{name}.logrotate
 Patch0:		%{name}-sendfile.patch
 URL:		http://jan.kneschke.de/projects/lighttpd/
 BuildRequires:	autoconf
@@ -77,13 +78,15 @@ z powodu problemów z obci±¿eniem.
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{/home/services/httpd/cgi-bin,/var/log/%{name},/etc/{rc.d/init.d,%{name}}}
+install -d $RPM_BUILD_ROOT{/home/services/httpd/cgi-bin,/etc/{logrotate.d,rc.d/init.d,%{name}}} \
+	$RPM_BUILD_ROOT/var/log/{%{name},archiv/%{name}}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
 install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 install %{SOURCE2} %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}
+install %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -134,9 +137,11 @@ fi
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}
 %attr(755,root,root) %{_libdir}/*.so
+%attr(750,root,root) %dir /var/log/archiv/%{name}
 %dir %attr(750,root,root) /var/log/%{name}
 %attr(-, http, http) /home/services/httpd
 %attr(754,root,root) /etc/rc.d/init.d/lighttpd
 %dir %attr(754,root,root) /etc/%{name}
 %attr(640,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/*.*
+%attr(640,root,root) /etc/logrotate.d/lighttpd
 %{_mandir}/man?/*
