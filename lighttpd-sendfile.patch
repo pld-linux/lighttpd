@@ -1,9 +1,9 @@
---- src/network_backends.h-orig	2004-04-05 07:20:46.000000000 +0000
-+++ src/network_backends.h	2004-04-07 13:51:18.000000000 +0000
-@@ -2,7 +2,7 @@
- #define _NETWORK_BACKENDS_H_
+--- lighttpd-1.1.7/src/network_backends.h	2004-04-11 19:57:08.000000000 +0000
++++ lighttpd-1.1.7.mod/src/network_backends.h	2004-04-14 10:03:08.000000000 +0000
+@@ -5,7 +5,7 @@
  
- #if defined HAVE_SYS_SENDFILE_H && defined HAVE_SENDFILE && defined HAVE_WRITEV && defined(__linux__)
+ /* on linux 2.4.x you get either sendfile or LFS */
+ #if defined HAVE_SYS_SENDFILE_H && defined HAVE_SENDFILE && (!defined _LARGEFILE_SOURCE || defined HAVE_SENDFILE64) && defined HAVE_WRITEV && defined(__linux__)
 -# define USE_LINUX_SENDFILE
 +/* # define USE_LINUX_SENDFILE */
  # include <sys/sendfile.h>
