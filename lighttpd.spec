@@ -1,20 +1,20 @@
 Summary:	Fast and light http server
 Summary(pl):	Szybki i lekki serwer http
 Name:		lighttpd
-Version:	1.2.6
-Release:	1
+Version:	1.2.7
+Release:	0.1
 Group:		Networking/Daemons
 License:	QPL
 # do not remove next two lines because atomic revisions are common in lighttpd
-%define		_rel	20040822-1633
-Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}.tar.gz
-# Source0-md5:	9b8deae09553020b4f3ebdb989755da7
+%define		_rel	20040829-1207
+Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}-%{_rel}.tar.gz
+# Source0-md5:	397c698b2d60d3d95e55db785f4de04b
 #Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}.tar.gz
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
 Source4:	%{name}.logrotate
-Patch0:	%{name}-xattr.patch
+#Patch0:	%{name}-xattr.patch
 URL:		http://jan.kneschke.de/projects/lighttpd/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -61,7 +61,7 @@ z powodu problemów z obci±¿eniem.
 
 %prep
 %setup -q
-%patch0 -p1
+#%patch0 -p1
 
 %build
 %{__libtoolize}
@@ -135,7 +135,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc NEWS README doc/*.txt
+%doc NEWS README 
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}
 %attr(755,root,root) %{_libdir}/*.so
