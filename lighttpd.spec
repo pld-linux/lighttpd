@@ -220,7 +220,7 @@ if [ "$1" = "2" ]; then
 		if ! grep -q 'mod_indexfile' %{_sysconfdir}/%{name}.conf; then
 			sed -i -e '
 				# append mod_indexfile module
-				/server\.modules[\n \t=(]\+/,/)/{
+				/server\.modules[ \t=]\+(/,/)/{
 					/)/i\	"mod_indexfile",
 				}
 			' %{_sysconfdir}/%{name}.conf
@@ -238,7 +238,7 @@ if [ "$1" = "2" ]; then
 		if ! grep -q 'mod_dirlisting' %{_sysconfdir}/%{name}.conf; then
 			sed -i -e '
 				# append mod_dirlisting module
-				/server\.modules[\n \t=(]\+/,/)/{
+				/server\.modules[ \t=]\+(/,/)/{
 					/)/i\	"mod_dirlisting",
 				}
 			' %{_sysconfdir}/%{name}.conf
@@ -256,7 +256,7 @@ if [ "$1" = "2" ]; then
 	if ! grep -q 'mod_dirlisting' %{_sysconfdir}/%{name}.conf; then
 		sed -i -e '
 			# append mod_dirlisting module
-			/server\.modules[\n \t=(]\+/,/)/{
+			/server\.modules[ \t=]\+(/,/)/{
 				/)/i\	"mod_dirlisting",
 			}
 		' %{_sysconfdir}/%{name}.conf
