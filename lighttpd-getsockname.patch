@@ -1,0 +1,11 @@
+--- lighttpd-1.3.7/src/response.c~	2004-11-26 00:40:59.000000000 +0200
++++ lighttpd-1.3.7/src/response.c	2005-01-28 21:07:28.000000000 +0200
+@@ -1036,7 +1036,7 @@
+ 						
+ 						our_addr_len = sizeof(our_addr);
+ 						
+-						if (-1 == getpeername(con->fd, &(our_addr.plain), &our_addr_len)) {
++						if (-1 == getsockname(con->fd, &(our_addr.plain), &our_addr_len)) {
+ 							con->http_status = 500;
+ 				
+ 							log_error_write(srv, __FILE__, __LINE__, "ss",
