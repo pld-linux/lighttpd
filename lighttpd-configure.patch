@@ -1,11 +1,11 @@
---- configure.in~	2004-03-24 01:37:30.000000000 +0100
-+++ configure.in	2004-03-25 19:20:48.743178464 +0100
-@@ -251,7 +251,7 @@
+--- configure.in-orig	2004-04-16 21:24:11.000000000 +0000
++++ configure.in	2004-04-16 21:25:04.000000000 +0000
+@@ -286,7 +286,7 @@
  fi
  
  if test "${GCC}" = "yes"; then
 -       CFLAGS="${CFLAGS} -Wall -W -O3 -Wshadow -pedantic"
 +       CFLAGS="${CFLAGS} -Wall -W -Wshadow -pedantic"
- 
-        AC_MSG_CHECKING(version of GCC)
-        GCC_version=`${CC} --version | head -1`
+        if test "${USER}" = "weigon"; then
+        	  CFLAGS="${CFLAGS} -march=athlon-mp -fexpensive-optimizations -pipe"
+ 	  MAKE="${MAKE} -j4"
