@@ -1,15 +1,15 @@
 Summary:	Fast and light http server
 Summary(pl):	Szybki i lekki serwer http
 Name:		lighttpd
-Version:	1.2.4
-Release:	1
+Version:	1.2.5
+Release:	0.1
 Group:		Networking/Daemons
 License:	QPL
 # do not remove next two lines because atomic revisions are common in lighttpd
-#%define		_rel	20040704-1123
-#Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}-%{_rel}.tar.gz
-Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}.tar.gz
-# Source0-md5:	60bc80f20e0f319c5387d56e98ffe1e8
+%define		_rel	20040808-2104	
+Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}-%{_rel}.tar.gz
+# Source0-md5:	373ca2c74f2fd82ea8a81bb8180ced43
+#Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}.tar.gz
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
