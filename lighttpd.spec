@@ -26,25 +26,23 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 2
+%define		_rel 1
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.3.11
+Version:	1.3.12
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}
 Group:		Networking/Daemons
 License:	BSD
 Source0:	%{_source}
-# Source0-md5:	730c9b9d743360d23e523968ab4fe7c5
+# Source0-md5:	ffd0bc5802646948e2724060031c05b5
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
 Source4:	%{name}.logrotate
 Source5:	%{name}.sysconfig
 URL:		http://www.lighttpd.net/
-Patch0:		%{name}-empty_cgi_handler.patch
-Patch1:		%{name}-error_format.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	bzip2-devel
@@ -112,8 +110,6 @@ pomocy serwera WWW ani samego programu.
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p0
 
 %build
 %{__libtoolize}
