@@ -17,7 +17,7 @@
 #
 
 # Prerelease snapshot: DATE-TIME
-#define _snap 20050116-1743
+##define _snap 20050116-1743
 
 %if 0%{?_snap}
 %define _source http://www.lighttpd.net/download/%{name}-%{version}-%{_snap}.tar.gz
@@ -25,7 +25,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 1
+%define		_rel 2
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
