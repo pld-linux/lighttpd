@@ -13,6 +13,7 @@ Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
 Patch0:		%{name}-configure.patch
+Patch1:		%{name}-sendfile.patch
 URL:		http://jan.kneschke.de/projects/lighttpd/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -60,6 +61,7 @@ z powodu problemów z obci±¿eniem.
 %prep
 %setup -q
 %patch0 -p0
+%patch1 -p0
 
 %build
 %{__libtoolize}
