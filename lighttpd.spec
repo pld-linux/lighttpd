@@ -12,6 +12,7 @@ Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}.ta
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
+Patch0:		%{name}-configure.patch
 URL:		http://jan.kneschke.de/projects/lighttpd/
 Provides:	httpd
 Provides:	webserver
@@ -58,6 +59,7 @@ problemów z obci±¿eniem.
 
 %prep
 %setup -q
+%patch0 -p0
 
 %build
 %{__libtoolize}
