@@ -1,4 +1,7 @@
 #
+# Conditional build for freebsd:
+%bcond_without	xattr	# without support of extended attributes
+#
 Summary:	Fast and light http server
 Summary(pl):	Szybki i lekki serwer http
 Name:		lighttpd
@@ -7,7 +10,7 @@ Release:	1
 Group:		Networking/Daemons
 License:	QPL
 ## do not remove next two lines because atomic revisions are common in lighttpd
-#%define		_rel	
+#%define		_rel	20080401-0000	
 #Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}-%{_rel}.tar.gz
 Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}.tar.gz
 # Source0-md5:	0139b1ec4514089e9ca11dc3072529ab
@@ -25,6 +28,9 @@ BuildRequires:	libtool
 BuildRequires:	openssl-devel
 BuildRequires:	pcre-devel
 BuildRequires:	zlib-devel
+%if %{with xattr}
+BuildRequires:	attr-devel
+%endif
 PreReq:		rc-scripts
 Requires(pre):	sh-utils
 Requires(pre):	/bin/id
@@ -78,6 +84,7 @@ z powodu problemów z obci±¿eniem.
 	--enable-mod-chat \
 	--enable-mod-cache \
 	--enable-mod-localizer \
+	%{?with_xattr:--with-attr} \
 	--with-openssl
 	
 %{__make}
