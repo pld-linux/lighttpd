@@ -1,0 +1,16 @@
+--- src/response.c	(revision 9)
++++ src/response.c	(revision 10)
+@@ -1245,13 +1245,6 @@
+ 						default:
+ 							break;
+ 						}
+-						
+-						if (HANDLER_GO_ON == file_cache_get_entry(srv, con, srv->tmp_buf, &(con->fce))) {
+-							/* rewrite uri.path to the real path (/ -> /index.php) */
+-							buffer_append_string_buffer(con->uri.path, ds->value);
+-							
+-							break;
+-						}
+ 					}
+ 					
+ 					if (k == con->conf.indexfiles->used) {
