@@ -4,7 +4,7 @@ Summary:	Fast and light http server
 Summary(pl):	Szybki i lekki serwer http
 Name:		lighttpd
 Version:	1.1.9
-Release:	0.3
+Release:	0.4
 Group:		Networking/Daemons
 License:	QPL
 Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}.tar.gz
@@ -106,7 +106,7 @@ if [ -n "`id -u lighttpd 2>/dev/null`" ]; then
 		exit 1
 	fi
 else
-	/usr/sbin/useradd -u 116 -r -d /home/services/lighttpd -s /bin/false -c "HTTP User" -g lighthttpd lighthttpd 1>&2
+	/usr/sbin/useradd -u 116 -r -d /home/services/lighttpd -s /bin/false -c "HTTP User" -g lighttpd lighttpd 1>&2
 fi
 
 %post
