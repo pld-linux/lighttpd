@@ -4,7 +4,7 @@ Summary:	Fast and light http server
 Summary(pl):	Szybki i lekki serwer http
 Name:		lighttpd
 Version:	1.1.9
-Release:	0.4
+Release:	0.5
 Group:		Networking/Daemons
 License:	QPL
 Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}.tar.gz
@@ -138,7 +138,7 @@ fi
 %dir %{_libdir}
 %attr(755,root,root) %{_libdir}/*.so
 %attr(750,root,root) %dir /var/log/archiv/%{name}
-%dir %attr(750,root,root) /var/log/%{name}
+%dir %attr(750,lighttpd,root) /var/log/%{name}
 %attr(-, lighttpd, lighttpd) /home/services/%{name}
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %dir %attr(754,root,root) /etc/%{name}
