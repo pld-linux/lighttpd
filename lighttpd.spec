@@ -2,8 +2,8 @@
 # Conditional build for freebsd:
 %bcond_without	xattr	# without support of extended attributes
 #
-Summary:	Fast and light http server
-Summary(pl):	Szybki i lekki serwer http
+Summary:	Fast and light HTTP server
+Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.3.4
 Release:	1
