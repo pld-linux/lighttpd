@@ -98,7 +98,6 @@ pomocy serwera WWW ani samego programu.
 %setup -q
 
 %build
-%{__gettextize}
 %{__libtoolize}
 %{__aclocal}
 %{__autoconf}
