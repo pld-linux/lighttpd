@@ -14,8 +14,14 @@ Source2:	%{name}.conf
 Source3:	%{name}.user
 Patch0:		%{name}-configure.patch
 URL:		http://jan.kneschke.de/projects/lighttpd/
-Provides:	httpd
-Provides:	webserver
+BuildRequires:	autoconf
+BuildRequires:	automake
+BuildRequires:	bzip2-devel
+BuildRequires:	libtool
+BuildRequires:	mysql-devel
+BuildRequires:	openssl-devel
+BuildRequires:	pcre-devel
+BuildRequires:	zlib-devel
 PreReq:		rc-scripts
 Requires(pre):	sh-utils
 Requires(pre):	/bin/id
@@ -25,14 +31,8 @@ Requires(pre):	/usr/sbin/useradd
 Requires(post,preun):	/sbin/chkconfig
 Requires(postun):	/usr/sbin/userdel
 Requires(postun):	/usr/sbin/groupdel
-BuildRequires:	automake
-BuildRequires:	autoconf
-BuildRequires:	libtool
-BuildRequires:	mysql-devel
-BuildRequires:	zlib-devel
-BuildRequires:	bzip2-devel
-BuildRequires:	openssl-devel
-BuildRequires:	pcre-devel
+Provides:	httpd
+Provides:	webserver
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_libdir		%{_prefix}/%{_lib}/%{name}
@@ -49,13 +49,13 @@ problems.
 
 %description -l pl
 lighttpd jest bezpiecznym, szybkim, przyjaznym i bardzo elastycznym
-serwerem web, który zosta³ zoptymalizowany pod k±tem
+serwerem WWW, który zosta³ zoptymalizowany pod k±tem
 wysokowydajno¶ciowych ¶rodowisk. Zajmuje bardzo ma³± ilo¶æ pamiêci
-w porównaniu do innych serwerów web oraz dba o zajêto¶æ procesora.
-Szeroki zestaw opcji (FastCGI, CGI, Auth, Output-Compression,
-URL-Rewriting i wiele innych) czyni± z lighttpd doskona³e
-oprogramowanie web-serwerowe na ka¿dy serwer cierpi±cy z powodu
-problemów z obci±¿eniem.
+w porównaniu do innych serwerów WWW oraz dba o zajêto¶æ procesora.
+Szeroki zestaw opcji (FastCGI, CGI, uwierzytelnianie, kompresja
+wyj¶cia, przepisywanie URL-i i wiele innych) czyni± z lighttpd
+doskona³e oprogramowanie web-serwerowe na ka¿dy serwer cierpi±cy
+z powodu problemów z obci±¿eniem.
 
 %prep
 %setup -q
