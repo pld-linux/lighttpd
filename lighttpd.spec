@@ -84,7 +84,6 @@ z powodu problemów z obci±¿eniem.
 %package -n spawn-fcgi
 Summary:	Spawn fcgi-process directly
 Summary(pl):	Bezpo¶rednie uruchamianie procesów fcgi
-License:	Artistic
 Group:		Applications
 
 %description -n spawn-fcgi
