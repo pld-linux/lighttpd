@@ -26,7 +26,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 2
+%define		_rel 3
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -44,6 +44,8 @@ Source4:	%{name}.logrotate
 Source5:	%{name}.sysconfig
 URL:		http://www.lighttpd.net/
 Patch0:		%{name}-empty_cgi_handler.patch
+Patch1:		%{name}-mod_auth-crash.patch
+Patch2:		%{name}-index-file.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	bzip2-devel
@@ -79,9 +81,9 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
 lighttpd is a secure, fast, compliant and very flexible web-server
-which has been optimized for high-performance environments. It has
-a very low memory footprint compared to other webservers and takes
-care of cpu-load. Its advanced feature-set (FastCGI, CGI, Auth,
+which has been optimized for high-performance environments. It has a
+very low memory footprint compared to other webservers and takes care
+of cpu-load. Its advanced feature-set (FastCGI, CGI, Auth,
 Output-Compression, URL-Rewriting and many more) make lighttpd the
 perfect webserver-software for every server that is suffering load
 problems.
@@ -89,12 +91,12 @@ problems.
 %description -l pl
 lighttpd jest bezpiecznym, szybkim, przyjaznym i bardzo elastycznym
 serwerem WWW, który zosta³ zoptymalizowany pod k±tem
-wysokowydajno¶ciowych ¶rodowisk. Zajmuje bardzo ma³± ilo¶æ pamiêci
-w porównaniu do innych serwerów WWW oraz dba o zajêto¶æ procesora.
+wysokowydajno¶ciowych ¶rodowisk. Zajmuje bardzo ma³± ilo¶æ pamiêci w
+porównaniu do innych serwerów WWW oraz dba o zajêto¶æ procesora.
 Szeroki zestaw opcji (FastCGI, CGI, uwierzytelnianie, kompresja
 wyj¶cia, przepisywanie URL-i i wiele innych) czyni± z lighttpd
-doskona³e oprogramowanie web-serwerowe na ka¿dy serwer cierpi±cy
-z powodu problemów z obci±¿eniem.
+doskona³e oprogramowanie web-serwerowe na ka¿dy serwer cierpi±cy z
+powodu problemów z obci±¿eniem.
 
 %package -n spawn-fcgi
 Summary:	Spawn fcgi-process directly
@@ -112,6 +114,8 @@ pomocy serwera WWW ani samego programu.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p0
+%patch2 -p0
 
 %build
 %{__libtoolize}
@@ -125,7 +129,7 @@ pomocy serwera WWW ani samego programu.
 	%{!?with_ipv6:--disable-ipv6} \
 	%{!?with_largefile:--disable-lfs} \
 	%{?with_ssl:--with-openssl}
-	
+
 %{__make}
 
 %install
