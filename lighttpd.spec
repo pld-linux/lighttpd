@@ -6,6 +6,7 @@
 #  mod_chat        : disabled, buy your license :)
 #  mod_cache       : disabled, buy your license :)
 # - test ldap and mysql (failed at this time)
+# - documentroot specified in config doesn't exist
 #
 # Conditional build for lighttpd:
 %bcond_without	xattr	# without support of extended attributes
@@ -16,7 +17,7 @@ Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.3.7
-Release:	0.2
+Release:	0.4
 Group:		Networking/Daemons
 License:	BSD
 ## do not remove next two lines because atomic revisions are common in lighttpd
@@ -28,7 +29,6 @@ Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
 Source4:	%{name}.logrotate
-#Patch0:		%{name}-fcgi-err.patch
 URL:		http://jan.kneschke.de/projects/lighttpd/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -81,15 +81,28 @@ wyj¶cia, przepisywanie URL-i i wiele innych) czyni± z lighttpd
 doskona³e oprogramowanie web-serwerowe na ka¿dy serwer cierpi±cy
 z powodu problemów z obci±¿eniem.
 
+%package -n spawn-fcgi
+Summary:	Spawn fcgi-process directly
+Summary(pl):	Bezpo¶rednie uruchamianie procesów fcgi
+License:	Artistic
+Group:		Applications
+
+%description -n spawn-fcgi
+spawn-fcgi is used to spawn fcgi-process directly without the help of
+a webserver or the programm itself.
+
+%description -n spawn-fcgi -l pl
+spawn-fcgi s³u¿y do uruchamiania procesów fcgi bezpo¶rednio, bez
+pomocy serwera WWW ani samego programu.
+
 %prep
 %setup -q
-#%patch0 -p1
 
 %build
+%{__gettextize}
 %{__libtoolize}
 %{__aclocal}
 %{__autoconf}
-#%{__automake}
 %configure \
 	--enable-mod-chat \
 	--enable-mod-cache \
@@ -112,6 +125,9 @@ install -d $RPM_BUILD_ROOT{%{_lighttpddir}/cgi-bin,/etc/{logrotate.d,rc.d/init.d
 install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 install %{SOURCE2} %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}
 install %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
+
+# could use automake patch, but automake generation fails...
+mv $RPM_BUILD_ROOT%{_bindir}/spawn-fcgi $RPM_BUILD_ROOT%{_sbindir}/spawn-fcgi
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -157,11 +173,20 @@ if [ "$1" = "0" ]; then
 	%groupremove lighttpd
 fi
 
+%triggerpostun -- %{name} <= 1.3.6-2
+# upgraded
+if [ "$1" = "2" ]; then
+%banner %{name} -e <<EOF
+spawn-fcgi program is now available separately from spawn-fcgi package.
+
+EOF
+fi
+
+
 %files
 %defattr(644,root,root,755)
 %doc NEWS README ChangeLog doc/lighttpd.conf doc/*.txt doc/rrdtool-graph.sh
 %attr(755,root,root) %{_sbindir}/*
-%attr(755,root,root) %{_bindir}/*
 %dir %{_libdir}
 %attr(755,root,root) %{_libdir}/*.so
 %attr(750,root,root) %dir /var/log/archiv/%{name}
@@ -169,6 +194,11 @@ fi
 %attr(755,lighttpd,lighttpd) %{_lighttpddir}
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %dir %attr(750,root,lighttpd) %{_sysconfdir}
-%attr(640,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/*.*
+%attr(640,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/%{name}.conf
+%attr(640,root,lighttpd) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/*.user
 %attr(640,root,root) %config(noreplace) %verify(not size mtime md5) /etc/logrotate.d/%{name}
 %{_mandir}/man?/*
+
+%files -n spawn-fcgi
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_sbindir}/spawn-fcgi
