@@ -6,17 +6,17 @@
 #
 # Conditional build for lighttpd:
 %bcond_without	xattr		# without support of extended attributes
+%bcond_without  ipv6            # IPv4-only version (doesn't require IPv6 in kernel)
+%bcond_without  largefile       # without largefile support
+				# use it if you have 2.4 kernel to get sendfile() support,
+				# and don't need > 2GB file requests,
+				# see http://article.gmane.org/gmane.comp.web.lighttpd:722
+%bcond_without  ssl             # disable ssl support
 %bcond_with	mysql		# with mysql
 %bcond_with	ldap		# with ldap
 %bcond_with	valgrind	# enable valgrind fixes in code.
-%bcond_without	ipv6		# IPv4-only version (doesn't require IPv6 in kernel)
-%bcond_without	largefile	# without largefile support,
-%bcond_without	ssl		# disable ssl support
-# use it if you have 2.4 kernel to get sendfile() support,
-# and don't need > 2GB file requests,
-# see http://article.gmane.org/gmane.comp.web.lighttpd:722
+%bcond_with	dirhide		# with 'hide from dirlisting' hack 
 #
-
 # Prerelease snapshot: DATE-TIME
 ##define _snap 20050116-1743
 
@@ -26,7 +26,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 1
+%define		_rel 2
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -42,6 +42,7 @@ Source2:	%{name}.conf
 Source3:	%{name}.user
 Source4:	%{name}.logrotate
 Source5:	%{name}.sysconfig
+Patch0:		http://minghetti.ch/blob/dirlist-hide.patch
 URL:		http://www.lighttpd.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -110,6 +111,7 @@ pomocy serwera WWW ani samego programu.
 
 %prep
 %setup -q
+%{?with_dirhide:%patch0 -p0}
 
 %build
 %{__libtoolize}
