@@ -20,7 +20,6 @@ BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	bzip2-devel
 BuildRequires:	libtool
-BuildRequires:	mysql-devel
 BuildRequires:	openssl-devel
 BuildRequires:	pcre-devel
 BuildRequires:	zlib-devel
@@ -73,7 +72,6 @@ z powodu problemów z obci±¿eniem.
 	--enable-mod-cache \
 	--enable-mod-localizer \
 	--with-attr \
-	--with-mysql \
 	--with-openssl
 	
 %{__make}
