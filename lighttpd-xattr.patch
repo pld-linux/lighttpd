@@ -1,6 +1,8 @@
-diff -ur lighttpd-1.2.6-orig/config.h.in lighttpd-1.2.6-new/config.h.in
---- lighttpd-1.2.6-orig/config.h.in	2004-08-22 11:24:40.000000000 -0600
-+++ lighttpd-1.2.6-new/config.h.in	2004-08-28 13:31:55.417071176 -0600
+Only in lighttpd-1.2.7: aclocal.m4
+Only in lighttpd-1.2.7-new: autom4te.cache
+diff -ur lighttpd-1.2.7/config.h.in lighttpd-1.2.7-new/config.h.in
+--- lighttpd-1.2.7/config.h.in	2004-08-29 04:03:44.000000000 -0600
++++ lighttpd-1.2.7-new/config.h.in	2004-08-29 16:14:05.000000000 -0600
 @@ -356,3 +356,10 @@
  
  /* Define as `fork' if `vfork' does not work. */
@@ -12,9 +14,10 @@ diff -ur lighttpd-1.2.6-orig/config.h.in lighttpd-1.2.6-new/config.h.in
 +/* Whether to enable xattr support */
 +#undef HAVE_XATTR
 +
-diff -ur lighttpd-1.2.6-orig/configure.in lighttpd-1.2.6-new/configure.in
---- lighttpd-1.2.6-orig/configure.in	2004-08-15 15:44:25.000000000 -0600
-+++ lighttpd-1.2.6-new/configure.in	2004-08-28 13:31:55.417071176 -0600
+Only in lighttpd-1.2.7: configure
+diff -ur lighttpd-1.2.7/configure.in lighttpd-1.2.7-new/configure.in
+--- lighttpd-1.2.7/configure.in	2004-08-29 04:03:07.000000000 -0600
++++ lighttpd-1.2.7-new/configure.in	2004-08-29 16:14:05.000000000 -0600
 @@ -164,9 +164,22 @@
      AC_DEFINE([HAVE_LIBLDAP], [1], [libldap])
      AC_DEFINE([HAVE_LDAP_H], [1])
@@ -38,10 +41,12 @@ diff -ur lighttpd-1.2.6-orig/configure.in lighttpd-1.2.6-new/configure.in
  AC_CHECK_LIB(lber, ber_printf, [
    AC_CHECK_HEADERS([lber.h],[
      LBER_LIB=-llber
-diff -ur lighttpd-1.2.6-orig/doc/lighttpd.conf lighttpd-1.2.6-new/doc/lighttpd.conf
---- lighttpd-1.2.6-orig/doc/lighttpd.conf	2004-08-21 11:07:19.000000000 -0600
-+++ lighttpd-1.2.6-new/doc/lighttpd.conf	2004-08-28 16:00:21.357503090 -0600
-@@ -83,6 +83,9 @@
+Only in lighttpd-1.2.7/debian: Makefile.in
+Only in lighttpd-1.2.7-new: .deps
+diff -ur lighttpd-1.2.7/doc/lighttpd.conf lighttpd-1.2.7-new/doc/lighttpd.conf
+--- lighttpd-1.2.7/doc/lighttpd.conf	2004-08-29 03:44:53.000000000 -0600
++++ lighttpd-1.2.7-new/doc/lighttpd.conf	2004-08-29 16:14:05.000000000 -0600
+@@ -82,6 +82,9 @@
  				".wmv" =>       "video/x-ms-wmv"
   )
  
@@ -51,262 +56,171 @@ diff -ur lighttpd-1.2.6-orig/doc/lighttpd.conf lighttpd-1.2.6-new/doc/lighttpd.c
  #### accesslog module
  accesslog.filename          = "/www/logs/access.log"
  
-Only in lighttpd-1.2.6-new/doc: lighttpd.conf~
-diff -ur lighttpd-1.2.6-orig/Makefile.am lighttpd-1.2.6-new/Makefile.am
---- lighttpd-1.2.6-orig/Makefile.am	2004-04-05 01:44:33.000000000 -0600
-+++ lighttpd-1.2.6-new/Makefile.am	2004-08-28 15:58:59.752016407 -0600
-@@ -1,3 +1,180 @@
--SUBDIRS=src doc tests debian
-+noinst_PROGRAMS=array chunk lemon # simple-fcgi #graphic evalo bench ajp ssl error_test adserver gen-license
-+sbin_PROGRAMS=lighttpd
-+YACC=$(top_builddir)/src/lemon
- 
--EXTRA_DIST=lighttpd.spec
-+lemon_SOURCES=lemon.c
-+
-+#simple_fcgi_SOURCES=simple-fcgi.c
-+#simple_fcgi_LDADD=-lfcgi
-+
-+
-+configparser.c configparser.h: configparser.y lemon
-+	$(YACC) -q $(srcdir)/configparser.y $(srcdir)/lempar.c
-+	
-+mod_ssi_exprparser.c mod_ssi_exprparser.h: mod_ssi_exprparser.y lemon
-+	$(YACC) -q $(srcdir)/mod_ssi_exprparser.y $(srcdir)/lempar.c
-+	
-+config.c: configparser.h
-+mod_ssi_expr.c: mod_ssi_exprparser.h
-+
-+clean-local:
-+	rm -f configparser.c configparser.h mod_ssi_exprparser.c \
-+	       mod_ssi_exprparser.h
-+	
-+lib_LTLIBRARIES = 
-+
-+lib_LTLIBRARIES += mod_cgi.la
-+mod_cgi_la_SOURCES = cgi.c
-+mod_cgi_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+
-+lib_LTLIBRARIES += mod_usertrack.la
-+mod_usertrack_la_SOURCES = mod_usertrack.c
-+mod_usertrack_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+
-+lib_LTLIBRARIES += mod_proxy.la
-+mod_proxy_la_SOURCES = mod_proxy.c
-+mod_proxy_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+
-+lib_LTLIBRARIES += mod_ssi.la
-+mod_ssi_la_SOURCES = mod_ssi.c mod_ssi_exprparser.c mod_ssi_expr.c
-+mod_ssi_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+
-+lib_LTLIBRARIES += mod_secdownload.la
-+mod_secdownload_la_SOURCES = mod_secure_download.c
-+mod_secdownload_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+
-+lib_LTLIBRARIES += mod_httptls.la
-+mod_httptls_la_SOURCES = mod_httptls.c
-+mod_httptls_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+
-+lib_LTLIBRARIES += mod_expire.la
-+mod_expire_la_SOURCES = mod_expire.c
-+mod_expire_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+
-+if MOD_LOCALIZER
-+lib_LTLIBRARIES += mod_localizer.la
-+mod_localizer_la_SOURCES = mod_localizer.c
-+mod_localizer_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+mod_localizer_la_LIBADD = $(LOCALIZER_LIB)
-+endif
-+
-+lib_LTLIBRARIES += mod_evhost.la
-+mod_evhost_la_SOURCES = mod_evhost.c
-+mod_evhost_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+
-+lib_LTLIBRARIES += mod_simple_vhost.la
-+mod_simple_vhost_la_SOURCES = mod_simple_vhost.c
-+mod_simple_vhost_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+		
-+lib_LTLIBRARIES += mod_fastcgi.la
-+mod_fastcgi_la_SOURCES = fcgi.c
-+mod_fastcgi_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+
-+lib_LTLIBRARIES += mod_access.la
-+mod_access_la_SOURCES = mod_access.c
-+mod_access_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+
-+lib_LTLIBRARIES += mod_compress.la
-+mod_compress_la_SOURCES = mod_compress.c crc32.c
-+mod_compress_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+mod_compress_la_LIBADD = $(Z_LIB) $(BZ_LIB)
-+
-+if MOD_CACHE
-+#lib_LTLIBRARIES += mod_cache.la
-+#mod_cache_la_SOURCES = cache.c
-+#mod_cache_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+endif
-+
-+lib_LTLIBRARIES += mod_auth.la
-+mod_auth_la_SOURCES = mod_auth.c http_auth_digest.c http_auth.c
-+mod_auth_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+mod_auth_la_LIBADD = $(CRYPT_LIB) $(LDAP_LIB) $(LBER_LIB)
-+
-+lib_LTLIBRARIES += mod_rewrite.la
-+mod_rewrite_la_SOURCES = mod_rewrite.c
-+mod_rewrite_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+mod_rewrite_la_LIBADD = $(PCRE_LIB)
-+
-+lib_LTLIBRARIES += mod_redirect.la
-+mod_redirect_la_SOURCES = mod_redirect.c
-+mod_redirect_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+mod_redirect_la_LIBADD = $(PCRE_LIB)
-+
-+if MOD_CHAT
-+#lib_LTLIBRARIES += mod_chat.la
-+#mod_chat_la_SOURCES = chat.c chat_misc.c chat_endec.c chat_user.c chat_channel.c
-+#mod_chat_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+#mod_chat_la_LIBADD = $(MYSQL_LIBS)
-+endif
-+
-+lib_LTLIBRARIES += mod_status.la
-+mod_status_la_SOURCES = mod_status.c
-+mod_status_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+
-+lib_LTLIBRARIES += mod_accesslog.la
-+mod_accesslog_la_SOURCES = mod_accesslog.c
-+mod_accesslog_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+
-+lib_LTLIBRARIES += mod_maps.la
-+mod_maps_la_SOURCES = mod_maps.c
-+mod_maps_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+mod_maps_la_LIBADD = #-llocalizer -lbz2 
-+
-+src = server.c buffer.c network.c log.c \
-+      keyvalue.c response.c request.c chunk.c config.c \
-+      http_chunk.c stream.c fdevent.c connections.c \
-+      file_cache.c plugin.c joblist.c etag.c array.c \
-+      data_string.c data_count.c data_array.c \
-+      data_integer.c md5.c data_fastcgi.c \
-+      fdevent_select.c fdevent_linux_rtsig.c \
-+      fdevent_poll.c fdevent_linux_sysepoll.c \
-+      fdevent_solaris_devpoll.c fdevent_freebsd_kqueue.c \
-+      network_write.c network_linux_sendfile.c \
-+      network_freebsd_sendfile.c network_writev.c \
-+      network_solaris_sendfilev.c network_openssl.c \
-+      data_config.c bitset.c  configparser.c \
-+      # license.c
-+      
-+hdr = server.h buffer.h network.h log.h keyvalue.h \
-+      response.h request.h fastcgi.h chunk.h \
-+      settings.h http_chunk.h http_auth_digest.h \
-+      md5.h md5_global.h http_auth.h cache.h stream.h \
-+      fdevent.h connections.h base.h file_cache.h \
-+      plugin.h mod_rewrite.h mod_auth.h mod_status.h \
-+      mod_maps.h etag.h joblist.h array.h crc32.h \
-+      network_backends.h configfile.h bitset.h \
-+      mod_ssi.h mod_ssi_expr.h
-+      # license.h
-+      
-+#hdr += chat.h chat_misc.h chat_endec.h chat_user.h \
-+#       chat_channel.h
-+
-+DEFS= @DEFS@ -DLIBRARY_DIR="\"$(libdir)\""
-+
-+lighttpd_SOURCES = $(src)
-+lighttpd_LDADD = $(PCRE_LIB) $(DL_LIB) $(SENDFILE_LIB) $(ATTR_LIB)
-+lighttpd_LDFLAGS = -export-dynamic
-+lighttpd_CCPFLAGS = $(MYSQL_INCLUDES)
-+
-+array_SOURCES = array.c buffer.c data_string.c data_count.c
-+array_CPPFLAGS= -DDEBUG_ARRAY
-+
-+chunk_SOURCES = buffer.c chunk.c
-+chunk_CPPFLAGS= -DDEBUG_CHUNK
-+
-+#gen_license_SOURCES = license.c md5.c buffer.c gen_license.c
-+
-+#ssl_SOURCES = ssl.c
-+
-+
-+#adserver_SOURCES = buffer.c iframe.c
-+#adserver_LDADD = -lfcgi -lmysqlclient
-+
-+#error_test_SOURCES = error_test.c
-+
-+#evalo_SOURCES = buffer.c eval.c
-+#bench_SOURCES = buffer.c bench.c
-+#ajp_SOURCES = ajp.c
-+
-+noinst_HEADERS   = $(hdr)
-+EXTRA_DIST = mod_skeleton.c configparser.y mod_ssi_exprparser.y lempar.c
-diff -ur lighttpd-1.2.6-orig/src/base.h lighttpd-1.2.6-new/src/base.h
---- lighttpd-1.2.6-orig/src/base.h	2004-08-15 15:15:36.000000000 -0600
-+++ lighttpd-1.2.6-new/src/base.h	2004-08-28 15:44:47.283856641 -0600
-@@ -144,6 +144,8 @@
+Only in lighttpd-1.2.7-new/doc: lighttpd.conf.orig
+Only in lighttpd-1.2.7/doc: Makefile.in
+Only in lighttpd-1.2.7: lighttpd.spec
+Only in lighttpd-1.2.7-new: Makefile.am
+Only in lighttpd-1.2.7: Makefile.in
+diff -ur lighttpd-1.2.7/src/base.h lighttpd-1.2.7-new/src/base.h
+--- lighttpd-1.2.7/src/base.h	2004-08-29 02:51:53.000000000 -0600
++++ lighttpd-1.2.7-new/src/base.h	2004-08-29 17:02:59.853176345 -0600
+@@ -144,6 +144,7 @@
  	enum { 
  		HTTP_TRANSFER_ENCODING_IDENTITY, HTTP_TRANSFER_ENCODING_CHUNKED
  	} transfer_encoding;
 +
-+	int has_content_type;
  } response;
  
  typedef struct {
-@@ -208,6 +210,9 @@
+@@ -163,6 +164,7 @@
+ 	size_t is_dirty;
  	
- 	unsigned short dir_listing;
- 	unsigned short use_keep_alive;
+ 	time_t stat_ts;
++	buffer *content_type;
+ } file_cache_entry;
+ 
+ typedef struct {
+@@ -199,6 +201,9 @@
+ 	unsigned short max_keep_alive_idle;
+ 	unsigned short max_read_idle;
+ 	unsigned short max_write_idle;
 +#ifdef HAVE_XATTR
 +	unsigned short use_xattr;
 +#endif
+ 	
  } specific_config;
  
- typedef enum { CONNECT, REQUEST_START, READ, REQUEST_END, READ_POST, HANDLE_REQUEST, RESPONSE_START, WRITE, RESPONSE_END, ERROR, CLOSE } connection_state_t;
-diff -ur lighttpd-1.2.6-orig/src/config.c lighttpd-1.2.6-new/src/config.c
---- lighttpd-1.2.6-orig/src/config.c	2004-08-26 14:35:55.000000000 -0600
-+++ lighttpd-1.2.6-new/src/config.c	2004-08-28 15:44:47.283856641 -0600
-@@ -162,6 +162,7 @@
- 		{ "mimetype.assign",             NULL, T_CONFIG_ARRAY, T_CONFIG_SCOPE_CONNECTION },   /* 20 */
- 		{ "server.use-keep-alive",       NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION }, /* 21 */
+Only in lighttpd-1.2.7-new/src: base.h~
+diff -ur lighttpd-1.2.7/src/config.c lighttpd-1.2.7-new/src/config.c
+--- lighttpd-1.2.7/src/config.c	2004-08-29 02:54:27.000000000 -0600
++++ lighttpd-1.2.7-new/src/config.c	2004-08-29 16:20:51.985029213 -0600
+@@ -163,8 +163,9 @@
+ 		{ "server.max-keep-alive-requests", NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION }, /* 21 */
  		{ "server.name",                 NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },  /* 22 */
-+		{ "mimetype.use-xattr",                 NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION },  /* 23 */
- 		
+ 		{ "server.max-keep-alive-idle",  NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },   /* 23 */
+-		{ "server.max-read-idle",        NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },   /* 23 */
+-		{ "server.max-write-idle",       NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },   /* 23 */
++		{ "server.max-read-idle",        NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },   /* 24 */
++		{ "server.max-write-idle",       NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },   /* 25 */
++ 		{ "mimetype.use-xattr",                 NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION },  /* 26 */
  		
  		{ "server.host",                 "use server.bind instead", T_CONFIG_DEPRECATED, T_CONFIG_SCOPE_UNSET },
-@@ -208,6 +209,7 @@
- 		s->mimetypes     = array_init();
- 		s->use_keep_alive = 1;
- 		s->server_name   = buffer_init();
-+		s->use_xattr     = 0;
+ 		{ "server.docroot",              "use server.document-root instead", T_CONFIG_DEPRECATED, T_CONFIG_SCOPE_UNSET },
+@@ -214,6 +215,7 @@
+ 		s->max_keep_alive_idle = 30;
+ 		s->max_read_idle = 60;
+ 		s->max_write_idle = 360;
++		s->use_xattr = 0;
  		
  		cv[17].destination = s->document_root;
  		cv[18].destination = &(s->dir_listing);
-@@ -216,6 +218,7 @@
- 		cv[20].destination = s->mimetypes;
- 		cv[21].destination = &(s->use_keep_alive);
- 		cv[22].destination = s->server_name;
-+		cv[23].destination = &(s->use_xattr);
+@@ -225,6 +227,7 @@
+ 		cv[23].destination = &(s->max_keep_alive_idle);
+ 		cv[24].destination = &(s->max_read_idle);
+ 		cv[25].destination = &(s->max_write_idle);
++		cv[26].destination = &(s->use_xattr);
  		
  		srv->config_storage[i] = s;
  		srv->config = ((data_config *)srv->config_context->data[i])->value;
-@@ -291,6 +294,7 @@
- 	PATCH(dir_listing);
- 	PATCH(indexfiles);
- 	PATCH(use_keep_alive);
+@@ -305,6 +308,7 @@
+ 	PATCH(max_keep_alive_idle);
+ 	PATCH(max_read_idle);
+ 	PATCH(max_write_idle);
 +	PATCH(use_xattr);
  	buffer_copy_string_buffer(con->server_name, s->server_name);
  	
  	return 0;
-@@ -324,6 +328,8 @@
- 				PATCH(mimetypes);
- 			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("server.use-keep-alive"))) {
- 				PATCH(use_keep_alive);
+@@ -344,6 +348,8 @@
+ 				PATCH(max_write_idle);
+ 			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("server.max-read-idle"))) {
+ 				PATCH(max_read_idle);
 +			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("mimetype.use-xattr"))) {
 +				PATCH(use_xattr);
  			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("server.name"))) {
  				buffer_copy_string_buffer(con->server_name, s->server_name);
  			}
-diff -ur lighttpd-1.2.6-orig/src/response.c lighttpd-1.2.6-new/src/response.c
---- lighttpd-1.2.6-orig/src/response.c	2004-08-26 15:13:20.000000000 -0600
-+++ lighttpd-1.2.6-new/src/response.c	2004-08-28 15:44:47.283856641 -0600
+Only in lighttpd-1.2.7-new/src: config.c~
+Only in lighttpd-1.2.7/src: configparser.c
+diff -ur lighttpd-1.2.7/src/file_cache.c lighttpd-1.2.7-new/src/file_cache.c
+--- lighttpd-1.2.7/src/file_cache.c	2004-06-05 13:20:22.000000000 -0600
++++ lighttpd-1.2.7-new/src/file_cache.c	2004-08-29 17:32:10.000000000 -0600
+@@ -17,6 +17,10 @@
+ #include "fdevent.h"
+ #include "etag.h"
+ 
++#ifdef HAVE_ATTR_ATTRIBUTES_H
++#include <attr/attributes.h>
++#endif
++
+ #ifndef O_LARGEFILE
+ # define O_LARGEFILE 0
+ #endif
+@@ -40,6 +44,9 @@
+ 	fce->fde_ndx = -1;
+ 	fce->name = buffer_init();
+ 	fce->etag = buffer_init();
++#ifdef HAVE_XATTR
++	fce->content_type = buffer_init();
++#endif
+ 	
+ 	return fce;
+ }
+@@ -51,6 +58,7 @@
+ 	
+ 	buffer_free(fce->etag);
+ 	buffer_free(fce->name);
++	buffer_free(fce->content_type);
+ 	
+ 	if (fce->mmap_p) munmap(fce->mmap_p, fce->mmap_length);
+ 	
+@@ -115,6 +123,7 @@
+ 	
+ 	/* check the cache */
+ 	for (i = 0; i < fc->used; i++) {
++		int attrlen;
+ 		fce = fc->ptr[i];
+ 		
+ 		if (buffer_is_equal(name, fce->name)) {
+@@ -136,6 +145,18 @@
+ 				return NULL;
+ 			}
+ 			fce->stat_ts = srv->cur_ts;
++
++#ifdef HAVE_XATTR
++			attrlen = 1024;
++			buffer_prepare_copy(fce->content_type, attrlen);
++			if(0 == attr_get(name->ptr, "Content-Type", fce->content_type->ptr, &attrlen, 0)) {
++				fce->content_type->used = attrlen + 1;
++				fce->content_type->ptr[attrlen] = '\0';
++				log_error_write(srv, __FILE__, __LINE__, "sbs", "attr_get: ", name, fce->content_type->ptr);
++			} else {
++				log_error_write(srv, __FILE__, __LINE__, "sbs", "attr_get failed: ", name, strerror(errno));
++			}
++#endif
+ 			
+ 			etag_create(srv->file_cache_etag, &(fce->st));
+ 			
+Only in lighttpd-1.2.7-new/src: file_cache.c~
+Only in lighttpd-1.2.7-new/src: lighttpd.conf
+Only in lighttpd-1.2.7-new/src: lighttpd.conf~
+diff -ur lighttpd-1.2.7/src/Makefile.am lighttpd-1.2.7-new/src/Makefile.am
+--- lighttpd-1.2.7/src/Makefile.am	2004-08-03 05:26:31.000000000 -0600
++++ lighttpd-1.2.7-new/src/Makefile.am	2004-08-29 16:49:40.070814090 -0600
+@@ -152,7 +152,7 @@
+ DEFS= @DEFS@ -DLIBRARY_DIR="\"$(libdir)\""
+ 
+ lighttpd_SOURCES = $(src)
+-lighttpd_LDADD = $(PCRE_LIB) $(DL_LIB) $(SENDFILE_LIB)
++lighttpd_LDADD = $(PCRE_LIB) $(DL_LIB) $(SENDFILE_LIB) $(ATTR_LIB)
+ lighttpd_LDFLAGS = -export-dynamic
+ lighttpd_CCPFLAGS = $(MYSQL_INCLUDES)
+ 
+Only in lighttpd-1.2.7-new/src: Makefile.am~
+Only in lighttpd-1.2.7/src: Makefile.in
+Only in lighttpd-1.2.7/src: mod_ssi_exprparser.c
+diff -ur lighttpd-1.2.7/src/response.c lighttpd-1.2.7-new/src/response.c
+--- lighttpd-1.2.7/src/response.c	2004-08-29 02:52:01.000000000 -0600
++++ lighttpd-1.2.7-new/src/response.c	2004-08-29 20:03:37.123454292 -0600
 @@ -31,6 +31,9 @@
  
  #include "plugin.h"
@@ -317,14 +231,15 @@ diff -ur lighttpd-1.2.6-orig/src/response.c lighttpd-1.2.6-new/src/response.c
  
  /*
   * This was 'borrowed' from tcpdump.
-@@ -660,26 +663,43 @@
+@@ -659,27 +662,44 @@
+ 		if (S_ISDIR(st.st_mode)) {
  			buffer_append_string_rfill(b, "directory", 28);
  		} else {
- 			size_t k;
 +#ifdef HAVE_XATTR
 +			char attrval[128];
 +			int attrlen;
 +#endif
+ 			size_t k;
 +			unsigned short have_content_type;
 +			have_content_type	= 0;
 +
@@ -367,7 +282,7 @@ diff -ur lighttpd-1.2.6-orig/src/response.c lighttpd-1.2.6-new/src/response.c
 -					buffer_append_string_rfill(b, ds->value->ptr, 28);
 -					break;
 +				if (k == con->conf.mimetypes->used) {
-+					buffer_append_string_rfill(b, "application/octet-type", 28);
++					buffer_append_string_rfill(b, "application/octet-stream", 28);
  				}
  			}
 -			
@@ -377,28 +292,15 @@ diff -ur lighttpd-1.2.6-orig/src/response.c lighttpd-1.2.6-new/src/response.c
  		}
  		
  		/* URL */
-@@ -1111,30 +1131,53 @@
- 		/* ok, noone has handled the file up to now, so we do the fileserver-stuff */
- 		if (r == HANDLER_GO_ON) {
- 			size_t s_len = 0;
-+#ifdef HAVE_XATTR
-+			int attrlen = 16000;
-+			char * attrval;
-+#endif
- 			/* DIRECT */
- 			
- 			if (con->physical.path->used == 0) SEGFAULT();
+@@ -1117,24 +1137,41 @@
  			
  			/* set response content-type */
  			s_len = con->physical.path->used - 1;
 +
 +#ifdef HAVE_XATTR
-+			attrval = malloc(attrlen);
-+			if(con->conf.use_xattr && 0 == attr_get(con->physical.path->ptr, "Content-Type", attrval, &attrlen, 0)) {
-+				response_header_insert(srv, con, CONST_STR_LEN("Content-Type"), attrval, attrlen);
-+				con->response.has_content_type = 1;
-+			}
-+			free(attrval);
++			if(con->conf.use_xattr && (NULL != (con->fce = file_cache_get_entry(srv, con, con->physical.path, con->fce))) && con->fce->content_type->used) {
++				response_header_insert(srv, con, CONST_STR_LEN("Content-Type"), con->fce->content_type->ptr, con->fce->content_type->used);
++			} else {
 +#endif
  			
 -			for (k = 0; k < con->conf.mimetypes->used; k++) {
@@ -408,7 +310,6 @@ diff -ur lighttpd-1.2.6-orig/src/response.c lighttpd-1.2.6-new/src/response.c
 -					if (con->http_status == 200) {
 -						response_header_insert(srv, con, CONST_STR_LEN("Content-Type"), CONST_BUF_LEN(ds->value));
 -					}
-+			if(!con->response.has_content_type) {
 +				for (k = 0; k < con->conf.mimetypes->used; k++) {
 +					data_string *ds = (data_string *)con->conf.mimetypes->data[k];
 +					size_t ct_len;
@@ -439,8 +340,16 @@ diff -ur lighttpd-1.2.6-orig/src/response.c lighttpd-1.2.6-new/src/response.c
 +					
 +					response_header_insert(srv, con, CONST_STR_LEN("Content-Type"), CONST_STR_LEN("application/octet-stream"));
 +				}
++#ifdef HAVE_XATTR
  			}
++#endif
 +		
  			
  			/* generate e-tag */
  			etag_mutate(con->physical.etag, con->fce->etag);
+Only in lighttpd-1.2.7-new/src: response.c~
+Only in lighttpd-1.2.7/tests/docroot/123: Makefile.in
+Only in lighttpd-1.2.7/tests/docroot: Makefile.in
+Only in lighttpd-1.2.7/tests/docroot/www/go: Makefile.in
+Only in lighttpd-1.2.7/tests/docroot/www: Makefile.in
+Only in lighttpd-1.2.7/tests: Makefile.in
