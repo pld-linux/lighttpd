@@ -5,20 +5,19 @@
 Summary:	Fast and light http server
 Summary(pl):	Szybki i lekki serwer http
 Name:		lighttpd
-Version:	1.2.7
+Version:	1.2.8
 Release:	1
 Group:		Networking/Daemons
-License:	QPL
+License:	BSD
 ## do not remove next two lines because atomic revisions are common in lighttpd
 #%define		_rel	20080401-0000	
 #Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}-%{_rel}.tar.gz
 Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}.tar.gz
-# Source0-md5:	0139b1ec4514089e9ca11dc3072529ab
+# Source0-md5:	72bca49aa35d073551e9a0489098f973
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
 Source4:	%{name}.logrotate
-Patch0:		http://jan.kneschke.de/projects/lighttpd/download/lighttpd-1.2.7-cond.patch
 Patch1:		lighttpd-amd64-LINUX_SENDFILE-temporary.patch
 URL:		http://jan.kneschke.de/projects/lighttpd/
 BuildRequires:	autoconf
@@ -69,7 +68,6 @@ z powodu problemów z obci±¿eniem.
 
 %prep
 %setup -q
-%patch0 -p1
 
 %ifarch amd64
 %patch1 
