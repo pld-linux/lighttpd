@@ -77,7 +77,7 @@ problemów z obci±¿eniem.
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{/home/services/httpd/cgi-bin,/etc/{rc.d/init.d,%{name}}}
+install -d $RPM_BUILD_ROOT{/home/services/httpd/cgi-bin,/var/log/%{name},/etc/{rc.d/init.d,%{name}}}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
@@ -134,6 +134,7 @@ fi
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}
 %attr(755,root,root) %{_libdir}/*.so
+%dir %attr(750,root,root) /var/log/%{name}
 %attr(-, http, http) /home/services/httpd
 %attr(754,root,root) /etc/rc.d/init.d/lighttpd
 %dir %attr(754,root,root) /etc/%{name}
