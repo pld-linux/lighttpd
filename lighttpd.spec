@@ -72,6 +72,7 @@ z powodu problemów z obci±¿eniem.
 	--enable-mod-chat \
 	--enable-mod-cache \
 	--enable-mod-localizer \
+	--with-attr \
 	--with-mysql \
 	--with-openssl
 	
