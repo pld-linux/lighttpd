@@ -4,7 +4,7 @@ Summary:	Fast and light http server
 Summary(pl):	Szybki i lekki serwer http
 Name:		lighttpd
 Version:	1.1.9
-Release:	0.1
+Release:	0.2
 Group:		Networking/Daemons
 License:	QPL
 Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}.tar.gz
@@ -78,7 +78,7 @@ z powodu problemów z obci±¿eniem.
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{/home/services/httpd/cgi-bin,/etc/{logrotate.d,rc.d/init.d,%{name}}} \
+install -d $RPM_BUILD_ROOT{/home/services/%{name}/cgi-bin,/etc/{logrotate.d,rc.d/init.d,%{name}}} \
 	$RPM_BUILD_ROOT/var/log/{%{name},archiv/%{name}}
 
 %{__make} install \
@@ -92,21 +92,21 @@ install %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
 rm -rf $RPM_BUILD_ROOT
 
 %pre
-if [ -n "`getgid http`" ]; then
-	if [ "`getgid http`" != "51" ]; then
-		echo "Error: group http doesn't have gid=51. Correct this before installing %{name}." 1>&2
+if [ -n "`getgid lighhttpd`" ]; then
+	if [ "`getgid lighttpd`" != "109" ]; then
+		echo "Error: group lighttpd doesn't have gid=109. Correct this before installing %{name}." 1>&2
 		exit 1
 	fi
 else
-	/usr/sbin/groupadd -g 51 -r -f http
+	/usr/sbin/groupadd -g 109 -r -f lighttpd
 fi
-if [ -n "`id -u http 2>/dev/null`" ]; then
-	if [ "`id -u http`" != "51" ]; then
-		echo "Error: user http doesn't have uid=51. Correct this before installing %{name}." 1>&2
+if [ -n "`id -u lighttpd 2>/dev/null`" ]; then
+	if [ "`id -u lighttpd`" != "116" ]; then
+		echo "Error: user lighhttpd doesn't have uid=116. Correct this before installing %{name}." 1>&2
 		exit 1
 	fi
 else
-	/usr/sbin/useradd -u 51 -r -d /home/services/httpd -s /bin/false -c "HTTP User" -g http http 1>&2
+	/usr/sbin/useradd -u 116 -r -d /home/services/lighttpd -s /bin/false -c "HTTP User" -g lighthttpd lighthttpd 1>&2
 fi
 
 %post
@@ -127,8 +127,8 @@ fi
 
 %postun
 if [ "$1" = "0" ]; then
-	/usr/sbin/userdel http
-	/usr/sbin/groupdel http
+	/usr/sbin/userdel lighttpd
+	/usr/sbin/groupdel lighttpd
 fi
 
 %files
@@ -139,9 +139,9 @@ fi
 %attr(755,root,root) %{_libdir}/*.so
 %attr(750,root,root) %dir /var/log/archiv/%{name}
 %dir %attr(750,root,root) /var/log/%{name}
-%attr(-, http, http) /home/services/httpd
-%attr(754,root,root) /etc/rc.d/init.d/lighttpd
+%attr(-, lighttpd, lighttpd) /home/services/%{name}
+%attr(754,root,root) /etc/rc.d/init.d/%{name}
 %dir %attr(754,root,root) /etc/%{name}
 %attr(640,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/*.*
-%attr(640,root,root) /etc/logrotate.d/lighttpd
+%attr(640,root,root) /etc/logrotate.d/%{name}
 %{_mandir}/man?/*
