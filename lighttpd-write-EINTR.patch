@@ -1,0 +1,11 @@
+--- ./src/network_writev.c~	2005-01-28 12:39:39.000000000 +0200
++++ ./src/network_writev.c	2005-01-28 12:40:55.000000000 +0200
+@@ -195,7 +195,7 @@
+ 				}
+ 				
+ 				if ((r = write(fd, p + offset, toSend)) <= 0) {
+-					if (errno == EINTR) {
++					if ((EAGAIN == errno) || (EINTR == errno)) {
+ 						r = 0;
+ 						
+ 						log_error_write(srv, __FILE__, __LINE__, "ss", 
