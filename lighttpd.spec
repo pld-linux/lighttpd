@@ -1,6 +1,6 @@
 # TODO:
 # - fix SSL build
-Summary:	Fast as light http server
+Summary:	Fast and light http server
 Summary(pl):	Szybki i lekki serwer http
 Name:		lighttpd
 Version:	1.1.2a
@@ -33,13 +33,23 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %define		_sysconfdir	/etc/%{name}
 
 %description
-ighttpd a secure, fast, compliant and very flexible web-server which
-has been optimized for high-performance environments. It has a very
-low memory footprint compared to other webservers and takes care of
-cpu-load. Its advanced feature-set (FastCGI, CGI, Auth,
+lighttpd is a secure, fast, compliant and very flexible web-server
+which has been optimized for high-performance environments. It has
+a very low memory footprint compared to other webservers and takes
+care of cpu-load. Its advanced feature-set (FastCGI, CGI, Auth,
 Output-Compression, URL-Rewriting and many more) make lighttpd the
 perfect webserver-software for every server that is suffering load
 problems.
+
+%description -l pl
+lighttpd jest bezpiecznym, szybkim, przyjaznym i bardzo elastycznym
+serwerem web, który zosta³ zoptymalizowany pod k±tem
+wysokowydajno¶ciowych ¶rodowisk. Zajmuje bardzo ma³± ilo¶æ pamiêci
+w porównaniu do innych serwerów web oraz dba o zajêto¶æ procesora.
+Szeroki zestaw opcji (FastCGI, CGI, Auth, Output-Compression,
+URL-Rewriting i wiele innych) czyni± z lighttpd doskona³e
+oprogramowanie web-serwerowe na ka¿dy serwer cierpi±cy z powodu
+problemów z obci±¿eniem.
 
 %prep
 %setup -q
@@ -56,7 +66,7 @@ problems.
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{/home/httpd/cgi-bin,/etc/{rc.d/init.d,%{name}}}
+install -d $RPM_BUILD_ROOT{/home/services/httpd/cgi-bin,/etc/{rc.d/init.d,%{name}}}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
@@ -82,7 +92,7 @@ if [ -n "`id -u http 2>/dev/null`" ]; then
 		exit 1
 	fi
 else
-	/usr/sbin/useradd -u 51 -r -d /home/httpd -s /bin/false -c "HTTP User" -g http http 1>&2
+	/usr/sbin/useradd -u 51 -r -d /home/services/httpd -s /bin/false -c "HTTP User" -g http http 1>&2
 fi
 
 %post
@@ -113,7 +123,7 @@ fi
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}
 %attr(644,root,root) %{_libdir}/*.a
-%attr(-, http, http) /home/httpd
+%attr(-, http, http) /home/services/httpd
 %attr(754,root,root) /etc/rc.d/init.d/lighttpd
 %dir %attr(754,root,root) /etc/%{name}
 %attr(640,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/*.*
