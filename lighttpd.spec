@@ -22,7 +22,7 @@ Group:		Networking/Daemons
 License:	BSD
 ## do not remove next two lines because atomic revisions are common in lighttpd
 #%define		_rel	20050106-1954
-#Source0:	http://www.lighttpd.net/download/-%{name}-%{version}-%{_rel}.tar.gz
+#Source0:	http://www.lighttpd.net/download/%{name}-%{version}-%{_rel}.tar.gz
 Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 # Source0-md5:	40ac1d07d9efb0366720d081c3e02224
 Source1:	%{name}.init
