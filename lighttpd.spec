@@ -18,6 +18,7 @@ Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
 Source4:	%{name}.logrotate
+Patch0:		%{name}-fcgi-err.patch
 URL:		http://jan.kneschke.de/projects/lighttpd/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -70,6 +71,7 @@ z powodu problemów z obci±¿eniem.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 %{__libtoolize}
@@ -152,7 +154,7 @@ fi
 %dir %attr(750,lighttpd,root) /var/log/%{name}
 %attr(755,lighttpd,lighttpd) %{_lighttpddir}
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
-%dir %attr(754,root,root) %{_sysconfdir}
+%dir %attr(750,root,lighttpd) %{_sysconfdir}
 %attr(640,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/*.*
 %attr(640,root,root) %config(noreplace) %verify(not size mtime md5) /etc/logrotate.d/%{name}
 %{_mandir}/man?/*
