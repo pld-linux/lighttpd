@@ -12,6 +12,7 @@
 %bcond_without	xattr	# without support of extended attributes
 %bcond_with	mysql	# with mysql
 %bcond_with	ldap	# with ldap
+%bcond_with	valgrind	# enable valgrind fixes in code.
 %bcond_without	largefile	# without largefile support,
 # use it if you have 2.4 kernel to get sendfile() support,
 # and don't need > 2GB file requests,
@@ -21,7 +22,7 @@ Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.3.7
-Release:	0.9
+Release:	0.10
 Group:		Networking/Daemons
 License:	BSD
 ## do not remove next two lines because atomic revisions are common in lighttpd
@@ -49,6 +50,8 @@ BuildRequires:	attr-devel
 %endif
 %{?with_ldap:BuildRequires:	openldap-devel}
 %{?with_mysql:BuildRequires:	mysql-devel}
+%{?with_valgrind:BuildRequires:	valgrind}
+%{!?with_valgrind:BuildConflicts:	valgrind}
 PreReq:		rc-scripts
 Requires(pre):	sh-utils
 Requires(pre):	/bin/id
