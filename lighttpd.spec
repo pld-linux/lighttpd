@@ -1,5 +1,3 @@
-# TODO:
-# - fix SSL build
 Summary:	Fast and light http server
 Summary(pl):	Szybki i lekki serwer http
 Name:		lighttpd
@@ -72,7 +70,7 @@ z powodu problemów z obci±¿eniem.
 	--enable-mod-cache \
 	--enable-mod-localizer \
 	--with-mysql \
-	--without-ssl
+	--with-openssl
 	
 %{__make}
 
