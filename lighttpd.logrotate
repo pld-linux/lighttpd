@@ -1,8 +1,8 @@
 /var/log/lighttpd/*.log {
 	olddir /var/log/archiv/lighttpd
-	copytruncate
-        sharedscripts
-        postrotate
-                /etc/rc.d/init.d/lighttpd reload > /dev/null
-        endscript
+
+	sharedscripts
+	postrotate
+		/etc/rc.d/init.d/lighttpd reload > /dev/null
+	endscript
 }
