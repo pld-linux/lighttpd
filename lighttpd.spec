@@ -18,17 +18,26 @@
 # and don't need > 2GB file requests,
 # see http://article.gmane.org/gmane.comp.web.lighttpd:722
 #
+
+# Prerelease snapshot: DATE-TIME
+#define _snap 20050116-1743
+
+%if 0%{?_snap}
+%define _source http://www.lighttpd.net/download/%{name}-%{version}-%{_snap}.tar.gz
+%else
+%define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
+%endif
+
+%define _rel 0.15
+
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.3.7
-Release:	0.14
+Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}
 Group:		Networking/Daemons
 License:	BSD
-## do not remove next two lines because atomic revisions are common in lighttpd
-#%define		_rel	20050106-1954
-#Source0:	http://www.lighttpd.net/download/%{name}-%{version}-%{_rel}.tar.gz
-Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
+Source0:	%{_source}
 # Source0-md5:	40ac1d07d9efb0366720d081c3e02224
 Source1:	%{name}.init
 Source2:	%{name}.conf
