@@ -17,7 +17,7 @@
 %bcond_with	ldap		# with ldap
 %bcond_with	valgrind	# enable valgrind fixes in code.
 %bcond_with	dirhide		# with 'hide from dirlisting' hack
-#
+
 # Prerelease snapshot: DATE-TIME
 %define _snap 20050402-1520
 
@@ -27,7 +27,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 0
+%define		_rel 4
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -69,6 +69,8 @@ Requires(pre):	/usr/sbin/useradd
 Requires(post,preun):	/sbin/chkconfig
 Requires(postun):	/usr/sbin/groupdel
 Requires(postun):	/usr/sbin/userdel
+Requires(triggerpostun):	sed >= 4.0
+Requires(triggerpostun):	grep
 Provides:	group(lighttpd)
 Provides:	httpd
 Provides:	user(lighttpd)
@@ -199,6 +201,74 @@ if [ "$1" = "2" ]; then
 spawn-fcgi program is now available separately from spawn-fcgi package.
 
 EOF
+fi
+
+%triggerpostun -- %{name} < 1.4.0-0.20050402_1520.4
+# upgraded
+if [ "$1" = "2" ]; then
+	# keep backup
+	cp -f %{_sysconfdir}/%{name}.conf{,.rpmsave}
+
+#1. index-files are now handled by by mod_indexfile
+#   server.indexfiles = ( "index.html", "index.html" )
+#   becomes
+#   server.modules = ( ..., "mod_indexfile", ... )
+#   index-file.extensions = ( "index.html", "index.html" )
+	if grep -q '^server.indexfiles' %{_sysconfdir}/%{name}.conf; then
+		sed -i -e 's/server\.indexfiles/index-file.extensions/' %{_sysconfdir}/%{name}.conf
+
+		if ! grep -q 'mod_indexfile' %{_sysconfdir}/%{name}.conf; then
+			sed -i -e '
+				# append mod_indexfile module
+				/server\.modules[\n \t=(]\+/,/)/{
+					/)/i\	"mod_indexfile",
+				}
+			' %{_sysconfdir}/%{name}.conf
+		fi
+	fi
+
+#2. directory listings are handled by mod_dirlisting now
+#   server.dir-listing = "enable"
+#   becomes
+#   server.modules = ( ..., "mod_dirlisting", ... )
+#   dir-listing.active = "enable"
+	if grep -q '^server\.dir-listing' %{_sysconfdir}/%{name}.conf; then
+		sed -i -e 's/server\.dir-listing/dir-listing.active/' %{_sysconfdir}/%{name}.conf
+
+		if ! grep -q 'mod_dirlisting' %{_sysconfdir}/%{name}.conf; then
+			sed -i -e '
+				# append mod_dirlisting module
+				/server\.modules[\n \t=(]\+/,/)/{
+					/)/i\	"mod_dirlisting",
+				}
+			' %{_sysconfdir}/%{name}.conf
+		fi
+	fi
+
+#3. IMPORTANT: static files are now handled by mod_staticfile
+#   This is the most important change. Static-files are now handled
+#   by mod_staticfile. If you dont load mod_staticfile you will
+#   always get a 403 error-page.
+#
+#   server.modules = ( ..., "mod_staticfile", ... )
+#
+#   static-file.exclude-extensions = ( ".php", ".cgi", ".fcgi" )
+	if ! grep -q 'mod_dirlisting' %{_sysconfdir}/%{name}.conf; then
+		sed -i -e '
+			# append mod_dirlisting module
+			/server\.modules[\n \t=(]\+/,/)/{
+				/)/i\	"mod_dirlisting",
+			}
+		' %{_sysconfdir}/%{name}.conf
+	fi
+
+#You will get a ERROR if you use
+#- server.indexfiles or
+#- server.dir-listing
+	sed -i -e '
+		s/server\.indexfiles/index-file.extensions/
+		s/server\.dir-listing/dir-listing.active/
+	' %{_sysconfdir}/%{name}.conf
 fi
 
 %files
