@@ -13,6 +13,7 @@ License:	BSD
 #%define		_rel	20041102-1041
 #Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}-%{_rel}.tar.gz
 Source0:	http://jan.kneschke.de/projects/lighttpd/download/%{name}-%{version}.tar.gz
+# Source0-md5:	40ac1d07d9efb0366720d081c3e02224
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
