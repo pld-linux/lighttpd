@@ -1,6 +1,8 @@
 /var/log/lighttpd/*.log {
 	olddir /var/log/archiv/lighttpd
 
+	create 644 lighttpd lighttpd
+
 	sharedscripts
 	postrotate
 		/etc/rc.d/init.d/lighttpd reload > /dev/null
