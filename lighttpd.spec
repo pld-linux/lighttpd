@@ -22,7 +22,7 @@ Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.3.7
-Release:	0.11
+Release:	0.12
 Group:		Networking/Daemons
 License:	BSD
 ## do not remove next two lines because atomic revisions are common in lighttpd
@@ -37,6 +37,7 @@ Source4:	%{name}.logrotate
 Source5:	%{name}.sysconfig
 Patch0:		%{name}-mod_status.patch
 Patch1:		%{name}-doublefree.patch
+Patch2:		%{name}-avg-req.patch
 URL:		http://www.lighttpd.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -108,6 +109,7 @@ pomocy serwera WWW ani samego programu.
 %setup -q
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 %build
 %{__libtoolize}
