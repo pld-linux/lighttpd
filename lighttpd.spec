@@ -16,7 +16,7 @@ Source2:	%{name}.conf
 Source3:	%{name}.user
 Source4:	%{name}.logrotate
 Patch0:		http://jan.kneschke.de/projects/lighttpd/download/lighttpd-1.2.7-cond.patch
-#Patch1:		lighttpd-amd64-LINUX_SENDFILE-temporary.patch
+Patch1:		lighttpd-amd64-LINUX_SENDFILE-temporary.patch
 URL:		http://jan.kneschke.de/projects/lighttpd/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -64,6 +64,10 @@ z powodu problemów z obci±¿eniem.
 %prep
 %setup -q
 %patch0 -p1
+
+%ifarch amd64
+%patch1 
+%endif
 
 %build
 %{__libtoolize}
