@@ -27,7 +27,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 7
+%define		_rel 8
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -274,7 +274,7 @@ fi
 %files
 %defattr(644,root,root,755)
 %doc NEWS README ChangeLog doc/lighttpd.conf doc/*.txt doc/rrdtool-graph.sh
-%attr(755,root,root) %{_sbindir}/*
+%attr(755,root,root) %{_sbindir}/lighttpd
 %dir %{_libdir}
 %attr(755,root,root) %{_libdir}/*.so
 %attr(750,root,root) %dir /var/log/archiv/%{name}
