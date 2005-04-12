@@ -1,0 +1,13 @@
+--- ./src/fcgi.c~	2005-01-28 19:12:48.000000000 +0200
++++ ./src/fcgi.c	2005-04-12 15:17:22.000000000 +0300
+@@ -1901,8 +1901,8 @@
+ 			
+ 			break;
+ 		case FCGI_STDERR:
+-			log_error_write(srv, __FILE__, __LINE__, "sb", 
+-					"FastCGI-stderr:", hctx->response);
++			log_error_write(srv, __FILE__, __LINE__, "sbbb", 
++					"FastCGI-stderr:", con->uri.path, con->uri.authority, hctx->response);
+ 			
+ 			break;
+ 		case FCGI_END_REQUEST:
