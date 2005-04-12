@@ -26,7 +26,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 3
+%define		_rel 3.2
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -45,6 +45,7 @@ Source5:	%{name}.sysconfig
 Patch0:		%{name}-proto-code.patch
 Patch1:		%{name}-nph.patch
 Patch2:		%{name}-pathinfo.patch
+Patch3:		%{name}-fcgi-verbose.patch
 URL:		http://www.lighttpd.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -117,6 +118,7 @@ pomocy serwera WWW ani samego programu.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 %build
 %{__libtoolize}
