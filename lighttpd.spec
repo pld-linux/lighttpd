@@ -26,7 +26,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 2
+%define		_rel 3
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -43,6 +43,7 @@ Source3:	%{name}.user
 Source4:	%{name}.logrotate
 Source5:	%{name}.sysconfig
 Patch0:		http://minghetti.ch/blob/dirlist-hide.patch
+Patch1:		lighttpd-fcgi-verbose.patch
 URL:		http://www.lighttpd.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -112,6 +113,7 @@ pomocy serwera WWW ani samego programu.
 %prep
 %setup -q
 %{?with_dirhide:%patch0 -p0}
+%patch1 -p1
 
 %build
 %{__libtoolize}
