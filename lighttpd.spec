@@ -44,6 +44,7 @@ Source4:	%{name}.logrotate
 Source5:	%{name}.sysconfig
 Patch0:		http://minghetti.ch/blob/dirlist-hide.patch
 Patch1:		lighttpd-fcgi-verbose.patch
+Patch2:		lighttpd-proxy-error-handler.patch
 URL:		http://www.lighttpd.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -114,6 +115,7 @@ pomocy serwera WWW ani samego programu.
 %setup -q
 %{?with_dirhide:%patch0 -p0}
 %patch1 -p1
+%patch2 -p1
 
 %build
 %{__libtoolize}
