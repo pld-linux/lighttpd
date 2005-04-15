@@ -6,12 +6,12 @@
 #
 # Conditional build for lighttpd:
 %bcond_without	xattr		# without support of extended attributes
-%bcond_without  ipv6            # IPv4-only version (doesn't require IPv6 in kernel)
-%bcond_without  largefile       # without largefile support
+%bcond_without	ipv6		# IPv4-only version (doesn't require IPv6 in kernel)
+%bcond_without	largefile	# without largefile support
 				# use it if you have 2.4 kernel to get sendfile() support,
 				# and don't need > 2GB file requests,
 				# see http://article.gmane.org/gmane.comp.web.lighttpd:722
-%bcond_without  ssl             # disable ssl support
+%bcond_without	ssl		# disable ssl support
 %bcond_with	mysql		# with mysql
 %bcond_with	ldap		# with ldap
 %bcond_with	valgrind	# enable valgrind fixes in code.
