@@ -1,0 +1,12 @@
+--- lighttpd-1.3.13/src/settings.h~	2005-04-19 10:50:29.000000000 +0300
++++ lighttpd-1.3.13/src/settings.h	2005-04-19 10:50:30.000000000 +0300
+@@ -6,7 +6,9 @@
+ #define INET_NTOP_CACHE_MAX 4
+ #define FILE_CACHE_MAX      16
+ 
++#ifndef FCGI_RETRY_TIMEOUT
+ #define FCGI_RETRY_TIMEOUT  (5 * 60)
++#endif
+ 
+ /**
+  * max size of a buffer which will just be reset
