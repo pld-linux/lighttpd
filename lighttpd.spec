@@ -7,15 +7,14 @@
 # Conditional build for lighttpd:
 %bcond_without	xattr		# without support of extended attributes
 %bcond_without	ipv6		# IPv4-only version (doesn't require IPv6 in kernel)
+# use it if you have 2.4 kernel to get sendfile() support,
+# and don't need > 2GB file requests,
+# see http://article.gmane.org/gmane.comp.web.lighttpd:722
 %bcond_without	largefile	# without largefile support
-				# use it if you have 2.4 kernel to get sendfile() support,
-				# and don't need > 2GB file requests,
-				# see http://article.gmane.org/gmane.comp.web.lighttpd:722
 %bcond_without	ssl		# disable ssl support
 %bcond_with	mysql		# with mysql
 %bcond_with	ldap		# with ldap
-%bcond_with	valgrind	# enable valgrind fixes in code.
-%bcond_with	dirhide		# with 'hide from dirlisting' hack 
+%bcond_with	dirhide		# with 'hide from dirlisting' hack
 #
 # Prerelease snapshot: DATE-TIME
 ##define _snap 20050116-1743
@@ -26,7 +25,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 3
+%define		_rel 3.1
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -43,8 +42,9 @@ Source3:	%{name}.user
 Source4:	%{name}.logrotate
 Source5:	%{name}.sysconfig
 Patch0:		http://minghetti.ch/blob/dirlist-hide.patch
-Patch1:		lighttpd-fcgi-verbose.patch
-Patch2:		lighttpd-proxy-error-handler.patch
+Patch1:		%{name}-fcgi-verbose.patch
+Patch2:		%{name}-proxy-error-handler.patch
+Patch3:		%{name}-fcgi-retry-timeout.patch
 URL:		http://www.lighttpd.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -59,7 +59,7 @@ BuildRequires:	attr-devel
 %endif
 %{?with_ldap:BuildRequires:	openldap-devel}
 %{?with_mysql:BuildRequires:	mysql-devel}
-%{?with_valgrind:BuildRequires:	valgrind}
+%{?debug:BuildRequires:	valgrind}
 PreReq:		rc-scripts
 Requires(pre):	sh-utils
 Requires(pre):	/bin/id
@@ -116,13 +116,15 @@ pomocy serwera WWW ani samego programu.
 %{?with_dirhide:%patch0 -p0}
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 %build
 %{__libtoolize}
 %{__aclocal}
 %{__autoconf}
 %configure \
-	%{?with_valgrind:--with-valgrind} \
+	CFLAGS="%{rpmcflags} -DFCGI_RETRY_TIMEOUT=20" \
+	%{?debug:--with-valgrind} \
 	%{?with_xattr:--with-attr} \
 	%{?with_mysql:--with-mysql} \
 	%{?with_ldap:--with-ldap} \
@@ -213,11 +215,11 @@ fi
 %dir %attr(750,lighttpd,root) /var/log/%{name}
 %attr(755,lighttpd,lighttpd) %{_lighttpddir}
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
-%config(noreplace) %verify(not size mtime md5) /etc/sysconfig/*
+%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
 %dir %attr(750,root,lighttpd) %{_sysconfdir}
-%attr(640,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/%{name}.conf
-%attr(640,root,lighttpd) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/*.user
-%attr(640,root,root) %config(noreplace) %verify(not size mtime md5) /etc/logrotate.d/%{name}
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}.conf
+%attr(640,root,lighttpd) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.user
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/%{name}
 %{_mandir}/man?/*
 
 %files -n spawn-fcgi
