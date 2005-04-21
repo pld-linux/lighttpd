@@ -14,6 +14,7 @@
 %bcond_without	ssl		# disable ssl support
 %bcond_with	mysql		# with mysql
 %bcond_with	ldap		# with ldap
+%bcond_with	valgrind	# compile code with valgrind support.
 %bcond_with	dirhide		# with 'hide from dirlisting' hack
 #
 # Prerelease snapshot: DATE-TIME
@@ -25,7 +26,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 3.1
+%define		_rel 3.5
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -45,6 +46,7 @@ Patch0:		http://minghetti.ch/blob/dirlist-hide.patch
 Patch1:		%{name}-fcgi-verbose.patch
 Patch2:		%{name}-proxy-error-handler.patch
 Patch3:		%{name}-fcgi-retry-timeout.patch
+Patch4:		http://glen.alkohol.ee/pld/lighttpd-request_header-print.patch
 URL:		http://www.lighttpd.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -60,6 +62,7 @@ BuildRequires:	attr-devel
 %{?with_ldap:BuildRequires:	openldap-devel}
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?debug:BuildRequires:	valgrind}
+BuildRequires:	rpmbuild(macros) >= 1.200
 PreReq:		rc-scripts
 Requires(pre):	sh-utils
 Requires(pre):	/bin/id
@@ -117,6 +120,7 @@ pomocy serwera WWW ani samego programu.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 
 %build
 %{__libtoolize}
@@ -124,7 +128,7 @@ pomocy serwera WWW ani samego programu.
 %{__autoconf}
 %configure \
 	CFLAGS="%{rpmcflags} -DFCGI_RETRY_TIMEOUT=20" \
-	%{?debug:--with-valgrind} \
+	%{?with_valgrind:--with-valgrind} \
 	%{?with_xattr:--with-attr} \
 	%{?with_mysql:--with-mysql} \
 	%{?with_ldap:--with-ldap} \
@@ -156,23 +160,8 @@ mv $RPM_BUILD_ROOT%{_bindir}/spawn-fcgi $RPM_BUILD_ROOT%{_sbindir}/spawn-fcgi
 rm -rf $RPM_BUILD_ROOT
 
 %pre
-if [ -n "`/usr/bin/getgid lighttpd`" ]; then
-	if [ "`/usr/bin/getgid lighttpd`" != 109 ]; then
-		echo "Error: group lighttpd doesn't have gid=109. Correct this before installing %{name}." 1>&2
-		exit 1
-	fi
-else
-	/usr/sbin/groupadd -g 109 lighttpd
-fi
-if [ -n "`/bin/id -u lighttpd 2>/dev/null`" ]; then
-	if [ "`/bin/id -u lighttpd`" != 116 ]; then
-		echo "Error: user lighttpd doesn't have uid=116. Correct this before installing %{name}." 1>&2
-		exit 1
-	fi
-else
-	/usr/sbin/useradd -u 116 -d %{_lighttpddir} -s /bin/false \
-		-c "HTTP User" -g lighttpd lighttpd 1>&2
-fi
+%groupadd -g 109 lighttpd
+%useradd -u 116 -d %{_lighttpddir} -c "HTTP User" -g lighttpd lighttpd
 
 %post
 /sbin/chkconfig --add %{name}
