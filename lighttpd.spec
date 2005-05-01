@@ -62,7 +62,7 @@ BuildRequires:	attr-devel
 %{?with_ldap:BuildRequires:	openldap-devel}
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?debug:BuildRequires:	valgrind}
-BuildRequires:	rpmbuild(macros) >= 1.200
+BuildRequires:	rpmbuild(macros) >= 1.202
 PreReq:		rc-scripts
 Requires(pre):	sh-utils
 Requires(pre):	/bin/id
