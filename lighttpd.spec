@@ -1,7 +1,6 @@
 #
-# TODO
+# TODO:
 # - test ldap and mysql (failed at this time)
-# - documentroot specified in config doesn't exist
 # - mysql issue: http://www.freebsd.org/cgi/query-pr.cgi?pr=76866
 #
 # Conditional build for lighttpd:
@@ -26,17 +25,17 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 3.8
+%define		_rel 1
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.3.13
+Version:	1.3.14
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}
 Group:		Networking/Daemons
 License:	BSD
 Source0:	%{_source}
-# Source0-md5:	2f017b936be376ad6f6c2ee26db93467
+# Source0-md5:	16d9f8c40bcb5638ee452fa23b21e346
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -44,9 +43,6 @@ Source4:	%{name}.logrotate
 Source5:	%{name}.sysconfig
 Patch0:		http://minghetti.ch/blob/dirlist-hide.patch
 Patch1:		%{name}-fcgi-verbose.patch
-Patch2:		%{name}-proxy-error-handler.patch
-Patch3:		%{name}-fcgi-retry-timeout.patch
-Patch4:		http://glen.alkohol.ee/pld/lighttpd-request_header-print.patch
 URL:		http://www.lighttpd.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -118,16 +114,12 @@ pomocy serwera WWW ani samego programu.
 %setup -q
 %{?with_dirhide:%patch0 -p0}
 %patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
 
 %build
 %{__libtoolize}
 %{__aclocal}
 %{__autoconf}
 
-CPPFLAGS="-DFCGI_RETRY_TIMEOUT=1"
 %configure \
 	%{?with_valgrind:--with-valgrind} \
 	%{?with_xattr:--with-attr} \
