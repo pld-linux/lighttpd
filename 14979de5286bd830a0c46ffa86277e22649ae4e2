@@ -1,0 +1,5 @@
+- 1.3.13
+  - added customizable directory listings
+  - fixed compile error on all BSD unixes
+  - fixed PATHINFO handling for FastCGI
+  - fixed handling of remote-close on FreeBSD and OpenSSL
