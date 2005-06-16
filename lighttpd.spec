@@ -26,7 +26,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 3.5
+%define		_rel 3.8
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -126,8 +126,9 @@ pomocy serwera WWW ani samego programu.
 %{__libtoolize}
 %{__aclocal}
 %{__autoconf}
+
+CPPFLAGS="-DFCGI_RETRY_TIMEOUT=1"
 %configure \
-	CFLAGS="%{rpmcflags} -DFCGI_RETRY_TIMEOUT=20" \
 	%{?with_valgrind:--with-valgrind} \
 	%{?with_xattr:--with-attr} \
 	%{?with_mysql:--with-mysql} \
