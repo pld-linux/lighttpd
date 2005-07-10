@@ -45,21 +45,18 @@ Patch0:		http://minghetti.ch/blob/dirlist-hide.patch
 Patch1:		%{name}-fcgi-verbose.patch
 Patch2:		%{name}-ssl-redirect-fix.patch
 URL:		http://www.lighttpd.net/
+%{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	bzip2-devel
 BuildRequires:	libtool
+%{?with_mysql:BuildRequires:	mysql-devel}
+%{?with_ldap:BuildRequires:		openldap-devel}
 %{?with_ssl:BuildRequires:	openssl-devel}
 BuildRequires:	pcre-devel
-BuildRequires:	rpmbuild(macros) >= 1.159
-BuildRequires:	zlib-devel
-%if %{with xattr}
-BuildRequires:	attr-devel
-%endif
-%{?with_ldap:BuildRequires:	openldap-devel}
-%{?with_mysql:BuildRequires:	mysql-devel}
-%{?debug:BuildRequires:	valgrind}
 BuildRequires:	rpmbuild(macros) >= 1.202
+%{?debug:BuildRequires:	valgrind}
+BuildRequires:	zlib-devel
 PreReq:		rc-scripts
 Requires(pre):	sh-utils
 Requires(pre):	/bin/id
