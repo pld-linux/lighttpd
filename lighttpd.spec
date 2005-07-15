@@ -30,12 +30,12 @@
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.3.14
+Version:	1.3.15
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}
 Group:		Networking/Daemons
 License:	BSD
 Source0:	%{_source}
-# Source0-md5:	16d9f8c40bcb5638ee452fa23b21e346
+# Source0-md5:	e605ade1071f25dec9001730ec753112
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
