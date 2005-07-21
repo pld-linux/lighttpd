@@ -1,7 +1,7 @@
-#
 # TODO:
 # - test ldap and mysql (failed at this time)
 # - mysql issue: http://www.freebsd.org/cgi/query-pr.cgi?pr=76866
+# - gdbm for mod_trigger_b4_dl http://www.lighttpd.net/documentation/trigger_b4_dl.html
 #
 # Conditional build for lighttpd:
 %bcond_without	xattr		# without support of extended attributes
@@ -10,9 +10,11 @@
 # and don't need > 2GB file requests,
 # see http://article.gmane.org/gmane.comp.web.lighttpd:722
 %bcond_without	largefile	# without largefile support
-%bcond_without	ssl		# disable ssl support
-%bcond_with	mysql		# with mysql
+%bcond_without	ssl			# disable ssl support
+%bcond_without	mysql		# without mysql
 %bcond_with	ldap		# with ldap
+%bcond_with	lua			# enable LUA support in mod_cml
+%bcond_with	memcache	# enable memcached support in mod_cml / mod_trigger_b4_dl
 %bcond_with	valgrind	# compile code with valgrind support.
 %bcond_with	dirhide		# with 'hide from dirlisting' hack
 #
@@ -25,7 +27,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 1
+%define		_rel 1.12
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -53,6 +55,8 @@ BuildRequires:	libtool
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?with_ldap:BuildRequires:		openldap-devel}
 %{?with_ssl:BuildRequires:	openssl-devel}
+%{?with_lua:BuildRequires:	lua50-devel}
+%{?with_memcache:BuildRequires:	libmemcache-devel}
 BuildRequires:	pcre-devel
 BuildRequires:	rpmbuild(macros) >= 1.202
 %{?debug:BuildRequires:	valgrind}
@@ -95,6 +99,50 @@ wyj¶cia, przepisywanie URL-i i wiele innych) czyni± z lighttpd
 doskona³e oprogramowanie web-serwerowe na ka¿dy serwer cierpi±cy z
 powodu problemów z obci±¿eniem.
 
+%package mod_compress
+Summary:	Output Compression
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/compress.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_compress
+Output compression reduces the network load and can improve the
+overall throughput of the webserver.
+
+Only static content is supported up to now.
+
+The server negotiates automaticly which compression method is used.
+Supported are gzip, deflate, bzip.
+
+%package mod_cml
+Summary:	Cache Meta Language module
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/cml.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_cml
+CML is a Meta language to describe the dependencies of a page at one
+side and building a page from its fragments on the other side using
+LUA.
+
+%package mod_mysql_vhost
+Summary:	MySQL based vhosting
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/mysqlvhost.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_mysql_vhost
+This module provides virtual hosts (vhosts) based on a MySQL table.
+
+%package mod_trigger_b4_dl
+Summary:	Trigger before Download
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/trigger_b4_dl.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_trigger_b4_dl
+Another anti hot-linking module.
+
 %package -n spawn-fcgi
 Summary:	Spawn fcgi-process directly
 Summary(pl):	Bezpo¶rednie uruchamianie procesów fcgi
@@ -126,7 +174,9 @@ pomocy serwera WWW ani samego programu.
 	%{?with_ldap:--with-ldap} \
 	%{!?with_ipv6:--disable-ipv6} \
 	%{!?with_largefile:--disable-lfs} \
-	%{?with_ssl:--with-openssl}
+	%{?with_ssl:--with-openssl} \
+	%{?with_lua:--with-lua} \
+	%{?with_memcache:--with-memcache}
 
 %{__make}
 
@@ -191,7 +241,26 @@ fi
 %doc NEWS README ChangeLog doc/lighttpd.conf doc/*.txt doc/rrdtool-graph.sh
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}
-%attr(755,root,root) %{_libdir}/*.so
+%attr(755,root,root) %{_libdir}/mod_access.so
+%attr(755,root,root) %{_libdir}/mod_accesslog.so
+%attr(755,root,root) %{_libdir}/mod_alias.so
+%attr(755,root,root) %{_libdir}/mod_auth.so
+%attr(755,root,root) %{_libdir}/mod_cgi.so
+%attr(755,root,root) %{_libdir}/mod_evhost.so
+%attr(755,root,root) %{_libdir}/mod_expire.so
+%attr(755,root,root) %{_libdir}/mod_fastcgi.so
+%attr(755,root,root) %{_libdir}/mod_proxy.so
+%attr(755,root,root) %{_libdir}/mod_redirect.so
+%attr(755,root,root) %{_libdir}/mod_rewrite.so
+%attr(755,root,root) %{_libdir}/mod_rrdtool.so
+%attr(755,root,root) %{_libdir}/mod_scgi.so
+%attr(755,root,root) %{_libdir}/mod_secdownload.so
+%attr(755,root,root) %{_libdir}/mod_setenv.so
+%attr(755,root,root) %{_libdir}/mod_simple_vhost.so
+%attr(755,root,root) %{_libdir}/mod_ssi.so
+%attr(755,root,root) %{_libdir}/mod_status.so
+%attr(755,root,root) %{_libdir}/mod_userdir.so
+%attr(755,root,root) %{_libdir}/mod_usertrack.so
 %attr(750,root,root) %dir /var/log/archiv/%{name}
 %dir %attr(750,lighttpd,root) /var/log/%{name}
 %attr(755,lighttpd,lighttpd) %{_lighttpddir}
@@ -202,6 +271,22 @@ fi
 %attr(640,root,lighttpd) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.user
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/%{name}
 %{_mandir}/man?/*
+
+%files mod_compress
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/mod_compress.so
+
+%files mod_cml
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/mod_cml.so
+
+%files mod_mysql_vhost
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/mod_mysql_vhost.so
+
+%files mod_trigger_b4_dl
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/mod_trigger_b4_dl.so
 
 %files -n spawn-fcgi
 %defattr(644,root,root,755)
