@@ -3,13 +3,15 @@
 # - mysql issue: http://www.freebsd.org/cgi/query-pr.cgi?pr=76866
 # - gdbm for mod_trigger_b4_dl http://www.lighttpd.net/documentation/trigger_b4_dl.html
 #
+# NOTES:
+# - fcgi-devel is only used for the test-scripts
+# - disable largefile, if you have 2.4 kernel to get sendfile() support, and don't need > 2GB file requests,
+#   see http://article.gmane.org/gmane.comp.web.lighttpd:722
+#
 # Conditional build for lighttpd:
 %bcond_without	xattr		# without support of extended attributes
 %bcond_without	ipv6		# IPv4-only version (doesn't require IPv6 in kernel)
-# use it if you have 2.4 kernel to get sendfile() support,
-# and don't need > 2GB file requests,
-# see http://article.gmane.org/gmane.comp.web.lighttpd:722
-%bcond_without	largefile	# without largefile support
+%bcond_without	largefile	# without largefile support (see notes above)
 %bcond_without	ssl			# disable ssl support
 %bcond_without	mysql		# without mysql
 %bcond_with	ldap		# with ldap
@@ -17,9 +19,9 @@
 %bcond_with	memcache	# enable memcached support in mod_cml / mod_trigger_b4_dl
 %bcond_with	valgrind	# compile code with valgrind support.
 %bcond_with	dirhide		# with 'hide from dirlisting' hack
-#
+
 # Prerelease snapshot: DATE-TIME
-##define _snap 20050116-1743
+#define _snap 20050116-1743
 
 %if 0%{?_snap}
 %define _source http://www.lighttpd.net/download/%{name}-%{version}-%{_snap}.tar.gz
