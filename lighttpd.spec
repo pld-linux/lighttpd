@@ -29,17 +29,17 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 1.12
+%define		_rel 1
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.3.15
+Version:	1.3.16
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}
 Group:		Networking/Daemons
 License:	BSD
 Source0:	%{_source}
-# Source0-md5:	e605ade1071f25dec9001730ec753112
+# Source0-md5:	b73f7a7ace4901b6417b0e450aaa5df5
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
