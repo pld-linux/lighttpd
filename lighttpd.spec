@@ -9,7 +9,7 @@
 #   see http://article.gmane.org/gmane.comp.web.lighttpd:722
 #
 # Conditional build for lighttpd:
-%bcond_with	xattr		# with support of extended attributes (doesn't compile in 1.4.0)
+%bcond_without	xattr		# with support of extended attributes (doesn't compile in 1.4.0)
 %bcond_without	ipv6		# IPv4-only version (doesn't require IPv6 in kernel)
 %bcond_without	largefile	# without largefile support (see notes above)
 %bcond_without	ssl			# disable ssl support
@@ -165,6 +165,7 @@ pomocy serwera WWW ani samego programu.
 %patch2 -p1
 
 %build
+sed -i -e 's#stat_cache_attr_get#stat_cache_entry_attr_get#g' src/stat_cache.c
 %{__libtoolize}
 %{__aclocal}
 %{__autoconf}
