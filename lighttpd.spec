@@ -34,12 +34,12 @@
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.3.16
+Version:	1.4.0
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}
 Group:		Networking/Daemons
 License:	BSD
 Source0:	%{_source}
-# Source0-md5:	b73f7a7ace4901b6417b0e450aaa5df5
+# Source0-md5:	926a3603615c9edf5859977f1b8b6033
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -248,9 +248,11 @@ fi
 %attr(755,root,root) %{_libdir}/mod_alias.so
 %attr(755,root,root) %{_libdir}/mod_auth.so
 %attr(755,root,root) %{_libdir}/mod_cgi.so
+%attr(755,root,root) %{_libdir}/mod_dirlisting.so
 %attr(755,root,root) %{_libdir}/mod_evhost.so
 %attr(755,root,root) %{_libdir}/mod_expire.so
 %attr(755,root,root) %{_libdir}/mod_fastcgi.so
+%attr(755,root,root) %{_libdir}/mod_indexfile.so
 %attr(755,root,root) %{_libdir}/mod_proxy.so
 %attr(755,root,root) %{_libdir}/mod_redirect.so
 %attr(755,root,root) %{_libdir}/mod_rewrite.so
@@ -260,9 +262,11 @@ fi
 %attr(755,root,root) %{_libdir}/mod_setenv.so
 %attr(755,root,root) %{_libdir}/mod_simple_vhost.so
 %attr(755,root,root) %{_libdir}/mod_ssi.so
+%attr(755,root,root) %{_libdir}/mod_staticfile.so
 %attr(755,root,root) %{_libdir}/mod_status.so
 %attr(755,root,root) %{_libdir}/mod_userdir.so
 %attr(755,root,root) %{_libdir}/mod_usertrack.so
+%attr(755,root,root) %{_libdir}/mod_webdav.so
 %attr(750,root,root) %dir /var/log/archiv/%{name}
 %dir %attr(750,lighttpd,root) /var/log/%{name}
 %attr(755,lighttpd,lighttpd) %{_lighttpddir}
