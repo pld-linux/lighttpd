@@ -9,7 +9,7 @@
 #   see http://article.gmane.org/gmane.comp.web.lighttpd:722
 #
 # Conditional build for lighttpd:
-%bcond_without	xattr		# without support of extended attributes
+%bcond_with	xattr		# with support of extended attributes (doesn't compile in 1.4.0)
 %bcond_without	ipv6		# IPv4-only version (doesn't require IPv6 in kernel)
 %bcond_without	largefile	# without largefile support (see notes above)
 %bcond_without	ssl			# disable ssl support
