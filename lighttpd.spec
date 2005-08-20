@@ -19,7 +19,7 @@
 %bcond_with	dirhide		# with 'hide from dirlisting' hack
 
 # Prerelease snapshot: DATE-TIME
-%define _snap 20050402-1520
+%define _snap 20050819-1044
 
 %if 0%{?_snap}
 %define _source http://www.lighttpd.net/download/%{name}-%{version}-%{_snap}.tar.gz
@@ -27,7 +27,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 8
+%define		_rel 0.1
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -37,8 +37,7 @@ Release:	%{!?_snap:%{_rel}}%{?_snap:0.%(echo %{_snap}|tr - _).%{_rel}}
 Group:		Networking/Daemons
 License:	BSD
 Source0:	%{_source}
-# NoSource0-md5:	8258fae46a501c166bac69a929451059
-%{?_snap:NoSource:	0}
+# Source0-md5:	c953ee5055065216a3453daf9f7b7755
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
