@@ -1,0 +1,61 @@
+--- ./configure.in	2005-08-22 13:56:17.000000000 +0300
++++ ../lighttpd-1.4.1-pkgconfig/configure.in	2005-08-22 18:03:23.000000000 +0300
+@@ -328,21 +328,35 @@
+ 
+ AC_MSG_RESULT($WITH_LUA)
+ if test "$WITH_LUA" != "no"; then
++ PKG_CHECK_MODULES(LUA, lua50, [
++    AC_DEFINE([HAVE_LUA], [1], [liblua])
++    AC_DEFINE([HAVE_LUA_H], [1], [lua.h])
++ ])
++
++ if test $succeeded = no; then
++  PKG_CHECK_MODULES(LUA, lua, [
++    AC_DEFINE([HAVE_LUA], [1], [liblua])
++    AC_DEFINE([HAVE_LUA_H], [1], [lua.h])
++  ])
++ fi
++
++ if test $succeeded = no; then
+  AC_PATH_PROG(LUACONFIG, lua-config)
+  if test x"$LUACONFIG" != x; then
+    LUA_CFLAGS=`$LUACONFIG --include`
+-   LUA_LIB=`$LUACONFIG --libs --extralibs`
++   LUA_LIBS=`$LUACONFIG --libs --extralibs`
+  else
+    AC_CHECK_LIB(lua, lua_open, [
+          AC_CHECK_HEADERS([lua.h],[
+-                 LUA_LIB=-llua 
++                 LUA_LIBS=-llua 
+                  AC_DEFINE([HAVE_LUA], [1], [liblua])
+ 		 AC_DEFINE([HAVE_LUA_H], [1], [lua.h])
+          ])
+    ])
+  fi
+  AC_SUBST(LUA_CFLAGS)
+- AC_SUBST(LUA_LIB)
++ AC_SUBST(LUA_LIBS)
++ fi
+ fi
+ 
+ 
+@@ -511,7 +525,7 @@
+ fi
+ 
+ plugins="mod_cml"
+-if test ! "x$LUA_LIB" = x; then
++if test ! "x$LUA_LIBS" = x; then
+ 	do_build="$do_build $plugins"
+ else
+ 	no_build="$no_build $plugins"
+--- ./src/Makefile.am	2005-08-20 12:16:29.000000000 +0300
++++ ../lighttpd-1.4.1-pkgconfig/src/Makefile.am	2005-08-22 18:05:10.000000000 +0300
+@@ -78,7 +78,7 @@
+ mod_cml_la_SOURCES = mod_cml.c mod_cml_lua.c mod_cml_funcs.c
+ mod_cml_la_CFLAGS = $(AM_CFLAGS) $(LUA_CFLAGS)
+ mod_cml_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
+-mod_cml_la_LIBADD = $(MEMCACHE_LIB) $(common_libadd) $(LUA_LIB)
++mod_cml_la_LIBADD = $(MEMCACHE_LIB) $(common_libadd) $(LUA_LIBS)
+ 
+ lib_LTLIBRARIES += mod_trigger_b4_dl.la
+ mod_trigger_b4_dl_la_SOURCES = mod_trigger_b4_dl.c
