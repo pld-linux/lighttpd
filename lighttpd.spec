@@ -1,7 +1,8 @@
 # TODO:
 # - test ldap and mysql (failed at this time)
 # - mysql issue: http://www.freebsd.org/cgi/query-pr.cgi?pr=76866
-# - gdbm for mod_trigger_b4_dl http://www.lighttpd.net/documentation/trigger_b4_dl.html
+# - fam over gamin is possible, just configure doesn't check other than gamin
+# - lua50 isn't properly detected
 #
 # NOTES:
 # - fcgi-devel is only used for the test-scripts
@@ -9,16 +10,19 @@
 #   see http://article.gmane.org/gmane.comp.web.lighttpd:722
 #
 # Conditional build for lighttpd:
-%bcond_without	xattr		# with support of extended attributes (doesn't compile in 1.4.0)
-%bcond_without	ipv6		# IPv4-only version (doesn't require IPv6 in kernel)
-%bcond_without	largefile	# without largefile support (see notes above)
-%bcond_without	ssl			# disable ssl support
-%bcond_without	mysql		# without mysql
-%bcond_with	ldap		# with ldap
-%bcond_with	lua			# enable LUA support in mod_cml
-%bcond_with	memcache	# enable memcached support in mod_cml / mod_trigger_b4_dl
-%bcond_with	valgrind	# compile code with valgrind support.
-%bcond_with	dirhide		# with 'hide from dirlisting' hack
+%bcond_without	xattr			# support of extended attributes
+%bcond_without	ipv6			# IPv4-only version (doesn't require IPv6 in kernel)
+%bcond_without	largefile		# largefile support (see notes above)
+%bcond_without	ssl				# ssl support
+%bcond_with		mysql			# mysql support in mod_mysql_vhost
+%bcond_with		ldap			# ldap support in mod_auth
+%bcond_with		lua				# LUA support in mod_cml
+%bcond_with		memcache		# memcached support in mod_cml / mod_trigger_b4_dl
+%bcond_without	gamin			# gamin for reducing number of stat() calls. NOTE: must be enabled in config: server.stat-cache-engine = "fam"
+%bcond_with		gdbm			# gdbm in mod_trigger_b4_dl
+%bcond_with		webdav_props	# properties in mod_webdav (includes extra sqlite3/libxml deps)
+%bcond_with		valgrind		# compile code with valgrind support.
+%bcond_with		dirhide			# with 'hide from dirlisting' hack
 
 # Prerelease snapshot: DATE-TIME
 #define _snap 20050116-1743
@@ -29,17 +33,17 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 1
+%define		_rel 0.1
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.0
+Version:	1.4.1
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}
 Group:		Networking/Daemons
 License:	BSD
 Source0:	%{_source}
-# Source0-md5:	926a3603615c9edf5859977f1b8b6033
+# Source0-md5:	3abffbe574fd835721760a37c00d3714
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -53,12 +57,16 @@ URL:		http://www.lighttpd.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	bzip2-devel
+%{?with_gamin:BuildRequires:	gamin-devel}
+%{?with_webdav_props:BuildRequires:	sqlite3-devel}
+%{?with_webdav_props:BuildRequires:	libxml2-devel}
 BuildRequires:	libtool
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?with_ldap:BuildRequires:		openldap-devel}
 %{?with_ssl:BuildRequires:	openssl-devel}
 %{?with_lua:BuildRequires:	lua50-devel}
 %{?with_memcache:BuildRequires:	libmemcache-devel}
+%{?with_gdbm:BuildRequires:	gdbm-devel}
 BuildRequires:	pcre-devel
 BuildRequires:	rpmbuild(macros) >= 1.202
 %{?debug:BuildRequires:	valgrind}
@@ -145,6 +153,28 @@ Requires:	%{name} = %{version}-%{release}
 %description mod_trigger_b4_dl
 Another anti hot-linking module.
 
+%package mod_webdav
+Summary:	WebDAV module for lighttpd
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/webdav.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_webdav
+The WebDAV module is a very minimalistic implementation of RFC 2518.
+Minimalistic means that not all operations are implementated yet.
+
+So far we have
+- PROPFIND
+- OPTIONS
+- MKCOL
+- DELETE
+- PUT
+
+and the usual GET, POST, HEAD from HTTP/1.1.
+
+So far mounting a webdav resource into Windows XP works and the basic
+litmus tests are passed.
+
 %package -n spawn-fcgi
 Summary:	Spawn fcgi-process directly
 Summary(pl):	Bezpo¶rednie uruchamianie procesów fcgi
@@ -165,21 +195,23 @@ pomocy serwera WWW ani samego programu.
 %patch2 -p1
 
 %build
-sed -i -e 's#stat_cache_attr_get#stat_cache_entry_attr_get#g' src/stat_cache.c
 %{__libtoolize}
 %{__aclocal}
 %{__autoconf}
 
 %configure \
+	%{!?with_ipv6:--disable-ipv6} \
+	%{!?with_largefile:--disable-lfs} \
 	%{?with_valgrind:--with-valgrind} \
 	%{?with_xattr:--with-attr} \
 	%{?with_mysql:--with-mysql} \
 	%{?with_ldap:--with-ldap} \
-	%{!?with_ipv6:--disable-ipv6} \
-	%{!?with_largefile:--disable-lfs} \
 	%{?with_ssl:--with-openssl} \
 	%{?with_lua:--with-lua} \
-	%{?with_memcache:--with-memcache}
+	%{?with_memcache:--with-memcache} \
+	%{?with_webdav_props:--with-webdav-props} \
+	%{?with_gamin:--with-gamin} \
+	%{?with_gdbm:--with-gdbm}
 
 %{__make}
 
@@ -267,7 +299,6 @@ fi
 %attr(755,root,root) %{_libdir}/mod_status.so
 %attr(755,root,root) %{_libdir}/mod_userdir.so
 %attr(755,root,root) %{_libdir}/mod_usertrack.so
-%attr(755,root,root) %{_libdir}/mod_webdav.so
 %attr(750,root,root) %dir /var/log/archiv/%{name}
 %dir %attr(750,lighttpd,root) /var/log/%{name}
 %attr(755,lighttpd,lighttpd) %{_lighttpddir}
@@ -287,13 +318,19 @@ fi
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/mod_cml.so
 
+%if %{with mysql}
 %files mod_mysql_vhost
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/mod_mysql_vhost.so
+%endif
 
 %files mod_trigger_b4_dl
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/mod_trigger_b4_dl.so
+
+%files mod_webdav
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/mod_webdav.so
 
 %files -n spawn-fcgi
 %defattr(644,root,root,755)
