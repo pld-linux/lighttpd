@@ -8,6 +8,9 @@
 # - fcgi-devel is only used for the test-scripts
 # - disable largefile, if you have 2.4 kernel to get sendfile() support, and don't need > 2GB file requests,
 #   see http://article.gmane.org/gmane.comp.web.lighttpd:722
+# - please make subpackages of modules that depend other modules than:
+#  - pcre (core binary needs it too)
+#  - openssl (core binary needs it too)
 #
 # Conditional build for lighttpd:
 %bcond_without	xattr			# support of extended attributes
@@ -18,7 +21,7 @@
 %bcond_with		ldap			# ldap support in mod_auth
 %bcond_with		lua				# LUA support in mod_cml
 %bcond_with		memcache		# memcached support in mod_cml / mod_trigger_b4_dl
-%bcond_without	gamin			# gamin for reducing number of stat() calls. NOTE: must be enabled in config: server.stat-cache-engine = "fam"
+%bcond_with		gamin			# gamin for reducing number of stat() calls. NOTE: must be enabled in config: server.stat-cache-engine = "fam"
 %bcond_with		gdbm			# gdbm in mod_trigger_b4_dl
 %bcond_with		webdav_props	# properties in mod_webdav (includes extra sqlite3/libxml deps)
 %bcond_with		valgrind		# compile code with valgrind support.
@@ -33,7 +36,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 0.1
+%define		_rel 0.4
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -52,6 +55,7 @@ Source5:	%{name}.sysconfig
 Patch0:		http://minghetti.ch/blob/dirlist-hide.patch
 Patch1:		%{name}-fcgi-verbose.patch
 Patch2:		%{name}-ssl-redirect-fix.patch
+Patch3:		%{name}-lua-pkgconfig.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -64,7 +68,7 @@ BuildRequires:	libtool
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?with_ldap:BuildRequires:		openldap-devel}
 %{?with_ssl:BuildRequires:	openssl-devel}
-%{?with_lua:BuildRequires:	lua50-devel}
+%{?with_lua:BuildRequires:	lua50-devel >= 5.0.2-4.1}
 %{?with_memcache:BuildRequires:	libmemcache-devel}
 %{?with_gdbm:BuildRequires:	gdbm-devel}
 BuildRequires:	pcre-devel
@@ -193,11 +197,13 @@ pomocy serwera WWW ani samego programu.
 %{?with_dirhide:%patch0 -p0}
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 %build
 %{__libtoolize}
 %{__aclocal}
 %{__autoconf}
+%{__automake}
 
 %configure \
 	%{!?with_ipv6:--disable-ipv6} \
