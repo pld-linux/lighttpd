@@ -56,6 +56,7 @@ Patch0:		http://minghetti.ch/blob/dirlist-hide.patch
 Patch1:		%{name}-fcgi-verbose.patch
 Patch2:		%{name}-ssl-redirect-fix.patch
 Patch3:		%{name}-lua-pkgconfig.patch
+Patch4:	%{name}-openssl.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -198,6 +199,7 @@ pomocy serwera WWW ani samego programu.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p2
 
 %build
 %{__libtoolize}
