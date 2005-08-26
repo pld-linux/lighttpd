@@ -116,6 +116,7 @@ powodu problemów z obci±¿eniem.
 
 %package mod_compress
 Summary:	Output Compression
+Summary(pl):	Kompresja wyj¶cia
 Group:		Networking/Daemons
 URL:		http://www.lighttpd.net/documentation/compress.html
 Requires:	%{name} = %{version}-%{release}
@@ -126,11 +127,21 @@ overall throughput of the webserver.
 
 Only static content is supported up to now.
 
-The server negotiates automaticly which compression method is used.
+The server negotiates automatically which compression method is used.
 Supported are gzip, deflate, bzip.
+
+%description mod_compress -l pl
+Kompresja wyj¶cia zmniejsza obci±¿enie sieci i mo¿e poprawiæ ca³kowit±
+przepustowo¶æ serwera WWW.
+
+Jak na razie obs³ugiwana jest tylko statyczna tre¶æ.
+
+Serwer automatycznie negocjuje, która metoda kompresji jest u¿ywana.
+Obs³ugiwane s± gzip, deflate i bzip.
 
 %package mod_cml
 Summary:	Cache Meta Language module
+Summary(pl):	Modu³ Cache Meta Language
 Group:		Networking/Daemons
 URL:		http://www.lighttpd.net/documentation/cml.html
 Requires:	%{name} = %{version}-%{release}
@@ -140,8 +151,13 @@ CML is a Meta language to describe the dependencies of a page at one
 side and building a page from its fragments on the other side using
 LUA.
 
+%description mod_cml -l pl
+CML to metajêzyk s³u¿±cy z jednej strony do opisu zale¿no¶ci strony i
+z drugiej strony do budowania strony z fragmentów przy u¿yciu LUA.
+
 %package mod_mysql_vhost
 Summary:	MySQL based vhosting
+Summary(pl):	vhosty oparte na MySQL-u
 Group:		Networking/Daemons
 URL:		http://www.lighttpd.net/documentation/mysqlvhost.html
 Requires:	%{name} = %{version}-%{release}
@@ -149,8 +165,12 @@ Requires:	%{name} = %{version}-%{release}
 %description mod_mysql_vhost
 This module provides virtual hosts (vhosts) based on a MySQL table.
 
+%description mod_mysql_vhost -l pl
+Ten modu³ udostêpnia wirtualne hosty (vhosty) oparte na tabeli MySQL.
+
 %package mod_trigger_b4_dl
 Summary:	Trigger before Download
+Summary(pl):	Wyzwalacz przed ¶ci±ganiem
 Group:		Networking/Daemons
 URL:		http://www.lighttpd.net/documentation/trigger_b4_dl.html
 Requires:	%{name} = %{version}-%{release}
@@ -158,8 +178,12 @@ Requires:	%{name} = %{version}-%{release}
 %description mod_trigger_b4_dl
 Another anti hot-linking module.
 
+%description mod_trigger_b4_dl -l pl
+Jeszcze jeden modu³ blokuj±cy bezpo¶rednie linkowanie.
+
 %package mod_webdav
 Summary:	WebDAV module for lighttpd
+Summary(pl):	Modu³ WebDAV dla libghttpd
 Group:		Networking/Daemons
 URL:		http://www.lighttpd.net/documentation/webdav.html
 Requires:	%{name} = %{version}-%{release}
@@ -179,6 +203,20 @@ and the usual GET, POST, HEAD from HTTP/1.1.
 
 So far mounting a webdav resource into Windows XP works and the basic
 litmus tests are passed.
+
+%description mod_webdav -l pl
+Modu³ WebDAV to bardzo minimalistyczna implementacja RFC 2518.
+Minimalistyczna oznacza, ¿e jeszcze nie wszystkie operacje s±
+zaimplementowane. Jak na razie s±:
+- PROPFIND
+- OPTIONS
+- MKCOL
+- DELETE
+- PUT
+oraz zwyk³e GET, POST, HEAD z HTTP/1.1.
+
+Jak na razie montowanie zasobu webdav pod Windows XP dzia³a i
+podstawowe testy lakmusowe przechodz±.
 
 %package -n spawn-fcgi
 Summary:	Spawn fcgi-process directly
