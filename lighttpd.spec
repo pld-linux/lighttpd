@@ -36,17 +36,17 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 0.4
+%define		_rel 1
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.1
+Version:	1.4.2
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}
 Group:		Networking/Daemons
 License:	BSD
 Source0:	%{_source}
-# Source0-md5:	3abffbe574fd835721760a37c00d3714
+# Source0-md5:	c26eea734490129a45e465ac0f327e4a
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -56,7 +56,6 @@ Patch0:		http://minghetti.ch/blob/dirlist-hide.patch
 Patch1:		%{name}-fcgi-verbose.patch
 Patch2:		%{name}-ssl-redirect-fix.patch
 Patch3:		%{name}-lua-pkgconfig.patch
-Patch4:	%{name}-openssl.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -237,7 +236,6 @@ pomocy serwera WWW ani samego programu.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch4 -p2
 
 %build
 %{__libtoolize}
