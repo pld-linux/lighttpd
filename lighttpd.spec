@@ -2,7 +2,7 @@
 # - test ldap and mysql (failed at this time)
 # - mysql issue: http://www.freebsd.org/cgi/query-pr.cgi?pr=76866
 # - fam over gamin is possible, just configure doesn't check other than gamin
-# - lua50 isn't properly detected
+# - feature stat-cache-fam (doesn't work)
 #
 # NOTES:
 # - fcgi-devel is only used for the test-scripts
@@ -41,12 +41,12 @@
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.2
+Version:	1.4.3
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}
 Group:		Networking/Daemons
 License:	BSD
 Source0:	%{_source}
-# Source0-md5:	c26eea734490129a45e465ac0f327e4a
+# Source0-md5:	5a08721c2ea7fbfc6790a1cf0063c8ef
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -68,7 +68,7 @@ BuildRequires:	libtool
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?with_ldap:BuildRequires:		openldap-devel}
 %{?with_ssl:BuildRequires:	openssl-devel}
-%{?with_lua:BuildRequires:	lua50-devel >= 5.0.2-4.1}
+%{?with_lua:BuildRequires:	lua50-devel >= 5.0.2-5.1}
 %{?with_memcache:BuildRequires:	libmemcache-devel}
 %{?with_gdbm:BuildRequires:	gdbm-devel}
 BuildRequires:	pcre-devel
