@@ -56,7 +56,13 @@ case "$1" in
 	RETVAL=$?
 	;;
   restart)
-  	$0 stop
+	if [ -f /var/lock/subsys/lighttpd ]; then
+		msg_stopping lighttpd
+		# sending INT signal will make lighttpd close all listening sockets and
+		# wait for client connections to terminate.
+		killproc lighttpd -INT
+		rm -f /var/lock/subsys/lighttpd >/dev/null 2>&1
+	fi
 	$0 start
 	;;
   reload|force-reload|graceful)
