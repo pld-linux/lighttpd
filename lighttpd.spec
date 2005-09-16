@@ -41,21 +41,19 @@
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.3
+Version:	1.4.4
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}
 Group:		Networking/Daemons
 License:	BSD
 Source0:	%{_source}
-# Source0-md5:	5a08721c2ea7fbfc6790a1cf0063c8ef
+# Source0-md5:	0142f34549cf326d1ee3631be665482f
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
 Source4:	%{name}.logrotate
 Source5:	%{name}.sysconfig
 Patch0:		http://minghetti.ch/blob/dirlist-hide.patch
-Patch1:		%{name}-fcgi-verbose.patch
-Patch2:		%{name}-ssl-redirect-fix.patch
-Patch3:		%{name}-lua-pkgconfig.patch
+Patch1:		%{name}-ssl-redirect-fix.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -234,8 +232,6 @@ pomocy serwera WWW ani samego programu.
 %setup -q
 %{?with_dirhide:%patch0 -p0}
 %patch1 -p1
-%patch2 -p1
-%patch3 -p1
 
 %build
 %{__libtoolize}
