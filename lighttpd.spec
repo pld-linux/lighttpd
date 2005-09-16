@@ -273,6 +273,10 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 # could use automake patch, but automake generation fails...
 mv $RPM_BUILD_ROOT%{_bindir}/spawn-fcgi $RPM_BUILD_ROOT%{_sbindir}/spawn-fcgi
 
+%if %{without mysql}
+rm -f $RPM_BUILD_ROOT%{_libdir}/mod_mysql_vhost.so
+%endif
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
