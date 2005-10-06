@@ -13,19 +13,19 @@
 #  - openssl (core binary needs it too)
 #
 # Conditional build for lighttpd:
-%bcond_without	xattr			# support of extended attributes
-%bcond_without	ipv6			# IPv4-only version (doesn't require IPv6 in kernel)
-%bcond_without	largefile		# largefile support (see notes above)
-%bcond_without	ssl				# ssl support
-%bcond_with		mysql			# mysql support in mod_mysql_vhost
-%bcond_with		ldap			# ldap support in mod_auth
-%bcond_with		lua				# LUA support in mod_cml
-%bcond_with		memcache		# memcached support in mod_cml / mod_trigger_b4_dl
-%bcond_with		gamin			# gamin for reducing number of stat() calls. NOTE: must be enabled in config: server.stat-cache-engine = "fam"
-%bcond_with		gdbm			# gdbm in mod_trigger_b4_dl
-%bcond_with		webdav_props	# properties in mod_webdav (includes extra sqlite3/libxml deps)
-%bcond_with		valgrind		# compile code with valgrind support.
-%bcond_with		dirhide			# with 'hide from dirlisting' hack
+%bcond_without	xattr		# support of extended attributes
+%bcond_without	ipv6		# IPv4-only version (doesn't require IPv6 in kernel)
+%bcond_without	largefile	# largefile support (see notes above)
+%bcond_without	ssl		# ssl support
+%bcond_with	mysql		# mysql support in mod_mysql_vhost
+%bcond_with	ldap		# ldap support in mod_auth
+%bcond_with	lua		# LUA support in mod_cml
+%bcond_with	memcache	# memcached support in mod_cml / mod_trigger_b4_dl
+%bcond_with	gamin		# gamin for reducing number of stat() calls. 
+				# NOTE: must be enabled in config: server.stat-cache-engine = "fam"
+%bcond_with	gdbm		# gdbm in mod_trigger_b4_dl
+%bcond_with	webdav_props	# properties in mod_webdav (includes extra sqlite3/libxml deps)
+%bcond_with	valgrind	# compile code with valgrind support.
 
 # Prerelease snapshot: DATE-TIME
 #define _snap 20050116-1743
@@ -52,8 +52,7 @@ Source2:	%{name}.conf
 Source3:	%{name}.user
 Source4:	%{name}.logrotate
 Source5:	%{name}.sysconfig
-Patch0:		http://minghetti.ch/blob/dirlist-hide.patch
-Patch1:		%{name}-ssl-redirect-fix.patch
+Patch0:		%{name}-ssl-redirect-fix.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -230,8 +229,7 @@ pomocy serwera WWW ani samego programu.
 
 %prep
 %setup -q
-%{?with_dirhide:%patch0 -p0}
-%patch1 -p1
+%patch0 -p1
 
 %build
 %{__libtoolize}
