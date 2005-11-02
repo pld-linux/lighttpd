@@ -36,23 +36,22 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 2
+%define		_rel 1
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.6
+Version:	1.4.7
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}
 Group:		Networking/Daemons
 License:	BSD
 Source0:	%{_source}
-# Source0-md5:	dec3ff6ff004868303407165d218bcdf
+# Source0-md5:	4d1b02e2008e5f35e4df7defee186fdd
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
 Source4:	%{name}.logrotate
 Source5:	%{name}.sysconfig
-Patch0:		%{name}-ssl-redirect-fix.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -229,7 +228,6 @@ pomocy serwera WWW ani samego programu.
 
 %prep
 %setup -q
-%patch0 -p1
 
 %build
 %{__libtoolize}
