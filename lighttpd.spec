@@ -69,7 +69,7 @@ BuildRequires:	libtool
 %{?with_gdbm:BuildRequires:	gdbm-devel}
 BuildRequires:	pcre-devel
 BuildRequires:	rpmbuild(macros) >= 1.202
-%{?debug:BuildRequires:	valgrind}
+%{?with_valgrind:BuildRequires:	valgrind}
 BuildRequires:	zlib-devel
 PreReq:		rc-scripts
 Requires(pre):	sh-utils
