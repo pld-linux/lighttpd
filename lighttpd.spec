@@ -36,7 +36,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 1
+%define		_rel 1.2
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -52,6 +52,7 @@ Source2:	%{name}.conf
 Source3:	%{name}.user
 Source4:	%{name}.logrotate
 Source5:	%{name}.sysconfig
+Source6:	%{name}-mime.types.sh
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -71,6 +72,7 @@ BuildRequires:	pcre-devel
 BuildRequires:	rpmbuild(macros) >= 1.202
 %{?with_valgrind:BuildRequires:	valgrind}
 BuildRequires:	zlib-devel
+BuildRequires:	mailcap >= 2.1.14-4.4
 PreReq:		rc-scripts
 Requires(pre):	sh-utils
 Requires(pre):	/bin/id
@@ -228,6 +230,10 @@ pomocy serwera WWW ani samego programu.
 
 %prep
 %setup -q
+install %{SOURCE6} mime.types.sh
+
+# build mime.types.conf
+./mime.types.sh /etc/mime.types
 
 %build
 %{__libtoolize}
@@ -260,7 +266,7 @@ install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d
 	DESTDIR=$RPM_BUILD_ROOT
 
 install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
-install %{SOURCE2} %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}
+install %{SOURCE2} %{SOURCE3} mime.types.conf $RPM_BUILD_ROOT%{_sysconfdir}
 install %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
 install %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 
@@ -346,6 +352,7 @@ fi
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
 %dir %attr(750,root,lighttpd) %{_sysconfdir}
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}.conf
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mime.types.conf
 %attr(640,root,lighttpd) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.user
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/%{name}
 %{_mandir}/man?/*
