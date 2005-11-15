@@ -39,3 +39,5 @@ cat mime.types.conf.tmp >> mime.types.conf
 cat >> mime.types.conf <<EOF
 )
 EOF
+
+rm -f mime.types.conf.tmp
