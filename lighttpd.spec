@@ -36,7 +36,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 1.2
+%define		_rel 1.4
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -53,6 +53,12 @@ Source3:	%{name}.user
 Source4:	%{name}.logrotate
 Source5:	%{name}.sysconfig
 Source6:	%{name}-mime.types.sh
+Source7:	http://www.lighttpd.net/favicon.ico
+# Source7-md5:	a358994becabd4060393a5454bde505d
+Source8:	http://www.lighttpd.net/light_button.png
+# Source8-md5:	02330e2313fadc29144edfd6000879f8
+Source9:	http://www.lighttpd.net/light_logo.png
+# Source9-md5:	ac20784510e420d5cbe5fc1cdb53d7a7
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -279,6 +285,9 @@ mv $RPM_BUILD_ROOT%{_bindir}/spawn-fcgi $RPM_BUILD_ROOT%{_sbindir}/spawn-fcgi
 rm -f $RPM_BUILD_ROOT%{_libdir}/mod_mysql_vhost.so
 %endif
 
+# Install lighttpd images
+install %{SOURCE7} %{SOURCE8} %{SOURCE9} $RPM_BUILD_ROOT%{_lighttpddir}/html
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -347,7 +356,6 @@ fi
 %attr(755,root,root) %{_libdir}/mod_usertrack.so
 %attr(750,root,root) %dir /var/log/archiv/%{name}
 %dir %attr(750,lighttpd,root) /var/log/%{name}
-%attr(755,lighttpd,lighttpd) %{_lighttpddir}
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
 %dir %attr(750,root,lighttpd) %{_sysconfdir}
@@ -356,6 +364,11 @@ fi
 %attr(640,root,lighttpd) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.user
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/%{name}
 %{_mandir}/man?/*
+
+%dir %{_lighttpddir}
+%dir %{_lighttpddir}/cgi-bin
+%dir %{_lighttpddir}/html
+%{_lighttpddir}/html/*
 
 %files mod_compress
 %defattr(644,root,root,755)
