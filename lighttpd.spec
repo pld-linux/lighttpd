@@ -36,7 +36,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 1.4
+%define		_rel 1.6
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -59,6 +59,9 @@ Source8:	http://www.lighttpd.net/light_button.png
 # Source8-md5:	02330e2313fadc29144edfd6000879f8
 Source9:	http://www.lighttpd.net/light_logo.png
 # Source9-md5:	ac20784510e420d5cbe5fc1cdb53d7a7
+Source10:	http://gdl.hopto.org/~spider/pldstats/gfx/pld1.png
+# Source10-md5:	486ecec3f6f4fe7f9bf7cee757b864f4
+Source11:	lighttpd-pld.html
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -288,6 +291,8 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/mod_mysql_vhost.so
 
 # Install lighttpd images
 install %{SOURCE7} %{SOURCE8} %{SOURCE9} $RPM_BUILD_ROOT%{_lighttpddir}/html
+install %{SOURCE10} $RPM_BUILD_ROOT%{_lighttpddir}/html/pld_button.png
+install %{SOURCE11} $RPM_BUILD_ROOT%{_lighttpddir}/html/index.html
 
 %clean
 rm -rf $RPM_BUILD_ROOT
