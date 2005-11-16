@@ -65,20 +65,21 @@ BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	bzip2-devel
 %{?with_gamin:BuildRequires:	gamin-devel}
-%{?with_webdav_props:BuildRequires:	sqlite3-devel}
-%{?with_webdav_props:BuildRequires:	libxml2-devel}
-BuildRequires:	libtool
-%{?with_mysql:BuildRequires:	mysql-devel}
-%{?with_ldap:BuildRequires:		openldap-devel}
-%{?with_ssl:BuildRequires:	openssl-devel}
-%{?with_lua:BuildRequires:	lua50-devel >= 5.0.2-5.1}
-%{?with_memcache:BuildRequires:	libmemcache-devel}
 %{?with_gdbm:BuildRequires:	gdbm-devel}
+%{?with_memcache:BuildRequires:	libmemcache-devel}
+BuildRequires:	libtool
+%{?with_webdav_props:BuildRequires:	libxml2-devel}
+%{?with_webdav_props:BuildRequires:	sqlite3-devel}
+%{?with_lua:BuildRequires:	lua50-devel >= 5.0.2-5.1}
+BuildRequires:	mailcap >= 2.1.14-4.4
+%{?with_mysql:BuildRequires:	mysql-devel}
+%{?with_ldap:BuildRequires:	openldap-devel}
+%{?with_ssl:BuildRequires:	openssl-devel}
 BuildRequires:	pcre-devel
+BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.202
 %{?with_valgrind:BuildRequires:	valgrind}
 BuildRequires:	zlib-devel
-BuildRequires:	mailcap >= 2.1.14-4.4
 PreReq:		rc-scripts
 Requires(pre):	sh-utils
 Requires(pre):	/bin/id
