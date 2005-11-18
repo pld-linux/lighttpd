@@ -45,7 +45,7 @@ case "$1" in
 	# Stop daemons.
 	if [ -f /var/lock/subsys/lighttpd ]; then
 		msg_stopping lighttpd
-		killproc lighttpd
+		kill `cat /var/run/lighttpd.pid`
 		rm -f /var/lock/subsys/lighttpd >/dev/null 2>&1
 	else
 		msg_not_running lighttpd
@@ -60,7 +60,7 @@ case "$1" in
 		msg_stopping lighttpd
 		# sending INT signal will make lighttpd close all listening sockets and
 		# wait for client connections to terminate.
-		killproc lighttpd -INT
+		kill -INT `cat /var/run/lighttpd.pid` 
 		rm -f /var/lock/subsys/lighttpd >/dev/null 2>&1
 	fi
 	$0 start
@@ -68,7 +68,7 @@ case "$1" in
   reload|force-reload|graceful)
 	if [ -f /var/lock/subsys/lighttpd ]; then
 		msg_reloading lighttpd
-		killproc lighttpd -HUP
+		kill -HUP `cat /var/run/lighttpd.pid`
 		RETVAL=$?
 	else
 		msg_not_running lighttpd
