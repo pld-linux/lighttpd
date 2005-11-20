@@ -36,7 +36,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 2
+%define		_rel 2.1
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -269,7 +269,8 @@ install %{SOURCE6} mime.types.sh
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d/init.d,sysconfig},%{_sysconfdir}} \
+install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d/init.d,sysconfig}} \
+	$RPM_BUILD_ROOT%{_sysconfdir}/webapps.d \
 	$RPM_BUILD_ROOT/var/log/{%{name},archiv/%{name}}
 
 %{__make} install \
@@ -335,6 +336,18 @@ fi
 %files
 %defattr(644,root,root,755)
 %doc NEWS README ChangeLog doc/lighttpd.conf doc/*.txt doc/rrdtool-graph.sh
+%dir %attr(750,root,lighttpd) %{_sysconfdir}
+# FIXME: accessible by webapps?
+%dir %attr(750,root,lighttpd) %{_sysconfdir}/webapps.d
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}.conf
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mime.types.conf
+%attr(640,root,lighttpd) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.user
+
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/%{name}
+%attr(750,root,root) %dir /var/log/archiv/%{name}
+%dir %attr(750,lighttpd,root) /var/log/%{name}
+%attr(754,root,root) /etc/rc.d/init.d/%{name}
+%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}
 %attr(755,root,root) %{_libdir}/mod_access.so
@@ -360,15 +373,6 @@ fi
 %attr(755,root,root) %{_libdir}/mod_status.so
 %attr(755,root,root) %{_libdir}/mod_userdir.so
 %attr(755,root,root) %{_libdir}/mod_usertrack.so
-%attr(750,root,root) %dir /var/log/archiv/%{name}
-%dir %attr(750,lighttpd,root) /var/log/%{name}
-%attr(754,root,root) /etc/rc.d/init.d/%{name}
-%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
-%dir %attr(750,root,lighttpd) %{_sysconfdir}
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}.conf
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mime.types.conf
-%attr(640,root,lighttpd) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.user
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/%{name}
 %{_mandir}/man?/*
 
 %dir %{_lighttpddir}
