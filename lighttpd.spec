@@ -300,7 +300,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %pre
 %groupadd -g 109 lighttpd
-%useradd -u 116 -d %{_lighttpddir} -c "HTTP User" -g lighttpd lighttpd
+%groupadd -g 51 http
+%addusertogroup lighttpd http
+%useradd -u 116 -d %{_lighttpddir} -c "HTTP User" -g lighttpd lighttpd,httpd
 
 %post
 /sbin/chkconfig --add %{name}
@@ -322,6 +324,7 @@ fi
 if [ "$1" = "0" ]; then
 	%userremove lighttpd
 	%groupremove lighttpd
+	%groupremove http
 fi
 
 %triggerpostun -- %{name} <= 1.3.6-2
