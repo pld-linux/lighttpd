@@ -36,7 +36,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 1.1
+%define		_rel 2
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -301,8 +301,8 @@ rm -rf $RPM_BUILD_ROOT
 %pre
 %groupadd -g 109 lighttpd
 %groupadd -g 51 http
+%useradd -u 116 -d %{_lighttpddir} -c "LigHTTPd User" -g lighttpd lighttpd
 %addusertogroup lighttpd http
-%useradd -u 116 -d %{_lighttpddir} -c "HTTP User" -g lighttpd lighttpd,httpd
 
 %post
 /sbin/chkconfig --add %{name}
