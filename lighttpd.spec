@@ -92,6 +92,7 @@ Requires(pre):	/usr/sbin/useradd
 Requires(post,preun):	/sbin/chkconfig
 Requires(postun):	/usr/sbin/groupdel
 Requires(postun):	/usr/sbin/userdel
+Provides:	group(http)
 Provides:	group(lighttpd)
 Provides:	httpd
 Provides:	user(lighttpd)
