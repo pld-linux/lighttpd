@@ -36,7 +36,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 3
+%define		_rel 4
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -61,7 +61,7 @@ Source9:	http://www.lighttpd.net/light_logo.png
 # Source9-md5:	ac20784510e420d5cbe5fc1cdb53d7a7
 Source10:	http://gdl.hopto.org/~spider/pldstats/gfx/pld1.png
 # Source10-md5:	486ecec3f6f4fe7f9bf7cee757b864f4
-Source11:	lighttpd-pld.html
+Source11:	%{name}-pld.html
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -72,7 +72,6 @@ BuildRequires:	bzip2-devel
 %{?with_memcache:BuildRequires:	libmemcache-devel}
 BuildRequires:	libtool
 %{?with_webdav_props:BuildRequires:	libxml2-devel}
-%{?with_webdav_props:BuildRequires:	sqlite3-devel}
 %{?with_lua:BuildRequires:	lua50-devel >= 5.0.2-5.1}
 BuildRequires:	mailcap >= 2.1.14-4.4
 %{?with_mysql:BuildRequires:	mysql-devel}
@@ -81,17 +80,18 @@ BuildRequires:	mailcap >= 2.1.14-4.4
 BuildRequires:	pcre-devel
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.202
+%{?with_webdav_props:BuildRequires:	sqlite3-devel}
 %{?with_valgrind:BuildRequires:	valgrind}
 BuildRequires:	zlib-devel
-PreReq:		rc-scripts
-Requires(pre):	sh-utils
+Requires(post,preun):	/sbin/chkconfig
+Requires(postun):	/usr/sbin/groupdel
+Requires(postun):	/usr/sbin/userdel
 Requires(pre):	/bin/id
 Requires(pre):	/usr/bin/getgid
 Requires(pre):	/usr/sbin/groupadd
 Requires(pre):	/usr/sbin/useradd
-Requires(post,preun):	/sbin/chkconfig
-Requires(postun):	/usr/sbin/groupdel
-Requires(postun):	/usr/sbin/userdel
+Requires(pre):	sh-utils
+Requires:	rc-scripts
 Provides:	group(http)
 Provides:	group(lighttpd)
 Provides:	httpd
