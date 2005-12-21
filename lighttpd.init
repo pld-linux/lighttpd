@@ -33,7 +33,7 @@ case "$1" in
 	# Check if the service is already running?
 	if [ ! -f /var/lock/subsys/lighttpd ]; then
 		msg_starting lighttpd
-		daemon lighttpd -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
+		daemon env SHELL=/bin/sh lighttpd -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
 		RETVAL=$?
 		[ $RETVAL -eq 0 ] && touch /var/lock/subsys/lighttpd
 	else
