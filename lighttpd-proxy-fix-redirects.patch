@@ -1,0 +1,76 @@
+diff -ur lighttpd-1.4.8-o/src/array.h lighttpd-1.4.8/src/array.h
+--- lighttpd-1.4.8-o/src/array.h	2005-09-23 12:24:18.000000000 -0600
++++ lighttpd-1.4.8/src/array.h	2005-12-30 03:01:39.000000000 -0700
+@@ -129,6 +129,7 @@
+ 		
+ 	int usage; /* fair-balancing needs the no. of connections active on this host */
+ 	int last_used_ndx; /* round robin */
++	short fix_redirects;	
+ } data_fastcgi;
+ 
+ data_fastcgi *data_fastcgi_init(void);
+diff -ur lighttpd-1.4.8-o/src/data_fastcgi.c lighttpd-1.4.8/src/data_fastcgi.c
+--- lighttpd-1.4.8-o/src/data_fastcgi.c	2005-08-23 08:36:12.000000000 -0600
++++ lighttpd-1.4.8/src/data_fastcgi.c	2005-12-30 03:01:39.000000000 -0700
+@@ -57,6 +57,7 @@
+ 	ds->host = buffer_init();
+ 	ds->port = 0;
+ 	ds->is_disabled = 0;
++	ds->fix_redirects = 0;
+ 	
+ 	ds->copy = data_fastcgi_copy;
+ 	ds->free = data_fastcgi_free;
+diff -ur lighttpd-1.4.8-o/src/mod_proxy.c lighttpd-1.4.8/src/mod_proxy.c
+--- lighttpd-1.4.8-o/src/mod_proxy.c	2005-11-18 05:29:36.000000000 -0700
++++ lighttpd-1.4.8/src/mod_proxy.c	2005-12-30 03:01:51.000000000 -0700
+@@ -277,6 +277,7 @@
+ 						{ "host",              NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },      /* 0 */
+ 						{ "port",              NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },       /* 1 */
+ 						{ "balance",              NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },   /* 2 */
++						{ "fix-redirects",     NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },       /* 3 */
+ 						{ NULL,                NULL, T_CONFIG_UNSET, T_CONFIG_SCOPE_UNSET }
+ 					};
+ 					
+@@ -297,6 +298,7 @@
+ 					
+ 					pcv[0].destination = df->host;
+ 					pcv[1].destination = &(df->port);
++					pcv[3].destination = &(df->fix_redirects);
+ 					
+ 					if (0 != config_insert_values_internal(srv, da_host->value, pcv)) {
+ 						return HANDLER_ERROR;
+@@ -527,7 +529,7 @@
+ }
+ 
+ 
+-static int proxy_response_parse(server *srv, connection *con, plugin_data *p, buffer *in) {
++static int proxy_response_parse(server *srv, connection *con, plugin_data *p, buffer *in, handler_ctx *hctx) {
+ 	char *s, *ns;
+ 	int http_response_status = -1;
+ 	
+@@ -586,7 +588,16 @@
+ 			break;
+ 		case 8:
+ 			if (0 == strncasecmp(key, "Location", key_len)) {
++				char *host;
+ 				con->parsed_response |= HTTP_LOCATION;
++
++				host = strndup(con->request.http_host->ptr, strchr(con->request.http_host->ptr, ':') - con->request.http_host->ptr);
++
++				if(strncasecmp(value, "http://", 7) == 0 && strncasecmp(value + 7, host, strlen(host)) == 0 && *(value + 7 + strlen(host)) == ':' && atoi(value + 7 + strlen(host) + 1) == hctx->host->port) {
++					value = strchr(value + 7 + strlen(host), '/');
++				}
++
++				free(host);
+ 			}
+ 			break;
+ 		case 10:
+@@ -688,7 +699,7 @@
+ 				log_error_write(srv, __FILE__, __LINE__, "sb", "Header:", hctx->response_header);
+ #endif
+ 				/* parse the response header */
+-				proxy_response_parse(srv, con, p, hctx->response_header);
++				proxy_response_parse(srv, con, p, hctx->response_header, hctx);
+ 					
+ 				/* enable chunked-transfer-encoding */
+ 				if (con->request.http_version == HTTP_VERSION_1_1 &&
