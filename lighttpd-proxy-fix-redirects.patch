@@ -22,7 +22,7 @@ diff -ur lighttpd-1.4.8-o/src/data_fastcgi.c lighttpd-1.4.8/src/data_fastcgi.c
  	ds->free = data_fastcgi_free;
 diff -ur lighttpd-1.4.8-o/src/mod_proxy.c lighttpd-1.4.8/src/mod_proxy.c
 --- lighttpd-1.4.8-o/src/mod_proxy.c	2005-11-18 05:29:36.000000000 -0700
-+++ lighttpd-1.4.8/src/mod_proxy.c	2005-12-30 03:01:51.000000000 -0700
++++ lighttpd-1.4.8/src/mod_proxy.c	2005-12-30 03:05:19.000000000 -0700
 @@ -277,6 +277,7 @@
  						{ "host",              NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },      /* 0 */
  						{ "port",              NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },       /* 1 */
@@ -57,7 +57,7 @@ diff -ur lighttpd-1.4.8-o/src/mod_proxy.c lighttpd-1.4.8/src/mod_proxy.c
 +
 +				host = strndup(con->request.http_host->ptr, strchr(con->request.http_host->ptr, ':') - con->request.http_host->ptr);
 +
-+				if(strncasecmp(value, "http://", 7) == 0 && strncasecmp(value + 7, host, strlen(host)) == 0 && *(value + 7 + strlen(host)) == ':' && atoi(value + 7 + strlen(host) + 1) == hctx->host->port) {
++				if(hctx->host->fix_redirects && strncasecmp(value, "http://", 7) == 0 && strncasecmp(value + 7, host, strlen(host)) == 0 && *(value + 7 + strlen(host)) == ':' && atoi(value + 7 + strlen(host) + 1) == hctx->host->port) {
 +					value = strchr(value + 7 + strlen(host), '/');
 +				}
 +
