@@ -95,7 +95,6 @@ Requires(pre):	sh-utils
 Requires:	rc-scripts
 Provides:	group(http)
 Provides:	group(lighttpd)
-Provides:	httpd
 Provides:	user(lighttpd)
 Provides:	webserver
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
