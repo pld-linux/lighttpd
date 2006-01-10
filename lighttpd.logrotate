@@ -5,6 +5,6 @@
 
 	sharedscripts
 	postrotate
-		/etc/rc.d/init.d/lighttpd reload > /dev/null
+		/etc/rc.d/init.d/lighttpd flush-logs > /dev/null
 	endscript
 }
