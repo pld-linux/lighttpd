@@ -37,6 +37,25 @@ configtest() {
 	fail
 }
 
+start() {
+	daemon env SHELL=/bin/sh lighttpd -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
+	RETVAL=$?
+	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/lighttpd
+	return $RETVAL
+}
+
+stop() {
+	killproc --pidfile /var/run/lighttpd.pid lighttpd
+	rm -f /var/lock/subsys/lighttpd >/dev/null 2>&1
+}
+
+reload() {
+	# sending INT signal will make lighttpd close all listening sockets and
+	# wait for client connections to terminate.
+	killproc --pidfile /var/run/lighttpd.pid lighttpd -INT
+	env SHELL=/bin/sh lighttpd -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
+}
+
 RETVAL=0
 # See how we were called.
 case "$1" in
@@ -45,9 +64,7 @@ case "$1" in
 	if [ ! -f /var/lock/subsys/lighttpd ]; then
 		msg_starting lighttpd
 		configtest || exit 1
-		daemon env SHELL=/bin/sh lighttpd -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
-		RETVAL=$?
-		[ $RETVAL -eq 0 ] && touch /var/lock/subsys/lighttpd
+		start
 	else
 		msg_already_running lighttpd
 	fi
@@ -56,8 +73,7 @@ case "$1" in
 	# Stop daemons.
 	if [ -f /var/lock/subsys/lighttpd ]; then
 		msg_stopping lighttpd
-		killproc --pidfile /var/run/lighttpd.pid lighttpd
-		rm -f /var/lock/subsys/lighttpd >/dev/null 2>&1
+		stop
 	else
 		msg_not_running lighttpd
 	fi
@@ -66,21 +82,41 @@ case "$1" in
 	status lighttpd
 	RETVAL=$?
 	;;
-  restart|graceful)
+  restart)
 	if [ -f /var/lock/subsys/lighttpd ]; then
-		msg_stopping lighttpd
 		configtest || exit 1
-		# sending INT signal will make lighttpd close all listening sockets and
-		# wait for client connections to terminate.
-		killproc --pidfile /var/run/lighttpd.pid lighttpd -INT
-		rm -f /var/lock/subsys/lighttpd >/dev/null 2>&1
+
+		# short circuit to safe reload if pid exists and is alive
+		pid=$(pidofproc lighttpd lighttpd.pid)
+		if [ "$pid" ] && checkpid $pid; then
+			msg_reloading lighttpd
+			reload
+		else
+			msg_stopping lighttpd
+			stop
+			msg_starting lighttpd
+			start
+		fi
+		RETVAL=$?
+	else
+		msg_not_running lighttpd
+		msg_starting lighttpd
+		start
 	fi
-	$0 start
 	;;
-  reload|force-reload)
-	# this is not reload. it will just reopen logs
+  reload|graceful|force-reload)
 	if [ -f /var/lock/subsys/lighttpd ]; then
 		msg_reloading lighttpd
+		reload
+		RETVAL=$?
+	else
+		msg_not_running lighttpd
+		RETVAL=7
+	fi
+	;;
+  flush-logs)
+	if [ -f /var/lock/subsys/lighttpd ]; then
+		nls "Rotating %s logs" lighttpd
 		configtest || exit 1
 		killproc --pidfile /var/run/lighttpd.pid lighttpd -HUP
 		RETVAL=$?
@@ -90,7 +126,7 @@ case "$1" in
 	fi
 	;;
   *)
-	msg_usage "$0 {start|stop|restart|reload|force-reload|graceful|status}"
+	msg_usage "$0 {start|stop|restart|reload|force-reload|graceful|flush-logs|status}"
 	exit 3
 	;;
 esac
