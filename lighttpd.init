@@ -107,6 +107,7 @@ case "$1" in
   reload|graceful|force-reload)
 	if [ -f /var/lock/subsys/lighttpd ]; then
 		msg_reloading lighttpd
+		configtest || exit 1
 		reload
 		RETVAL=$?
 	else
