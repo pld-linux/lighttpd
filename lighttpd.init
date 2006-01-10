@@ -26,6 +26,17 @@ else
 	exit 0
 fi
 
+configtest() {
+	out=`env SHELL=/bin/sh lighttpd -t -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS 2>&1`
+	rc=$?
+	if [ "$rc" = 0 ]; then
+		return
+	fi
+	echo >&2 ""
+	echo >&2 "$out"
+	fail
+}
+
 RETVAL=0
 # See how we were called.
 case "$1" in
@@ -33,6 +44,7 @@ case "$1" in
 	# Check if the service is already running?
 	if [ ! -f /var/lock/subsys/lighttpd ]; then
 		msg_starting lighttpd
+		configtest || exit 1
 		daemon env SHELL=/bin/sh lighttpd -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
 		RETVAL=$?
 		[ $RETVAL -eq 0 ] && touch /var/lock/subsys/lighttpd
@@ -54,9 +66,10 @@ case "$1" in
 	status lighttpd
 	RETVAL=$?
 	;;
-  restart)
+  restart|graceful)
 	if [ -f /var/lock/subsys/lighttpd ]; then
 		msg_stopping lighttpd
+		configtest || exit 1
 		# sending INT signal will make lighttpd close all listening sockets and
 		# wait for client connections to terminate.
 		killproc --pidfile /var/run/lighttpd.pid lighttpd -INT
@@ -64,9 +77,11 @@ case "$1" in
 	fi
 	$0 start
 	;;
-  reload|force-reload|graceful)
+  reload|force-reload)
+	# this is not reload. it will just reopen logs
 	if [ -f /var/lock/subsys/lighttpd ]; then
 		msg_reloading lighttpd
+		configtest || exit 1
 		killproc --pidfile /var/run/lighttpd.pid lighttpd -HUP
 		RETVAL=$?
 	else
