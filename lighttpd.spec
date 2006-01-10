@@ -19,16 +19,16 @@
 %bcond_without	ssl		# ssl support
 %bcond_with	mysql		# mysql support in mod_mysql_vhost
 %bcond_with	ldap		# ldap support in mod_auth
-%bcond_with	lua		# LUA support in mod_cml
+%bcond_without	lua		# LUA support in mod_cml
 %bcond_with	memcache	# memcached support in mod_cml / mod_trigger_b4_dl
-%bcond_with	gamin		# gamin for reducing number of stat() calls. 
+%bcond_with	gamin		# gamin for reducing number of stat() calls.
 				# NOTE: must be enabled in config: server.stat-cache-engine = "fam"
 %bcond_with	gdbm		# gdbm in mod_trigger_b4_dl
 %bcond_with	webdav_props	# properties in mod_webdav (includes extra sqlite3/libxml deps)
 %bcond_with	valgrind	# compile code with valgrind support.
 
 # Prerelease snapshot: DATE-TIME
-#define _snap 20050116-1743
+%define _snap 20060104-1523
 
 %if 0%{?_snap}
 %define _source http://www.lighttpd.net/download/%{name}-%{version}-%{_snap}.tar.gz
@@ -36,17 +36,17 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 4
+%define		_rel 0.8
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.8
+Version:	1.4.9
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}
 Group:		Networking/Daemons
 License:	BSD
 Source0:	%{_source}
-# Source0-md5:	7d7790ef95ff5755f73bfcda4f13696d
+# Source0-md5:	67b9580b79c058b7a854964ee6fa0294
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -80,7 +80,7 @@ BuildRequires:	mailcap >= 2.1.14-4.4
 %{?with_ssl:BuildRequires:	openssl-devel}
 BuildRequires:	pcre-devel
 BuildRequires:	pkgconfig
-BuildRequires:	rpmbuild(macros) >= 1.202
+BuildRequires:	rpmbuild(macros) >= 1.268
 %{?with_webdav_props:BuildRequires:	sqlite3-devel}
 %{?with_valgrind:BuildRequires:	valgrind}
 BuildRequires:	zlib-devel
@@ -308,17 +308,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 /sbin/chkconfig --add %{name}
-if [ -f /var/lock/subsys/%{name} ]; then
-	/etc/rc.d/init.d/%{name} restart 1>&2
-else
-	echo "Run \"/etc/rc.d/init.d/%{name} start\" to start %{name} daemon."
-fi
+%service %{name} restart "LigHTTPd webserver"
 
 %preun
 if [ "$1" = "0" ]; then
-	if [ -f /var/lock/subsys/%{name} ]; then
-		/etc/rc.d/init.d/%{name} stop 1>&2
-	fi
+	%service %{name} stop
 	/sbin/chkconfig --del %{name}
 fi
 
@@ -361,6 +355,7 @@ fi
 %attr(755,root,root) %{_libdir}/mod_auth.so
 %attr(755,root,root) %{_libdir}/mod_cgi.so
 %attr(755,root,root) %{_libdir}/mod_dirlisting.so
+%attr(755,root,root) %{_libdir}/mod_evasive.so
 %attr(755,root,root) %{_libdir}/mod_evhost.so
 %attr(755,root,root) %{_libdir}/mod_expire.so
 %attr(755,root,root) %{_libdir}/mod_fastcgi.so
