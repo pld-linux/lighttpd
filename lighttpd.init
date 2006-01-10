@@ -118,7 +118,6 @@ case "$1" in
   flush-logs)
 	if [ -f /var/lock/subsys/lighttpd ]; then
 		nls "Rotating %s logs" lighttpd
-		configtest || exit 1
 		killproc --pidfile /var/run/lighttpd.pid lighttpd -HUP
 		RETVAL=$?
 	else
