@@ -36,7 +36,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 0.12
+%define		_rel 0.13
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -273,7 +273,7 @@ install %{SOURCE6} mime.types.sh
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d/init.d,sysconfig}} \
 	$RPM_BUILD_ROOT%{_sysconfdir}/webapps.d \
-	$RPM_BUILD_ROOT/var/log/{%{name},archiv/%{name}}
+	$RPM_BUILD_ROOT{/var/log/{%{name},archiv/%{name}},/var/run/%{name}}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
@@ -337,15 +337,15 @@ fi
 %defattr(644,root,root,755)
 %doc NEWS README ChangeLog doc/lighttpd.conf doc/*.txt doc/rrdtool-graph.sh
 %dir %attr(750,root,lighttpd) %{_sysconfdir}
-# FIXME: accessible by webapps?
-%dir %attr(750,root,lighttpd) %{_sysconfdir}/webapps.d
+%dir %attr(750,root,root) %{_sysconfdir}/webapps.d
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}.conf
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mime.types.conf
 %attr(640,root,lighttpd) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.user
 
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/%{name}
 %attr(750,root,root) %dir /var/log/archiv/%{name}
-%dir %attr(750,lighttpd,root) /var/log/%{name}
+%dir %attr(770,root,lighttpd) /var/log/%{name}
+%dir %attr(770,root,lighttpd) /var/run/%{name}
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
 %attr(755,root,root) %{_sbindir}/*
