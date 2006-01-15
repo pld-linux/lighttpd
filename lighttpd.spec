@@ -28,7 +28,7 @@
 %bcond_with	valgrind	# compile code with valgrind support.
 
 # Prerelease snapshot: DATE-TIME
-%define _snap 20060104-1523
+#define _snap 20060104-1523
 
 %if 0%{?_snap}
 %define _source http://www.lighttpd.net/download/%{name}-%{version}-%{_snap}.tar.gz
@@ -36,7 +36,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 0.13
+%define		_rel 0.1
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -46,7 +46,7 @@ Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}
 Group:		Networking/Daemons
 License:	BSD
 Source0:	%{_source}
-# Source0-md5:	67b9580b79c058b7a854964ee6fa0294
+# Source0-md5:	20a171774a0615069de3704db52483aa
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
