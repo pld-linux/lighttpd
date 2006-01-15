@@ -36,15 +36,15 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 0.1
+%define		_rel 1
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.4.9
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}
-Group:		Networking/Daemons
 License:	BSD
+Group:		Networking/Daemons
 Source0:	%{_source}
 # Source0-md5:	20a171774a0615069de3704db52483aa
 Source1:	%{name}.init
@@ -62,7 +62,7 @@ Source9:	http://www.lighttpd.net/light_logo.png
 Source10:	http://gdl.hopto.org/~spider/pldstats/gfx/pld1.png
 # Source10-md5:	486ecec3f6f4fe7f9bf7cee757b864f4
 Source11:	%{name}-pld.html
-Patch0:	%{name}-proxy-fix-redirects.patch
+Patch0:		%{name}-proxy-fix-redirects.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -91,12 +91,13 @@ Requires(pre):	/bin/id
 Requires(pre):	/usr/bin/getgid
 Requires(pre):	/usr/sbin/groupadd
 Requires(pre):	/usr/sbin/useradd
-Requires(pre):	sh-utils
 Requires:	rc-scripts
 Provides:	group(http)
 Provides:	group(lighttpd)
 Provides:	user(lighttpd)
 Provides:	webserver
+# for the posttrans scriptlet, conflicts because in vserver environment rpm package is not installed.
+Conflicts:	rpm < 4.4.2-0.2
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_libdir		%{_prefix}/%{_lib}/%{name}
@@ -308,8 +309,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 /sbin/chkconfig --add %{name}
-%service %{name} restart "LigHTTPd webserver"
-exit 0
 
 %preun
 if [ "$1" = "0" ]; then
@@ -323,6 +322,44 @@ if [ "$1" = "0" ]; then
 	%groupremove lighttpd
 	%groupremove http
 fi
+
+%posttrans
+# minimizing lighttpd restarts logics. we restart webserver:
+#
+# 1. at the end of transaction. (posttrans, feature from rpm 4.4.2)
+# 2. first install of module (post: $1 = 1)
+# 2. uninstall of module (postun: $1 == 0)
+#
+# the strict internal deps between lighttpd modules and
+# main package are very important for all this to work.
+%service %{name} restart "LigHTTPd webserver"
+exit 0
+
+# macro called at module post scriptlet
+%define	module_post \
+if [ "$1" = "1" ]; then \
+	%service -q lighttpd restart \
+fi
+
+# macro called at module postun scriptlet
+%define	module_postun \
+if [ "$1" = "0" ]; then \
+	%service -q lighttpd restart \
+fi
+
+# it's sooo annoying to write them
+%define	module_scripts() \
+%post %1 \
+%module_post \
+\
+%postun %1 \
+%module_postun
+
+%module_scripts mod_compress
+%module_scripts mod_cml
+%module_scripts mod_mysql_vhost
+%module_scripts mod_trigger_b4_dl
+%module_scripts mod_webdav
 
 %triggerpostun -- %{name} <= 1.3.6-2
 # upgraded
