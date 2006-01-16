@@ -301,6 +301,7 @@ install %{SOURCE11} $RPM_BUILD_ROOT%{_lighttpddir}/html/index.html
 # to change load order, just update the list here. numbers are automatically calculated.
 modules="
 rewrite
+redirect
 access
 alias
 auth
@@ -312,7 +313,6 @@ expire
 fastcgi
 indexfile
 proxy
-redirect
 rrdtool
 scgi
 secdownload
