@@ -36,7 +36,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 1
+%define		_rel 1.9
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -273,7 +273,7 @@ install %{SOURCE6} mime.types.sh
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d/init.d,sysconfig}} \
-	$RPM_BUILD_ROOT%{_sysconfdir}/webapps.d \
+	$RPM_BUILD_ROOT%{_sysconfdir}/{conf,webapps}.d \
 	$RPM_BUILD_ROOT{/var/log/{%{name},archiv/%{name}},/var/run/%{name}}
 
 %{__make} install \
@@ -289,14 +289,63 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 # could use automake patch, but automake generation fails...
 mv $RPM_BUILD_ROOT%{_bindir}/spawn-fcgi $RPM_BUILD_ROOT%{_sbindir}/spawn-fcgi
 
-%if %{without mysql}
-rm -f $RPM_BUILD_ROOT%{_libdir}/mod_mysql_vhost.so
-%endif
-
 # Install lighttpd images
 install %{SOURCE7} %{SOURCE8} %{SOURCE9} $RPM_BUILD_ROOT%{_lighttpddir}/html
 install %{SOURCE10} $RPM_BUILD_ROOT%{_lighttpddir}/html/pld_button.png
 install %{SOURCE11} $RPM_BUILD_ROOT%{_lighttpddir}/html/index.html
+
+# make config fragment for each module. overrides should be after this section
+# NOTE: the order of the modules is somewhat important as the modules are
+# handled in the way they are specified. mod_rewrite should always be the first
+# module, mod_accesslog always the last.
+# to change load order, just update the list here. numbers are automatically calculated.
+modules="
+rewrite
+access
+alias
+auth
+cgi
+dirlisting
+evasive
+evhost
+expire
+fastcgi
+indexfile
+proxy
+redirect
+rrdtool
+scgi
+secdownload
+setenv
+simple_vhost
+ssi
+staticfile
+status
+userdir
+usertrack
+compress
+cml
+mysql_vhost
+trigger_b4_dl
+webdav
+accesslog
+"
+
+i=0
+for mod in $modules; do
+cat <<EOF >> $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/$(printf %02d $i)_mod_$mod.conf
+server.modules += (
+	"mod_$mod"
+)
+EOF
+i=$((i+1))
+done
+
+%if %{without mysql}
+# avoid packaging dummy module
+rm -f $RPM_BUILD_ROOT%{_libdir}/mod_mysql_vhost.so
+rm -f $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_mysql_vhost.conf
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -387,29 +436,53 @@ fi
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}
+%{_sysconfdir}/conf.d/*mod_access.conf
 %attr(755,root,root) %{_libdir}/mod_access.so
+%{_sysconfdir}/conf.d/*mod_accesslog.conf
 %attr(755,root,root) %{_libdir}/mod_accesslog.so
+%{_sysconfdir}/conf.d/*mod_alias.conf
 %attr(755,root,root) %{_libdir}/mod_alias.so
+%{_sysconfdir}/conf.d/*mod_auth.conf
 %attr(755,root,root) %{_libdir}/mod_auth.so
+%{_sysconfdir}/conf.d/*mod_cgi.conf
 %attr(755,root,root) %{_libdir}/mod_cgi.so
+%{_sysconfdir}/conf.d/*mod_dirlisting.conf
 %attr(755,root,root) %{_libdir}/mod_dirlisting.so
+%{_sysconfdir}/conf.d/*mod_evasive.conf
 %attr(755,root,root) %{_libdir}/mod_evasive.so
+%{_sysconfdir}/conf.d/*mod_evhost.conf
 %attr(755,root,root) %{_libdir}/mod_evhost.so
+%{_sysconfdir}/conf.d/*mod_expire.conf
 %attr(755,root,root) %{_libdir}/mod_expire.so
+%{_sysconfdir}/conf.d/*mod_fastcgi.conf
 %attr(755,root,root) %{_libdir}/mod_fastcgi.so
+%{_sysconfdir}/conf.d/*mod_indexfile.conf
 %attr(755,root,root) %{_libdir}/mod_indexfile.so
+%{_sysconfdir}/conf.d/*mod_proxy.conf
 %attr(755,root,root) %{_libdir}/mod_proxy.so
+%{_sysconfdir}/conf.d/*mod_redirect.conf
 %attr(755,root,root) %{_libdir}/mod_redirect.so
+%{_sysconfdir}/conf.d/*mod_rewrite.conf
 %attr(755,root,root) %{_libdir}/mod_rewrite.so
+%{_sysconfdir}/conf.d/*mod_rrdtool.conf
 %attr(755,root,root) %{_libdir}/mod_rrdtool.so
+%{_sysconfdir}/conf.d/*mod_scgi.conf
 %attr(755,root,root) %{_libdir}/mod_scgi.so
+%{_sysconfdir}/conf.d/*mod_secdownload.conf
 %attr(755,root,root) %{_libdir}/mod_secdownload.so
+%{_sysconfdir}/conf.d/*mod_setenv.conf
 %attr(755,root,root) %{_libdir}/mod_setenv.so
+%{_sysconfdir}/conf.d/*mod_simple_vhost.conf
 %attr(755,root,root) %{_libdir}/mod_simple_vhost.so
+%{_sysconfdir}/conf.d/*mod_ssi.conf
 %attr(755,root,root) %{_libdir}/mod_ssi.so
+%{_sysconfdir}/conf.d/*mod_staticfile.conf
 %attr(755,root,root) %{_libdir}/mod_staticfile.so
+%{_sysconfdir}/conf.d/*mod_status.conf
 %attr(755,root,root) %{_libdir}/mod_status.so
+%{_sysconfdir}/conf.d/*mod_userdir.conf
 %attr(755,root,root) %{_libdir}/mod_userdir.so
+%{_sysconfdir}/conf.d/*mod_usertrack.conf
 %attr(755,root,root) %{_libdir}/mod_usertrack.so
 %{_mandir}/man?/*
 
@@ -420,24 +493,29 @@ fi
 
 %files mod_compress
 %defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_compress.conf
 %attr(755,root,root) %{_libdir}/mod_compress.so
 
 %files mod_cml
 %defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_cml.conf
 %attr(755,root,root) %{_libdir}/mod_cml.so
 
 %if %{with mysql}
 %files mod_mysql_vhost
 %defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_mysql_vhost.conf
 %attr(755,root,root) %{_libdir}/mod_mysql_vhost.so
 %endif
 
 %files mod_trigger_b4_dl
 %defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_trigger_b4_dl.conf
 %attr(755,root,root) %{_libdir}/mod_trigger_b4_dl.so
 
 %files mod_webdav
 %defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_webdav.conf
 %attr(755,root,root) %{_libdir}/mod_webdav.so
 
 %files -n spawn-fcgi
