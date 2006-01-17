@@ -3,6 +3,7 @@
 # - mysql issue: http://www.freebsd.org/cgi/query-pr.cgi?pr=76866
 # - fam over gamin is possible, just configure doesn't check other than gamin
 # - feature stat-cache-fam (doesn't work)
+# - depends on http://trac.lighttpd.net/trac/ticket/475
 #
 # NOTES:
 # - fcgi-devel is only used for the test-scripts
