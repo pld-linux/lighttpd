@@ -62,6 +62,7 @@ Source9:	http://www.lighttpd.net/light_logo.png
 Source10:	http://gdl.hopto.org/~spider/pldstats/gfx/pld1.png
 # Source10-md5:	486ecec3f6f4fe7f9bf7cee757b864f4
 Source11:	%{name}-pld.html
+Patch0:		%{name}-mod_deflate.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -241,6 +242,7 @@ pomocy serwera WWW ani samego programu.
 
 %prep
 %setup -q
+%patch0 -p1
 install %{SOURCE6} mime.types.sh
 
 # build mime.types.conf
@@ -390,6 +392,7 @@ fi
 %attr(755,root,root) %{_libdir}/mod_alias.so
 %attr(755,root,root) %{_libdir}/mod_auth.so
 %attr(755,root,root) %{_libdir}/mod_cgi.so
+%attr(755,root,root) %{_libdir}/mod_deflate.so
 %attr(755,root,root) %{_libdir}/mod_dirlisting.so
 %attr(755,root,root) %{_libdir}/mod_evasive.so
 %attr(755,root,root) %{_libdir}/mod_evhost.so
