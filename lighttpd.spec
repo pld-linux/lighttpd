@@ -36,7 +36,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 1
+%define		_rel 2
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -63,6 +63,7 @@ Source10:	http://gdl.hopto.org/~spider/pldstats/gfx/pld1.png
 # Source10-md5:	486ecec3f6f4fe7f9bf7cee757b864f4
 Source11:	%{name}-pld.html
 Patch0:		%{name}-mod_deflate.patch
+Patch1:		%{name}-memory_leak.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -243,6 +244,7 @@ pomocy serwera WWW ani samego programu.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
 install %{SOURCE6} mime.types.sh
 
 # build mime.types.conf
