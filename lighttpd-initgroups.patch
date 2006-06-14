@@ -1,0 +1,44 @@
+Index: trunk/src/server.c
+===================================================================
+--- trunk/src/server.c (revision 262)
++++ trunk/src/server.c (revision 270)
+@@ -564,7 +564,11 @@
+ 			setgroups(0, NULL);
+ 		}
+-		if (srv->srvconf.username->used && srv->srvconf.groupname->used)
+-			initgroups(srv->srvconf.username->ptr, grp->gr_gid);
+-		if (srv->srvconf.username->used) setuid(pwd->pw_uid);
++		
++		if (srv->srvconf.username->used) {
++			if (srv->srvconf.groupname->used) {
++				initgroups(srv->srvconf.username->ptr, grp->gr_gid);
++			}
++			setuid(pwd->pw_uid);
++		}
+ #endif
+ 	} else {
+@@ -981,5 +985,4 @@
+ 		for (ndx = 0; ndx < srv->joblist->used; ndx++) {
+ 			connection *con = srv->joblist->ptr[ndx];
+-			handler_t r;
+ 
+ 			connection_state_machine(srv, con);
+Index: trunk/src/spawn-fcgi.c
+===================================================================
+--- trunk/src/spawn-fcgi.c (revision 67)
++++ trunk/src/spawn-fcgi.c (revision 270)
+@@ -333,7 +333,11 @@
+ 		if (groupname) {
+ 			setgid(grp->gr_gid);
+-			setgroups(0, NULL);
+-		}
+-		if (username) setuid(pwd->pw_uid);
++		}
++		if (username) {
++			if (groupname) {
++				initgroups(username, grp->gr_gid);
++			}
++			setuid(pwd->pw_uid);
++		}
+ 	}
+ 	
