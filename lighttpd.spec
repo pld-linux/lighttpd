@@ -3,15 +3,11 @@
 # - mysql issue: http://www.freebsd.org/cgi/query-pr.cgi?pr=76866
 # - fam over gamin is possible, just configure doesn't check other than gamin
 # - feature stat-cache-fam (doesn't work)
-# - depends on http://trac.lighttpd.net/trac/ticket/475
 #
 # NOTES:
 # - fcgi-devel is only used for the test-scripts
 # - disable largefile, if you have 2.4 kernel to get sendfile() support, and don't need > 2GB file requests,
 #   see http://article.gmane.org/gmane.comp.web.lighttpd:722
-# - please make subpackages of modules that depend other modules than:
-#  - pcre (core binary needs it too)
-#  - openssl (core binary needs it too)
 #
 # Conditional build for lighttpd:
 %bcond_without	xattr		# support of extended attributes
@@ -37,7 +33,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 0.9
+%define		_rel 3.9
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -127,8 +123,75 @@ wyj¶cia, przepisywanie URL-i i wiele innych) czyni± z lighttpd
 doskona³e oprogramowanie web-serwerowe na ka¿dy serwer cierpi±cy z
 powodu problemów z obci±¿eniem.
 
+%package mod_access
+Summary:	lighttpd module for making access restrictions
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/access.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_access
+The access module is used to deny access to files with given trailing
+path names.
+
+%package mod_accesslog
+Summary:	lighttpd module to record access logs
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/accesslog.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_accesslog
+CLF like by default, flexible like Apache.
+
+%package mod_alias
+Summary:	lighttpd module for making url aliasing
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/alias.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_alias
+The alias module is used to specify a special document-root for a
+given url-subset.
+
+%package mod_auth
+Summary:	lighttpd module for authentication support
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/authentication.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_auth
+lighttpd supportes both authentication method described by RFC 2617:
+basic and digest.
+
+%package mod_cgi
+Summary:	lighttpd module for CGI handling
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/cgi.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_cgi
+The cgi module provides a CGI-conforming interface.
+
+CGI programs allow you to enhance the functionality of the server in a
+very straight and simple way...
+
+%package mod_cml
+Summary:	lighttpd module for Cache Meta Language
+Summary(pl):	Modu³ Cache Meta Language
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/cml.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_cml
+CML is a Meta language to describe the dependencies of a page at one
+side and building a page from its fragments on the other side using
+LUA.
+
+%description mod_cml -l pl
+CML to metajêzyk s³u¿±cy z jednej strony do opisu zale¿no¶ci strony i
+z drugiej strony do budowania strony z fragmentów przy u¿yciu LUA.
+
 %package mod_compress
-Summary:	Output Compression
+Summary:	lighttpd module for output compression
 Summary(pl):	Kompresja wyj¶cia
 Group:		Networking/Daemons
 URL:		http://www.lighttpd.net/documentation/compress.html
@@ -152,34 +215,203 @@ Jak na razie obs³ugiwana jest tylko statyczna tre¶æ.
 Serwer automatycznie negocjuje, która metoda kompresji jest u¿ywana.
 Obs³ugiwane s± gzip, deflate i bzip.
 
-%package mod_cml
-Summary:	Cache Meta Language module
-Summary(pl):	Modu³ Cache Meta Language
+%package mod_deflate
+Summary:	lighttpd module for output compression
+Summary(pl):	Kompresja wyj¶cia
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/cml.html
+URL:		http://trac.lighttpd.net/trac/wiki/Mod_Deflate
 Requires:	%{name} = %{version}-%{release}
 
-%description mod_cml
-CML is a Meta language to describe the dependencies of a page at one
-side and building a page from its fragments on the other side using
-LUA.
+%description mod_deflate
+mod_deflate can compress any output from lighttpd static or dynamic.
+It doesn't support caching compressed output like mod_compress.
 
-%description mod_cml -l pl
-CML to metajêzyk s³u¿±cy z jednej strony do opisu zale¿no¶ci strony i
-z drugiej strony do budowania strony z fragmentów przy u¿yciu LUA.
+%package mod_dirlisting
+Summary:	lighttpd module for directory listings
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/dirlisting.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_dirlisting
+mod_dirlisting generates HTML based directory listings with full CSS
+control.
+
+%package mod_evasive
+Summary:	lighttpd evasive module
+Group:		Networking/Daemons
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_evasive
+
+%package mod_evhost
+Summary:	lighttpd module for enhanced virtual-hosting
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/evhost.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_evhost
+mod_evhost builds the document-root based on a pattern which contains
+wildcards. Those wildcards can represent parts of the submitted
+hostname.
+
+%package mod_expire
+Summary:	lighttpd module for controlling the expiration of content in caches
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/expire.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_expire
+mod_expire controls the setting of the the Expire response header.
+
+%package mod_fastcgi
+Summary:	lighttpd module for FastCGI interface
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/fastcgi.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_fastcgi
+The FastCGI interface is the fastest and most secure way to interface
+external process-handlers like Perl, PHP and your self-written
+applications.
+
+%package mod_flv_streaming
+Summary:	lighttpd module for flv streaming
+Group:		Networking/Daemons
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_flv_streaming
+lighttpd module for flv streaming.
+
+%package mod_indexfile
+Summary:	lighttpd indexfile module
+Group:		Networking/Daemons
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_indexfile
+indexfile module.
 
 %package mod_mysql_vhost
-Summary:	MySQL based vhosting
+Summary:	lighttpd module for MySQL based vhosting
 Summary(pl):	vhosty oparte na MySQL-u
 Group:		Networking/Daemons
 URL:		http://www.lighttpd.net/documentation/mysqlvhost.html
 Requires:	%{name} = %{version}-%{release}
+Conflicts:	%{name}-mod_simple_vhost
 
 %description mod_mysql_vhost
 This module provides virtual hosts (vhosts) based on a MySQL table.
 
 %description mod_mysql_vhost -l pl
 Ten modu³ udostêpnia wirtualne hosty (vhosty) oparte na tabeli MySQL.
+
+%package mod_proxy
+Summary:	lighttpd module for proxying requests
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/proxy.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_proxy
+The proxy module a simplest way to connect lighttpd to java servers
+which have a HTTP-interface.
+
+%package mod_redirect
+Summary:	lighttpd module for URL redirects
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/redirect.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_redirect
+With mod_redirect module you can redirects a set of URLs externally.
+
+%package mod_rewrite
+Summary:	lighttpd module for internal redirects, URL rewrite
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/rewrite.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_rewrite
+This module allows you rewrite a set of URLs interally in the
+webserver BEFORE they are handled.
+
+%package mod_rrdtool
+Summary:	lighttpd module for monitoring traffic and server load
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/rrdtool.html
+Requires:	%{name} = %{version}-%{release}
+Requires:	rrdtool
+
+%description mod_rrdtool
+RRD is a system to store and display time-series data (i.e. network
+bandwidth, machine-room temperature, server load average).
+
+With this module you can monitor the traffic and load on the
+webserver.
+
+%package mod_scgi
+Summary:	lighttpd module for SCGI interface
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/scgi.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_scgi
+SCGI is a fast and simplified CGI interface. It is mostly used by
+Python + WSGI.
+
+%package mod_secdownload
+Summary:	lighttpd module for secure and fast downloading.
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/secdownload.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_secdownload
+With this module you can easily achieve authenticated file requests
+and a countermeasure against deep-linking.
+
+%package mod_setenv
+Summary:	lighttpd module for setting conditional request headers
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/setenv.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_setenv
+mod_setenv is used to add request headers.
+
+%package mod_simple_vhost
+Summary:	lighttpd module for simple virtual-hosting
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/simple-vhost.html
+Requires:	%{name} = %{version}-%{release}
+Conflicts:	%{name}-mod_mysql_vhost
+
+%description mod_simple_vhost
+lighttpd module for simple virtual-hosting.
+
+%package mod_ssi
+Summary:	lighttpd module for server-side includes
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/ssi.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_ssi
+The module for server-side includes provides a compatability layer for
+NSCA/Apache SSI.
+
+%package mod_staticfile
+Summary:	lighttpd module for static file serving
+Group:		Networking/Daemons
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_staticfile
+lighttpd module for static file serving.
+
+%package mod_status
+Summary:	lighttpd module for displaying server status
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/status.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_status
+mod_status displays the server's status and configuration.
 
 %package mod_trigger_b4_dl
 Summary:	Trigger before Download
@@ -193,6 +425,23 @@ Another anti hot-linking module.
 
 %description mod_trigger_b4_dl -l pl
 Jeszcze jeden modu³ blokuj±cy bezpo¶rednie linkowanie.
+
+%package mod_userdir
+Summary:	lighttpd module for user homedirs
+Group:		Networking/Daemons
+URL:		http://www.lighttpd.net/documentation/userdir.html
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_userdir
+The userdir module provides a simple way to link user-based
+directories into the global namespace of the webserver.
+
+%package mod_usertrack
+Summary:	lighttpd usertrack module
+Group:		Networking/Daemons
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_usertrack
 
 %package mod_webdav
 Summary:	WebDAV module for lighttpd
@@ -445,74 +694,86 @@ fi
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}
-%{_sysconfdir}/conf.d/*mod_access.conf
-%attr(755,root,root) %{_libdir}/mod_access.so
-%{_sysconfdir}/conf.d/*mod_accesslog.conf
-%attr(755,root,root) %{_libdir}/mod_accesslog.so
-%{_sysconfdir}/conf.d/*mod_alias.conf
-%attr(755,root,root) %{_libdir}/mod_alias.so
-%{_sysconfdir}/conf.d/*mod_auth.conf
-%attr(755,root,root) %{_libdir}/mod_auth.so
-%{_sysconfdir}/conf.d/*mod_cgi.conf
-%attr(755,root,root) %{_libdir}/mod_cgi.so
-%{_sysconfdir}/conf.d/*mod_dirlisting.conf
-%attr(755,root,root) %{_libdir}/mod_dirlisting.so
-%{_sysconfdir}/conf.d/*mod_evasive.conf
-%attr(755,root,root) %{_libdir}/mod_evasive.so
-%{_sysconfdir}/conf.d/*mod_evhost.conf
-%attr(755,root,root) %{_libdir}/mod_evhost.so
-%{_sysconfdir}/conf.d/*mod_expire.conf
-%attr(755,root,root) %{_libdir}/mod_expire.so
-%{_sysconfdir}/conf.d/*mod_deflate.conf
-%attr(755,root,root) %{_libdir}/mod_deflate.so
-%{_sysconfdir}/conf.d/*mod_fastcgi.conf
-%attr(755,root,root) %{_libdir}/mod_fastcgi.so
-%{_sysconfdir}/conf.d/*mod_flv_streaming.conf
-%attr(755,root,root) %{_libdir}/mod_flv_streaming.so
-%{_sysconfdir}/conf.d/*mod_indexfile.conf
-%attr(755,root,root) %{_libdir}/mod_indexfile.so
-%{_sysconfdir}/conf.d/*mod_proxy.conf
-%attr(755,root,root) %{_libdir}/mod_proxy.so
-%{_sysconfdir}/conf.d/*mod_redirect.conf
-%attr(755,root,root) %{_libdir}/mod_redirect.so
-%{_sysconfdir}/conf.d/*mod_rewrite.conf
-%attr(755,root,root) %{_libdir}/mod_rewrite.so
-%{_sysconfdir}/conf.d/*mod_rrdtool.conf
-%attr(755,root,root) %{_libdir}/mod_rrdtool.so
-%{_sysconfdir}/conf.d/*mod_scgi.conf
-%attr(755,root,root) %{_libdir}/mod_scgi.so
-%{_sysconfdir}/conf.d/*mod_secdownload.conf
-%attr(755,root,root) %{_libdir}/mod_secdownload.so
-%{_sysconfdir}/conf.d/*mod_setenv.conf
-%attr(755,root,root) %{_libdir}/mod_setenv.so
-%{_sysconfdir}/conf.d/*mod_simple_vhost.conf
-%attr(755,root,root) %{_libdir}/mod_simple_vhost.so
-%{_sysconfdir}/conf.d/*mod_ssi.conf
-%attr(755,root,root) %{_libdir}/mod_ssi.so
-%{_sysconfdir}/conf.d/*mod_staticfile.conf
-%attr(755,root,root) %{_libdir}/mod_staticfile.so
-%{_sysconfdir}/conf.d/*mod_status.conf
-%attr(755,root,root) %{_libdir}/mod_status.so
-%{_sysconfdir}/conf.d/*mod_userdir.conf
-%attr(755,root,root) %{_libdir}/mod_userdir.so
-%{_sysconfdir}/conf.d/*mod_usertrack.conf
-%attr(755,root,root) %{_libdir}/mod_usertrack.so
 %{_mandir}/man?/*
-
 %dir %{_lighttpddir}
 %dir %{_lighttpddir}/cgi-bin
 %dir %{_lighttpddir}/html
 %{_lighttpddir}/html/*
+
+%files mod_access
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_access.conf
+%attr(755,root,root) %{_libdir}/mod_access.so
+
+%files mod_accesslog
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_accesslog.conf
+%attr(755,root,root) %{_libdir}/mod_accesslog.so
+
+%files mod_alias
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_alias.conf
+%attr(755,root,root) %{_libdir}/mod_alias.so
+
+%files mod_auth
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_auth.conf
+%attr(755,root,root) %{_libdir}/mod_auth.so
+
+%files mod_cgi
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_cgi.conf
+%attr(755,root,root) %{_libdir}/mod_cgi.so
+
+%files mod_cml
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_cml.conf
+%attr(755,root,root) %{_libdir}/mod_cml.so
 
 %files mod_compress
 %defattr(644,root,root,755)
 %{_sysconfdir}/conf.d/*mod_compress.conf
 %attr(755,root,root) %{_libdir}/mod_compress.so
 
-%files mod_cml
+%files mod_deflate
 %defattr(644,root,root,755)
-%{_sysconfdir}/conf.d/*mod_cml.conf
-%attr(755,root,root) %{_libdir}/mod_cml.so
+%{_sysconfdir}/conf.d/*mod_deflate.conf
+%attr(755,root,root) %{_libdir}/mod_deflate.so
+
+%files mod_dirlisting
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_dirlisting.conf
+%attr(755,root,root) %{_libdir}/mod_dirlisting.so
+
+%files mod_evasive
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_evasive.conf
+%attr(755,root,root) %{_libdir}/mod_evasive.so
+
+%files mod_evhost
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_evhost.conf
+%attr(755,root,root) %{_libdir}/mod_evhost.so
+
+%files mod_expire
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_expire.conf
+%attr(755,root,root) %{_libdir}/mod_expire.so
+
+%files mod_fastcgi
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_fastcgi.conf
+%attr(755,root,root) %{_libdir}/mod_fastcgi.so
+
+%files mod_flv_streaming
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_flv_streaming.conf
+%attr(755,root,root) %{_libdir}/mod_flv_streaming.so
+
+%files mod_indexfile
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_indexfile.conf
+%attr(755,root,root) %{_libdir}/mod_indexfile.so
 
 %if %{with mysql}
 %files mod_mysql_vhost
@@ -521,10 +782,74 @@ fi
 %attr(755,root,root) %{_libdir}/mod_mysql_vhost.so
 %endif
 
-%files mod_trigger_b4_dl
+%files mod_proxy
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_proxy.conf
+%attr(755,root,root) %{_libdir}/mod_proxy.so
+
+%files mod_redirect
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_redirect.conf
+%attr(755,root,root) %{_libdir}/mod_redirect.so
+
+%files mod_rewrite
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_rewrite.conf
+%attr(755,root,root) %{_libdir}/mod_rewrite.so
+
+%files mod_rrdtool
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_rrdtool.conf
+%attr(755,root,root) %{_libdir}/mod_rrdtool.so
+
+%files mod_scgi
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_scgi.conf
+%attr(755,root,root) %{_libdir}/mod_scgi.so
+
+%files mod_secdownload
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_secdownload.conf
+%attr(755,root,root) %{_libdir}/mod_secdownload.so
+
+%files mod_setenv
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_setenv.conf
+%attr(755,root,root) %{_libdir}/mod_setenv.so
+
+%files mod_simple_vhost
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_simple_vhost.conf
+%attr(755,root,root) %{_libdir}/mod_simple_vhost.so
+
+%files mod_ssi
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_ssi.conf
+%attr(755,root,root) %{_libdir}/mod_ssi.so
+
+%files mod_staticfile
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_staticfile.conf
+%attr(755,root,root) %{_libdir}/mod_staticfile.so
+
+%files mod_status
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_status.conf
+%attr(755,root,root) %{_libdir}/mod_status.so
+
 %defattr(644,root,root,755)
 %{_sysconfdir}/conf.d/*mod_trigger_b4_dl.conf
 %attr(755,root,root) %{_libdir}/mod_trigger_b4_dl.so
+
+%files mod_userdir
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_userdir.conf
+%attr(755,root,root) %{_libdir}/mod_userdir.so
+
+%files mod_usertrack
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/*mod_usertrack.conf
+%attr(755,root,root) %{_libdir}/mod_usertrack.so
 
 %files mod_webdav
 %defattr(644,root,root,755)
