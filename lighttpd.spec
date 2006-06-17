@@ -37,17 +37,17 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 1.9
+%define		_rel 0.9
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.9
+Version:	1.4.11
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}
 License:	BSD
 Group:		Networking/Daemons
 Source0:	%{_source}
-# Source0-md5:	20a171774a0615069de3704db52483aa
+# Source0-md5:	f55eebb9815c94a7de35906bb557ecd3
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -63,7 +63,10 @@ Source9:	http://www.lighttpd.net/light_logo.png
 Source10:	http://gdl.hopto.org/~spider/pldstats/gfx/pld1.png
 # Source10-md5:	486ecec3f6f4fe7f9bf7cee757b864f4
 Source11:	%{name}-pld.html
-Patch0:		%{name}-proxy-fix-redirects.patch
+Patch0:		%{name}-mod_deflate.patch
+Patch1:		%{name}-use_bin_sh.patch
+Patch2:		%{name}-initgroups.patch
+Patch3:		%{name}-ticket-475.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -244,6 +247,9 @@ pomocy serwera WWW ani samego programu.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
+%patch2 -p1
+%patch3 -p2
 install %{SOURCE6} mime.types.sh
 
 # build mime.types.conf
@@ -329,6 +335,8 @@ cml
 mysql_vhost
 trigger_b4_dl
 webdav
+deflate
+flv_streaming
 accesslog
 "
 
@@ -455,8 +463,12 @@ fi
 %attr(755,root,root) %{_libdir}/mod_evhost.so
 %{_sysconfdir}/conf.d/*mod_expire.conf
 %attr(755,root,root) %{_libdir}/mod_expire.so
+%{_sysconfdir}/conf.d/*mod_deflate.conf
+%attr(755,root,root) %{_libdir}/mod_deflate.so
 %{_sysconfdir}/conf.d/*mod_fastcgi.conf
 %attr(755,root,root) %{_libdir}/mod_fastcgi.so
+%{_sysconfdir}/conf.d/*mod_flv_streaming.conf
+%attr(755,root,root) %{_libdir}/mod_flv_streaming.so
 %{_sysconfdir}/conf.d/*mod_indexfile.conf
 %attr(755,root,root) %{_libdir}/mod_indexfile.so
 %{_sysconfdir}/conf.d/*mod_proxy.conf
