@@ -91,6 +91,9 @@ Requires(pre):	/bin/id
 Requires(pre):	/usr/bin/getgid
 Requires(pre):	/usr/sbin/groupadd
 Requires(pre):	/usr/sbin/useradd
+Requires:	%{name}-mod_dirlisting
+Requires:	%{name}-mod_indexfile
+Requires:	%{name}-mod_staticfile
 Requires:	rc-scripts
 Provides:	group(http)
 Provides:	group(lighttpd)
@@ -358,7 +361,7 @@ SCGI is a fast and simplified CGI interface. It is mostly used by
 Python + WSGI.
 
 %package mod_secdownload
-Summary:	lighttpd module for secure and fast downloading.
+Summary:	lighttpd module for secure and fast downloading
 Group:		Networking/Daemons
 URL:		http://www.lighttpd.net/documentation/secdownload.html
 Requires:	%{name} = %{version}-%{release}
