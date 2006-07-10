@@ -33,7 +33,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 3.9
+%define		_rel 3.10
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -665,10 +665,35 @@ fi
 %postun %1 \
 %module_postun
 
-%module_scripts mod_compress
+%module_scripts mod_access
+%module_scripts mod_accesslog
+%module_scripts mod_alias
+%module_scripts mod_auth
+%module_scripts mod_cgi
 %module_scripts mod_cml
+%module_scripts mod_compress
+%module_scripts mod_deflate
+%module_scripts mod_dirlisting
+%module_scripts mod_evasive
+%module_scripts mod_evhost
+%module_scripts mod_expire
+%module_scripts mod_fastcgi
+%module_scripts mod_flv_streaming
+%module_scripts mod_indexfile
 %module_scripts mod_mysql_vhost
-%module_scripts mod_trigger_b4_dl
+%module_scripts mod_proxy
+%module_scripts mod_redirect
+%module_scripts mod_rewrite
+%module_scripts mod_rrdtool
+%module_scripts mod_scgi
+%module_scripts mod_secdownload
+%module_scripts mod_setenv
+%module_scripts mod_simple_vhost
+%module_scripts mod_ssi
+%module_scripts mod_staticfile
+%module_scripts mod_status
+%module_scripts mod_userdir
+%module_scripts mod_usertrack
 %module_scripts mod_webdav
 
 %triggerpostun -- %{name} <= 1.3.6-2
