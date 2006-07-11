@@ -1,4 +1,3 @@
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/Makefile.in lighttpd-1.4.12/Makefile.in
 --- lighttpd-1.4.11/Makefile.in	2006-03-07 14:21:08.000000000 +0200
 +++ lighttpd-1.4.12/Makefile.in	2006-07-11 21:48:16.000000000 +0300
 @@ -1,4 +1,4 @@
@@ -41,9 +40,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
  am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
  am__fastdepCXX_FALSE = @am__fastdepCXX_FALSE@
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/NEWS lighttpd-1.4.12/NEWS
 --- lighttpd-1.4.11/NEWS	2006-03-09 19:34:33.000000000 +0200
-+++ lighttpd-1.4.12/NEWS	2006-07-11 21:23:42.000000000 +0300
++++ lighttpd-1.4.12/NEWS	2006-07-11 22:07:54.000000000 +0300
 @@ -3,6 +3,23 @@
  NEWS
  ====
@@ -68,9 +66,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  - 1.4.11 - 2006-03-09
  
    * added ability to specify which ip address spawn-fci listens on 
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/configure.in lighttpd-1.4.12/configure.in
 --- lighttpd-1.4.11/configure.in	2006-03-04 16:32:38.000000000 +0200
-+++ lighttpd-1.4.12/configure.in	2006-07-11 21:23:42.000000000 +0300
++++ lighttpd-1.4.12/configure.in	2006-07-11 22:07:54.000000000 +0300
 @@ -1,7 +1,7 @@
  #                                               -*- Autoconf -*-
  # Process this file with autoconf to produce a configure script.
@@ -112,41 +109,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  fi
  
  dnl Check for gdbm
-@@ -381,30 +397,11 @@
- 
- AC_MSG_RESULT($WITH_LUA)
- if test "$WITH_LUA" != "no"; then
-- AC_PATH_PROG(LUACONFIG, lua-config)
--
-- if test x"$LUACONFIG" != x; then
--   LUA_CFLAGS=`$LUACONFIG --include`
--   LUA_LIBS=`$LUACONFIG --libs --extralibs`
-+ # try pkgconfig
-+ PKG_CHECK_MODULES(LUA, lua >= 5.1, [
-    AC_DEFINE([HAVE_LUA], [1], [liblua])
-    AC_DEFINE([HAVE_LUA_H], [1], [lua.h])
-- else
--   AC_CHECK_LIB(lua, lua_open, [
--     AC_CHECK_HEADERS([lua.h],[
--       LUA_LIBS="-llua -llualib"
--       AC_DEFINE([HAVE_LUA], [1], [liblua])
--       AC_DEFINE([HAVE_LUA_H], [1], [lua.h])
--     ])
--   ])
-- fi
--
-- if test x"$LUA_LIBS" = x; then
--   # try pkgconfig
--   PKG_CHECK_MODULES(LUA, lua, [
--     AC_DEFINE([HAVE_LUA], [1], [liblua])
--     AC_DEFINE([HAVE_LUA_H], [1], [lua.h])
--   ])
-- fi
-+ ])
- 
-  AC_SUBST(LUA_CFLAGS)
-  AC_SUBST(LUA_LIBS)
-@@ -440,7 +437,7 @@
+@@ -440,7 +456,7 @@
  esac
  
  AC_CHECK_FUNCS([dup2 getcwd inet_ntoa inet_ntop memset mmap munmap strchr \
@@ -155,7 +118,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		  gethostbyname poll sigtimedwait epoll_ctl getrlimit chroot \
  		  getuid select signal pathconf madvise posix_fadvise posix_madvise \
  		  writev sigaction sendfile64 send_file kqueue port_create localtime_r])
-@@ -538,7 +535,7 @@
+@@ -538,7 +554,7 @@
  AC_OUTPUT
  
  
@@ -164,7 +127,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  
  plugins="mod_rewrite mod_redirect mod_ssi mod_trigger_b4_dl"
  features="regex-conditionals"
-@@ -642,6 +639,14 @@
+@@ -642,6 +658,14 @@
  	disable_feature="$disable_feature $features"
  fi
  
@@ -179,7 +142,6 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  ## output
  
  $ECHO
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/cygwin/Makefile.in lighttpd-1.4.12/cygwin/Makefile.in
 --- lighttpd-1.4.11/cygwin/Makefile.in	2006-03-07 14:20:57.000000000 +0200
 +++ lighttpd-1.4.12/cygwin/Makefile.in	2006-07-11 21:48:12.000000000 +0300
 @@ -1,4 +1,4 @@
@@ -213,9 +175,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
  am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
  am__fastdepCXX_FALSE = @am__fastdepCXX_FALSE@
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/cygwin/lighttpd.README lighttpd-1.4.12/cygwin/lighttpd.README
 --- lighttpd-1.4.11/cygwin/lighttpd.README	2006-03-07 14:22:19.000000000 +0200
-+++ lighttpd-1.4.12/cygwin/lighttpd.README	2006-07-11 21:49:09.000000000 +0300
++++ lighttpd-1.4.12/cygwin/lighttpd.README	2006-07-11 22:08:04.000000000 +0300
 @@ -1,114 +1,114 @@
 -lighttpd
 -------------------------------------------
@@ -445,9 +406,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +Cygwin port maintained by: Jan Kneschke <jan@kneschke.de>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
 +
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/cygwin/lighttpd.README.in lighttpd-1.4.12/cygwin/lighttpd.README.in
 --- lighttpd-1.4.11/cygwin/lighttpd.README.in	2005-08-11 01:26:59.000000000 +0300
-+++ lighttpd-1.4.12/cygwin/lighttpd.README.in	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/cygwin/lighttpd.README.in	2006-07-11 22:07:53.000000000 +0300
 @@ -1,114 +1,114 @@
 -lighttpd
 -------------------------------------------
@@ -677,7 +637,6 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +Cygwin port maintained by: Jan Kneschke <jan@kneschke.de>
 +Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
 +
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/doc/Makefile.in lighttpd-1.4.12/doc/Makefile.in
 --- lighttpd-1.4.11/doc/Makefile.in	2006-03-07 14:20:57.000000000 +0200
 +++ lighttpd-1.4.12/doc/Makefile.in	2006-07-11 21:48:12.000000000 +0300
 @@ -1,4 +1,4 @@
@@ -711,9 +670,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
  am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
  am__fastdepCXX_FALSE = @am__fastdepCXX_FALSE@
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/doc/authentication.txt lighttpd-1.4.12/doc/authentication.txt
 --- lighttpd-1.4.11/doc/authentication.txt	2006-01-12 20:34:26.000000000 +0200
-+++ lighttpd-1.4.12/doc/authentication.txt	2006-07-11 21:23:42.000000000 +0300
++++ lighttpd-1.4.12/doc/authentication.txt	2006-07-11 22:07:54.000000000 +0300
 @@ -7,8 +7,8 @@
  ----------------
  
@@ -725,9 +683,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  
  :abstract:
    The auth module provides ...
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/doc/compress.txt lighttpd-1.4.12/doc/compress.txt
 --- lighttpd-1.4.11/doc/compress.txt	2005-08-11 01:26:16.000000000 +0300
-+++ lighttpd-1.4.12/doc/compress.txt	2006-07-11 21:23:42.000000000 +0300
++++ lighttpd-1.4.12/doc/compress.txt	2006-07-11 22:07:54.000000000 +0300
 @@ -22,12 +22,38 @@
  ===========
  
@@ -801,9 +758,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  Compressing Dynamic Content
  ===========================
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/doc/configuration.txt lighttpd-1.4.12/doc/configuration.txt
 --- lighttpd-1.4.11/doc/configuration.txt	2006-03-09 02:10:40.000000000 +0200
-+++ lighttpd-1.4.12/doc/configuration.txt	2006-07-11 21:23:42.000000000 +0300
++++ lighttpd-1.4.12/doc/configuration.txt	2006-07-11 22:07:54.000000000 +0300
 @@ -7,8 +7,8 @@
  ------------
  
@@ -826,9 +782,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +debug.log-condition-cache-handling
 +  for developers only
 +  default: disabled 
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/doc/fastcgi.txt lighttpd-1.4.12/doc/fastcgi.txt
 --- lighttpd-1.4.11/doc/fastcgi.txt	2006-02-16 17:03:52.000000000 +0200
-+++ lighttpd-1.4.12/doc/fastcgi.txt	2006-07-11 21:23:42.000000000 +0300
++++ lighttpd-1.4.12/doc/fastcgi.txt	2006-07-11 22:07:54.000000000 +0300
 @@ -144,8 +144,8 @@
                  PHP can extract PATH_INFO from it (default: disabled)
    :"disable-time": time to wait before a disabled backend is checked
@@ -840,9 +795,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  
    If bin-path is set:
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/doc/lighttpd.conf lighttpd-1.4.12/doc/lighttpd.conf
 --- lighttpd-1.4.11/doc/lighttpd.conf	2006-03-04 14:41:12.000000000 +0200
-+++ lighttpd-1.4.12/doc/lighttpd.conf	2006-07-11 21:23:42.000000000 +0300
++++ lighttpd-1.4.12/doc/lighttpd.conf	2006-07-11 22:07:54.000000000 +0300
 @@ -172,10 +172,11 @@
  #dir-listing.activate       = "enable"
  
@@ -859,9 +813,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  
  ### only root can use these options
  #
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/doc/performance.txt lighttpd-1.4.12/doc/performance.txt
 --- lighttpd-1.4.11/doc/performance.txt	2006-02-02 13:01:08.000000000 +0200
-+++ lighttpd-1.4.12/doc/performance.txt	2006-07-11 21:23:42.000000000 +0300
++++ lighttpd-1.4.12/doc/performance.txt	2006-07-11 22:07:54.000000000 +0300
 @@ -183,6 +183,8 @@
  
    server.stat-cache-engine = "fam"   # either fam, simple or disabled
@@ -871,9 +824,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  
  Platform-Specific Notes
  =======================
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/doc/secdownload.txt lighttpd-1.4.12/doc/secdownload.txt
 --- lighttpd-1.4.11/doc/secdownload.txt	2005-12-20 15:58:58.000000000 +0200
-+++ lighttpd-1.4.12/doc/secdownload.txt	2006-07-11 21:23:42.000000000 +0300
++++ lighttpd-1.4.12/doc/secdownload.txt	2006-07-11 22:07:54.000000000 +0300
 @@ -118,7 +118,7 @@
    $secret = "verysecret";
    $uri_prefix = "/dl/";
@@ -883,9 +835,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
    $f = "/secret-file.txt";
    
    # current timestamp
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/lighttpd.spec lighttpd-1.4.12/lighttpd.spec
 --- lighttpd-1.4.11/lighttpd.spec	2006-03-07 14:22:18.000000000 +0200
-+++ lighttpd-1.4.12/lighttpd.spec	2006-07-11 21:49:09.000000000 +0300
++++ lighttpd-1.4.12/lighttpd.spec	2006-07-11 22:07:58.000000000 +0300
 @@ -1,6 +1,6 @@
  Summary: A fast webserver with minimal memory-footprint (lighttpd)
  Name: lighttpd
@@ -894,7 +845,6 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  Release: 1
  Source: http://jan.kneschke.de/projects/lighttpd/download/lighttpd-%version.tar.gz
  Packager: Jan Kneschke <jan@kneschke.de>
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/openwrt/Makefile.in lighttpd-1.4.12/openwrt/Makefile.in
 --- lighttpd-1.4.11/openwrt/Makefile.in	2006-03-07 14:20:58.000000000 +0200
 +++ lighttpd-1.4.12/openwrt/Makefile.in	2006-07-11 21:48:12.000000000 +0300
 @@ -1,4 +1,4 @@
@@ -928,9 +878,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
  am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
  am__fastdepCXX_FALSE = @am__fastdepCXX_FALSE@
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/openwrt/control lighttpd-1.4.12/openwrt/control
 --- lighttpd-1.4.11/openwrt/control	2006-03-07 14:22:19.000000000 +0200
-+++ lighttpd-1.4.12/openwrt/control	2006-07-11 21:49:10.000000000 +0300
++++ lighttpd-1.4.12/openwrt/control	2006-07-11 22:08:05.000000000 +0300
 @@ -1,8 +1,8 @@
  Package: lighttpd
 -Version: 1.4.11
@@ -942,9 +891,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  Section: net
  Priority: optional
  Depends:
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/openwrt/lighttpd.mk lighttpd-1.4.12/openwrt/lighttpd.mk
 --- lighttpd-1.4.11/openwrt/lighttpd.mk	2006-03-07 14:22:19.000000000 +0200
-+++ lighttpd-1.4.12/openwrt/lighttpd.mk	2006-07-11 21:49:10.000000000 +0300
++++ lighttpd-1.4.12/openwrt/lighttpd.mk	2006-07-11 22:08:05.000000000 +0300
 @@ -10,7 +10,7 @@
  
  #  For this example we'll use a fairly simple package that compiles easily
@@ -954,41 +902,9 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  LIGHTTPD_TARGET=.built
  LIGHTTPD_DIR=$(BUILD_DIR)/$(LIGHTTPD)
  LIGHTTPD_IPK=$(BUILD_DIR)/$(LIGHTTPD)_mipsel.ipk
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/Makefile.am lighttpd-1.4.12/src/Makefile.am
 --- lighttpd-1.4.11/src/Makefile.am	2006-03-07 14:20:20.000000000 +0200
-+++ lighttpd-1.4.12/src/Makefile.am	2006-07-11 21:23:40.000000000 +0300
-@@ -16,14 +16,19 @@
- else
- configparser.y: lemon
- mod_ssi_exprparser.y: lemon
-+http_resp_parser.y: lemon
- 
- configparser.c configparser.h: configparser.y
- 	rm -f configparser.h
--	$(LEMON) -q $(srcdir)/configparser.y $(srcdir)/lempar.c
-+	$(LEMON) -q $(srcdir)/$< $(srcdir)/lempar.c
-+
-+http_resp_parser.c http_resp_parser.h: http_resp_parser.y
-+	rm -f http_resp_parser.h
-+	$(LEMON) -q $(srcdir)/$< $(srcdir)/lempar.c
- 
- mod_ssi_exprparser.c mod_ssi_exprparser.h: mod_ssi_exprparser.y 
- 	rm -f mod_ssi_exprparser.h
--	$(LEMON) -q $(srcdir)/mod_ssi_exprparser.y $(srcdir)/lempar.c
-+	$(LEMON) -q $(srcdir)/$< $(srcdir)/lempar.c
- endif
- 
- configfile.c: configparser.h
-@@ -46,7 +51,7 @@
-       network_write.c network_linux_sendfile.c \
-       network_freebsd_sendfile.c network_writev.c \
-       network_solaris_sendfilev.c network_openssl.c \
--      splaytree.c 
-+      splaytree.c http_resp.c http_resp_parser.c 
-       
- src = server.c response.c connections.c network.c \
-       configfile.c configparser.c request.c proc_open.c
-@@ -82,9 +87,9 @@
++++ lighttpd-1.4.12/src/Makefile.am	2006-07-11 22:07:52.000000000 +0300
+@@ -82,9 +82,9 @@
  
  lib_LTLIBRARIES += mod_webdav.la
  mod_webdav_la_SOURCES = mod_webdav.c
@@ -1000,30 +916,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  
  lib_LTLIBRARIES += mod_cml.la
  mod_cml_la_SOURCES = mod_cml.c mod_cml_lua.c mod_cml_funcs.c
-@@ -103,6 +108,11 @@
- mod_mysql_vhost_la_LIBADD = $(MYSQL_LIBS) $(common_libadd)
- mod_mysql_vhost_la_CPPFLAGS = $(MYSQL_INCLUDE)
- 
-+lib_LTLIBRARIES += mod_sql_vhost_core.la
-+mod_sql_vhost_core_la_SOURCES = mod_sql_vhost_core.c
-+mod_sql_vhost_core_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+mod_sql_vhost_core_la_LIBADD = $(common_libadd)
-+
- lib_LTLIBRARIES += mod_cgi.la
- mod_cgi_la_SOURCES = mod_cgi.c 
- mod_cgi_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-@@ -240,7 +250,7 @@
-       mod_ssi.h mod_ssi_expr.h inet_ntop_cache.h \
-       configparser.h mod_ssi_exprparser.h \
-       sys-mmap.h sys-socket.h mod_cml.h mod_cml_funcs.h \
--      splaytree.h proc_open.h
-+      splaytree.h proc_open.h http_resp.h mod_sql_vhost_core.h
- 
- DEFS= @DEFS@ -DLIBRARY_DIR="\"$(libdir)\""
- 
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/Makefile.in lighttpd-1.4.12/src/Makefile.in
 --- lighttpd-1.4.11/src/Makefile.in	2006-03-07 14:21:02.000000000 +0200
-+++ lighttpd-1.4.12/src/Makefile.in	2006-07-11 21:48:14.000000000 +0300
++++ lighttpd-1.4.12/src/Makefile.in	2006-07-11 22:04:27.000000000 +0300
 @@ -1,4 +1,4 @@
 -# Makefile.in generated by automake 1.9.5 from Makefile.am.
 +# Makefile.in generated by automake 1.9.6 from Makefile.am.
@@ -1200,16 +1094,17 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  mod_cgi_la_SOURCES = mod_cgi.c 
  mod_cgi_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
  mod_cgi_la_LIBADD = $(common_libadd)
-@@ -608,7 +619,7 @@
+@@ -608,7 +619,8 @@
        mod_ssi.h mod_ssi_expr.h inet_ntop_cache.h \
        configparser.h mod_ssi_exprparser.h \
        sys-mmap.h sys-socket.h mod_cml.h mod_cml_funcs.h \
 -      splaytree.h proc_open.h
-+      splaytree.h proc_open.h http_resp.h mod_sql_vhost_core.h
++      splaytree.h proc_open.h http_resp.h mod_sql_vhost_core.h \
++	  sys-files.h sys-process.h sys-strings.h
  
  lighttpd_SOURCES = $(src)
  lighttpd_LDADD = $(PCRE_LIB) $(DL_LIB) $(SENDFILE_LIB) $(ATTR_LIB) $(common_libadd) $(SSL_LIB) $(FAM_LIBS)
-@@ -739,6 +750,8 @@
+@@ -739,6 +751,8 @@
  	$(LINK) -rpath $(libdir) $(mod_setenv_la_LDFLAGS) $(mod_setenv_la_OBJECTS) $(mod_setenv_la_LIBADD) $(LIBS)
  mod_simple_vhost.la: $(mod_simple_vhost_la_OBJECTS) $(mod_simple_vhost_la_DEPENDENCIES) 
  	$(LINK) -rpath $(libdir) $(mod_simple_vhost_la_LDFLAGS) $(mod_simple_vhost_la_OBJECTS) $(mod_simple_vhost_la_LIBADD) $(LIBS)
@@ -1218,7 +1113,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  mod_ssi.la: $(mod_ssi_la_OBJECTS) $(mod_ssi_la_DEPENDENCIES) 
  	$(LINK) -rpath $(libdir) $(mod_ssi_la_LDFLAGS) $(mod_ssi_la_OBJECTS) $(mod_ssi_la_LIBADD) $(LIBS)
  mod_staticfile.la: $(mod_staticfile_la_OBJECTS) $(mod_staticfile_la_DEPENDENCIES) 
-@@ -863,6 +876,8 @@
+@@ -863,6 +877,8 @@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_auth.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_auth_digest.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http_chunk.Po@am__quote@
@@ -1227,7 +1122,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inet_ntop_cache.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/joblist.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/keyvalue.Po@am__quote@
-@@ -890,6 +905,8 @@
+@@ -890,6 +906,8 @@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblightcomp_la-fdevent_solaris_devpoll.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblightcomp_la-http-header-glue.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblightcomp_la-http_chunk.Plo@am__quote@
@@ -1236,7 +1131,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblightcomp_la-inet_ntop_cache.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblightcomp_la-joblist.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/liblightcomp_la-keyvalue.Plo@am__quote@
-@@ -932,6 +949,7 @@
+@@ -932,6 +950,7 @@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mod_secure_download.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mod_setenv.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mod_simple_vhost.Plo@am__quote@
@@ -1244,7 +1139,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mod_ssi.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mod_ssi_expr.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mod_ssi_exprparser.Plo@am__quote@
-@@ -1247,6 +1265,20 @@
+@@ -1247,6 +1266,20 @@
  @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
  @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(liblightcomp_la_CFLAGS) $(CFLAGS) -c -o liblightcomp_la-splaytree.lo `test -f 'splaytree.c' || echo '$(srcdir)/'`splaytree.c
  
@@ -1265,7 +1160,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  mod_cml_la-mod_cml.lo: mod_cml.c
  @am__fastdepCC_TRUE@	if $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mod_cml_la_CFLAGS) $(CFLAGS) -MT mod_cml_la-mod_cml.lo -MD -MP -MF "$(DEPDIR)/mod_cml_la-mod_cml.Tpo" -c -o mod_cml_la-mod_cml.lo `test -f 'mod_cml.c' || echo '$(srcdir)/'`mod_cml.c; \
  @am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/mod_cml_la-mod_cml.Tpo" "$(DEPDIR)/mod_cml_la-mod_cml.Plo"; else rm -f "$(DEPDIR)/mod_cml_la-mod_cml.Tpo"; exit 1; fi
-@@ -1506,14 +1538,19 @@
+@@ -1506,14 +1539,19 @@
  @CROSS_COMPILING_TRUE@mod_ssi_exprparser.c mod_ssi_exprparser.h: 
  @CROSS_COMPILING_FALSE@configparser.y: lemon
  @CROSS_COMPILING_FALSE@mod_ssi_exprparser.y: lemon
@@ -1287,9 +1182,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  
  configfile.c: configparser.h
  mod_ssi_expr.c: mod_ssi_exprparser.h
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/array.c lighttpd-1.4.12/src/array.c
 --- lighttpd-1.4.11/src/array.c	2005-11-18 13:58:32.000000000 +0200
-+++ lighttpd-1.4.12/src/array.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/array.c	2006-07-11 22:07:51.000000000 +0300
 @@ -11,12 +11,12 @@
  
  array *array_init(void) {
@@ -1578,9 +1472,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	return 0;
  }
  #endif
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/array.h lighttpd-1.4.12/src/array.h
 --- lighttpd-1.4.11/src/array.h	2005-09-23 21:24:18.000000000 +0300
-+++ lighttpd-1.4.12/src/array.h	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/array.h	2006-07-11 22:07:51.000000000 +0300
 @@ -16,7 +16,7 @@
  #define DATA_UNSET \
  	data_type_t type; \
@@ -1698,9 +1591,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	int usage; /* fair-balancing needs the no. of connections active on this host */
  	int last_used_ndx; /* round robin */
  } data_fastcgi;
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/base.h lighttpd-1.4.12/src/base.h
 --- lighttpd-1.4.11/src/base.h	2006-01-11 16:51:04.000000000 +0200
-+++ lighttpd-1.4.12/src/base.h	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/base.h	2006-07-11 22:07:51.000000000 +0300
 @@ -2,7 +2,6 @@
  #define _BASE_H_
  
@@ -1737,7 +1629,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  /* solaris and NetBSD 1.3.x again */
  #if (!defined(HAVE_STDINT_H)) && (!defined(HAVE_INTTYPES_H)) && (!defined(uint32_t))
 -# define uint32_t u_int32_t
-+/* # define uint32_t u_int32_t */
++//# define uint32_t u_int32_t
 +typedef unsigned __int32 uint32_t;
  #endif
  
@@ -2292,9 +2184,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  } server;
  
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/buffer.c lighttpd-1.4.12/src/buffer.c
 --- lighttpd-1.4.11/src/buffer.c	2006-01-13 00:00:45.000000000 +0200
-+++ lighttpd-1.4.12/src/buffer.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/buffer.c	2006-07-11 22:07:52.000000000 +0300
 @@ -12,20 +12,20 @@
  
  
@@ -3042,9 +2933,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/buffer.h lighttpd-1.4.12/src/buffer.h
 --- lighttpd-1.4.11/src/buffer.h	2006-01-13 00:00:45.000000000 +0200
-+++ lighttpd-1.4.12/src/buffer.h	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/buffer.h	2006-07-11 22:07:52.000000000 +0300
 @@ -12,27 +12,44 @@
  
  typedef struct {
@@ -3144,9 +3034,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  #define SEGFAULT() do { fprintf(stderr, "%s.%d: aborted\n", __FILE__, __LINE__); abort(); } while(0)
  #define UNUSED(x) ( (void)(x) )
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/chunk.c lighttpd-1.4.12/src/chunk.c
 --- lighttpd-1.4.11/src/chunk.c	2005-11-18 15:18:19.000000000 +0200
-+++ lighttpd-1.4.12/src/chunk.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/chunk.c	2006-07-11 22:07:51.000000000 +0300
 @@ -1,16 +1,14 @@
  /**
   * the network chunk-API
@@ -3520,9 +3409,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  			break;
  		}
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/chunk.h lighttpd-1.4.12/src/chunk.h
 --- lighttpd-1.4.11/src/chunk.h	2005-11-01 09:32:21.000000000 +0200
-+++ lighttpd-1.4.12/src/chunk.h	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/chunk.h	2006-07-11 22:07:51.000000000 +0300
 @@ -6,7 +6,7 @@
  
  typedef struct chunk {
@@ -3569,9 +3457,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	chunk *unused;
  	size_t unused_chunks;
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/configfile-glue.c lighttpd-1.4.12/src/configfile-glue.c
 --- lighttpd-1.4.11/src/configfile-glue.c	2006-03-03 20:14:56.000000000 +0200
-+++ lighttpd-1.4.12/src/configfile-glue.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/configfile-glue.c	2006-07-11 22:07:51.000000000 +0300
 @@ -1,4 +1,5 @@
  #include <string.h>
 +#include <ctype.h>
@@ -4057,9 +3944,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +#endif
 +}
 +
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/configfile.c lighttpd-1.4.12/src/configfile.c
 --- lighttpd-1.4.11/src/configfile.c	2006-02-15 14:26:42.000000000 +0200
-+++ lighttpd-1.4.12/src/configfile.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/configfile.c	2006-07-11 22:07:51.000000000 +0300
 @@ -2,7 +2,6 @@
  
  #include <stdlib.h>
@@ -4068,7 +3954,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  #include <errno.h>
  #include <string.h>
  #include <stdio.h>
-@@ -13,21 +12,24 @@
+@@ -13,21 +12,23 @@
  #include "log.h"
  #include "stream.h"
  #include "plugin.h"
@@ -4081,7 +3967,6 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  #include "proc_open.h"
  
 +#include "sys-files.h"
-+#include "sys-process.h"
 +
 +#ifndef PATH_MAX
 +/* win32 */
@@ -4099,7 +3984,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		{ "server.bind",                 NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_SERVER },      /* 0 */
  		{ "server.errorlog",             NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_SERVER },      /* 1 */
  		{ "server.errorfile-prefix",     NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_SERVER },      /* 2 */
-@@ -38,7 +40,7 @@
+@@ -38,7 +39,7 @@
  		{ "server.tag",                  NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },  /* 7 */
  		{ "server.use-ipv6",             NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION }, /* 8 */
  		{ "server.modules",              NULL, T_CONFIG_ARRAY, T_CONFIG_SCOPE_SERVER },       /* 9 */
@@ -4108,7 +3993,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		{ "server.event-handler",        NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_SERVER },      /* 10 */
  		{ "server.pid-file",             NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_SERVER },      /* 11 */
  		{ "server.max-request-size",     NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },   /* 12 */
-@@ -49,7 +51,7 @@
+@@ -49,7 +50,7 @@
  		{ "server.max-keep-alive-requests", NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION }, /* 17 */
  		{ "server.name",                 NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },  /* 18 */
  		{ "server.max-keep-alive-idle",  NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },   /* 19 */
@@ -4117,7 +4002,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		{ "server.max-read-idle",        NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },   /* 20 */
  		{ "server.max-write-idle",       NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },   /* 21 */
  		{ "server.error-handler-404",    NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },  /* 22 */
-@@ -60,19 +62,19 @@
+@@ -60,19 +61,19 @@
  		{ "mimetype.use-xattr",          NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION }, /* 27 */
  		{ "mimetype.assign",             NULL, T_CONFIG_ARRAY, T_CONFIG_SCOPE_CONNECTION },   /* 28 */
  		{ "ssl.pemfile",                 NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_SERVER },      /* 29 */
@@ -4141,7 +4026,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		{ "server.errorlog-use-syslog",  NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_SERVER },     /* 39 */
  		{ "server.range-requests",       NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION }, /* 40 */
  		{ "server.stat-cache-engine",    NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },  /* 41 */
-@@ -80,7 +82,8 @@
+@@ -80,7 +81,8 @@
  		{ "server.network-backend",      NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },  /* 43 */
  		{ "server.upload-dirs",          NULL, T_CONFIG_ARRAY, T_CONFIG_SCOPE_CONNECTION },   /* 44 */
  		{ "server.core-files",           NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION }, /* 45 */
@@ -4151,7 +4036,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		{ "server.host",                 "use server.bind instead", T_CONFIG_DEPRECATED, T_CONFIG_SCOPE_UNSET },
  		{ "server.docroot",              "use server.document-root instead", T_CONFIG_DEPRECATED, T_CONFIG_SCOPE_UNSET },
  		{ "server.virtual-root",         "load mod_simple_vhost and use simple-vhost.server-root instead", T_CONFIG_DEPRECATED, T_CONFIG_SCOPE_UNSET },
-@@ -90,11 +93,11 @@
+@@ -90,11 +92,11 @@
  		{ "server.groupid",              "use server.groupname instead", T_CONFIG_DEPRECATED, T_CONFIG_SCOPE_UNSET },
  		{ "server.use-keep-alive",       "use server.max-keep-alive-requests = 0 instead", T_CONFIG_DEPRECATED, T_CONFIG_SCOPE_UNSET },
  		{ "server.force-lower-case-files",       "use server.force-lowercase-filenames instead", T_CONFIG_DEPRECATED, T_CONFIG_SCOPE_UNSET },
@@ -4165,7 +4050,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	/* 0 */
  	cv[0].destination = srv->srvconf.bindhost;
  	cv[1].destination = srv->srvconf.errorlog_file;
-@@ -102,33 +105,33 @@
+@@ -102,33 +104,33 @@
  	cv[4].destination = srv->srvconf.username;
  	cv[5].destination = srv->srvconf.groupname;
  	cv[6].destination = &(srv->srvconf.port);
@@ -4206,7 +4091,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		s = calloc(1, sizeof(specific_config));
  		assert(s);
  		s->document_root = buffer_init();
-@@ -154,17 +157,18 @@
+@@ -154,17 +156,18 @@
  		s->global_kbytes_per_second = 0;
  		s->global_bytes_per_second_cnt = 0;
  		s->global_bytes_per_second_cnt_ptr = &s->global_bytes_per_second_cnt;
@@ -4229,7 +4114,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		cv[17].destination = &(s->max_keep_alive_requests);
  		cv[18].destination = s->server_name;
  		cv[19].destination = &(s->max_keep_alive_idle);
-@@ -179,23 +183,23 @@
+@@ -179,23 +182,23 @@
  		cv[28].destination = s->mimetypes;
  		cv[29].destination = s->ssl_pemfile;
  		cv[30].destination = &(s->is_ssl);
@@ -4258,7 +4143,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	if (buffer_is_empty(stat_cache_string)) {
  		srv->srvconf.stat_cache_engine = STAT_CACHE_ENGINE_SIMPLE;
  	} else if (buffer_is_equal_string(stat_cache_string, CONST_STR_LEN("simple"))) {
-@@ -205,22 +209,22 @@
+@@ -205,22 +208,22 @@
  	} else if (buffer_is_equal_string(stat_cache_string, CONST_STR_LEN("disable"))) {
  		srv->srvconf.stat_cache_engine = STAT_CACHE_ENGINE_NONE;
  	} else {
@@ -4288,7 +4173,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	PATCH(allow_http11);
  	PATCH(mimetypes);
  	PATCH(document_root);
-@@ -236,20 +240,21 @@
+@@ -236,20 +239,21 @@
  	PATCH(kbytes_per_second);
  	PATCH(global_kbytes_per_second);
  	PATCH(global_bytes_per_second_cnt);
@@ -4314,7 +4199,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	PATCH(ssl_pemfile);
  	PATCH(ssl_ca_file);
  	return 0;
-@@ -257,22 +262,22 @@
+@@ -257,22 +261,22 @@
  
  int config_patch_connection(server *srv, connection *con, comp_key_t comp) {
  	size_t i, j;
@@ -4342,7 +4227,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  			if (buffer_is_equal_string(du->key, CONST_STR_LEN("server.document-root"))) {
  				PATCH(document_root);
  			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("server.range-requests"))) {
-@@ -315,11 +320,13 @@
+@@ -315,11 +319,13 @@
  				PATCH(log_response_header);
  			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("debug.log-condition-handling"))) {
  				PATCH(log_condition_handling);
@@ -4357,7 +4242,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  				PATCH(force_lowercase_filenames);
  			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("server.kbytes-per-second"))) {
  				PATCH(global_kbytes_per_second);
-@@ -328,7 +335,7 @@
+@@ -328,7 +334,7 @@
  			}
  		}
  	}
@@ -4366,7 +4251,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	return 0;
  }
  #undef PATCH
-@@ -336,15 +343,15 @@
+@@ -336,15 +342,15 @@
  typedef struct {
  	int foo;
  	int bar;
@@ -4385,7 +4270,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	int in_key;
  	int in_brace;
  	int in_cond;
-@@ -362,7 +369,7 @@
+@@ -362,7 +368,7 @@
  	}
  
  	if (0 != stream_open(&(t->s), t->file)) {
@@ -4394,7 +4279,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  				"opening configfile ", t->file, "failed:", strerror(errno));
  		buffer_free(t->file);
  		return -1;
-@@ -373,7 +380,7 @@
+@@ -373,7 +379,7 @@
  	t->size = t->s.size;
  	t->line = 1;
  	t->line_pos = 1;
@@ -4403,7 +4288,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	t->in_key = 1;
  	t->in_brace = 0;
  	t->in_cond = 0;
-@@ -401,7 +408,7 @@
+@@ -401,7 +407,7 @@
  static int config_skip_comment(tokenizer_t *t) {
  	int i;
  	assert(t->input[t->offset] == '#');
@@ -4412,7 +4297,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	     (t->input[t->offset + i] != '\n' && t->input[t->offset + i] != '\r');
  	     i++);
  	t->offset += i;
-@@ -411,44 +418,44 @@
+@@ -411,44 +417,44 @@
  static int config_tokenizer(server *srv, tokenizer_t *t, int *token_id, buffer *token) {
  	int tid = 0;
  	size_t i;
@@ -4470,7 +4355,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  							"only =~ and == are allowed in the condition");
  					return -1;
  				}
-@@ -456,51 +463,51 @@
+@@ -456,51 +462,51 @@
  				t->in_cond = 0;
  			} else if (t->in_key) {
  				tid = TK_ASSIGN;
@@ -4537,7 +4422,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  			break;
  		case '\t':
  		case ' ':
-@@ -546,10 +553,10 @@
+@@ -546,10 +552,10 @@
  		case ',':
  			if (t->in_brace > 0) {
  				tid = TK_COMMA;
@@ -4550,7 +4435,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  			t->offset++;
  			t->line_pos++;
  			break;
-@@ -557,70 +564,70 @@
+@@ -557,70 +563,70 @@
  			/* search for the terminating " */
  			start = t->input + t->offset + 1;
  			buffer_copy_string(token, "");
@@ -4642,7 +4527,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  			break;
  
  		case '+':
-@@ -637,96 +644,88 @@
+@@ -637,96 +643,88 @@
  
  		case '{':
  			t->offset++;
@@ -4767,7 +4652,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  					if (strcmp(token->ptr, "include") == 0) {
  						tid = TK_INCLUDE;
  					} else if (strcmp(token->ptr, "include_shell") == 0) {
-@@ -738,14 +737,14 @@
+@@ -738,14 +736,14 @@
  					} else {
  						tid = TK_LKEY;
  					}
@@ -4785,7 +4670,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  							"invalid character in variable name");
  					return -1;
  				}
-@@ -753,16 +752,16 @@
+@@ -753,16 +751,16 @@
  			break;
  		}
  	}
@@ -4805,7 +4690,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		return 1;
  	} else if (t->offset < t->size) {
  		fprintf(stderr, "%s.%d: %d, %s\n",
-@@ -781,10 +780,11 @@
+@@ -781,10 +779,11 @@
  	pParser = configparserAlloc( malloc );
  	lasttoken = buffer_init();
  	token = buffer_init();
@@ -4818,7 +4703,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		token = buffer_init();
  	}
  	buffer_free(token);
-@@ -797,14 +797,14 @@
+@@ -797,14 +796,14 @@
  		}
  	}
  	configparserFree(pParser, free);
@@ -4837,7 +4722,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  				"parser failed somehow near here:", lasttoken);
  		ret = -1;
  	}
-@@ -821,7 +821,7 @@
+@@ -821,7 +820,7 @@
  	t->offset = 0;
  	t->line = 1;
  	t->line_pos = 1;
@@ -4846,7 +4731,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	t->in_key = 1;
  	t->in_brace = 0;
  	t->in_cond = 0;
-@@ -844,7 +844,7 @@
+@@ -844,7 +843,7 @@
  	}
  
  	if (0 != stream_open(&s, filename)) {
@@ -4855,7 +4740,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  				"opening configfile ", filename, "failed:", strerror(errno));
  		ret = -1;
  	} else {
-@@ -866,7 +866,7 @@
+@@ -866,7 +865,7 @@
  	char oldpwd[PATH_MAX];
  
  	if (NULL == getcwd(oldpwd, sizeof(oldpwd))) {
@@ -4864,7 +4749,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  				"cannot get cwd", strerror(errno));
  		return -1;
  	}
-@@ -879,7 +879,7 @@
+@@ -879,7 +878,7 @@
  	}
  
  	if (0 != proc_open_buffer(&proc, cmd, NULL, out, NULL)) {
@@ -4873,7 +4758,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  				"opening", source, "failed:", strerror(errno));
  		ret = -1;
  	} else {
-@@ -896,13 +896,12 @@
+@@ -896,13 +895,12 @@
  static void context_init(server *srv, config_t *context) {
  	context->srv = srv;
  	context->ok = 1;
@@ -4889,7 +4774,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	buffer_free(context->basedir);
  }
  
-@@ -918,18 +917,15 @@
+@@ -918,18 +916,15 @@
  	context_init(srv, &context);
  	context.all_configs = srv->config_context;
  
@@ -4913,8 +4798,12 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	dc = data_config_init();
  	buffer_copy_string(dc->key, "global");
  
-@@ -944,7 +940,7 @@
- 	dpid->value = getpid();
+@@ -941,10 +936,10 @@
+ 	/* default context */
+ 	srv->config = dc->value;
+ 	dpid = data_integer_init();
+-	dpid->value = getpid();
++	dpid->value = /* getpid() */0;
  	buffer_copy_string(dpid->key, "var.PID");
  	array_insert_unique(srv->config, (data_unset *)dpid);
 -	
@@ -4922,7 +4811,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	dcwd = data_string_init();
  	buffer_prepare_copy(dcwd->value, 1024);
  	if (NULL != getcwd(dcwd->value->ptr, dcwd->value->size - 1)) {
-@@ -968,7 +964,7 @@
+@@ -968,7 +963,7 @@
  	} else {
  		return -1;
  	}
@@ -4931,7 +4820,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	if (NULL != (modules = (data_array *)array_get_element(srv->config, "server.modules"))) {
  		data_string *ds;
  		data_array *prepends;
-@@ -1026,22 +1022,23 @@
+@@ -1026,22 +1021,23 @@
  		buffer_copy_string(modules->key, "server.modules");
  		array_insert_unique(srv->config, (data_unset *)modules);
  	}
@@ -4960,7 +4849,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		/* - poll is most reliable
  		 * - select works everywhere
  		 * - linux-* are experimental
-@@ -1067,20 +1064,21 @@
+@@ -1067,20 +1063,21 @@
  #endif
  		{ FDEVENT_HANDLER_UNSET,          NULL }
  	};
@@ -4993,7 +4882,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  			return -1;
  		}
  
-@@ -1088,18 +1086,18 @@
+@@ -1088,18 +1085,18 @@
  		buffer_copy_string_buffer(srv->tmp_buf, srv->srvconf.changeroot);
  		buffer_append_string_buffer(srv->tmp_buf, s->document_root);
  
@@ -5019,7 +4908,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  
  	if (0 == stat(srv->tmp_buf->ptr, &st1)) {
  		int is_lower = 0;
-@@ -1107,68 +1105,68 @@
+@@ -1107,68 +1104,68 @@
  		is_lower = buffer_is_equal(srv->tmp_buf, s->document_root);
  
  		/* lower-case existed, check upper-case */
@@ -5116,7 +5005,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  			return -1;
  		}
  	}
-@@ -1176,19 +1174,19 @@
+@@ -1176,19 +1173,19 @@
  	if (s->is_ssl) {
  		if (buffer_is_empty(s->ssl_pemfile)) {
  			/* PEM file is require */
@@ -5142,9 +5031,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/configfile.h lighttpd-1.4.12/src/configfile.h
 --- lighttpd-1.4.11/src/configfile.h	2005-08-23 17:36:12.000000000 +0300
-+++ lighttpd-1.4.12/src/configfile.h	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/configfile.h	2006-07-11 22:07:51.000000000 +0300
 @@ -9,7 +9,7 @@
  	server *srv;
  	int     ok;
@@ -5154,9 +5042,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	data_config *current; /* current started with { */
  	buffer *basedir;
  } config_t;
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/configparser.c lighttpd-1.4.12/src/configparser.c
 --- lighttpd-1.4.11/src/configparser.c	2006-02-01 19:51:15.000000000 +0200
-+++ lighttpd-1.4.12/src/configparser.c	2006-07-11 21:49:18.000000000 +0300
++++ lighttpd-1.4.12/src/configparser.c	2006-07-11 22:08:02.000000000 +0300
 @@ -24,52 +24,34 @@
      dc->parent = ctx->current;
      array_insert_unique(dc->parent->childs, (data_unset *)dc);
@@ -6086,9 +5973,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
        **
        ** This is what we do if the grammar does define ERROR:
        **
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/configparser.y lighttpd-1.4.12/src/configparser.y
 --- lighttpd-1.4.11/src/configparser.y	2006-01-26 18:46:25.000000000 +0200
-+++ lighttpd-1.4.12/src/configparser.y	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/configparser.y	2006-07-11 22:07:53.000000000 +0300
 @@ -21,52 +21,34 @@
      dc->parent = ctx->current;
      array_insert_unique(dc->parent->childs, (data_unset *)dc);
@@ -6252,9 +6138,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  array(A) ::= LPARAN aelements(B) RPARAN. {
    A = B;
    B = NULL;
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/connections-glue.c lighttpd-1.4.12/src/connections-glue.c
 --- lighttpd-1.4.11/src/connections-glue.c	2005-09-12 10:04:23.000000000 +0300
-+++ lighttpd-1.4.12/src/connections-glue.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/connections-glue.c	2006-07-11 22:07:51.000000000 +0300
 @@ -13,7 +13,7 @@
  	case CON_STATE_REQUEST_END: return "req-end";
  	case CON_STATE_RESPONSE_START: return "resp-start";
@@ -6283,9 +6168,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	return 0;
  }
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/connections.c lighttpd-1.4.12/src/connections.c
 --- lighttpd-1.4.11/src/connections.c	2006-03-05 22:14:53.000000000 +0200
-+++ lighttpd-1.4.12/src/connections.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/connections.c	2006-07-11 22:07:51.000000000 +0300
 @@ -2,7 +2,6 @@
  
  #include <stdlib.h>
@@ -8155,9 +8039,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		    (con->is_writable == 0) &&
  		    (con->traffic_limit_reached == 0)) {
  			fdevent_event_add(srv->ev, &(con->fde_ndx), con->fd, FDEVENT_OUT);
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/crc32.h lighttpd-1.4.12/src/crc32.h
 --- lighttpd-1.4.11/src/crc32.h	2005-09-30 20:18:59.000000000 +0300
-+++ lighttpd-1.4.12/src/crc32.h	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/crc32.h	2006-07-11 22:07:53.000000000 +0300
 @@ -6,6 +6,7 @@
  #endif
  
@@ -8177,9 +8060,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  uint32_t generate_crc32c(char *string, size_t length);
  
  #endif
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/data_array.c lighttpd-1.4.12/src/data_array.c
 --- lighttpd-1.4.11/src/data_array.c	2005-08-23 17:36:12.000000000 +0300
-+++ lighttpd-1.4.12/src/data_array.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/data_array.c	2006-07-11 22:07:52.000000000 +0300
 @@ -17,16 +17,16 @@
  
  static void data_array_free(data_unset *d) {
@@ -8232,9 +8114,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return ds;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/data_config.c lighttpd-1.4.12/src/data_config.c
 --- lighttpd-1.4.11/src/data_config.c	2005-08-17 12:53:19.000000000 +0300
-+++ lighttpd-1.4.12/src/data_config.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/data_config.c	2006-07-11 22:07:51.000000000 +0300
 @@ -17,26 +17,26 @@
  
  static void data_config_free(data_unset *d) {
@@ -8315,9 +8196,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return ds;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/data_count.c lighttpd-1.4.12/src/data_count.c
 --- lighttpd-1.4.11/src/data_count.c	2005-08-23 17:36:12.000000000 +0300
-+++ lighttpd-1.4.12/src/data_count.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/data_count.c	2006-07-11 22:07:51.000000000 +0300
 @@ -16,53 +16,53 @@
  
  static void data_count_free(data_unset *d) {
@@ -8384,9 +8264,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return ds;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/data_fastcgi.c lighttpd-1.4.12/src/data_fastcgi.c
 --- lighttpd-1.4.11/src/data_fastcgi.c	2005-08-23 17:36:12.000000000 +0300
-+++ lighttpd-1.4.12/src/data_fastcgi.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/data_fastcgi.c	2006-07-11 22:07:53.000000000 +0300
 @@ -17,53 +17,53 @@
  
  static void data_fastcgi_free(data_unset *d) {
@@ -8451,9 +8330,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return ds;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/data_integer.c lighttpd-1.4.12/src/data_integer.c
 --- lighttpd-1.4.11/src/data_integer.c	2005-08-23 17:36:12.000000000 +0300
-+++ lighttpd-1.4.12/src/data_integer.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/data_integer.c	2006-07-11 22:07:51.000000000 +0300
 @@ -16,15 +16,15 @@
  
  static void data_integer_free(data_unset *d) {
@@ -8508,9 +8386,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return ds;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/data_string.c lighttpd-1.4.12/src/data_string.c
 --- lighttpd-1.4.11/src/data_string.c	2005-08-23 17:36:12.000000000 +0300
-+++ lighttpd-1.4.12/src/data_string.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/data_string.c	2006-07-11 22:07:53.000000000 +0300
 @@ -17,16 +17,16 @@
  
  static void data_string_free(data_unset *d) {
@@ -8606,9 +8483,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return ds;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/etag.c lighttpd-1.4.12/src/etag.c
 --- lighttpd-1.4.11/src/etag.c	2005-08-11 01:26:40.000000000 +0300
-+++ lighttpd-1.4.12/src/etag.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/etag.c	2006-07-11 22:07:51.000000000 +0300
 @@ -14,19 +14,19 @@
  	buffer_append_off_t(etag, st->st_size);
  	buffer_append_string_len(etag, CONST_STR_LEN("-"));
@@ -8633,9 +8509,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/etag.h lighttpd-1.4.12/src/etag.h
 --- lighttpd-1.4.11/src/etag.h	2005-08-11 01:26:40.000000000 +0300
-+++ lighttpd-1.4.12/src/etag.h	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/etag.h	2006-07-11 22:07:51.000000000 +0300
 @@ -3,13 +3,12 @@
  
  #include <sys/types.h>
@@ -8651,9 +8526,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  
  #endif
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/fastcgi.h lighttpd-1.4.12/src/fastcgi.h
 --- lighttpd-1.4.11/src/fastcgi.h	2005-08-11 01:26:40.000000000 +0300
-+++ lighttpd-1.4.12/src/fastcgi.h	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/fastcgi.h	2006-07-11 22:07:51.000000000 +0300
 @@ -1,4 +1,4 @@
 -/* 
 +/*
@@ -8669,9 +8543,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
      unsigned char reserved[7];
  } FCGI_UnknownTypeBody;
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/fdevent.c lighttpd-1.4.12/src/fdevent.c
 --- lighttpd-1.4.11/src/fdevent.c	2005-11-15 10:51:05.000000000 +0200
-+++ lighttpd-1.4.12/src/fdevent.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/fdevent.c	2006-07-11 22:07:53.000000000 +0300
 @@ -2,7 +2,6 @@
  
  #include "settings.h"
@@ -8898,9 +8771,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	return -1;
  }
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/fdevent.h lighttpd-1.4.12/src/fdevent.h
 --- lighttpd-1.4.11/src/fdevent.h	2005-09-27 11:26:33.000000000 +0300
-+++ lighttpd-1.4.12/src/fdevent.h	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/fdevent.h	2006-07-11 22:07:51.000000000 +0300
 @@ -17,13 +17,13 @@
  # include <sys/epoll.h>
  #endif
@@ -9057,9 +8929,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	int (*fcntl_set)(struct fdevents *ev, int fd);
  } fdevents;
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/fdevent_freebsd_kqueue.c lighttpd-1.4.12/src/fdevent_freebsd_kqueue.c
 --- lighttpd-1.4.11/src/fdevent_freebsd_kqueue.c	2005-09-01 10:46:24.000000000 +0300
-+++ lighttpd-1.4.12/src/fdevent_freebsd_kqueue.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/fdevent_freebsd_kqueue.c	2006-07-11 22:07:51.000000000 +0300
 @@ -1,6 +1,5 @@
  #include <sys/types.h>
  
@@ -9125,9 +8996,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		return -1;
  	}
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/fdevent_linux_rtsig.c lighttpd-1.4.12/src/fdevent_linux_rtsig.c
 --- lighttpd-1.4.11/src/fdevent_linux_rtsig.c	2005-11-21 19:56:11.000000000 +0200
-+++ lighttpd-1.4.12/src/fdevent_linux_rtsig.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/fdevent_linux_rtsig.c	2006-07-11 22:07:53.000000000 +0300
 @@ -1,6 +1,5 @@
  #include <sys/types.h>
  
@@ -9135,15 +9005,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  #include <stdlib.h>
  #include <stdio.h>
  #include <string.h>
-@@ -14,6 +13,7 @@
- #include "fdevent.h"
- #include "settings.h"
- #include "buffer.h"
-+#include "sys-process.h"
- 
- #ifdef USE_LINUX_SIGIO
- static void fdevent_linux_rtsig_free(fdevents *ev) {
-@@ -26,19 +26,19 @@
+@@ -26,19 +25,19 @@
  
  static int fdevent_linux_rtsig_event_del(fdevents *ev, int fde_ndx, int fd) {
  	if (fde_ndx < 0) return -1;
@@ -9167,7 +9029,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		if (ev->unused.size == 0) {
  			ev->unused.size = 16;
  			ev->unused.ptr = malloc(sizeof(*(ev->unused.ptr)) * ev->unused.size);
-@@ -46,29 +46,29 @@
+@@ -46,29 +45,29 @@
  			ev->unused.size += 16;
  			ev->unused.ptr = realloc(ev->unused.ptr, sizeof(*(ev->unused.ptr)) * ev->unused.size);
  		}
@@ -9204,7 +9066,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	return 0;
  }
  #endif
-@@ -78,21 +78,21 @@
+@@ -78,21 +77,21 @@
  	if (fde_ndx != -1) {
  		if (ev->pollfds[fde_ndx].fd == fd) {
  			ev->pollfds[fde_ndx].events = events;
@@ -9230,7 +9092,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		return k;
  	} else {
  		if (ev->size == 0) {
-@@ -102,12 +102,12 @@
+@@ -102,12 +101,12 @@
  			ev->size += 16;
  			ev->pollfds = realloc(ev->pollfds, sizeof(*ev->pollfds) * ev->size);
  		}
@@ -9245,7 +9107,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		return ev->used++;
  	}
  }
-@@ -115,20 +115,20 @@
+@@ -115,20 +114,20 @@
  static int fdevent_linux_rtsig_poll(fdevents *ev, int timeout_ms) {
  	struct timespec ts;
  	int r;
@@ -9272,7 +9134,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	} else if (r == SIGIO) {
  		struct sigaction act;
  
-@@ -140,7 +140,7 @@
+@@ -140,7 +139,7 @@
  		/* re-enable the signal queue */
  		act.sa_handler = SIG_DFL;
  		sigaction(ev->signum, &act, NULL);
@@ -9281,7 +9143,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		ev->in_sigio = 0;
  		r = poll(ev->pollfds, ev->used, timeout_ms);
  
-@@ -162,12 +162,12 @@
+@@ -162,12 +161,12 @@
  		if (ev->siginfo.si_band == POLLERR) {
  			fprintf(stderr, "event: %d %02lx %02x %s\n", ev->siginfo.si_fd, ev->siginfo.si_band, errno, strerror(errno));
  		}
@@ -9296,7 +9158,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		return ev->siginfo.si_band & 0x3f;
  	} else {
  		if (ndx >= ev->used) {
-@@ -188,13 +188,13 @@
+@@ -188,13 +187,13 @@
  
  static int fdevent_linux_rtsig_fcntl_set(fdevents *ev, int fd) {
  	static pid_t pid = 0;
@@ -9314,7 +9176,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	return fcntl(fd, F_SETFL, O_ASYNC | O_NONBLOCK | O_RDWR);
  }
  
-@@ -205,12 +205,12 @@
+@@ -205,12 +204,12 @@
  		return -1;
  	} else {
  		size_t i;
@@ -9329,7 +9191,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		return i;
  	}
  }
-@@ -219,34 +219,34 @@
+@@ -219,34 +218,34 @@
  	ev->type = FDEVENT_HANDLER_LINUX_RTSIG;
  #define SET(x) \
  	ev->x = fdevent_linux_rtsig_##x;
@@ -9372,9 +9234,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	return 0;
  }
  #else
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/fdevent_linux_sysepoll.c lighttpd-1.4.12/src/fdevent_linux_sysepoll.c
 --- lighttpd-1.4.11/src/fdevent_linux_sysepoll.c	2005-09-30 20:29:27.000000000 +0300
-+++ lighttpd-1.4.12/src/fdevent_linux_sysepoll.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/fdevent_linux_sysepoll.c	2006-07-11 22:07:53.000000000 +0300
 @@ -1,6 +1,5 @@
  #include <sys/types.h>
  
@@ -9536,9 +9397,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	return -1;
  }
  #endif
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/fdevent_poll.c lighttpd-1.4.12/src/fdevent_poll.c
 --- lighttpd-1.4.11/src/fdevent_poll.c	2005-11-18 13:59:16.000000000 +0200
-+++ lighttpd-1.4.12/src/fdevent_poll.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/fdevent_poll.c	2006-07-11 22:07:53.000000000 +0300
 @@ -1,6 +1,5 @@
  #include <sys/types.h>
  
@@ -9703,9 +9563,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	return 0;
  }
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/fdevent_select.c lighttpd-1.4.12/src/fdevent_select.c
 --- lighttpd-1.4.11/src/fdevent_select.c	2005-08-31 11:12:46.000000000 +0300
-+++ lighttpd-1.4.12/src/fdevent_select.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/fdevent_select.c	2006-07-11 22:07:53.000000000 +0300
 @@ -1,18 +1,19 @@
 -#include <sys/time.h>
  #include <sys/types.h>
@@ -9823,9 +9682,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	return 0;
  }
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/fdevent_solaris_devpoll.c lighttpd-1.4.12/src/fdevent_solaris_devpoll.c
 --- lighttpd-1.4.11/src/fdevent_solaris_devpoll.c	2005-09-01 10:45:26.000000000 +0300
-+++ lighttpd-1.4.12/src/fdevent_solaris_devpoll.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/fdevent_solaris_devpoll.c	2006-07-11 22:07:51.000000000 +0300
 @@ -1,6 +1,5 @@
  #include <sys/types.h>
  
@@ -9955,9 +9813,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	return -1;
  }
  #endif
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/http-header-glue.c lighttpd-1.4.12/src/http-header-glue.c
 --- lighttpd-1.4.11/src/http-header-glue.c	2006-02-08 15:31:36.000000000 +0200
-+++ lighttpd-1.4.12/src/http-header-glue.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/http-header-glue.c	2006-07-11 22:07:53.000000000 +0300
 @@ -45,20 +45,20 @@
  #   ifdef HAVE_STRUCT_SOCKADDR_STORAGE
  static size_t get_sa_len(const struct sockaddr *addr) {
@@ -10291,9 +10148,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		}
  	}
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/http_auth.c lighttpd-1.4.12/src/http_auth.c
 --- lighttpd-1.4.11/src/http_auth.c	2006-02-01 13:02:52.000000000 +0200
-+++ lighttpd-1.4.12/src/http_auth.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/http_auth.c	2006-07-11 22:07:53.000000000 +0300
 @@ -22,7 +22,6 @@
  #include <string.h>
  #include <time.h>
@@ -11370,9 +11226,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/http_auth.h lighttpd-1.4.12/src/http_auth.h
 --- lighttpd-1.4.11/src/http_auth.h	2005-08-14 17:12:31.000000000 +0300
-+++ lighttpd-1.4.12/src/http_auth.h	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/http_auth.h	2006-07-11 22:07:53.000000000 +0300
 @@ -9,22 +9,26 @@
  # include <ldap.h>
  #endif
@@ -11446,9 +11301,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	mod_auth_plugin_config conf; /* this is only used as long as no handler_ctx is setup */
  } mod_auth_plugin_data;
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/http_auth_digest.h lighttpd-1.4.12/src/http_auth_digest.h
 --- lighttpd-1.4.11/src/http_auth_digest.h	2006-01-05 00:54:01.000000000 +0200
-+++ lighttpd-1.4.12/src/http_auth_digest.h	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/http_auth_digest.h	2006-07-11 22:07:53.000000000 +0300
 @@ -12,7 +12,7 @@
  #ifdef USE_OPENSSL
  #define IN const
@@ -11458,9 +11312,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  #endif
  #define OUT
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/http_chunk.c lighttpd-1.4.12/src/http_chunk.c
 --- lighttpd-1.4.11/src/http_chunk.c	2005-08-11 01:26:50.000000000 +0300
-+++ lighttpd-1.4.12/src/http_chunk.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/http_chunk.c	2006-07-11 22:07:53.000000000 +0300
 @@ -1,7 +1,7 @@
  /**
   * the HTTP chunk-API
@@ -11616,10 +11469,9 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return chunkqueue_length(con->write_queue);
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/http_resp.c lighttpd-1.4.12/src/http_resp.c
 --- lighttpd-1.4.11/src/http_resp.c	1970-01-01 03:00:00.000000000 +0300
-+++ lighttpd-1.4.12/src/http_resp.c	2006-07-11 21:23:40.000000000 +0300
-@@ -0,0 +1,263 @@
++++ lighttpd-1.4.12/src/http_resp.c	2006-07-11 22:07:53.000000000 +0300
+@@ -0,0 +1,261 @@
 +#include <string.h>
 +#include <stdlib.h>
 +#include <stdio.h>
@@ -11688,9 +11540,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +    t->lookup_offset = t->offset;
 +    t->lookup_c = t->c;
 +
-+#if 0
-+    fprintf(stderr, "%s.%d: get: %c (%d) at offset: %d\r\n", __FILE__, __LINE__, *c > 31 ? *c : ' ', *c, t->offset - 1);
-+#endif
++    //fprintf(stderr, "%s.%d: get: %c (%d) at offset: %d\r\n", __FILE__, __LINE__, *c > 31 ? *c : ' ', *c, t->offset - 1);
 +
 +    return 0;
 +}
@@ -11706,9 +11556,9 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +    }
 +
 +    *c = t->lookup_c->mem->ptr[t->lookup_offset++];
-+#if 0
-+    fprintf(stderr, "%s.%d: lookup: %c (%d) at offset: %d\r\n", __FILE__, __LINE__, *c > 31 ? *c : ' ', *c, t->lookup_offset - 1);
-+#endif
++
++    //fprintf(stderr, "%s.%d: lookup: %c (%d) at offset: %d\r\n", __FILE__, __LINE__, *c > 31 ? *c : ' ', *c, t->lookup_offset - 1);
++
 +
 +    return 0;
 +}
@@ -11883,9 +11733,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +    return ret;
 +}
 +
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/http_resp.h lighttpd-1.4.12/src/http_resp.h
 --- lighttpd-1.4.11/src/http_resp.h	1970-01-01 03:00:00.000000000 +0300
-+++ lighttpd-1.4.12/src/http_resp.h	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/http_resp.h	2006-07-11 22:07:53.000000000 +0300
 @@ -0,0 +1,34 @@
 +#ifndef _HTTP_RESP_H_
 +#define _HTTP_RESP_H_
@@ -11921,9 +11770,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +parse_status_t http_response_parse_cq(chunkqueue *cq, http_resp *http_response);
 +
 +#endif
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/http_resp_parser.c lighttpd-1.4.12/src/http_resp_parser.c
 --- lighttpd-1.4.11/src/http_resp_parser.c	1970-01-01 03:00:00.000000000 +0300
-+++ lighttpd-1.4.12/src/http_resp_parser.c	2006-07-11 21:49:18.000000000 +0300
++++ lighttpd-1.4.12/src/http_resp_parser.c	2006-07-11 22:08:02.000000000 +0300
 @@ -0,0 +1,894 @@
 +/* Driver template for the LEMON parser generator.
 +** The author disclaims copyright to this source code.
@@ -12819,9 +12667,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +  }while( yymajor!=YYNOCODE && yypParser->yyidx>=0 );
 +  return;
 +}
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/inet_ntop_cache.c lighttpd-1.4.12/src/inet_ntop_cache.c
 --- lighttpd-1.4.11/src/inet_ntop_cache.c	2005-08-11 01:26:38.000000000 +0300
-+++ lighttpd-1.4.12/src/inet_ntop_cache.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/inet_ntop_cache.c	2006-07-11 22:07:52.000000000 +0300
 @@ -8,7 +8,7 @@
  #include "sys-socket.h"
  
@@ -12871,9 +12718,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	return srv->inet_ntop_cache[i].b2;
  #else
  	UNUSED(srv);
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/joblist.c lighttpd-1.4.12/src/joblist.c
 --- lighttpd-1.4.11/src/joblist.c	2005-08-11 01:26:41.000000000 +0300
-+++ lighttpd-1.4.12/src/joblist.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/joblist.c	2006-07-11 22:07:51.000000000 +0300
 @@ -7,7 +7,7 @@
  
  int joblist_append(server *srv, connection *con) {
@@ -12934,9 +12780,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	return 0;
  }
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/keyvalue.c lighttpd-1.4.12/src/keyvalue.c
 --- lighttpd-1.4.11/src/keyvalue.c	2006-03-02 16:08:06.000000000 +0200
-+++ lighttpd-1.4.12/src/keyvalue.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/keyvalue.c	2006-07-11 22:07:51.000000000 +0300
 @@ -87,7 +87,8 @@
  	{ 504, "Gateway Timeout" },
  	{ 505, "HTTP Version Not Supported" },
@@ -13243,9 +13088,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	free(kvb);
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/keyvalue.h lighttpd-1.4.12/src/keyvalue.h
 --- lighttpd-1.4.11/src/keyvalue.h	2006-03-02 16:08:06.000000000 +0200
-+++ lighttpd-1.4.12/src/keyvalue.h	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/keyvalue.h	2006-07-11 22:07:52.000000000 +0300
 @@ -9,19 +9,19 @@
  # include <pcre.h>
  #endif
@@ -13312,9 +13156,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	char *realm;
  	httpauth_type type;
  } httpauth_keyvalue;
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/lemon.c lighttpd-1.4.12/src/lemon.c
 --- lighttpd-1.4.11/src/lemon.c	2005-09-01 00:21:34.000000000 +0300
-+++ lighttpd-1.4.12/src/lemon.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/lemon.c	2006-07-11 22:07:51.000000000 +0300
 @@ -579,7 +579,7 @@
  */
  
@@ -13486,9 +13329,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
        (sizeof(x4node) + sizeof(x4node*))*64 );
      if( x4a->tbl==0 ){
        free(x4a);
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/lempar.c lighttpd-1.4.12/src/lempar.c
 --- lighttpd-1.4.11/src/lempar.c	2005-08-11 01:26:40.000000000 +0300
-+++ lighttpd-1.4.12/src/lempar.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/lempar.c	2006-07-11 22:07:51.000000000 +0300
 @@ -8,10 +8,10 @@
  /* Next is all token values, in a form suitable for use by makeheaders.
  ** This section will be null unless lemon is run with the -m switch.
@@ -13632,18 +13474,18 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
        **
        ** This is what we do if the grammar does define ERROR:
        **
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/log.c lighttpd-1.4.12/src/log.c
 --- lighttpd-1.4.11/src/log.c	2005-11-07 15:01:35.000000000 +0200
-+++ lighttpd-1.4.12/src/log.c	2006-07-11 21:23:40.000000000 +0300
-@@ -5,7 +5,6 @@
++++ lighttpd-1.4.12/src/log.c	2006-07-11 22:07:53.000000000 +0300
+@@ -5,7 +5,7 @@
  #include <errno.h>
  #include <fcntl.h>
  #include <time.h>
 -#include <unistd.h>
++//#include <unistd.h>
  #include <string.h>
  #include <stdlib.h>
  
-@@ -16,6 +15,10 @@
+@@ -16,6 +16,10 @@
  #include "config.h"
  #endif
  
@@ -13654,7 +13496,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  #ifdef HAVE_SYSLOG_H
  #include <syslog.h>
  #endif
-@@ -23,6 +26,8 @@
+@@ -23,6 +27,8 @@
  #include "log.h"
  #include "array.h"
  
@@ -13663,7 +13505,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  #ifdef HAVE_VALGRIND_VALGRIND_H
  #include <valgrind/valgrind.h>
  #endif
-@@ -31,38 +36,38 @@
+@@ -31,38 +37,38 @@
  # define O_LARGEFILE 0
  #endif
  
@@ -13712,7 +13554,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  			return -1;
  		}
  #ifdef FD_CLOEXEC
-@@ -71,15 +76,15 @@
+@@ -71,15 +77,15 @@
  #endif
  		srv->errorlog_mode = ERRORLOG_FILE;
  	}
@@ -13731,7 +13573,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	/* move stderr to /dev/null */
  	if (close_stderr &&
  	    -1 != (fd = open("/dev/null", O_WRONLY))) {
-@@ -90,33 +95,33 @@
+@@ -90,33 +96,33 @@
  	return 0;
  }
  
@@ -13774,7 +13616,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  			srv->errorlog_mode = ERRORLOG_SYSLOG;
  #endif
  		} else {
-@@ -125,15 +130,15 @@
+@@ -125,15 +131,15 @@
  			srv->errorlog_fd = new_fd;
  		}
  	}
@@ -13793,7 +13635,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	switch(srv->errorlog_mode) {
  	case ERRORLOG_FILE:
  		close(srv->errorlog_fd);
-@@ -146,13 +151,13 @@
+@@ -146,13 +152,13 @@
  	case ERRORLOG_STDERR:
  		break;
  	}
@@ -13809,7 +13651,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	switch(srv->errorlog_mode) {
  	case ERRORLOG_FILE:
  	case ERRORLOG_STDERR:
-@@ -161,7 +166,7 @@
+@@ -161,7 +167,7 @@
  			buffer_prepare_copy(srv->ts_debug_str, 255);
  			strftime(srv->ts_debug_str->ptr, srv->ts_debug_str->size - 1, "%Y-%m-%d %H:%M:%S", localtime(&(srv->cur_ts)));
  			srv->ts_debug_str->used = strlen(srv->ts_debug_str->ptr) + 1;
@@ -13818,7 +13660,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  			srv->last_generated_debug_ts = srv->cur_ts;
  		}
  
-@@ -173,19 +178,19 @@
+@@ -173,19 +179,19 @@
  		BUFFER_COPY_STRING_CONST(srv->errorlog_buf, "(");
  		break;
  	}
@@ -13842,7 +13684,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		switch(*fmt) {
  		case 's':           /* string */
  			s = va_arg(ap, char *);
-@@ -227,7 +232,7 @@
+@@ -227,7 +233,7 @@
  			break;
  		case '(':
  		case ')':
@@ -13851,7 +13693,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		case '>':
  		case ',':
  		case ' ':
-@@ -236,7 +241,7 @@
+@@ -236,7 +242,7 @@
  		}
  	}
  	va_end(ap);
@@ -13860,7 +13702,7 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	switch(srv->errorlog_mode) {
  	case ERRORLOG_FILE:
  		BUFFER_APPEND_STRING_CONST(srv->errorlog_buf, "\n");
-@@ -246,11 +251,13 @@
+@@ -246,11 +252,13 @@
  		BUFFER_APPEND_STRING_CONST(srv->errorlog_buf, "\n");
  		write(STDERR_FILENO, srv->errorlog_buf->ptr, srv->errorlog_buf->used - 1);
  		break;
@@ -13875,9 +13717,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	return 0;
  }
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/log.h lighttpd-1.4.12/src/log.h
 --- lighttpd-1.4.11/src/log.h	2005-08-11 01:26:36.000000000 +0300
-+++ lighttpd-1.4.12/src/log.h	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/log.h	2006-07-11 22:07:53.000000000 +0300
 @@ -9,5 +9,5 @@
  int log_error_close(server *srv);
  int log_error_write(server *srv, const char *filename, unsigned int line, const char *fmt, ...);
@@ -13885,9 +13726,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 -	
 +
  #endif
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/md5.h lighttpd-1.4.12/src/md5.h
 --- lighttpd-1.4.11/src/md5.h	2005-11-17 16:20:40.000000000 +0200
-+++ lighttpd-1.4.12/src/md5.h	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/md5.h	2006-07-11 22:07:53.000000000 +0300
 @@ -30,9 +30,15 @@
  # include <inttypes.h>
  #endif
@@ -13904,9 +13744,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  
  /* MD5 context. */
  typedef struct {
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_access.c lighttpd-1.4.12/src/mod_access.c
 --- lighttpd-1.4.11/src/mod_access.c	2006-01-14 19:44:54.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_access.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_access.c	2006-07-11 22:07:53.000000000 +0300
 @@ -8,126 +8,125 @@
  
  #include "plugin.h"
@@ -14108,9 +13947,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_accesslog.c lighttpd-1.4.12/src/mod_accesslog.c
 --- lighttpd-1.4.11/src/mod_accesslog.c	2006-01-31 14:01:43.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_accesslog.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_accesslog.c	2006-07-11 22:07:53.000000000 +0300
 @@ -6,8 +6,7 @@
  #include <ctype.h>
  #include <stdlib.h>
@@ -14964,9 +14802,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_alias.c lighttpd-1.4.12/src/mod_alias.c
 --- lighttpd-1.4.11/src/mod_alias.c	2006-03-01 23:18:51.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_alias.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/mod_alias.c	2006-07-11 22:07:51.000000000 +0300
 @@ -8,6 +8,7 @@
  #include "buffer.h"
  
@@ -15181,9 +15018,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_auth.c lighttpd-1.4.12/src/mod_auth.c
 --- lighttpd-1.4.11/src/mod_auth.c	2006-02-15 20:01:31.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_auth.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_auth.c	2006-07-11 22:07:53.000000000 +0300
 @@ -5,168 +5,167 @@
  #include <string.h>
  #include <errno.h>
@@ -15907,9 +15743,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_cgi.c lighttpd-1.4.12/src/mod_cgi.c
 --- lighttpd-1.4.11/src/mod_cgi.c	2006-02-22 15:15:10.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_cgi.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/mod_cgi.c	2006-07-11 22:07:51.000000000 +0300
 @@ -1,21 +1,8 @@
  #include <sys/types.h>
 -#ifdef __WIN32
@@ -17350,9 +17185,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_cml.c lighttpd-1.4.12/src/mod_cml.c
 --- lighttpd-1.4.11/src/mod_cml.c	2006-01-30 13:51:48.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_cml.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/mod_cml.c	2006-07-11 22:07:51.000000000 +0300
 @@ -4,7 +4,6 @@
  #include <stdlib.h>
  #include <string.h>
@@ -17683,9 +17517,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_cml.h lighttpd-1.4.12/src/mod_cml.h
 --- lighttpd-1.4.11/src/mod_cml.h	2006-01-30 13:51:35.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_cml.h	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/mod_cml.h	2006-07-11 22:07:51.000000000 +0300
 @@ -16,10 +16,10 @@
  
  typedef struct {
@@ -17720,9 +17553,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  } plugin_data;
  
  int cache_parse_lua(server *srv, connection *con, plugin_data *p, buffer *fn);
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_cml_funcs.c lighttpd-1.4.12/src/mod_cml_funcs.c
 --- lighttpd-1.4.11/src/mod_cml_funcs.c	2005-11-17 16:15:08.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_cml_funcs.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_cml_funcs.c	2006-07-11 22:07:52.000000000 +0300
 @@ -4,8 +4,7 @@
  #include <stdlib.h>
  #include <string.h>
@@ -18067,9 +17899,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	return 1;
  }
  #endif
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_cml_lua.c lighttpd-1.4.12/src/mod_cml_lua.c
 --- lighttpd-1.4.11/src/mod_cml_lua.c	2006-01-30 13:56:40.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_cml_lua.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_cml_lua.c	2006-07-11 22:07:53.000000000 +0300
 @@ -23,7 +23,7 @@
  #ifdef USE_OPENSSL
  #define IN const
@@ -18546,9 +18377,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	return ret /* cache-error */;
  }
  #else
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_compress.c lighttpd-1.4.12/src/mod_compress.c
 --- lighttpd-1.4.11/src/mod_compress.c	2005-11-18 13:49:14.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_compress.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_compress.c	2006-07-11 22:07:53.000000000 +0300
 @@ -2,7 +2,6 @@
  #include <sys/stat.h>
  
@@ -19436,9 +19266,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_dirlisting.c lighttpd-1.4.12/src/mod_dirlisting.c
 --- lighttpd-1.4.11/src/mod_dirlisting.c	2006-01-13 00:00:45.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_dirlisting.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_dirlisting.c	2006-07-11 22:07:53.000000000 +0300
 @@ -1,11 +1,9 @@
  #include <ctype.h>
  #include <stdlib.h>
@@ -19910,9 +19739,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_evasive.c lighttpd-1.4.12/src/mod_evasive.c
 --- lighttpd-1.4.11/src/mod_evasive.c	2006-01-04 15:24:51.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_evasive.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_evasive.c	2006-07-11 22:07:53.000000000 +0300
 @@ -31,100 +31,97 @@
  
  typedef struct {
@@ -20089,9 +19917,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_evhost.c lighttpd-1.4.12/src/mod_evhost.c
 --- lighttpd-1.4.11/src/mod_evhost.c	2005-08-17 10:42:03.000000000 +0300
-+++ lighttpd-1.4.12/src/mod_evhost.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/mod_evhost.c	2006-07-11 22:07:51.000000000 +0300
 @@ -7,10 +7,12 @@
  #include "response.h"
  #include "stat_cache.h"
@@ -20464,9 +20291,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	return 0;
  }
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_expire.c lighttpd-1.4.12/src/mod_expire.c
 --- lighttpd-1.4.11/src/mod_expire.c	2005-11-03 09:52:13.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_expire.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_expire.c	2006-07-11 22:07:52.000000000 +0300
 @@ -12,8 +12,8 @@
  #include "stat_cache.h"
  
@@ -20874,9 +20700,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_fastcgi.c lighttpd-1.4.12/src/mod_fastcgi.c
 --- lighttpd-1.4.11/src/mod_fastcgi.c	2006-03-09 13:18:39.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_fastcgi.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_fastcgi.c	2006-07-11 22:07:53.000000000 +0300
 @@ -1,5 +1,4 @@
  #include <sys/types.h>
 -#include <unistd.h>
@@ -24863,9 +24688,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_flv_streaming.c lighttpd-1.4.12/src/mod_flv_streaming.c
 --- lighttpd-1.4.11/src/mod_flv_streaming.c	2006-03-07 14:06:26.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_flv_streaming.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_flv_streaming.c	2006-07-11 22:07:52.000000000 +0300
 @@ -23,35 +23,35 @@
  
  typedef struct {
@@ -25138,9 +24962,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_indexfile.c lighttpd-1.4.12/src/mod_indexfile.c
 --- lighttpd-1.4.11/src/mod_indexfile.c	2005-09-30 01:08:53.000000000 +0300
-+++ lighttpd-1.4.12/src/mod_indexfile.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_indexfile.c	2006-07-11 22:07:53.000000000 +0300
 @@ -20,51 +20,51 @@
  
  typedef struct {
@@ -25392,9 +25215,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_mysql_vhost.c lighttpd-1.4.12/src/mod_mysql_vhost.c
 --- lighttpd-1.4.11/src/mod_mysql_vhost.c	2006-01-14 20:35:10.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_mysql_vhost.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_mysql_vhost.c	2006-07-11 22:07:52.000000000 +0300
 @@ -1,13 +1,18 @@
 -#include <unistd.h>
  #include <stdio.h>
@@ -25907,9 +25729,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	return 0;
  }
  #else
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_proxy.c lighttpd-1.4.12/src/mod_proxy.c
 --- lighttpd-1.4.11/src/mod_proxy.c	2006-01-31 13:01:22.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_proxy.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_proxy.c	2006-07-11 22:07:52.000000000 +0300
 @@ -1,6 +1,5 @@
  #include <sys/types.h>
  
@@ -27556,9 +27377,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_redirect.c lighttpd-1.4.12/src/mod_redirect.c
 --- lighttpd-1.4.11/src/mod_redirect.c	2006-02-08 15:38:06.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_redirect.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_redirect.c	2006-07-11 22:07:52.000000000 +0300
 @@ -22,35 +22,35 @@
  	PLUGIN_DATA;
  	buffer *match_buf;
@@ -27880,9 +27700,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_rewrite.c lighttpd-1.4.12/src/mod_rewrite.c
 --- lighttpd-1.4.11/src/mod_rewrite.c	2005-09-29 20:59:10.000000000 +0300
-+++ lighttpd-1.4.12/src/mod_rewrite.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/mod_rewrite.c	2006-07-11 22:07:51.000000000 +0300
 @@ -13,24 +13,8 @@
  #endif
  
@@ -28415,9 +28234,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_rrdtool.c lighttpd-1.4.12/src/mod_rrdtool.c
 --- lighttpd-1.4.11/src/mod_rrdtool.c	2005-08-22 01:52:24.000000000 +0300
-+++ lighttpd-1.4.12/src/mod_rrdtool.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_rrdtool.c	2006-07-11 22:07:52.000000000 +0300
 @@ -5,7 +5,6 @@
  #include <stdlib.h>
  #include <stdio.h>
@@ -28951,9 +28769,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_scgi.c lighttpd-1.4.12/src/mod_scgi.c
 --- lighttpd-1.4.11/src/mod_scgi.c	2006-03-04 17:15:26.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_scgi.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_scgi.c	2006-07-11 22:07:51.000000000 +0300
 @@ -1,5 +1,4 @@
  #include <sys/types.h>
 -#include <unistd.h>
@@ -32468,9 +32285,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_secure_download.c lighttpd-1.4.12/src/mod_secure_download.c
 --- lighttpd-1.4.11/src/mod_secure_download.c	2005-12-14 14:37:29.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_secure_download.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/mod_secure_download.c	2006-07-11 22:07:51.000000000 +0300
 @@ -25,7 +25,7 @@
  #ifdef USE_OPENSSL
  #define IN const
@@ -32824,9 +32640,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_setenv.c lighttpd-1.4.12/src/mod_setenv.c
 --- lighttpd-1.4.11/src/mod_setenv.c	2006-01-14 20:33:12.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_setenv.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_setenv.c	2006-07-11 22:07:53.000000000 +0300
 @@ -18,25 +18,25 @@
  typedef struct {
  	array *request_header;
@@ -33101,9 +32916,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_simple_vhost.c lighttpd-1.4.12/src/mod_simple_vhost.c
 --- lighttpd-1.4.11/src/mod_simple_vhost.c	2005-11-18 15:16:13.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_simple_vhost.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_simple_vhost.c	2006-07-11 22:07:52.000000000 +0300
 @@ -10,6 +10,8 @@
  
  #include "plugin.h"
@@ -33443,9 +33257,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_skeleton.c lighttpd-1.4.12/src/mod_skeleton.c
 --- lighttpd-1.4.11/src/mod_skeleton.c	2005-10-02 18:30:51.000000000 +0300
-+++ lighttpd-1.4.12/src/mod_skeleton.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_skeleton.c	2006-07-11 22:07:51.000000000 +0300
 @@ -14,13 +14,13 @@
  
  /**
@@ -33684,9 +33497,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_sql_vhost_core.c lighttpd-1.4.12/src/mod_sql_vhost_core.c
 --- lighttpd-1.4.11/src/mod_sql_vhost_core.c	1970-01-01 03:00:00.000000000 +0300
-+++ lighttpd-1.4.12/src/mod_sql_vhost_core.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_sql_vhost_core.c	2006-07-11 22:07:53.000000000 +0300
 @@ -0,0 +1,209 @@
 +#include <stdio.h>
 +#include <errno.h>
@@ -33897,9 +33709,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +	return 0;
 +}
 +
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_sql_vhost_core.h lighttpd-1.4.12/src/mod_sql_vhost_core.h
 --- lighttpd-1.4.11/src/mod_sql_vhost_core.h	1970-01-01 03:00:00.000000000 +0300
-+++ lighttpd-1.4.12/src/mod_sql_vhost_core.h	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_sql_vhost_core.h	2006-07-11 22:07:53.000000000 +0300
 @@ -0,0 +1,49 @@
 +#ifndef _MOD_SQL_VHOST_CORE_H_
 +#define _MOD_SQL_VHOST_CORE_H_
@@ -33950,9 +33761,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
 +
 +#endif
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_ssi.c lighttpd-1.4.12/src/mod_ssi.c
 --- lighttpd-1.4.11/src/mod_ssi.c	2006-03-04 17:09:48.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_ssi.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_ssi.c	2006-07-11 22:07:53.000000000 +0300
 @@ -6,7 +6,6 @@
  #include <string.h>
  #include <errno.h>
@@ -35121,9 +34931,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_ssi.h lighttpd-1.4.12/src/mod_ssi.h
 --- lighttpd-1.4.11/src/mod_ssi.h	2005-08-11 01:26:39.000000000 +0300
-+++ lighttpd-1.4.12/src/mod_ssi.h	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_ssi.h	2006-07-11 22:07:53.000000000 +0300
 @@ -19,23 +19,23 @@
  
  typedef struct {
@@ -35157,9 +34966,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  } plugin_data;
  
  int ssi_eval_expr(server *srv, connection *con, plugin_data *p, const char *expr);
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_ssi_expr.c lighttpd-1.4.12/src/mod_ssi_expr.c
 --- lighttpd-1.4.11/src/mod_ssi_expr.c	2005-08-11 01:26:48.000000000 +0300
-+++ lighttpd-1.4.12/src/mod_ssi_expr.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_ssi_expr.c	2006-07-11 22:07:52.000000000 +0300
 @@ -11,9 +11,9 @@
  	const char *input;
  	size_t offset;
@@ -35539,9 +35347,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +#endif
  	return context.val.bo;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_ssi_expr.h lighttpd-1.4.12/src/mod_ssi_expr.h
 --- lighttpd-1.4.11/src/mod_ssi_expr.h	2005-08-11 01:26:48.000000000 +0300
-+++ lighttpd-1.4.12/src/mod_ssi_expr.h	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_ssi_expr.h	2006-07-11 22:07:52.000000000 +0300
 @@ -5,16 +5,16 @@
  
  typedef struct {
@@ -35562,9 +35369,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	void   *srv;
  } ssi_ctx_t;
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_ssi_exprparser.c lighttpd-1.4.12/src/mod_ssi_exprparser.c
 --- lighttpd-1.4.11/src/mod_ssi_exprparser.c	2005-10-03 00:40:25.000000000 +0300
-+++ lighttpd-1.4.12/src/mod_ssi_exprparser.c	2006-07-11 21:49:18.000000000 +0300
++++ lighttpd-1.4.12/src/mod_ssi_exprparser.c	2006-07-11 22:08:02.000000000 +0300
 @@ -18,10 +18,10 @@
  /* Next is all token values, in a form suitable for use by makeheaders.
  ** This section will be null unless lemon is run with the -m switch.
@@ -35708,9 +35514,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
        **
        ** This is what we do if the grammar does define ERROR:
        **
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_staticfile.c lighttpd-1.4.12/src/mod_staticfile.c
 --- lighttpd-1.4.11/src/mod_staticfile.c	2006-02-15 14:31:14.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_staticfile.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/mod_staticfile.c	2006-07-11 22:07:51.000000000 +0300
 @@ -14,9 +14,11 @@
  #include "http_chunk.h"
  #include "response.h"
@@ -36271,9 +36076,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_status.c lighttpd-1.4.12/src/mod_status.c
 --- lighttpd-1.4.11/src/mod_status.c	2006-01-10 21:45:32.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_status.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_status.c	2006-07-11 22:07:53.000000000 +0300
 @@ -4,7 +4,6 @@
  #include <fcntl.h>
  #include <stdlib.h>
@@ -37224,9 +37028,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_trigger_b4_dl.c lighttpd-1.4.12/src/mod_trigger_b4_dl.c
 --- lighttpd-1.4.11/src/mod_trigger_b4_dl.c	2005-09-23 22:53:55.000000000 +0300
-+++ lighttpd-1.4.12/src/mod_trigger_b4_dl.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/mod_trigger_b4_dl.c	2006-07-11 22:07:51.000000000 +0300
 @@ -24,18 +24,18 @@
  
  /**
@@ -37901,9 +37704,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_userdir.c lighttpd-1.4.12/src/mod_userdir.c
 --- lighttpd-1.4.11/src/mod_userdir.c	2005-10-28 16:48:28.000000000 +0300
-+++ lighttpd-1.4.12/src/mod_userdir.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_userdir.c	2006-07-11 22:07:52.000000000 +0300
 @@ -10,6 +10,7 @@
  #include "response.h"
  
@@ -38211,9 +38013,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_usertrack.c lighttpd-1.4.12/src/mod_usertrack.c
 --- lighttpd-1.4.11/src/mod_usertrack.c	2006-01-31 15:01:20.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_usertrack.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_usertrack.c	2006-07-11 22:07:53.000000000 +0300
 @@ -24,44 +24,44 @@
  
  typedef struct {
@@ -38529,9 +38330,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/mod_webdav.c lighttpd-1.4.12/src/mod_webdav.c
 --- lighttpd-1.4.11/src/mod_webdav.c	2006-03-03 01:28:58.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_webdav.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_webdav.c	2006-07-11 22:07:53.000000000 +0300
 @@ -3,13 +3,10 @@
  #include <ctype.h>
  #include <stdlib.h>
@@ -40395,9 +40195,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/network.c lighttpd-1.4.12/src/network.c
 --- lighttpd-1.4.11/src/network.c	2006-03-04 16:45:46.000000000 +0200
-+++ lighttpd-1.4.12/src/network.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/network.c	2006-07-11 22:07:51.000000000 +0300
 @@ -1,14 +1,14 @@
  #include <sys/types.h>
  #include <sys/stat.h>
@@ -41154,9 +40953,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +	}
  	return ret;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/network.h lighttpd-1.4.12/src/network.h
 --- lighttpd-1.4.11/src/network.h	2005-08-11 01:26:42.000000000 +0300
-+++ lighttpd-1.4.12/src/network.h	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/network.h	2006-07-11 22:07:51.000000000 +0300
 @@ -3,7 +3,8 @@
  
  #include "server.h"
@@ -41167,9 +40965,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  
  int network_init(server *srv);
  int network_close(server *srv);
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/network_backends.h lighttpd-1.4.12/src/network_backends.h
 --- lighttpd-1.4.11/src/network_backends.h	2005-10-24 15:13:51.000000000 +0300
-+++ lighttpd-1.4.12/src/network_backends.h	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/network_backends.h	2006-07-11 22:07:52.000000000 +0300
 @@ -43,16 +43,52 @@
  # define USE_AIX_SENDFILE
  #endif
@@ -41229,9 +41026,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  #endif
  
  #endif
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/network_freebsd_sendfile.c lighttpd-1.4.12/src/network_freebsd_sendfile.c
 --- lighttpd-1.4.11/src/network_freebsd_sendfile.c	2005-10-22 12:28:18.000000000 +0300
-+++ lighttpd-1.4.12/src/network_freebsd_sendfile.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/network_freebsd_sendfile.c	2006-07-11 22:07:52.000000000 +0300
 @@ -26,142 +26,61 @@
  
  #ifndef UIO_MAXIOV
@@ -41449,9 +41245,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  }
  
  #endif
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/network_linux_sendfile.c lighttpd-1.4.12/src/network_linux_sendfile.c
 --- lighttpd-1.4.11/src/network_linux_sendfile.c	2006-02-15 20:02:36.000000000 +0200
-+++ lighttpd-1.4.12/src/network_linux_sendfile.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/network_linux_sendfile.c	2006-07-11 22:07:53.000000000 +0300
 @@ -26,122 +26,54 @@
  /* on linux 2.4.29 + debian/ubuntu we have crashes if this is enabled */
  #undef HAVE_POSIX_FADVISE
@@ -41677,9 +41472,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  			break;
  		}
  	}
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/network_openssl.c lighttpd-1.4.12/src/network_openssl.c
 --- lighttpd-1.4.11/src/network_openssl.c	2005-11-17 14:53:29.000000000 +0200
-+++ lighttpd-1.4.12/src/network_openssl.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/network_openssl.c	2006-07-11 22:07:52.000000000 +0300
 @@ -23,17 +23,87 @@
  #include "log.h"
  #include "stat_cache.h"
@@ -42015,9 +41809,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		chunks_written++;
  	}
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/network_solaris_sendfilev.c lighttpd-1.4.12/src/network_solaris_sendfilev.c
 --- lighttpd-1.4.11/src/network_solaris_sendfilev.c	2005-10-22 12:28:27.000000000 +0300
-+++ lighttpd-1.4.12/src/network_solaris_sendfilev.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/network_solaris_sendfilev.c	2006-07-11 22:07:53.000000000 +0300
 @@ -29,114 +29,34 @@
  #endif
  
@@ -42237,9 +42030,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  }
  
  #endif
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/network_write.c lighttpd-1.4.12/src/network_write.c
 --- lighttpd-1.4.11/src/network_write.c	2005-10-22 12:27:56.000000000 +0300
-+++ lighttpd-1.4.12/src/network_write.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/network_write.c	2006-07-11 22:07:51.000000000 +0300
 @@ -1,11 +1,11 @@
  #include <sys/types.h>
  #include <sys/stat.h>
@@ -42493,9 +42285,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 -	p->write = network_write_write_chunkset;
 -}
  #endif
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/network_writev.c lighttpd-1.4.12/src/network_writev.c
 --- lighttpd-1.4.11/src/network_writev.c	2006-02-15 01:02:36.000000000 +0200
-+++ lighttpd-1.4.12/src/network_writev.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/network_writev.c	2006-07-11 22:07:52.000000000 +0300
 @@ -28,10 +28,10 @@
  
  #ifndef UIO_MAXIOV
@@ -42866,9 +42657,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  }
  
  #endif
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/plugin.c lighttpd-1.4.12/src/plugin.c
 --- lighttpd-1.4.11/src/plugin.c	2006-02-08 14:00:54.000000000 +0200
-+++ lighttpd-1.4.12/src/plugin.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/plugin.c	2006-07-11 22:07:52.000000000 +0300
 @@ -13,27 +13,27 @@
  #include <valgrind/valgrind.h>
  #endif
@@ -43315,9 +43105,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	free(srv->plugins.ptr);
  	srv->plugins.ptr = NULL;
  	srv->plugins.used = 0;
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/plugin.h lighttpd-1.4.12/src/plugin.h
 --- lighttpd-1.4.11/src/plugin.h	2005-08-15 12:28:56.000000000 +0300
-+++ lighttpd-1.4.12/src/plugin.h	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/plugin.h	2006-07-11 22:07:52.000000000 +0300
 @@ -12,6 +12,12 @@
  
  #define INIT_FUNC(x) \
@@ -43394,9 +43183,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +void *plugin_get_config(server *srv, const char *name);
  
  #endif
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/proc_open.c lighttpd-1.4.12/src/proc_open.c
 --- lighttpd-1.4.11/src/proc_open.c	2005-08-11 01:26:39.000000000 +0300
-+++ lighttpd-1.4.12/src/proc_open.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/proc_open.c	2006-07-11 22:07:53.000000000 +0300
 @@ -13,13 +13,13 @@
  #endif
  
@@ -43482,9 +43270,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  
  	for (;;) {
  		buffer_prepare_append(b, 512);
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/proc_open.h lighttpd-1.4.12/src/proc_open.h
 --- lighttpd-1.4.11/src/proc_open.h	2005-08-11 01:26:39.000000000 +0300
-+++ lighttpd-1.4.12/src/proc_open.h	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/proc_open.h	2006-07-11 22:07:53.000000000 +0300
 @@ -1,7 +1,7 @@
  
  #include "buffer.h"
@@ -43494,9 +43281,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  #include <windows.h>
  typedef HANDLE descriptor_t;
  typedef HANDLE proc_pid_t;
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/request.c lighttpd-1.4.12/src/request.c
 --- lighttpd-1.4.11/src/request.c	2006-03-05 11:58:09.000000000 +0200
-+++ lighttpd-1.4.12/src/request.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/request.c	2006-07-11 22:07:52.000000000 +0300
 @@ -10,15 +10,17 @@
  #include "keyvalue.h"
  #include "log.h"
@@ -44606,9 +44392,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/response.c lighttpd-1.4.12/src/response.c
 --- lighttpd-1.4.11/src/response.c	2006-03-04 16:41:39.000000000 +0200
-+++ lighttpd-1.4.12/src/response.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/response.c	2006-07-11 22:07:52.000000000 +0300
 @@ -7,7 +7,6 @@
  #include <stdlib.h>
  #include <string.h>
@@ -45273,9 +45058,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	/* can't happen */
  	return HANDLER_COMEBACK;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/server.c lighttpd-1.4.12/src/server.c
 --- lighttpd-1.4.11/src/server.c	2006-03-04 19:12:17.000000000 +0200
-+++ lighttpd-1.4.12/src/server.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/server.c	2006-07-11 22:07:53.000000000 +0300
 @@ -1,11 +1,9 @@
  #include <sys/types.h>
 -#include <sys/time.h>
@@ -46487,9 +46271,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  	return 0;
  }
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/settings.h lighttpd-1.4.12/src/settings.h
 --- lighttpd-1.4.11/src/settings.h	2005-08-11 01:26:41.000000000 +0300
-+++ lighttpd-1.4.12/src/settings.h	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/settings.h	2006-07-11 22:07:53.000000000 +0300
 @@ -9,24 +9,24 @@
  /**
   * max size of a buffer which will just be reset
@@ -46522,9 +46305,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		HANDLER_ERROR,
  		HANDLER_WAIT_FOR_FD
  } handler_t;
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/spawn-fcgi.c lighttpd-1.4.12/src/spawn-fcgi.c
 --- lighttpd-1.4.11/src/spawn-fcgi.c	2006-03-07 14:18:10.000000000 +0200
-+++ lighttpd-1.4.12/src/spawn-fcgi.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/spawn-fcgi.c	2006-07-11 22:07:53.000000000 +0300
 @@ -1,19 +1,16 @@
  #include <sys/types.h>
 -#include <sys/time.h>
@@ -46998,9 +46780,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
         return fcgi_spawn_connection(fcgi_app, addr, port, unixsocket, child_count, pid_fd, nofork);
  }
  #else
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/splaytree.c lighttpd-1.4.12/src/splaytree.c
 --- lighttpd-1.4.11/src/splaytree.c	2005-09-12 21:51:28.000000000 +0300
-+++ lighttpd-1.4.12/src/splaytree.c	2006-07-11 21:23:39.000000000 +0300
++++ lighttpd-1.4.12/src/splaytree.c	2006-07-11 22:07:51.000000000 +0300
 @@ -56,19 +56,19 @@
  
  #define node_size splaytree_size
@@ -47034,9 +46815,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
      l->right = t->left;                                /* assemble */
      r->left = t->right;
      t->left = N.right;
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/splaytree.h lighttpd-1.4.12/src/splaytree.h
 --- lighttpd-1.4.11/src/splaytree.h	2005-09-12 21:51:13.000000000 +0300
-+++ lighttpd-1.4.12/src/splaytree.h	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/splaytree.h	2006-07-11 22:07:51.000000000 +0300
 @@ -19,6 +19,6 @@
  /* This macro returns the size of a node.  Unlike "x->size",     */
  /* it works even if x=NULL.  The test could be avoided by using  */
@@ -47045,9 +46825,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
  
  #endif
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/stat_cache.c lighttpd-1.4.12/src/stat_cache.c
 --- lighttpd-1.4.11/src/stat_cache.c	2005-11-22 15:23:51.000000000 +0200
-+++ lighttpd-1.4.12/src/stat_cache.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/stat_cache.c	2006-07-11 22:07:52.000000000 +0300
 @@ -6,7 +6,6 @@
  #include <stdlib.h>
  #include <string.h>
@@ -47557,9 +47336,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  			for (j = 0; j < ctrl.used; j++) {
  				if (ctrl.ptr[j] == ndx) {
  					ctrl.ptr[j] = ctrl.ptr[--ctrl.used];
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/stream.c lighttpd-1.4.12/src/stream.c
 --- lighttpd-1.4.11/src/stream.c	2005-09-23 21:50:15.000000000 +0300
-+++ lighttpd-1.4.12/src/stream.c	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/stream.c	2006-07-11 22:07:53.000000000 +0300
 @@ -1,7 +1,6 @@
  #include <sys/types.h>
  #include <sys/stat.h>
@@ -47659,9 +47437,78 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	return 0;
  }
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/sys-mmap.h lighttpd-1.4.12/src/sys-mmap.h
+--- lighttpd-1.4.11/src/sys-files.h	1970-01-01 03:00:00.000000000 +0300
++++ lighttpd-1.4.12/src/sys-files.h	2006-07-11 22:07:53.000000000 +0300
+@@ -0,0 +1,67 @@
++#ifndef _SYS_FILES_H_
++#define _SYS_FILES_H_
++
++#define DIR_SEPERATOR_UNIX '/'
++#define DIR_SEPERATOR_WIN '\\'
++
++#ifdef _WIN32
++#include <windows.h>
++#include <io.h>     /* open */
++#include <direct.h> /* chdir */
++
++#include "buffer.h"
++
++#define DIR_SEPERATOR DIR_SEPERATOR_WIN
++
++#define __S_ISTYPE(mode, mask)  (((mode) & _S_IFMT) == (mask))
++
++#define S_ISDIR(mode)    __S_ISTYPE((mode), _S_IFDIR)
++#define S_ISCHR(mode)    __S_ISTYPE((mode), _S_IFCHR)
++#define S_ISBLK(mode)    __S_ISTYPE((mode), _S_IFBLK)
++#define S_ISREG(mode)    __S_ISTYPE((mode), _S_IFREG)
++/* we don't support symlinks */
++#define S_ISLNK(mode)    0
++
++#define lstat stat
++#define mkstemp mktemp
++#define mkdir(x, y) mkdir(x)
++
++struct dirent {
++    const char *d_name;
++};
++
++typedef struct {
++    HANDLE h;
++    WIN32_FIND_DATA finddata;
++    struct dirent dent;
++} DIR;
++
++DIR *opendir(const char *dn);
++struct dirent *readdir(DIR *d);
++void closedir(DIR *d);
++
++buffer *filename_unix2local(buffer *b);
++buffer *pathname_unix2local(buffer *b);
++
++#else
++#include <unistd.h>
++#include <dirent.h>
++
++#define DIR_SEPERATOR DIR_SEPERATOR_UNIX
++
++#define filename_unix2local(x) (x)
++#define pathname_unix2local(x) (x)
++#endif
++
++#define PATHNAME_APPEND_SLASH(x) \
++	if (x->used > 1 && x->ptr[x->used - 2] != DIR_SEPERATOR) { \
++        char sl[2] = { DIR_SEPERATOR, 0 }; \
++        BUFFER_APPEND_STRING_CONST(x, sl); \
++    }
++
++#ifndef O_LARGEFILE
++# define O_LARGEFILE 0
++#endif
++
++#endif
++
 --- lighttpd-1.4.11/src/sys-mmap.h	2005-08-11 01:26:34.000000000 +0300
-+++ lighttpd-1.4.12/src/sys-mmap.h	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/sys-mmap.h	2006-07-11 22:07:52.000000000 +0300
 @@ -1,7 +1,7 @@
  #ifndef WIN32_MMAP_H
  #define WIN32_MMAP_H
@@ -47671,9 +47518,27 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  
  #define MAP_FAILED -1
  #define PROT_SHARED 0
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/src/sys-socket.h lighttpd-1.4.12/src/sys-socket.h
+--- lighttpd-1.4.11/src/sys-process.h	1970-01-01 03:00:00.000000000 +0300
++++ lighttpd-1.4.12/src/sys-process.h	2006-07-11 22:07:52.000000000 +0300
+@@ -0,0 +1,16 @@
++#ifndef _SYS_PROCESS_H_
++#define _SYS_PROCESS_H_
++
++#ifdef _WIN32
++#include <process.h>
++#define pid_t int
++/* win32 has no fork() */
++#define kill(x, y)
++
++#else
++#include <sys/wait.h>
++#include <unistd.h>
++#endif
++
++#endif
++
 --- lighttpd-1.4.11/src/sys-socket.h	2005-08-11 01:26:39.000000000 +0300
-+++ lighttpd-1.4.12/src/sys-socket.h	2006-07-11 21:23:40.000000000 +0300
++++ lighttpd-1.4.12/src/sys-socket.h	2006-07-11 22:07:52.000000000 +0300
 @@ -1,15 +1,26 @@
  #ifndef WIN32_SOCKET_H
  #define WIN32_SOCKET_H
@@ -47714,9 +47579,22 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  #include <netdb.h>
  #endif
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/LightyTest.pm lighttpd-1.4.12/tests/LightyTest.pm
+--- lighttpd-1.4.11/src/sys-strings.h	1970-01-01 03:00:00.000000000 +0300
++++ lighttpd-1.4.12/src/sys-strings.h	2006-07-11 22:07:51.000000000 +0300
+@@ -0,0 +1,11 @@
++#ifndef _SYS_STRINGS_H_
++#define _SYS_STRINGS_H_
++
++#ifdef _WIN32
++#define strcasecmp stricmp
++#define strncasecmp strnicmp
++#define strtoll(p, e, b) _strtoi64(p, e, b)
++#endif
++
++#endif
++
 --- lighttpd-1.4.11/tests/LightyTest.pm	2006-01-14 20:32:31.000000000 +0200
-+++ lighttpd-1.4.12/tests/LightyTest.pm	2006-07-11 21:23:42.000000000 +0300
++++ lighttpd-1.4.12/tests/LightyTest.pm	2006-07-11 22:07:53.000000000 +0300
 @@ -87,14 +87,14 @@
  	# pre-process configfile if necessary
  	#
@@ -47755,9 +47633,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  		# check length
  		if (defined $resp_hdr{"content-length"}) {
  			$resp_body = substr($lines, 0, $resp_hdr{"content-length"});
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/Makefile.am lighttpd-1.4.12/tests/Makefile.am
 --- lighttpd-1.4.11/tests/Makefile.am	2005-09-16 15:48:40.000000000 +0300
-+++ lighttpd-1.4.12/tests/Makefile.am	2006-07-11 21:23:42.000000000 +0300
++++ lighttpd-1.4.12/tests/Makefile.am	2006-07-11 22:07:53.000000000 +0300
 @@ -39,10 +39,15 @@
        mod-redirect.t \
        mod-userdir.t \
@@ -47775,7 +47652,6 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  
  
  TESTS_ENVIRONMENT=$(srcdir)/wrapper.sh $(srcdir) $(top_builddir) 
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/Makefile.in lighttpd-1.4.12/tests/Makefile.in
 --- lighttpd-1.4.11/tests/Makefile.in	2006-03-07 14:21:03.000000000 +0200
 +++ lighttpd-1.4.12/tests/Makefile.in	2006-07-11 21:48:14.000000000 +0300
 @@ -1,4 +1,4 @@
@@ -47846,9 +47722,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  
  TESTS_ENVIRONMENT = $(srcdir)/wrapper.sh $(srcdir) $(top_builddir) 
  EXTRA_DIST = wrapper.sh lighttpd.conf \
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/bug-06.conf lighttpd-1.4.12/tests/bug-06.conf
 --- lighttpd-1.4.11/tests/bug-06.conf	2005-08-27 17:44:19.000000000 +0300
-+++ lighttpd-1.4.12/tests/bug-06.conf	2006-07-11 21:23:41.000000000 +0300
++++ lighttpd-1.4.12/tests/bug-06.conf	2006-07-11 22:07:53.000000000 +0300
 @@ -1,5 +1,5 @@
 -server.document-root         = "@SRCDIR@/tmp/lighttpd/servers/www.example.org/pages/"
 -server.pid-file              = "@SRCDIR@/tmp/lighttpd/lighttpd.pid"
@@ -47921,9 +47796,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
    server.name = "zzz.example.org"
  }
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/bug-12.conf lighttpd-1.4.12/tests/bug-12.conf
 --- lighttpd-1.4.11/tests/bug-12.conf	2005-08-27 17:44:19.000000000 +0300
-+++ lighttpd-1.4.12/tests/bug-12.conf	2006-07-11 21:23:41.000000000 +0300
++++ lighttpd-1.4.12/tests/bug-12.conf	2006-07-11 22:07:53.000000000 +0300
 @@ -1,5 +1,5 @@
 -server.document-root         = "@SRCDIR@/tmp/lighttpd/servers/www.example.org/pages/"
 -server.pid-file              = "@SRCDIR@/tmp/lighttpd/lighttpd.pid"
@@ -47996,9 +47870,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
    server.name = "zzz.example.org"
  }
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/cachable.t lighttpd-1.4.12/tests/cachable.t
 --- lighttpd-1.4.11/tests/cachable.t	1970-01-01 03:00:00.000000000 +0300
-+++ lighttpd-1.4.12/tests/cachable.t	2006-07-11 21:23:41.000000000 +0300
++++ lighttpd-1.4.12/tests/cachable.t	2006-07-11 22:07:53.000000000 +0300
 @@ -0,0 +1,112 @@
 +#!/usr/bin/env perl
 +BEGIN {
@@ -48112,9 +47985,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
 +ok($tf->stop_proc == 0, "Stopping lighttpd");
 +
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/condition.conf lighttpd-1.4.12/tests/condition.conf
 --- lighttpd-1.4.11/tests/condition.conf	2005-08-27 17:44:19.000000000 +0300
-+++ lighttpd-1.4.12/tests/condition.conf	2006-07-11 21:23:41.000000000 +0300
++++ lighttpd-1.4.12/tests/condition.conf	2006-07-11 22:07:53.000000000 +0300
 @@ -2,15 +2,15 @@
  debug.log-request-handling = "enable"
  debug.log-condition-handling = "enable"
@@ -48173,9 +48045,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
    server.name = "test3.example.org"
    url.redirect = ("^" => "/match_4")
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/core-keepalive.t lighttpd-1.4.12/tests/core-keepalive.t
 --- lighttpd-1.4.11/tests/core-keepalive.t	2005-11-17 15:54:19.000000000 +0200
-+++ lighttpd-1.4.12/tests/core-keepalive.t	2006-07-11 21:23:41.000000000 +0300
++++ lighttpd-1.4.12/tests/core-keepalive.t	2006-07-11 22:07:53.000000000 +0300
 @@ -40,7 +40,7 @@
  
  GET /12345.txt HTTP/1.0
@@ -48185,7 +48056,6 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  EOF
   );
  $t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 200 } , { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 200 } ];
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/docroot/123/Makefile.in lighttpd-1.4.12/tests/docroot/123/Makefile.in
 --- lighttpd-1.4.11/tests/docroot/123/Makefile.in	2006-03-07 14:21:03.000000000 +0200
 +++ lighttpd-1.4.12/tests/docroot/123/Makefile.in	2006-07-11 21:48:15.000000000 +0300
 @@ -1,4 +1,4 @@
@@ -48219,7 +48089,6 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
  am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
  am__fastdepCXX_FALSE = @am__fastdepCXX_FALSE@
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/docroot/Makefile.in lighttpd-1.4.12/tests/docroot/Makefile.in
 --- lighttpd-1.4.11/tests/docroot/Makefile.in	2006-03-07 14:21:04.000000000 +0200
 +++ lighttpd-1.4.12/tests/docroot/Makefile.in	2006-07-11 21:48:15.000000000 +0300
 @@ -1,4 +1,4 @@
@@ -48253,7 +48122,6 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
  am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
  am__fastdepCXX_FALSE = @am__fastdepCXX_FALSE@
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/docroot/www/Makefile.in lighttpd-1.4.12/tests/docroot/www/Makefile.in
 --- lighttpd-1.4.11/tests/docroot/www/Makefile.in	2006-03-07 14:21:05.000000000 +0200
 +++ lighttpd-1.4.12/tests/docroot/www/Makefile.in	2006-07-11 21:48:15.000000000 +0300
 @@ -1,4 +1,4 @@
@@ -48287,18 +48155,16 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
  am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
  am__fastdepCXX_FALSE = @am__fastdepCXX_FALSE@
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/docroot/www/dummydir/.svn/entries lighttpd-1.4.12/tests/docroot/www/dummydir/.svn/entries
 --- lighttpd-1.4.11/tests/docroot/www/dummydir/.svn/entries	2006-03-09 19:21:49.000000000 +0200
-+++ lighttpd-1.4.12/tests/docroot/www/dummydir/.svn/entries	2006-07-11 21:23:41.000000000 +0300
++++ lighttpd-1.4.12/tests/docroot/www/dummydir/.svn/entries	2006-07-11 22:07:54.000000000 +0300
 @@ -9,5 +9,6 @@
     last-author="jan"
     kind="dir"
     uuid="152afb58-edef-0310-8abb-c4023f1b3aa9"
 -   revision="1040"/>
 +   repos="svn://svn.lighttpd.net/lighttpd"
-+   revision="1159"/>
++   revision="1154"/>
  </wc-entries>
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/docroot/www/expire/Makefile.in lighttpd-1.4.12/tests/docroot/www/expire/Makefile.in
 --- lighttpd-1.4.11/tests/docroot/www/expire/Makefile.in	2006-03-07 14:21:05.000000000 +0200
 +++ lighttpd-1.4.12/tests/docroot/www/expire/Makefile.in	2006-07-11 21:48:15.000000000 +0300
 @@ -1,4 +1,4 @@
@@ -48332,7 +48198,6 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
  am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
  am__fastdepCXX_FALSE = @am__fastdepCXX_FALSE@
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/docroot/www/go/Makefile.in lighttpd-1.4.12/tests/docroot/www/go/Makefile.in
 --- lighttpd-1.4.11/tests/docroot/www/go/Makefile.in	2006-03-07 14:21:06.000000000 +0200
 +++ lighttpd-1.4.12/tests/docroot/www/go/Makefile.in	2006-07-11 21:48:16.000000000 +0300
 @@ -1,4 +1,4 @@
@@ -48366,7 +48231,6 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
  am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
  am__fastdepCXX_FALSE = @am__fastdepCXX_FALSE@
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/docroot/www/indexfile/Makefile.in lighttpd-1.4.12/tests/docroot/www/indexfile/Makefile.in
 --- lighttpd-1.4.11/tests/docroot/www/indexfile/Makefile.in	2006-03-07 14:21:07.000000000 +0200
 +++ lighttpd-1.4.12/tests/docroot/www/indexfile/Makefile.in	2006-07-11 21:48:16.000000000 +0300
 @@ -1,4 +1,4 @@
@@ -48400,9 +48264,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
  am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
  am__fastdepCXX_FALSE = @am__fastdepCXX_FALSE@
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/fastcgi-10.conf lighttpd-1.4.12/tests/fastcgi-10.conf
 --- lighttpd-1.4.11/tests/fastcgi-10.conf	2005-08-31 23:36:34.000000000 +0300
-+++ lighttpd-1.4.12/tests/fastcgi-10.conf	2006-07-11 21:23:41.000000000 +0300
++++ lighttpd-1.4.12/tests/fastcgi-10.conf	2006-07-11 22:07:53.000000000 +0300
 @@ -1,12 +1,12 @@
 -server.document-root         = "@SRCDIR@/tmp/lighttpd/servers/www.example.org/pages/"
 -server.pid-file              = "@SRCDIR@/tmp/lighttpd/lighttpd.pid"
@@ -48460,9 +48323,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
    server.name = "zzz.example.org"
  }
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/fastcgi-13.conf lighttpd-1.4.12/tests/fastcgi-13.conf
 --- lighttpd-1.4.11/tests/fastcgi-13.conf	2006-01-03 12:38:17.000000000 +0200
-+++ lighttpd-1.4.12/tests/fastcgi-13.conf	2006-07-11 21:23:41.000000000 +0300
++++ lighttpd-1.4.12/tests/fastcgi-13.conf	2006-07-11 22:07:53.000000000 +0300
 @@ -1,5 +1,5 @@
 -server.document-root         = "@SRCDIR@/tmp/lighttpd/servers/www.example.org/pages/"
 -server.pid-file              = "@SRCDIR@/tmp/lighttpd/lighttpd.pid"
@@ -48521,9 +48383,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
    server.name = "zzz.example.org"
  }
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/fastcgi-auth.conf lighttpd-1.4.12/tests/fastcgi-auth.conf
 --- lighttpd-1.4.11/tests/fastcgi-auth.conf	2005-08-27 17:44:19.000000000 +0300
-+++ lighttpd-1.4.12/tests/fastcgi-auth.conf	2006-07-11 21:23:42.000000000 +0300
++++ lighttpd-1.4.12/tests/fastcgi-auth.conf	2006-07-11 22:07:53.000000000 +0300
 @@ -1,5 +1,5 @@
 -server.document-root         = "@SRCDIR@/tmp/lighttpd/servers/www.example.org/pages/"
 -server.pid-file              = "@SRCDIR@/tmp/lighttpd/lighttpd.pid"
@@ -48594,9 +48455,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
    server.name = "zzz.example.org"
  }
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/fastcgi-responder.conf lighttpd-1.4.12/tests/fastcgi-responder.conf
 --- lighttpd-1.4.11/tests/fastcgi-responder.conf	2005-08-27 17:44:19.000000000 +0300
-+++ lighttpd-1.4.12/tests/fastcgi-responder.conf	2006-07-11 21:23:41.000000000 +0300
++++ lighttpd-1.4.12/tests/fastcgi-responder.conf	2006-07-11 22:07:53.000000000 +0300
 @@ -1,5 +1,5 @@
 -server.document-root         = "@SRCDIR@/tmp/lighttpd/servers/www.example.org/pages/"
 -server.pid-file              = "@SRCDIR@/tmp/lighttpd/lighttpd.pid"
@@ -48669,9 +48529,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
    server.name = "zzz.example.org"
  }
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/fcgi-responder.c lighttpd-1.4.12/tests/fcgi-responder.c
 --- lighttpd-1.4.11/tests/fcgi-responder.c	2005-08-11 01:26:55.000000000 +0300
-+++ lighttpd-1.4.12/tests/fcgi-responder.c	2006-07-11 21:23:41.000000000 +0300
++++ lighttpd-1.4.12/tests/fcgi-responder.c	2006-07-11 22:07:53.000000000 +0300
 @@ -6,11 +6,17 @@
  int main () {
  	int num_requests = 2;
@@ -48714,9 +48573,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  			} else if (0 == strcmp(p, "die-at-end")) {
  				printf("Status: 200 OK\r\n\r\n");
  				num_requests--;
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/lighttpd.conf lighttpd-1.4.12/tests/lighttpd.conf
 --- lighttpd-1.4.11/tests/lighttpd.conf	2006-03-09 15:26:58.000000000 +0200
-+++ lighttpd-1.4.12/tests/lighttpd.conf	2006-07-11 21:23:41.000000000 +0300
++++ lighttpd-1.4.12/tests/lighttpd.conf	2006-07-11 22:07:53.000000000 +0300
 @@ -1,80 +1,18 @@
 -debug.log-request-handling = "enable"
 -debug.log-condition-handling = "enable"
@@ -48887,9 +48745,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
    simple-vhost.default-host   = "www.example.org"
  }
  
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/lowercase.conf lighttpd-1.4.12/tests/lowercase.conf
 --- lighttpd-1.4.11/tests/lowercase.conf	1970-01-01 03:00:00.000000000 +0300
-+++ lighttpd-1.4.12/tests/lowercase.conf	2006-07-11 21:23:41.000000000 +0300
++++ lighttpd-1.4.12/tests/lowercase.conf	2006-07-11 22:07:53.000000000 +0300
 @@ -0,0 +1,80 @@
 +server.document-root         = env.SRCDIR + "/tmp/lighttpd/servers/www.example.org/pages/"
 +server.pid-file              = env.SRCDIR + "/tmp/lighttpd/lighttpd.pid"
@@ -48971,9 +48828,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +$HTTP["host"] == "lowercase-exclude" {
 +  static-file.exclude-extensions = ( ".jpg" )
 +}
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/lowercase.t lighttpd-1.4.12/tests/lowercase.t
 --- lighttpd-1.4.11/tests/lowercase.t	1970-01-01 03:00:00.000000000 +0300
-+++ lighttpd-1.4.12/tests/lowercase.t	2006-07-11 21:23:41.000000000 +0300
++++ lighttpd-1.4.12/tests/lowercase.t	2006-07-11 22:07:53.000000000 +0300
 @@ -0,0 +1,94 @@
 +#!/usr/bin/env perl
 +BEGIN {
@@ -49069,9 +48925,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
 +ok($tf->stop_proc == 0, "Stopping lighttpd");
 +
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/mod-fastcgi.t lighttpd-1.4.12/tests/mod-fastcgi.t
 --- lighttpd-1.4.11/tests/mod-fastcgi.t	2006-03-09 15:30:45.000000000 +0200
-+++ lighttpd-1.4.12/tests/mod-fastcgi.t	2006-07-11 21:23:41.000000000 +0300
++++ lighttpd-1.4.12/tests/mod-fastcgi.t	2006-07-11 22:07:53.000000000 +0300
 @@ -7,7 +7,7 @@
  }
  
@@ -49134,9 +48989,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
  	$t->{REQUEST}  = ( <<EOF
  GET /index.fcgi?die-at-end HTTP/1.0
  Host: www.example.org
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/mod-proxy.t lighttpd-1.4.12/tests/mod-proxy.t
 --- lighttpd-1.4.11/tests/mod-proxy.t	1970-01-01 03:00:00.000000000 +0300
-+++ lighttpd-1.4.12/tests/mod-proxy.t	2006-07-11 21:23:41.000000000 +0300
++++ lighttpd-1.4.12/tests/mod-proxy.t	2006-07-11 22:07:53.000000000 +0300
 @@ -0,0 +1,173 @@
 +#!/usr/bin/env perl
 +BEGIN {
@@ -49311,9 +49165,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +
 +ok($tf_proxy->stop_proc == 0, "Stopping lighttpd proxy");
 +
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/proxy.conf lighttpd-1.4.12/tests/proxy.conf
 --- lighttpd-1.4.11/tests/proxy.conf	1970-01-01 03:00:00.000000000 +0300
-+++ lighttpd-1.4.12/tests/proxy.conf	2006-07-11 21:23:42.000000000 +0300
++++ lighttpd-1.4.12/tests/proxy.conf	2006-07-11 22:07:53.000000000 +0300
 @@ -0,0 +1,26 @@
 +server.document-root         = env.SRCDIR + "/tmp/lighttpd/servers/www.example.org/pages/"
 +server.pid-file              = env.SRCDIR + "/tmp/lighttpd/lighttpd-proxy.pid"
@@ -49341,9 +49194,8 @@ diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missin
 +  proxy.balance = "fair"
 +}
 +
-diff -ur -x '*.m4' -x compile -x 'config.*' -x configure -x depcomp -N -x missing -x 'ltmain*' -x install-sh -x mkinstalldirs lighttpd-1.4.11/tests/var-include.conf lighttpd-1.4.12/tests/var-include.conf
 --- lighttpd-1.4.11/tests/var-include.conf	2005-08-27 17:44:19.000000000 +0300
-+++ lighttpd-1.4.12/tests/var-include.conf	2006-07-11 21:23:41.000000000 +0300
++++ lighttpd-1.4.12/tests/var-include.conf	2006-07-11 22:07:53.000000000 +0300
 @@ -2,15 +2,15 @@
  debug.log-request-handling = "enable"
  debug.log-condition-handling = "enable"
