@@ -25,7 +25,7 @@
 %bcond_with	valgrind	# compile code with valgrind support.
 %bcond_with	deflate		# build deflate module (needs patch update with current svn)
 
-%define		_rel 3.12
+%define		_rel 3.15
 # svn snapshot
 %define		_svn	1154
 
@@ -157,6 +157,7 @@ Summary:	lighttpd module for making access restrictions
 Group:		Networking/Daemons
 URL:		http://www.lighttpd.net/documentation/access.html
 Requires:	%{name} = %{version}-%{release}
+Provides:	webserver(url_access)
 
 %description mod_access
 The access module is used to deny access to files with given trailing
@@ -176,6 +177,7 @@ Summary:	lighttpd module for making url aliasing
 Group:		Networking/Daemons
 URL:		http://www.lighttpd.net/documentation/alias.html
 Requires:	%{name} = %{version}-%{release}
+Provides:	webserver(url_alias)
 
 %description mod_alias
 The alias module is used to specify a special document-root for a
@@ -186,6 +188,7 @@ Summary:	lighttpd module for authentication support
 Group:		Networking/Daemons
 URL:		http://www.lighttpd.net/documentation/authentication.html
 Requires:	%{name} = %{version}-%{release}
+Provides:	webserver(authentication)
 
 %description mod_auth
 lighttpd supportes both authentication method described by RFC 2617:
@@ -315,6 +318,7 @@ lighttpd module for flv streaming.
 Summary:	lighttpd indexfile module
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
+Provides:	webserver(indexfile)
 
 %description mod_indexfile
 indexfile module.
