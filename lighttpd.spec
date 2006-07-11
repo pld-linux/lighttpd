@@ -697,13 +697,10 @@ fi
 %module_scripts mod_webdav
 
 %triggerpostun -- %{name} <= 1.3.6-2
-# upgraded
-if [ "$1" = "2" ]; then
 %banner %{name} -e <<EOF
 spawn-fcgi program is now available separately from spawn-fcgi package.
 
 EOF
-fi
 
 %files
 %defattr(644,root,root,755)
