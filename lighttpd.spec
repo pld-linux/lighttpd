@@ -25,7 +25,7 @@
 %bcond_with	valgrind	# compile code with valgrind support.
 %bcond_with	deflate		# build deflate module (needs patch update with current svn)
 
-%define		_rel 3.11
+%define		_rel 3.12
 # svn snapshot
 %define		_svn	1154
 
@@ -53,6 +53,36 @@ Source9:	http://www.lighttpd.net/light_logo.png
 Source10:	http://gdl.hopto.org/~spider/pldstats/gfx/pld1.png
 # Source10-md5:	486ecec3f6f4fe7f9bf7cee757b864f4
 Source11:	%{name}-pld.html
+Source100:	%{name}-mod_access.conf
+Source101:	%{name}-mod_accesslog.conf
+Source102:	%{name}-mod_alias.conf
+Source103:	%{name}-mod_auth.conf
+Source104:	%{name}-mod_cgi.conf
+Source105:	%{name}-mod_cml.conf
+Source106:	%{name}-mod_compress.conf
+Source107:	%{name}-mod_deflate.conf
+Source108:	%{name}-mod_dirlisting.conf
+Source109:	%{name}-mod_evasive.conf
+Source110:	%{name}-mod_evhost.conf
+Source111:	%{name}-mod_expire.conf
+Source112:	%{name}-mod_fastcgi.conf
+Source113:	%{name}-mod_flv_streaming.conf
+Source114:	%{name}-mod_indexfile.conf
+Source115:	%{name}-mod_proxy.conf
+Source116:	%{name}-mod_redirect.conf
+Source117:	%{name}-mod_rewrite.conf
+Source118:	%{name}-mod_rrdtool.conf
+Source119:	%{name}-mod_scgi.conf
+Source120:	%{name}-mod_secdownload.conf
+Source121:	%{name}-mod_setenv.conf
+Source122:	%{name}-mod_simple_vhost.conf
+Source123:	%{name}-mod_ssi.conf
+Source124:	%{name}-mod_staticfile.conf
+Source125:	%{name}-mod_status.conf
+Source126:	%{name}-mod_trigger_b4_dl.conf
+Source127:	%{name}-mod_userdir.conf
+Source128:	%{name}-mod_usertrack.conf
+Source129:	%{name}-mod_webdav.conf
 Patch100:	%{name}-branch.diff
 Patch0:		%{name}-mod_deflate.patch
 Patch1:		%{name}-use_bin_sh.patch
@@ -67,6 +97,7 @@ BuildRequires:	bzip2-devel
 %{?with_gdbm:BuildRequires:	gdbm-devel}
 %{?with_memcache:BuildRequires:	libmemcache-devel}
 BuildRequires:	libtool
+BuildRequires:	libuuid-devel
 %{?with_webdav_props:BuildRequires:	libxml2-devel}
 %{?with_lua:BuildRequires:	lua50-devel >= 5.1}
 BuildRequires:	mailcap >= 2.1.14-4.4
@@ -79,7 +110,6 @@ BuildRequires:	rpmbuild(macros) >= 1.268
 %{?with_webdav_props:BuildRequires:	sqlite3-devel}
 %{?with_valgrind:BuildRequires:	valgrind}
 BuildRequires:	zlib-devel
-BuildRequires:	libuuid-devel
 Requires(post,preun):	/sbin/chkconfig
 Requires(postun):	/usr/sbin/groupdel
 Requires(postun):	/usr/sbin/userdel
@@ -550,54 +580,43 @@ install %{SOURCE7} %{SOURCE8} %{SOURCE9} $RPM_BUILD_ROOT%{_lighttpddir}/html
 install %{SOURCE10} $RPM_BUILD_ROOT%{_lighttpddir}/html/pld_button.png
 install %{SOURCE11} $RPM_BUILD_ROOT%{_lighttpddir}/html/index.html
 
-# make config fragment for each module. overrides should be after this section
+
 # NOTE: the order of the modules is somewhat important as the modules are
 # handled in the way they are specified. mod_rewrite should always be the first
 # module, mod_accesslog always the last.
-# to change load order, just update the list here. numbers are automatically calculated.
-modules="
-rewrite
-redirect
-access
-alias
-auth
-cgi
-dirlisting
-evasive
-evhost
-expire
-fastcgi
-indexfile
-proxy
-rrdtool
-scgi
-secdownload
-setenv
-simple_vhost
-ssi
-staticfile
-status
-userdir
-usertrack
-compress
-cml
-mysql_vhost
-trigger_b4_dl
-webdav
-deflate
-flv_streaming
-accesslog
-"
 
-i=0
-for mod in $modules; do
-cat <<EOF >> $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/$(printf %02d $i)_mod_$mod.conf
-server.modules += (
-	"mod_$mod"
-)
-EOF
-i=$((i+1))
-done
+install %{SOURCE117} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/10_mod_rewrite.conf
+install %{SOURCE116} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/11_mod_redirect.conf
+
+install %{SOURCE100} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_access.conf
+install %{SOURCE102} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_alias.conf
+install %{SOURCE103} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_auth.conf
+install %{SOURCE104} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_cgi.conf
+install %{SOURCE105} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_cml.conf
+install %{SOURCE106} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_compress.conf
+install %{SOURCE107} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_deflate.conf
+install %{SOURCE108} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_dirlisting.conf
+install %{SOURCE109} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evasive.conf
+install %{SOURCE110} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evhost.conf
+install %{SOURCE111} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_expire.conf
+install %{SOURCE112} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_fastcgi.conf
+install %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
+install %{SOURCE114} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_indexfile.conf
+install %{SOURCE115} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy.conf
+install %{SOURCE118} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_rrdtool.conf
+install %{SOURCE119} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_scgi.conf
+install %{SOURCE120} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_secdownload.conf
+install %{SOURCE121} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_setenv.conf
+install %{SOURCE122} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_simple_vhost.conf
+install %{SOURCE123} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_ssi.conf
+install %{SOURCE124} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_staticfile.conf
+install %{SOURCE125} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_status.conf
+install %{SOURCE126} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_trigger_b4_dl.conf
+install %{SOURCE127} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_userdir.conf
+install %{SOURCE128} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_usertrack.conf
+install %{SOURCE129} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_webdav.conf
+
+install %{SOURCE101} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/90_mod_accesslog.conf
 
 %if %{without mysql}
 # avoid packaging dummy module
