@@ -16,33 +16,27 @@
 %bcond_without	ssl		# ssl support
 %bcond_with	mysql		# mysql support in mod_mysql_vhost
 %bcond_with	ldap		# ldap support in mod_auth
-%bcond_without	lua		# LUA support in mod_cml
+%bcond_with	lua		# LUA support in mod_cml (needs LUA >= 5.1)
 %bcond_with	memcache	# memcached support in mod_cml / mod_trigger_b4_dl
 %bcond_with	gamin		# gamin for reducing number of stat() calls.
 				# NOTE: must be enabled in config: server.stat-cache-engine = "fam"
 %bcond_with	gdbm		# gdbm in mod_trigger_b4_dl
 %bcond_with	webdav_props	# properties in mod_webdav (includes extra sqlite3/libxml deps)
 %bcond_with	valgrind	# compile code with valgrind support.
+%bcond_with	deflate		# build deflate module (needs patch update with current svn)
 
-# Prerelease snapshot: DATE-TIME
-#define _snap 20060104-1523
-
-%if 0%{?_snap}
-%define _source http://www.lighttpd.net/download/%{name}-%{version}-%{_snap}.tar.gz
-%else
-%define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
-%endif
-
-%define		_rel 3.10
+%define		_rel 3.11
+# svn snapshot
+%define		_svn	1154
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.4.11
-Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}
+Release:	%{_rel}%{?_svn:.%{_svn}}
 License:	BSD
 Group:		Networking/Daemons
-Source0:	%{_source}
+Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 # Source0-md5:	f55eebb9815c94a7de35906bb557ecd3
 Source1:	%{name}.init
 Source2:	%{name}.conf
@@ -59,6 +53,7 @@ Source9:	http://www.lighttpd.net/light_logo.png
 Source10:	http://gdl.hopto.org/~spider/pldstats/gfx/pld1.png
 # Source10-md5:	486ecec3f6f4fe7f9bf7cee757b864f4
 Source11:	%{name}-pld.html
+Patch100:	%{name}-branch.diff
 Patch0:		%{name}-mod_deflate.patch
 Patch1:		%{name}-use_bin_sh.patch
 Patch2:		%{name}-initgroups.patch
@@ -73,7 +68,7 @@ BuildRequires:	bzip2-devel
 %{?with_memcache:BuildRequires:	libmemcache-devel}
 BuildRequires:	libtool
 %{?with_webdav_props:BuildRequires:	libxml2-devel}
-%{?with_lua:BuildRequires:	lua50-devel >= 5.0.2-5.1}
+%{?with_lua:BuildRequires:	lua50-devel >= 5.1}
 BuildRequires:	mailcap >= 2.1.14-4.4
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?with_ldap:BuildRequires:	openldap-devel}
@@ -84,6 +79,7 @@ BuildRequires:	rpmbuild(macros) >= 1.268
 %{?with_webdav_props:BuildRequires:	sqlite3-devel}
 %{?with_valgrind:BuildRequires:	valgrind}
 BuildRequires:	zlib-devel
+BuildRequires:	libuuid-devel
 Requires(post,preun):	/sbin/chkconfig
 Requires(postun):	/usr/sbin/groupdel
 Requires(postun):	/usr/sbin/userdel
@@ -498,10 +494,11 @@ pomocy serwera WWW ani samego programu.
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
+%patch100 -p1
+#%patch0 -p1 # applied already?
+#%patch1 -p1 # outdated
 %patch2 -p1
-%patch3 -p2
+#%patch3 -p2
 install %{SOURCE6} mime.types.sh
 
 # build mime.types.conf
@@ -760,10 +757,12 @@ EOF
 %{_sysconfdir}/conf.d/*mod_compress.conf
 %attr(755,root,root) %{_libdir}/mod_compress.so
 
+%if %{with deflate}
 %files mod_deflate
 %defattr(644,root,root,755)
 %{_sysconfdir}/conf.d/*mod_deflate.conf
 %attr(755,root,root) %{_libdir}/mod_deflate.so
+%endif
 
 %files mod_dirlisting
 %defattr(644,root,root,755)
