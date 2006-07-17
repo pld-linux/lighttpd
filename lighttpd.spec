@@ -25,9 +25,9 @@
 %bcond_with	valgrind	# compile code with valgrind support.
 %bcond_with	deflate		# build deflate module (needs patch update with current svn)
 
-%define		_rel 3.15
+%define		_rel 3.23
 # svn snapshot
-%define		_svn	1154
+%define		_svn	1173
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -83,6 +83,8 @@ Source126:	%{name}-mod_trigger_b4_dl.conf
 Source127:	%{name}-mod_userdir.conf
 Source128:	%{name}-mod_usertrack.conf
 Source129:	%{name}-mod_webdav.conf
+Source130:	%{name}-php-spawned.conf
+Source131:	%{name}-php-external.conf
 Patch100:	%{name}-branch.diff
 Patch0:		%{name}-mod_deflate.patch
 Patch1:		%{name}-use_bin_sh.patch
@@ -157,7 +159,7 @@ Summary:	lighttpd module for making access restrictions
 Group:		Networking/Daemons
 URL:		http://www.lighttpd.net/documentation/access.html
 Requires:	%{name} = %{version}-%{release}
-Provides:	webserver(url_access)
+Provides:	webserver(access)
 
 %description mod_access
 The access module is used to deny access to files with given trailing
@@ -177,7 +179,7 @@ Summary:	lighttpd module for making url aliasing
 Group:		Networking/Daemons
 URL:		http://www.lighttpd.net/documentation/alias.html
 Requires:	%{name} = %{version}-%{release}
-Provides:	webserver(url_alias)
+Provides:	webserver(alias)
 
 %description mod_alias
 The alias module is used to specify a special document-root for a
@@ -188,7 +190,7 @@ Summary:	lighttpd module for authentication support
 Group:		Networking/Daemons
 URL:		http://www.lighttpd.net/documentation/authentication.html
 Requires:	%{name} = %{version}-%{release}
-Provides:	webserver(authentication)
+Provides:	webserver(auth)
 
 %description mod_auth
 lighttpd supportes both authentication method described by RFC 2617:
@@ -199,6 +201,7 @@ Summary:	lighttpd module for CGI handling
 Group:		Networking/Daemons
 URL:		http://www.lighttpd.net/documentation/cgi.html
 Requires:	%{name} = %{version}-%{release}
+Provides:	webserver(cgi)
 
 %description mod_cgi
 The cgi module provides a CGI-conforming interface.
@@ -526,6 +529,28 @@ a webserver or the programm itself.
 spawn-fcgi s³u¿y do uruchamiania procesów fcgi bezpo¶rednio, bez
 pomocy serwera WWW ani samego programu.
 
+%package php-spawned
+Summary:	PHP support via FastCGI, spawned by lighttpd
+Group:		Networking/Daemons
+Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}-mod_fastcgi = %{version}-%{release}
+Requires:	php-fcgi
+Obsoletes:	lighttpd-php-external
+
+%description php-spawned
+PHP support via FastCGI, spawned by lighttpd
+
+%package php-external
+Summary:	PHP support via FastCGI, spawning controlled externally
+Group:		Networking/Daemons
+Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}-mod_fastcgi = %{version}-%{release}
+Requires:	php-fcgi-init
+Obsoletes:	lighttpd-php-spawned
+
+%description php-external
+PHP support via FastCGI, spawning controlled externally
+
 %prep
 %setup -q
 %patch100 -p1
@@ -622,6 +647,9 @@ install %{SOURCE129} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_webdav.conf
 
 install %{SOURCE101} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/90_mod_accesslog.conf
 
+install %{SOURCE130} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/php-spawned.conf
+install %{SOURCE131} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/php-external.conf
+
 %if %{without mysql}
 # avoid packaging dummy module
 rm -f $RPM_BUILD_ROOT%{_libdir}/mod_mysql_vhost.so
@@ -715,6 +743,8 @@ fi
 %module_scripts mod_userdir
 %module_scripts mod_usertrack
 %module_scripts mod_webdav
+%module_scripts php-spawned
+%module_scripts php-external
 
 %triggerpostun -- %{name} <= 1.3.6-2
 %banner %{name} -e <<EOF
@@ -907,3 +937,11 @@ EOF
 %defattr(644,root,root,755)
 %doc doc/spawn-php.sh
 %attr(755,root,root) %{_sbindir}/spawn-fcgi
+
+%files php-spawned
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/php-spawned.conf
+
+%files php-external
+%defattr(644,root,root,755)
+%{_sysconfdir}/conf.d/php-external.conf
