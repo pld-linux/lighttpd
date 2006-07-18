@@ -796,7 +796,7 @@
  LIGHTTPD_DIR=$(BUILD_DIR)/$(LIGHTTPD)
  LIGHTTPD_IPK=$(BUILD_DIR)/$(LIGHTTPD)_mipsel.ipk
 --- ../lighttpd-1.4.11/src/Makefile.am	2006-03-07 14:20:20.000000000 +0200
-+++ lighttpd-1.4.12/src/Makefile.am	2006-07-18 13:03:40.000000000 +0300
++++ lighttpd-1.4.12/src/Makefile.am	2006-07-18 17:34:32.000000000 +0300
 @@ -16,18 +16,24 @@
  else
  configparser.y: lemon
@@ -864,21 +864,22 @@
  lib_LTLIBRARIES += mod_cgi.la
  mod_cgi_la_SOURCES = mod_cgi.c 
  mod_cgi_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-@@ -158,6 +169,13 @@
+@@ -158,6 +169,14 @@
  mod_proxy_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
  mod_proxy_la_LIBADD = $(common_libadd)
  
 +lib_LTLIBRARIES += mod_proxy_core.la
 +mod_proxy_core_la_SOURCES = mod_proxy_core.c mod_proxy_core_pool.c \
-+			    mod_proxy_core_backend.c mod_proxy_core_address.c mod_proxy_core_backlog.c
++			    mod_proxy_core_backend.c mod_proxy_core_address.c \
++			    mod_proxy_core_backlog.c mod_proxy_core_rewrites.c
 +mod_proxy_core_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+mod_proxy_core_la_LIBADD = $(common_libadd)
++mod_proxy_core_la_LIBADD = $(common_libadd) $(PCRE_LIB)
 +
 +
  lib_LTLIBRARIES += mod_ssi.la
  mod_ssi_la_SOURCES = mod_ssi_exprparser.c mod_ssi_expr.c mod_ssi.c 
  mod_ssi_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-@@ -240,7 +258,12 @@
+@@ -240,7 +259,12 @@
        mod_ssi.h mod_ssi_expr.h inet_ntop_cache.h \
        configparser.h mod_ssi_exprparser.h \
        sys-mmap.h sys-socket.h mod_cml.h mod_cml_funcs.h \
@@ -888,11 +889,11 @@
 +      iosocket.h array-static.h \
 +      mod_proxy_core_address.h mod_proxy_core_backend.h \
 +      mod_proxy_core_backlog.h mod_proxy_core.h  \
-+      mod_proxy_core_pool.h
++      mod_proxy_core_pool.h mod_proxy_core_rewrites.h
  
  DEFS= @DEFS@ -DLIBRARY_DIR="\"$(libdir)\""
  
-@@ -267,4 +290,4 @@
+@@ -267,4 +291,4 @@
  #ajp_SOURCES = ajp.c
  
  noinst_HEADERS   = $(hdr)
@@ -16642,7 +16643,7 @@
  	return 0;
  }
 --- ../lighttpd-1.4.11/src/mod_cgi.c	2006-02-22 15:15:10.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_cgi.c	2006-07-18 13:03:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_cgi.c	2006-07-18 17:34:32.000000000 +0300
 @@ -1,21 +1,8 @@
  #include <sys/types.h>
 -#ifdef __WIN32
@@ -16896,7 +16897,7 @@
  	if (r->size == 0) {
  		r->size = 16;
  		r->ptr = malloc(sizeof(*r->ptr) * r->size);
-@@ -194,321 +201,178 @@
+@@ -194,321 +201,179 @@
  		r->size += 16;
  		r->ptr = realloc(r->ptr, sizeof(*r->ptr) * r->size);
  	}
@@ -17334,6 +17335,7 @@
 -	cgi_handler_ctx_free(hctx);
 -	
 +	cgi_session_free(sess);
++	sess = NULL;
 +
  	/* if waitpid hasn't been called by response.c yet, do it here */
  	if (pid) {
@@ -17342,7 +17344,7 @@
  		switch(waitpid(pid, &status, WNOHANG)) {
  		case 0:
  			/* not finished yet */
-@@ -519,35 +383,35 @@
+@@ -519,35 +384,35 @@
  		case -1:
  			/* */
  			if (errno == EINTR) break;
@@ -17387,7 +17389,7 @@
  				return HANDLER_GO_ON;
  			} else {
  				log_error_write(srv, __FILE__, __LINE__, "sd", "cgi died, pid:", pid);
-@@ -555,122 +419,126 @@
+@@ -555,122 +420,126 @@
  				return HANDLER_GO_ON;
  			}
  		}
@@ -17587,7 +17589,7 @@
  	if (env->size == 0) {
  		env->size = 16;
  		env->ptr = malloc(env->size * sizeof(*env->ptr));
-@@ -678,45 +546,45 @@
+@@ -678,45 +547,45 @@
  		env->size += 16;
  		env->ptr = realloc(env->ptr, env->size * sizeof(*env->ptr));
  	}
@@ -17644,7 +17646,7 @@
  	/* fork, execve */
  	switch (pid = fork()) {
  	case 0: {
-@@ -730,44 +598,40 @@
+@@ -730,44 +599,40 @@
  		char *c;
  		const char *s;
  		server_socket *srv_sock = con->srv_socket;
@@ -17700,13 +17702,11 @@
  				      (const void *) &(srv_sock->addr.ipv6.sin6_addr) :
  				      (const void *) &(srv_sock->addr.ipv4.sin_addr),
  				      b2, sizeof(b2)-1);
-@@ -779,10 +643,12 @@
+@@ -779,10 +644,10 @@
  		cgi_env_add(&env, CONST_STR_LEN("GATEWAY_INTERFACE"), CONST_STR_LEN("CGI/1.1"));
  
  		s = get_http_version_name(con->request.http_version);
 -		
-+
-+		TRACE("http-version: %s (%d)", s, con->request.http_version);
 +
  		cgi_env_add(&env, CONST_STR_LEN("SERVER_PROTOCOL"), s, strlen(s));
 -		
@@ -17716,7 +17716,7 @@
  #ifdef HAVE_IPV6
  			ntohs(srv_sock->addr.plain.sa_family == AF_INET6 ? srv_sock->addr.ipv6.sin6_port : srv_sock->addr.ipv4.sin_port)
  #else
-@@ -790,10 +656,10 @@
+@@ -790,10 +655,10 @@
  #endif
  			);
  		cgi_env_add(&env, CONST_STR_LEN("SERVER_PORT"), buf, strlen(buf));
@@ -17730,7 +17730,7 @@
  			      (const void *) &(srv_sock->addr.ipv6.sin6_addr) :
  			      (const void *) &(srv_sock->addr.ipv4.sin_addr),
  			      b2, sizeof(b2)-1);
-@@ -811,15 +677,18 @@
+@@ -811,15 +676,18 @@
  		cgi_env_add(&env, CONST_STR_LEN("REDIRECT_STATUS"), CONST_STR_LEN("200"));
  		if (!buffer_is_empty(con->uri.query)) {
  			cgi_env_add(&env, CONST_STR_LEN("QUERY_STRING"), CONST_BUF_LEN(con->uri.query));
@@ -17753,7 +17753,7 @@
  			      (const void *) &(con->dst_addr.ipv6.sin6_addr) :
  			      (const void *) &(con->dst_addr.ipv4.sin_addr),
  			      b2, sizeof(b2)-1);
-@@ -828,7 +697,7 @@
+@@ -828,7 +696,7 @@
  #endif
  		cgi_env_add(&env, CONST_STR_LEN("REMOTE_ADDR"), s, strlen(s));
  
@@ -17762,7 +17762,7 @@
  #ifdef HAVE_IPV6
  			ntohs(con->dst_addr.plain.sa_family == AF_INET6 ? con->dst_addr.ipv6.sin6_port : con->dst_addr.ipv4.sin_port)
  #else
-@@ -836,19 +705,19 @@
+@@ -836,19 +704,19 @@
  #endif
  			);
  		cgi_env_add(&env, CONST_STR_LEN("REMOTE_PORT"), buf, strlen(buf));
@@ -17785,7 +17785,7 @@
  		/* for valgrind */
  		if (NULL != (s = getenv("LD_PRELOAD"))) {
  			cgi_env_add(&env, CONST_STR_LEN("LD_PRELOAD"), s, strlen(s));
-@@ -863,24 +732,24 @@
+@@ -863,24 +731,24 @@
  			cgi_env_add(&env, CONST_STR_LEN("SYSTEMROOT"), s, strlen(s));
  		}
  #endif
@@ -17817,7 +17817,7 @@
  				for (j = 0; j < ds->key->used - 1; j++) {
  					char cr = '_';
  					if (light_isalpha(ds->key->ptr[j])) {
-@@ -893,46 +762,46 @@
+@@ -893,46 +761,46 @@
  					p->tmp_buf->ptr[p->tmp_buf->used++] = cr;
  				}
  				p->tmp_buf->ptr[p->tmp_buf->used++] = '\0';
@@ -17878,7 +17878,7 @@
  		if (cgi_handler->used > 1) {
  			args[i++] = cgi_handler->ptr;
  		}
-@@ -942,7 +811,7 @@
+@@ -942,7 +810,7 @@
  		/* search for the last / */
  		if (NULL != (c = strrchr(con->physical.path->ptr, '/'))) {
  			*c = '\0';
@@ -17887,7 +17887,7 @@
  			/* change to the physical directory */
  			if (-1 == chdir(con->physical.path->ptr)) {
  				log_error_write(srv, __FILE__, __LINE__, "ssb", "chdir failed:", strerror(errno), con->physical.path);
-@@ -952,14 +821,14 @@
+@@ -952,14 +820,14 @@
  
  		/* we don't need the client socket */
  		for (i = 3; i < 256; i++) {
@@ -17906,7 +17906,7 @@
  		/* */
  		SEGFAULT();
  		break;
-@@ -969,16 +838,16 @@
+@@ -969,16 +837,16 @@
  		log_error_write(srv, __FILE__, __LINE__, "ss", "fork failed:", strerror(errno));
  		break;
  	default: {
@@ -17926,7 +17926,7 @@
  			assert(chunkqueue_length(cq) == (off_t)con->request.content_length);
  
  			/* there is content to send */
-@@ -993,16 +862,16 @@
+@@ -993,16 +861,16 @@
  						if (-1 == c->file.fd &&  /* open the file if not already open */
  						    -1 == (c->file.fd = open(c->file.name->ptr, O_RDONLY))) {
  							log_error_write(srv, __FILE__, __LINE__, "ss", "open failed: ", strerror(errno));
@@ -17946,7 +17946,7 @@
  									strerror(errno), c->file.name,  c->file.fd);
  
  							close(from_cgi_fds[0]);
-@@ -1012,7 +881,7 @@
+@@ -1012,7 +880,7 @@
  
  						close(c->file.fd);
  						c->file.fd = -1;
@@ -17955,7 +17955,7 @@
  						/* chunk_reset() or chunk_free() will cleanup for us */
  					}
  
-@@ -1020,7 +889,7 @@
+@@ -1020,7 +888,7 @@
  						switch(errno) {
  						case ENOSPC:
  							con->http_status = 507;
@@ -17964,7 +17964,7 @@
  							break;
  						default:
  							con->http_status = 403;
-@@ -1033,7 +902,7 @@
+@@ -1033,7 +901,7 @@
  						switch(errno) {
  						case ENOSPC:
  							con->http_status = 507;
@@ -17973,7 +17973,7 @@
  							break;
  						default:
  							con->http_status = 403;
-@@ -1056,103 +925,95 @@
+@@ -1056,103 +924,95 @@
  		}
  
  		close(to_cgi_fds[1]);
@@ -18002,6 +18002,8 @@
 +
 +		sess->remote_con = con;
 +		sess->pid = pid;
++
++		assert(sess->sock);
 +
 +		sess->sock->fd = from_cgi_fds[0];
 +		sess->sock->type = IOSOCKET_TYPE_PIPE;
@@ -18092,8 +18094,6 @@
  	if (fn->used == 0) return HANDLER_GO_ON;
 -	
 +
-+	TRACE("http-version: (%d)", con->request.http_version);
-+
  	mod_cgi_patch_connection(srv, con, p);
 -	
 +
@@ -18117,7 +18117,7 @@
  				buffer_reset(con->physical.path);
  				return HANDLER_FINISHED;
  			}
-@@ -1160,7 +1021,7 @@
+@@ -1160,7 +1020,7 @@
  			break;
  		}
  	}
@@ -18126,7 +18126,7 @@
  	return HANDLER_GO_ON;
  }
  
-@@ -1168,11 +1029,11 @@
+@@ -1168,11 +1028,11 @@
  	plugin_data *p = p_d;
  	size_t ndx;
  	/* the trigger handle only cares about lonely PID which we have to wait for */
@@ -18140,7 +18140,7 @@
  		switch(waitpid(p->cgi_pid.ptr[ndx], &status, WNOHANG)) {
  		case 0:
  			/* not finished yet */
-@@ -1182,7 +1043,7 @@
+@@ -1182,7 +1042,7 @@
  			break;
  		case -1:
  			log_error_write(srv, __FILE__, __LINE__, "ss", "waitpid failed: ", strerror(errno));
@@ -18149,7 +18149,7 @@
  			return HANDLER_ERROR;
  		default:
  
-@@ -1193,96 +1054,103 @@
+@@ -1193,96 +1053,105 @@
  			} else {
  				log_error_write(srv, __FILE__, __LINE__, "s", "cgi died ?");
  			}
@@ -18256,6 +18256,7 @@
 +		fdevent_unregister(srv->ev, sess->sock);
 +
 +		cgi_session_free(sess);
++		sess = NULL;
 +
  		con->plugin_ctx[p->id] = NULL;
 -		
@@ -18301,11 +18302,12 @@
 +		fdevent_unregister(srv->ev, sess->sock);
 +
 +		cgi_session_free(sess);
++		sess = NULL;
 +
  		con->plugin_ctx[p->id] = NULL;
  		return HANDLER_FINISHED;
  	}
-@@ -1306,8 +1174,8 @@
+@@ -1306,8 +1175,8 @@
  	p->init           = mod_cgi_init;
  	p->cleanup        = mod_cgi_free;
  	p->set_defaults   = mod_fastcgi_set_defaults;
@@ -28776,12 +28778,13 @@
  	return 0;
  }
 --- ../lighttpd-1.4.11/src/mod_proxy_core.c	1970-01-01 03:00:00.000000000 +0300
-+++ lighttpd-1.4.12/src/mod_proxy_core.c	2006-07-18 13:03:40.000000000 +0300
-@@ -0,0 +1,1451 @@
++++ lighttpd-1.4.12/src/mod_proxy_core.c	2006-07-18 17:34:32.000000000 +0300
+@@ -0,0 +1,1709 @@
 +#include <string.h>
 +#include <stdlib.h>
 +#include <fcntl.h>
 +#include <errno.h>
++#include <ctype.h>
 +
 +#include "buffer.h"
 +#include "array.h"
@@ -28799,6 +28802,10 @@
 +#include "mod_proxy_core_pool.h"	
 +#include "mod_proxy_core_backend.h"
 +#include "mod_proxy_core_backlog.h"
++#include "mod_proxy_core_rewrites.h"
++
++#define CONFIG_PROXY_CORE_REWRITE_REQUEST "proxy-core.rewrite-request"
++#define CONFIG_PROXY_CORE_REWRITE_RESPONSE "proxy-core.rewrite-response"
 +
 +typedef enum {
 +	PROXY_PROTOCOL_UNSET,
@@ -28812,6 +28819,9 @@
 +	proxy_backends *backends;
 +
 +	proxy_backlog *backlog;
++
++	proxy_rewrites *request_rewrites;
++	proxy_rewrites *response_rewrites;
 +
 +	int debug;
 +
@@ -28831,6 +28841,8 @@
 +	array *backends_arr;
 +	buffer *protocol_buf;
 +	buffer *balance_buf;
++
++	buffer *replace_buf;
 +
 +	plugin_config **config_storage;
 +
@@ -28871,6 +28883,7 @@
 +
 +	p->balance_buf = buffer_init();
 +	p->protocol_buf = buffer_init();
++	p->replace_buf = buffer_init();
 +	p->backends_arr = array_init();
 +
 +	p->resp = http_response_init();
@@ -28905,6 +28918,7 @@
 +
 +	buffer_free(p->balance_buf);
 +	buffer_free(p->protocol_buf);
++	buffer_free(p->replace_buf);
 +	
 +	http_response_free(p->resp);
 +
@@ -28912,6 +28926,87 @@
 +
 +	return HANDLER_GO_ON;
 +}
++
++static handler_t mod_proxy_core_config_parse_rewrites(proxy_rewrites *dest, array *src, const char *config_key) {
++	data_unset *du;
++	size_t j;
++
++	if (NULL != (du = array_get_element(src, config_key))) {
++		data_array *keys = (data_array *)du;
++
++		if (keys->type != TYPE_ARRAY) {
++			ERROR("%s = <...>", 
++				config_key);
++
++			return HANDLER_ERROR;
++		}
++
++		/*
++		 * proxy-core.rewrite-request = (
++		 *   "_uri" => ( ... ) 
++		 * )
++		 */
++
++		for (j = 0; j < keys->value->used; j++) {
++			size_t k;
++			data_array *headers = (data_array *)keys->value->data[j];
++
++			/* keys->key should be "_uri" and the value a array of rewrite */
++			if (headers->type != TYPE_ARRAY) {
++				ERROR("%s = ( %s => <...> ) has to a array", 
++					config_key,
++					BUF_STR(headers->key));
++
++				return HANDLER_ERROR;
++			}
++
++			TRACE("%s: header-field: %s", config_key, BUF_STR(headers->key));
++
++			if (headers->value->used > 1) {
++				ERROR("%s = ( %s => <...> ) has to a array with only one element", 
++					config_key,
++					BUF_STR(headers->key));
++
++				return HANDLER_ERROR;
++
++			}
++
++			for (k = 0; k < headers->value->used; k++) {
++				data_string *rewrites = (data_string *)headers->value->data[k];
++				proxy_rewrite *rw;
++
++				/* keys->key should be "_uri" and the value a array of rewrite */
++				if (rewrites->type != TYPE_STRING) {
++					ERROR("%s = ( \"%s\" => ( \"%s\" => <value> ) ) has to a string", 
++						config_key,
++						BUF_STR(headers->key),
++						BUF_STR(rewrites->key));
++
++					return HANDLER_ERROR;
++				}
++			
++				TRACE("%s: rewrites-field: %s -> %s", 
++						config_key, 
++						BUF_STR(headers->key), 
++						BUF_STR(rewrites->key));
++
++				rw = proxy_rewrite_init();
++
++				if (0 != proxy_rewrite_set_regex(rw, rewrites->key)) {
++					return HANDLER_ERROR;
++				}
++				buffer_copy_string_buffer(rw->replace, rewrites->value);
++				buffer_copy_string_buffer(rw->match, rewrites->key);
++				buffer_copy_string_buffer(rw->header, headers->key);
++
++				proxy_rewrites_add(dest, rw);
++			}
++		}
++	}
++
++	return HANDLER_GO_ON;
++}
++
 +
 +SETDEFAULTS_FUNC(mod_proxy_core_set_defaults) {
 +	plugin_data *p = p_d;
@@ -28922,6 +29017,8 @@
 +		{ "proxy-core.debug",          NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },       /* 1 */
 +		{ "proxy-core.balancer",       NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },      /* 2 */
 +		{ "proxy-core.protocol",       NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },      /* 3 */
++		{ CONFIG_PROXY_CORE_REWRITE_REQUEST, NULL, T_CONFIG_LOCAL, T_CONFIG_SCOPE_CONNECTION }, /* 4 */
++		{ CONFIG_PROXY_CORE_REWRITE_RESPONSE, NULL, T_CONFIG_LOCAL, T_CONFIG_SCOPE_CONNECTION },/* 5 */
 +		{ NULL,                        NULL, T_CONFIG_UNSET, T_CONFIG_SCOPE_UNSET }
 +	};
 +
@@ -28942,6 +29039,8 @@
 +		s->protocol  = PROXY_PROTOCOL_UNSET;
 +		s->backends  = proxy_backends_init();
 +		s->backlog   = proxy_backlog_init();
++		s->response_rewrites   = proxy_rewrites_init();
++		s->request_rewrites   = proxy_rewrites_init();
 +
 +		cv[0].destination = p->backends_arr;
 +		cv[1].destination = &(s->debug);
@@ -28981,19 +29080,29 @@
 +			s->protocol = di->value;
 +		}
 +
-+		backend = proxy_backend_init();
++		if (p->backends_arr->used) {
++			backend = proxy_backend_init();
 +
-+		/* check if the backends have a valid host-name */
-+		for (j = 0; j < p->backends_arr->used; j++) {
-+			data_string *ds = (data_string *)p->backends_arr->data[j];
++			/* check if the backends have a valid host-name */
++			for (j = 0; j < p->backends_arr->used; j++) {
++				data_string *ds = (data_string *)p->backends_arr->data[j];
 +
-+			/* the values should be ips or hostnames */
-+			if (0 != proxy_address_pool_add_string(backend->address_pool, ds->value)) {
-+				return HANDLER_ERROR;
++				/* the values should be ips or hostnames */
++				if (0 != proxy_address_pool_add_string(backend->address_pool, ds->value)) {
++					return HANDLER_ERROR;
++				}
 +			}
++
++			proxy_backends_add(s->backends, backend);
 +		}
 +
-+		proxy_backends_add(s->backends, backend);
++		if (HANDLER_GO_ON != mod_proxy_core_config_parse_rewrites(s->request_rewrites, ca, CONFIG_PROXY_CORE_REWRITE_REQUEST)) {
++			return HANDLER_ERROR;
++		}
++		
++		if (HANDLER_GO_ON != mod_proxy_core_config_parse_rewrites(s->response_rewrites, ca, CONFIG_PROXY_CORE_REWRITE_RESPONSE)) {
++			return HANDLER_ERROR;
++		}
 +	}
 +
 +	return HANDLER_GO_ON;
@@ -29252,8 +29361,6 @@
 +	} else {
 +		/* no chunked encoding, ok, perhaps a content-length ? */
 +
-+		TRACE("content-lenght: %d", sess->content_length);
-+
 +		chunkqueue_remove_finished_chunks(raw);
 +		for (c = raw->first; c; c = c->next) {
 +			buffer *b;
@@ -29389,23 +29496,107 @@
 +	return HANDLER_GO_ON;
 +}
 +
++int pcre_replace(pcre *match, buffer *replace, buffer *match_buf, buffer *result) {
++	const char *pattern = replace->ptr;
++	size_t pattern_len = replace->used - 1;
++
++# define N 10
++	int ovec[N * 3];
++	int n;
++
++	if ((n = pcre_exec(match, NULL, match_buf->ptr, match_buf->used - 1, 0, 0, ovec, 3 * N)) < 0) {
++		if (n != PCRE_ERROR_NOMATCH) {
++			return n;
++		}
++	} else {
++		const char **list;
++		size_t start, end;
++		size_t k;
++
++		/* it matched */
++		pcre_get_substring_list(match_buf->ptr, ovec, n, &list);
++
++		/* search for $[0-9] */
++
++		buffer_reset(result);
++
++		start = 0; end = pattern_len;
++		for (k = 0; k < pattern_len; k++) {
++			if ((pattern[k] == '$') &&
++			    isdigit((unsigned char)pattern[k + 1])) {
++				/* got one */
++
++				size_t num = pattern[k + 1] - '0';
++
++				end = k;
++
++				buffer_append_string_len(result, pattern + start, end - start);
++
++				/* n is always > 0 */
++				if (num < (size_t)n) {
++					buffer_append_string(result, list[num]);
++				}
++
++				k++;
++				start = k + 1;
++			}
++		}
++
++		buffer_append_string_len(result, pattern + start, pattern_len - start);
++
++		pcre_free(list);
++	}
++
++	return n;
++}
++
 +/**
 + * generate a HTTP/1.1 proxy request from the set of request-headers
 + *
 + * TODO: this is HTTP-proxy specific and will be moved moved into a separate backed
 + *
 + */
-+int proxy_get_request_chunk(server *srv, connection *con, proxy_session *sess, chunkqueue *cq) {
++int proxy_get_request_chunk(server *srv, connection *con, plugin_data *p, proxy_session *sess, chunkqueue *cq) {
 +	buffer *b;
 +	size_t i;
-+
++	
 +	b = chunkqueue_get_append_buffer(cq);
 +
 +	/* request line */
 +	buffer_copy_string(b, get_http_method_name(con->request.http_method));
 +	BUFFER_APPEND_STRING_CONST(b, " ");
 +
-+	buffer_append_string_buffer(b, con->request.uri);
++	/* check if we want to rewrite the uri */
++
++	for (i = 0; i < p->conf.request_rewrites->used; i++) {
++		proxy_rewrite *rw = p->conf.request_rewrites->ptr[i];
++
++		if (buffer_is_equal_string(rw->header, CONST_STR_LEN("_uri"))) {
++			int ret;
++
++			if ((ret = pcre_replace(rw->regex, rw->replace, con->request.uri, p->replace_buf)) < 0) {
++				switch (ret) {
++				case PCRE_ERROR_NOMATCH:
++					/* hmm, ok. no problem */
++					buffer_append_string_buffer(b, con->request.uri);
++					break;
++				default:
++					TRACE("oops, pcre_replace failed with: %d", ret);
++					break;
++				}
++			} else {
++				buffer_append_string_buffer(b, p->replace_buf);
++			}
++
++			break;
++		}
++	}
++
++	if (i == p->conf.request_rewrites->used) {
++		/* not found */
++		buffer_append_string_buffer(b, con->request.uri);
++	}
++
 +	BUFFER_APPEND_STRING_CONST(b, " HTTP/1.1\r\n");
 +
 +	for (i = 0; i < sess->request_headers->used; i++) {
@@ -29420,12 +29611,17 @@
 +	}
 +
 +	BUFFER_APPEND_STRING_CONST(b, "\r\n");
-+
++	
 +	return 0;
 +}
 +
 +void proxy_set_header(array *hdrs, const char *key, size_t key_len, const char *value, size_t val_len) {
 +	data_string *ds_dst;
++
++	if (NULL != (ds_dst = (data_string *)array_get_element(hdrs, key))) {
++		buffer_copy_string_len(ds_dst->value, value, val_len);
++		return;
++	}
 +
 +	if (NULL == (ds_dst = (data_string *)array_get_unused_element(hdrs, TYPE_STRING))) {
 +		ds_dst = data_string_init();
@@ -29453,7 +29649,7 @@
 + * build the request-header array and call the backend specific request formater
 + * to fill the chunkqueue
 + */
-+int proxy_get_request_header(server *srv, connection *con, proxy_session *sess) {
++int proxy_get_request_header(server *srv, connection *con, plugin_data *p, proxy_session *sess) {
 +	/* request line */
 +	const char *remote_ip;
 +	size_t i;
@@ -29476,6 +29672,7 @@
 +	/* request header */
 +	for (i = 0; i < con->request.headers->used; i++) {
 +		data_string *ds;
++		size_t k;
 +
 +		ds = (data_string *)con->request.headers->data[i];
 +
@@ -29484,10 +29681,36 @@
 +		if (buffer_is_equal_string(ds->key, CONST_STR_LEN("Connection"))) continue;
 +		if (buffer_is_equal_string(ds->key, CONST_STR_LEN("Keep-Alive"))) continue;
 +
-+		proxy_set_header(sess->request_headers, CONST_BUF_LEN(ds->key), CONST_BUF_LEN(ds->value));
++		for (k = 0; k < p->conf.request_rewrites->used; k++) {
++			proxy_rewrite *rw = p->conf.request_rewrites->ptr[k];
++
++			if (buffer_is_equal(rw->header, ds->key)) {
++				int ret;
++
++				if ((ret = pcre_replace(rw->regex, rw->replace, ds->value, p->replace_buf)) < 0) {
++					switch (ret) {
++					case PCRE_ERROR_NOMATCH:
++						/* hmm, ok. no problem */
++						proxy_set_header(sess->request_headers, CONST_BUF_LEN(ds->key), CONST_BUF_LEN(ds->value));
++						break;
++					default:
++						TRACE("oops, pcre_replace failed with: %d", ret);
++						break;
++					}
++				} else {
++					proxy_set_header(sess->request_headers, CONST_BUF_LEN(ds->key), CONST_BUF_LEN(p->replace_buf));
++				}
++
++				break;
++			}
++		}
++
++		if (k == p->conf.request_rewrites->used) {
++			proxy_set_header(sess->request_headers, CONST_BUF_LEN(ds->key), CONST_BUF_LEN(ds->value));
++		}
 +	}
 +
-+	proxy_get_request_chunk(srv, con, sess, sess->send_raw);
++	proxy_get_request_chunk(srv, con, p, sess, sess->send_raw);
 +
 +	return 0;
 +}
@@ -29521,7 +29744,7 @@
 +		/* copy the http-headers */
 +		for (i = 0; i < p->resp->headers->used; i++) {
 +			const char *ign[] = { "Status", "Connection", NULL };
-+			size_t j;
++			size_t j, k;
 +			data_string *ds;
 +
 +			data_string *header = (data_string *)p->resp->headers->data[i];
@@ -29554,8 +29777,37 @@
 +			if (NULL == (ds = (data_string *)array_get_unused_element(con->response.headers, TYPE_STRING))) {
 +				ds = data_response_init();
 +			}
++
++
 +			buffer_copy_string_buffer(ds->key, header->key);
-+			buffer_copy_string_buffer(ds->value, header->value);
++
++			for (k = 0; k < p->conf.response_rewrites->used; k++) {
++				proxy_rewrite *rw = p->conf.response_rewrites->ptr[k];
++
++				if (buffer_is_equal(rw->header, header->key)) {
++					int ret;
++	
++					if ((ret = pcre_replace(rw->regex, rw->replace, header->value, p->replace_buf)) < 0) {
++						switch (ret) {
++						case PCRE_ERROR_NOMATCH:
++							/* hmm, ok. no problem */
++							buffer_append_string_buffer(ds->value, header->value);
++							break;
++						default:
++							TRACE("oops, pcre_replace failed with: %d", ret);
++							break;
++						}
++					} else {
++						buffer_append_string_buffer(ds->value, p->replace_buf);
++					}
++
++					break;
++				}
++			}
++
++			if (k == p->conf.response_rewrites->used) {
++				buffer_copy_string_buffer(ds->value, header->value);
++			}
 +
 +			array_insert_unique(con->response.headers, (data_unset *)ds);
 +		}
@@ -29660,7 +29912,7 @@
 +
 +	if (sess->state == PROXY_STATE_CONNECTED) {
 +		/* build the header */
-+		proxy_get_request_header(srv, con, sess);
++		proxy_get_request_header(srv, con, p, sess);
 +
 +		sess->state = PROXY_STATE_WRITE_REQUEST_HEADER;
 +	}
@@ -29771,7 +30023,7 @@
 +	return HANDLER_GO_ON;
 +}
 +
-+proxy_backend *proxy_get_backend(server *srv, connection *con, plugin_data *p, buffer *uri) {
++proxy_backend *proxy_get_backend(server *srv, connection *con, plugin_data *p) {
 +	size_t i;
 +
 +	for (i = 0; i < p->conf.backends->used; i++) {
@@ -29890,6 +30142,8 @@
 +	PATCH_OPTION(backends);
 +	PATCH_OPTION(backlog);
 +	PATCH_OPTION(protocol);
++	PATCH_OPTION(request_rewrites);
++	PATCH_OPTION(response_rewrites);
 +
 +	/* skip the first, the global context */
 +	for (i = 1; i < srv->config_context->used; i++) {
@@ -29903,15 +30157,19 @@
 +		for (j = 0; j < dc->value->used; j++) {
 +			data_unset *du = dc->value->data[j];
 +
-+			if (buffer_is_equal_string(du->key, CONST_STR_LEN("proxy.backends"))) {
++			if (buffer_is_equal_string(du->key, CONST_STR_LEN("proxy-core.backends"))) {
 +				PATCH_OPTION(backends);
 +				PATCH_OPTION(backlog);
-+			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("proxy.debug"))) {
++			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("proxy-core.debug"))) {
 +				PATCH_OPTION(debug);
-+			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("proxy.balancer"))) {
++			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("proxy-core.balancer"))) {
 +				PATCH_OPTION(balancer);
-+			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("proxy.protocol"))) {
++			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("proxy-core.protocol"))) {
 +				PATCH_OPTION(protocol);
++			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN(CONFIG_PROXY_CORE_REWRITE_REQUEST))) {
++				PATCH_OPTION(request_rewrites);
++			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN(CONFIG_PROXY_CORE_REWRITE_RESPONSE))) {
++				PATCH_OPTION(response_rewrites);
 +			}
 +		}
 +	}
@@ -29929,6 +30187,8 @@
 +	if (buffer_is_empty(con->uri.path)) return HANDLER_GO_ON;
 +
 +	mod_proxy_core_patch_connection(srv, con, p);
++
++	if (p->conf.backends->used == 0) return HANDLER_GO_ON;
 +
 +	/* 
 +	 * 0. build session
@@ -29984,7 +30244,7 @@
 +	while (1) {
 +		if (sess->proxy_con == NULL) {
 +			proxy_address *address = NULL;
-+			if (NULL == (sess->proxy_backend = proxy_get_backend(srv, con, p, con->uri.path))) {
++			if (NULL == (sess->proxy_backend = proxy_get_backend(srv, con, p))) {
 +				/* no connection pool for this location */
 +				SEGFAULT();
 +			}
@@ -30832,6 +31092,104 @@
 +
 +proxy_connection * proxy_connection_init(void);
 +void proxy_connection_free(proxy_connection *pool);
++
++#endif
++
+--- ../lighttpd-1.4.11/src/mod_proxy_core_rewrites.c	1970-01-01 03:00:00.000000000 +0300
++++ lighttpd-1.4.12/src/mod_proxy_core_rewrites.c	2006-07-18 17:34:32.000000000 +0300
+@@ -0,0 +1,64 @@
++#include <stdlib.h>
++#include <string.h>
++
++#include "mod_proxy_core_rewrites.h"
++#include "log.h"
++
++proxy_rewrite *proxy_rewrite_init(void) {
++	STRUCT_INIT(proxy_rewrite, rewrite);
++
++	rewrite->header = buffer_init();
++	rewrite->match = buffer_init();
++	rewrite->replace = buffer_init();
++
++	return rewrite;
++
++}
++void proxy_rewrite_free(proxy_rewrite *rewrite) {
++	if (!rewrite) return;
++
++	if (rewrite->regex) pcre_free(rewrite->regex);
++
++	buffer_free(rewrite->header);
++	buffer_free(rewrite->match);
++	buffer_free(rewrite->replace);
++
++	free(rewrite);
++}
++
++int proxy_rewrite_set_regex(proxy_rewrite *rewrite, buffer *regex) {
++	const char *errptr;
++	int erroff;
++
++	if (NULL == (rewrite->regex = pcre_compile(BUF_STR(regex),
++		  0, &errptr, &erroff, NULL))) {
++		
++		TRACE("regex compilation for %s failed at %s", BUF_STR(regex), errptr);
++
++		return -1;
++	}
++
++	return 0;
++}
++
++
++proxy_rewrites *proxy_rewrites_init(void) {
++	STRUCT_INIT(proxy_rewrites, rewrites);
++
++	return rewrites;
++}
++
++void proxy_rewrites_add(proxy_rewrites *rewrites, proxy_rewrite *rewrite) {
++	ARRAY_STATIC_PREPARE_APPEND(rewrites);
++
++	rewrites->ptr[rewrites->used++] = rewrite;
++}
++
++void proxy_rewrites_free(proxy_rewrites *rewrites) {
++	if (!rewrites) return;
++
++	free(rewrites);
++}
++
++
++
+--- ../lighttpd-1.4.11/src/mod_proxy_core_rewrites.h	1970-01-01 03:00:00.000000000 +0300
++++ lighttpd-1.4.12/src/mod_proxy_core_rewrites.h	2006-07-18 17:34:32.000000000 +0300
+@@ -0,0 +1,28 @@
++#ifndef _MOD_PROXY_CORE_REWRITES_H_
++#define _MOD_PROXY_CORE_REWRITES_H_
++
++#include <pcre.h>
++#include "array-static.h"
++#include "buffer.h"
++
++typedef struct {
++	buffer *header;
++
++	pcre *regex; /* regex compiled from the <match> */
++
++	buffer *match;
++	buffer *replace;
++} proxy_rewrite;
++
++ARRAY_STATIC_DEF(proxy_rewrites, proxy_rewrite,);
++
++proxy_rewrite *proxy_rewrite_init(void);
++void proxy_rewrite_free(proxy_rewrite *rewrite);
++int proxy_rewrite_set_regex(proxy_rewrite *rewrite, buffer *regex);
++
++proxy_rewrites *proxy_rewrites_init(void);
++void proxy_rewrites_add(proxy_rewrites *rewrites, proxy_rewrite *rewrite);
++void proxy_rewrites_free(proxy_rewrites *rewrites);
 +
 +#endif
 +
@@ -52473,14 +52831,14 @@
 +status.config-url           = "/server-config"
 +
 --- ../lighttpd-1.4.11/tests/docroot/www/dummydir/.svn/entries	2006-03-09 19:21:49.000000000 +0200
-+++ lighttpd-1.4.12/tests/docroot/www/dummydir/.svn/entries	2006-07-18 13:03:40.000000000 +0300
++++ lighttpd-1.4.12/tests/docroot/www/dummydir/.svn/entries	2006-07-18 17:34:32.000000000 +0300
 @@ -9,5 +9,6 @@
     last-author="jan"
     kind="dir"
     uuid="152afb58-edef-0310-8abb-c4023f1b3aa9"
 -   revision="1040"/>
 +   repos="svn://svn.lighttpd.net/lighttpd"
-+   revision="1199"/>
++   revision="1202"/>
  </wc-entries>
 --- ../lighttpd-1.4.11/tests/fastcgi-10.conf	2005-08-31 23:36:34.000000000 +0300
 +++ lighttpd-1.4.12/tests/fastcgi-10.conf	2006-07-16 00:26:04.000000000 +0300
