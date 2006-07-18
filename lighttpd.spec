@@ -25,9 +25,9 @@
 %bcond_with	valgrind	# compile code with valgrind support.
 %bcond_with	deflate		# build deflate module (needs patch update with current svn)
 
-%define		_rel 3.24
+%define		_rel 3.29
 # svn snapshot
-%define		_svn	1173
+%define		_svn	1199
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -85,6 +85,8 @@ Source128:	%{name}-mod_usertrack.conf
 Source129:	%{name}-mod_webdav.conf
 Source130:	%{name}-php-spawned.conf
 Source131:	%{name}-php-external.conf
+Source132:	%{name}-ssl.conf
+Source133:	%{name}-mod_proxy_core.conf
 Patch100:	%{name}-branch.diff
 Patch0:		%{name}-mod_deflate.patch
 Patch1:		%{name}-use_bin_sh.patch
@@ -350,6 +352,18 @@ Requires:	%{name} = %{version}-%{release}
 The proxy module a simplest way to connect lighttpd to java servers
 which have a HTTP-interface.
 
+%package mod_proxy_core
+Summary:	lighttpd module for proxying requests
+Group:		Networking/Daemons
+URL:		http://blog.lighttpd.net/articles/2006/07/18/mod_proxy_core-commited-to-svn
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_proxy_core
+The proxy module a simplest way to connect lighttpd to java servers
+which have a HTTP-interface.
+
+This is the new proxy code.
+
 %package mod_redirect
 Summary:	lighttpd module for URL redirects
 Group:		Networking/Daemons
@@ -551,6 +565,15 @@ Obsoletes:	lighttpd-php-spawned
 %description php-external
 PHP support via FastCGI, spawning controlled externally
 
+%package ssl
+Summary:	lighttpd support for SSLv2 and SSLv3
+Group:		Networking/Daemons
+Requires:	%{name} = %{version}-%{release}
+URL:		http://www.lighttpd.net/documentation/ssl.html
+
+%description ssl
+lighttpd support for SSLv2 and SSLv3.
+
 %prep
 %setup -q
 %patch100 -p1
@@ -632,6 +655,7 @@ install %{SOURCE112} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_fastcgi.conf
 install %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
 install %{SOURCE114} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_indexfile.conf
 install %{SOURCE115} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy.conf
+install %{SOURCE133} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_core.conf
 install %{SOURCE118} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_rrdtool.conf
 install %{SOURCE119} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_scgi.conf
 install %{SOURCE120} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_secdownload.conf
@@ -649,11 +673,16 @@ install %{SOURCE101} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/90_mod_accesslog.conf
 
 install %{SOURCE130} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/php-spawned.conf
 install %{SOURCE131} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/php-external.conf
+install %{SOURCE132} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/ssl.conf
 
 %if %{without mysql}
 # avoid packaging dummy module
 rm -f $RPM_BUILD_ROOT%{_libdir}/mod_mysql_vhost.so
+rm -f $RPM_BUILD_ROOT%{_libdir}/mod_sql_vhost_core.so
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_mysql_vhost.conf
+%endif
+%if %{without deflate}
+rm -f $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_deflate.conf
 %endif
 
 %clean
@@ -857,6 +886,7 @@ EOF
 %files mod_mysql_vhost
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_mysql_vhost.conf
+%attr(755,root,root) %{_libdir}/mod_sql_vhost_core.so
 %attr(755,root,root) %{_libdir}/mod_mysql_vhost.so
 %endif
 
@@ -864,6 +894,11 @@ EOF
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy.conf
 %attr(755,root,root) %{_libdir}/mod_proxy.so
+
+%files mod_proxy_core
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy_core.conf
+%attr(755,root,root) %{_libdir}/mod_proxy_core.so
 
 %files mod_redirect
 %defattr(644,root,root,755)
@@ -947,3 +982,7 @@ EOF
 %files php-external
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/php-external.conf
+
+%files ssl
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/ssl.conf
