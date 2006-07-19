@@ -25,7 +25,7 @@
  
    * added ability to specify which ip address spawn-fci listens on 
 --- ../lighttpd-1.4.11/configure.in	2006-03-04 16:32:38.000000000 +0200
-+++ lighttpd-1.4.12/configure.in	2006-07-16 00:26:05.000000000 +0300
++++ lighttpd-1.4.12/configure.in	2006-07-19 20:02:55.000000000 +0300
 @@ -1,7 +1,7 @@
  #                                               -*- Autoconf -*-
  # Process this file with autoconf to produce a configure script.
@@ -101,15 +101,26 @@
  
   AC_SUBST(LUA_CFLAGS)
   AC_SUBST(LUA_LIBS)
-@@ -440,7 +437,7 @@
+@@ -440,8 +437,8 @@
  esac
  
  AC_CHECK_FUNCS([dup2 getcwd inet_ntoa inet_ntop memset mmap munmap strchr \
 -		  strdup strerror strstr strtol sendfile  getopt socket \
+-		  gethostbyname poll sigtimedwait epoll_ctl getrlimit chroot \
 +		  strdup strerror strstr strtol sendfile  getopt socket lstat \
- 		  gethostbyname poll sigtimedwait epoll_ctl getrlimit chroot \
++		  gethostbyname poll sigtimedwait epoll_ctl getrlimit chroot strptime \
  		  getuid select signal pathconf madvise posix_fadvise posix_madvise \
  		  writev sigaction sendfile64 send_file kqueue port_create localtime_r])
+ 
+@@ -519,7 +516,7 @@
+ 
+ 
+ if test "${GCC}" = "yes"; then
+-       CFLAGS="${CFLAGS} -Wall -W -Wshadow -pedantic"
++       CFLAGS="${CFLAGS} -Wall -W -Wshadow -pedantic -std=gnu99"
+ fi
+ 
+ dnl build version-id
 @@ -538,7 +535,7 @@
  AC_OUTPUT
  
@@ -135,7 +146,7 @@
  
  $ECHO
 --- ../lighttpd-1.4.11/cygwin/lighttpd.README	2006-03-07 14:22:19.000000000 +0200
-+++ lighttpd-1.4.12/cygwin/lighttpd.README	2006-07-17 22:02:18.000000000 +0300
++++ lighttpd-1.4.12/cygwin/lighttpd.README	2006-07-19 20:09:00.000000000 +0300
 @@ -1,114 +1,114 @@
 -lighttpd
 -------------------------------------------
@@ -762,7 +773,7 @@
    
    # current timestamp
 --- ../lighttpd-1.4.11/lighttpd.spec	2006-03-07 14:22:18.000000000 +0200
-+++ lighttpd-1.4.12/lighttpd.spec	2006-07-17 22:02:18.000000000 +0300
++++ lighttpd-1.4.12/lighttpd.spec	2006-07-19 20:09:00.000000000 +0300
 @@ -1,6 +1,6 @@
  Summary: A fast webserver with minimal memory-footprint (lighttpd)
  Name: lighttpd
@@ -772,7 +783,7 @@
  Source: http://jan.kneschke.de/projects/lighttpd/download/lighttpd-%version.tar.gz
  Packager: Jan Kneschke <jan@kneschke.de>
 --- ../lighttpd-1.4.11/openwrt/control	2006-03-07 14:22:19.000000000 +0200
-+++ lighttpd-1.4.12/openwrt/control	2006-07-17 22:02:18.000000000 +0300
++++ lighttpd-1.4.12/openwrt/control	2006-07-19 20:09:00.000000000 +0300
 @@ -1,8 +1,8 @@
  Package: lighttpd
 -Version: 1.4.11
@@ -785,7 +796,7 @@
  Priority: optional
  Depends:
 --- ../lighttpd-1.4.11/openwrt/lighttpd.mk	2006-03-07 14:22:19.000000000 +0200
-+++ lighttpd-1.4.12/openwrt/lighttpd.mk	2006-07-17 22:02:18.000000000 +0300
++++ lighttpd-1.4.12/openwrt/lighttpd.mk	2006-07-19 20:09:00.000000000 +0300
 @@ -10,7 +10,7 @@
  
  #  For this example we'll use a fairly simple package that compiles easily
@@ -796,7 +807,7 @@
  LIGHTTPD_DIR=$(BUILD_DIR)/$(LIGHTTPD)
  LIGHTTPD_IPK=$(BUILD_DIR)/$(LIGHTTPD)_mipsel.ipk
 --- ../lighttpd-1.4.11/src/Makefile.am	2006-03-07 14:20:20.000000000 +0200
-+++ lighttpd-1.4.12/src/Makefile.am	2006-07-18 17:34:32.000000000 +0300
++++ lighttpd-1.4.12/src/Makefile.am	2006-07-19 20:02:55.000000000 +0300
 @@ -16,18 +16,24 @@
  else
  configparser.y: lemon
@@ -829,8 +840,9 @@
        data_config.c bitset.c \
        inet_ntop_cache.c crc32.c \
 -      connections-glue.c \
+-      configfile-glue.c \
 +      connections-glue.c iosocket.c \
-       configfile-glue.c \
++      configfile-glue.c status_counter.c \
        http-header-glue.c \
        network_write.c network_linux_sendfile.c \
        network_freebsd_sendfile.c network_writev.c \
@@ -879,7 +891,7 @@
  lib_LTLIBRARIES += mod_ssi.la
  mod_ssi_la_SOURCES = mod_ssi_exprparser.c mod_ssi_expr.c mod_ssi.c 
  mod_ssi_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-@@ -240,7 +259,12 @@
+@@ -240,7 +259,13 @@
        mod_ssi.h mod_ssi_expr.h inet_ntop_cache.h \
        configparser.h mod_ssi_exprparser.h \
        sys-mmap.h sys-socket.h mod_cml.h mod_cml_funcs.h \
@@ -889,11 +901,12 @@
 +      iosocket.h array-static.h \
 +      mod_proxy_core_address.h mod_proxy_core_backend.h \
 +      mod_proxy_core_backlog.h mod_proxy_core.h  \
-+      mod_proxy_core_pool.h mod_proxy_core_rewrites.h
++      mod_proxy_core_pool.h mod_proxy_core_rewrites.h \
++      status_counter.h
  
  DEFS= @DEFS@ -DLIBRARY_DIR="\"$(libdir)\""
  
-@@ -267,4 +291,4 @@
+@@ -267,4 +292,4 @@
  #ajp_SOURCES = ajp.c
  
  noinst_HEADERS   = $(hdr)
@@ -1345,7 +1358,7 @@
  	int last_used_ndx; /* round robin */
  } data_fastcgi;
 --- ../lighttpd-1.4.11/src/base.h	2006-01-11 16:51:04.000000000 +0200
-+++ lighttpd-1.4.12/src/base.h	2006-07-18 13:03:40.000000000 +0300
++++ lighttpd-1.4.12/src/base.h	2006-07-19 20:02:55.000000000 +0300
 @@ -2,7 +2,6 @@
  #define _BASE_H_
  
@@ -1901,7 +1914,7 @@
  	/* caches */
  #ifdef HAVE_IPV6
  	inet_ntop_cache_type inet_ntop_cache[INET_NTOP_CACHE_MAX];
-@@ -547,31 +529,31 @@
+@@ -547,59 +529,46 @@
  	mtime_cache_type mtime_cache[FILE_CACHE_MAX];
  
  	array *split_vals;
@@ -1940,13 +1953,21 @@
 +
  	stat_cache  *stat_cache;
  
- 	/**
-@@ -588,18 +570,20 @@
- 	 *   fastcgi.backend.<key>.disconnects = ...
- 	 */
- 	array *status;
+-	/**
+-	 * The status array can carry all the status information you want
+-	 * the key to the array is <module-prefix>.<name>
+-	 * and the values are counters
+-	 *
+-	 * example:
+-	 *   fastcgi.backends        = 10
+-	 *   fastcgi.active-backends = 6
+-	 *   fastcgi.backend.<key>.load = 24
+-	 *   fastcgi.backend.<key>....
+-	 *
+-	 *   fastcgi.backend.<key>.disconnects = ...
+-	 */
+-	array *status;
 -	
-+
  	fdevent_handler_t event_handler;
  
 -	int (* network_backend_write)(struct server *srv, connection *con, int fd, chunkqueue *cq);
@@ -21927,14 +21948,21 @@
  	return 0;
  }
 --- ../lighttpd-1.4.11/src/mod_fastcgi.c	2006-03-09 13:18:39.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_fastcgi.c	2006-07-18 13:03:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_fastcgi.c	2006-07-19 20:02:55.000000000 +0300
 @@ -1,5 +1,4 @@
  #include <sys/types.h>
 -#include <unistd.h>
  #include <errno.h>
  #include <fcntl.h>
  #include <string.h>
-@@ -24,7 +23,7 @@
+@@ -18,13 +17,14 @@
+ #include "connections.h"
+ #include "response.h"
+ #include "joblist.h"
++#include "status_counter.h"
+ 
+ #include "plugin.h"
+ 
  #include "inet_ntop_cache.h"
  #include "stat_cache.h"
  
@@ -21943,7 +21971,7 @@
  #include <stdio.h>
  
  #ifdef HAVE_SYS_FILIO_H
-@@ -32,7 +31,11 @@
+@@ -32,7 +32,11 @@
  #endif
  
  #include "sys-socket.h"
@@ -21955,7 +21983,7 @@
  
  #ifndef UNIX_PATH_MAX
  # define UNIX_PATH_MAX 108
-@@ -45,14 +48,13 @@
+@@ -45,14 +49,13 @@
  #include <sys/wait.h>
  #endif
  
@@ -21973,7 +22001,7 @@
   */
  
  typedef struct fcgi_proc {
-@@ -61,7 +63,7 @@
+@@ -61,7 +64,7 @@
  	unsigned port;  /* config.port + pno */
  
  	buffer *connection_name; /* either tcp:<host>:<port> or unix:<socket> for debuggin purposes */
@@ -21982,7 +22010,7 @@
  	pid_t pid;   /* PID of the spawned process (0 if not spawned locally) */
  
  
-@@ -70,20 +72,20 @@
+@@ -70,20 +73,20 @@
  	time_t last_used; /* see idle_timeout */
  	size_t requests;  /* see max_requests */
  	struct fcgi_proc *prev, *next; /* see first */
@@ -22008,7 +22036,7 @@
  } fcgi_proc;
  
  typedef struct {
-@@ -94,20 +96,20 @@
+@@ -94,20 +97,20 @@
  	 * sorted by lowest load
  	 *
  	 * whenever a job is done move it up in the list
@@ -22036,7 +22064,7 @@
  	 */
  
  	unsigned short min_procs;
-@@ -119,44 +121,44 @@
+@@ -119,44 +122,44 @@
  
  	/*
  	 * kick the process from the list if it was not
@@ -22096,7 +22124,7 @@
  	unsigned short port;
  
  	/*
-@@ -169,7 +171,7 @@
+@@ -169,7 +172,7 @@
  	 */
  	buffer *unixsocket;
  
@@ -22105,7 +22133,7 @@
  	 * process ourself
  	 *
  	 * bin-path is the path to the binary
-@@ -177,19 +179,19 @@
+@@ -177,19 +180,19 @@
  	 * check min_procs and max_procs for the number
  	 * of process to start-up
  	 */
@@ -22132,7 +22160,7 @@
  	 * remote host
  	 *
  	 * reasons:
-@@ -208,7 +210,7 @@
+@@ -208,7 +211,7 @@
  	unsigned short mode;
  
  	/*
@@ -22141,7 +22169,7 @@
  	 * or not. FastCGI doesn't care if the service is
  	 * remote. If the web-server side doesn't contain
  	 * the fastcgi-files we should not stat() for them
-@@ -218,11 +220,11 @@
+@@ -218,11 +221,11 @@
  
  	/*
  	 * append PATH_INFO to SCRIPT_FILENAME
@@ -22156,7 +22184,7 @@
  	unsigned short break_scriptfilename_for_php;
  
  	/*
-@@ -231,12 +233,12 @@
+@@ -231,12 +234,12 @@
  	 *
  	 */
  	unsigned short allow_xsendfile;
@@ -22171,7 +22199,7 @@
  	only if a process is killed max_id waits for the process itself
  	to die and decrements its afterwards */
  
-@@ -245,17 +247,17 @@
+@@ -245,17 +248,17 @@
  
  /*
   * one extension can have multiple hosts assigned
@@ -22192,7 +22220,7 @@
   *
   * in case of PHP and FCGI_CHILDREN we have again a procs
   * but we don't control it directly.
-@@ -268,7 +270,7 @@
+@@ -268,7 +271,7 @@
  	int note_is_sent;
  
  	fcgi_extension_host **hosts;
@@ -22201,7 +22229,7 @@
  	size_t used;
  	size_t size;
  } fcgi_extension;
-@@ -282,10 +284,10 @@
+@@ -282,10 +285,10 @@
  
  
  typedef struct {
@@ -22214,7 +22242,7 @@
  	int debug;
  } plugin_config;
  
-@@ -297,7 +299,7 @@
+@@ -297,7 +300,7 @@
  
  typedef struct {
  	char **ptr;
@@ -22223,7 +22251,7 @@
  	size_t size;
  	size_t used;
  } char_array;
-@@ -306,55 +308,54 @@
+@@ -306,55 +309,54 @@
  typedef struct {
  	PLUGIN_DATA;
  	buffer_uint fcgi_request_id;
@@ -22300,16 +22328,66 @@
  	connection *remote_conn;  /* dumb pointer */
  	plugin_data *plugin_data; /* dumb pointer */
  } handler_ctx;
-@@ -380,7 +381,7 @@
- 	return di;
- }
+@@ -363,49 +365,6 @@
+ /* ok, we need a prototype */
+ static handler_t fcgi_handle_fdevent(void *s, void *ctx, int revents);
  
+-data_integer *status_counter_get_counter(server *srv, const char *s, size_t len) {
+-	data_integer *di;
+-
+-	if (NULL == (di = (data_integer *)array_get_element(srv->status, s))) {
+-		/* not found, create it */
+-
+-		if (NULL == (di = (data_integer *)array_get_unused_element(srv->status, TYPE_INTEGER))) {
+-			di = data_integer_init();
+-		}
+-		buffer_copy_string_len(di->key, s, len);
+-		di->value = 0;
+-
+-		array_insert_unique(srv->status, (data_unset *)di);
+-	}
+-	return di;
+-}
+-
 -/* dummies of the statistic framework functions 
-+/* dummies of the statistic framework functions
-  * they will be moved to a statistics.c later */
- int status_counter_inc(server *srv, const char *s, size_t len) {
- 	data_integer *di = status_counter_get_counter(srv, s, len);
-@@ -429,7 +430,7 @@
+- * they will be moved to a statistics.c later */
+-int status_counter_inc(server *srv, const char *s, size_t len) {
+-	data_integer *di = status_counter_get_counter(srv, s, len);
+-
+-	di->value++;
+-
+-	return 0;
+-}
+-
+-int status_counter_dec(server *srv, const char *s, size_t len) {
+-	data_integer *di = status_counter_get_counter(srv, s, len);
+-
+-	if (di->value > 0) di->value--;
+-
+-	return 0;
+-}
+-
+-int status_counter_set(server *srv, const char *s, size_t len, int val) {
+-	data_integer *di = status_counter_get_counter(srv, s, len);
+-
+-	di->value = val;
+-
+-	return 0;
+-}
+-
+ int fastcgi_status_copy_procname(buffer *b, fcgi_extension_host *host, fcgi_proc *proc) {
+ 	buffer_copy_string(b, "fastcgi.backend.");
+ 	buffer_append_string_buffer(b, host->id);
+@@ -421,7 +380,7 @@
+ #define CLEAN(x) \
+ 	fastcgi_status_copy_procname(b, host, proc); \
+ 	buffer_append_string(b, x); \
+-	status_counter_set(srv, CONST_BUF_LEN(b), 0);
++	status_counter_set(CONST_BUF_LEN(b), 0);
+ 
+ 	CLEAN(".disabled");
+ 	CLEAN(".died");
+@@ -429,42 +388,39 @@
  	CLEAN(".connected");
  	CLEAN(".load");
  
@@ -22318,7 +22396,9 @@
  
  #define CLEAN(x) \
  	fastcgi_status_copy_procname(b, host, NULL); \
-@@ -438,33 +439,30 @@
+ 	buffer_append_string(b, x); \
+-	status_counter_set(srv, CONST_BUF_LEN(b), 0);
++	status_counter_set(CONST_BUF_LEN(b), 0);
  
  	CLEAN(".load");
  
@@ -22360,7 +22440,7 @@
  	return hctx;
  }
  
-@@ -473,12 +471,13 @@
+@@ -473,12 +429,13 @@
  		hctx->host->load--;
  		hctx->host = NULL;
  	}
@@ -22376,7 +22456,7 @@
  	free(hctx);
  }
  
-@@ -488,21 +487,21 @@
+@@ -488,21 +445,21 @@
  	f = calloc(1, sizeof(*f));
  	f->unixsocket = buffer_init();
  	f->connection_name = buffer_init();
@@ -22403,7 +22483,7 @@
  	free(f);
  }
  
-@@ -519,13 +518,13 @@
+@@ -519,13 +476,13 @@
  	f->bin_env = array_init();
  	f->bin_env_copy = array_init();
  	f->strip_request_uri = buffer_init();
@@ -22419,7 +22499,7 @@
  	buffer_free(h->id);
  	buffer_free(h->host);
  	buffer_free(h->unixsocket);
-@@ -534,49 +533,49 @@
+@@ -534,49 +491,49 @@
  	buffer_free(h->strip_request_uri);
  	array_free(h->bin_env);
  	array_free(h->bin_env_copy);
@@ -22483,7 +22563,7 @@
  	free(f);
  }
  
-@@ -625,24 +624,25 @@
+@@ -625,24 +582,25 @@
  		assert(fe->hosts);
  	}
  
@@ -22516,7 +22596,7 @@
  	return p;
  }
  
-@@ -650,81 +650,82 @@
+@@ -650,81 +608,82 @@
  FREE_FUNC(mod_fastcgi_free) {
  	plugin_data *p = p_d;
  	buffer_uint *r = &(p->fcgi_request_id);
@@ -22621,7 +22701,7 @@
  	if (env->size == 0) {
  		env->size = 16;
  		env->ptr = malloc(env->size * sizeof(*env->ptr));
-@@ -732,9 +733,9 @@
+@@ -732,9 +691,9 @@
  		env->size += 16;
  		env->ptr = realloc(env->ptr, env->size * sizeof(*env->ptr));
  	}
@@ -22633,7 +22713,7 @@
  	return 0;
  }
  
-@@ -753,15 +754,15 @@
+@@ -753,15 +712,15 @@
  			if (env->size == 0) {
  				env->size = 16;
  				env->ptr = malloc(env->size * sizeof(*env->ptr));
@@ -22652,7 +22732,7 @@
  			start = b->ptr + i + 1;
  			break;
  		default:
-@@ -794,7 +795,7 @@
+@@ -794,7 +753,7 @@
  	return 0;
  }
  
@@ -22661,7 +22741,7 @@
  				 plugin_data *p,
  				 fcgi_extension_host *host,
  				 fcgi_proc *proc) {
-@@ -806,31 +807,27 @@
+@@ -806,31 +765,27 @@
  #endif
  	struct sockaddr_in fcgi_addr_in;
  	struct sockaddr *fcgi_addr;
@@ -22700,7 +22780,7 @@
  		socket_type = AF_UNIX;
  		fcgi_addr = (struct sockaddr *) &fcgi_addr_un;
  
-@@ -844,108 +841,108 @@
+@@ -844,108 +799,108 @@
  #endif
  	} else {
  		fcgi_addr_in.sin_family = AF_INET;
@@ -22840,7 +22920,7 @@
  			arg.ptr = NULL;
  			arg.size = 0;
  			arg.used = 0;
-@@ -955,18 +952,18 @@
+@@ -955,18 +910,18 @@
  				dup2(fcgi_fd, FCGI_LISTENSOCK_FILENO);
  				close(fcgi_fd);
  			}
@@ -22862,7 +22942,7 @@
  					if (NULL != (ge = getenv(ds->value->ptr))) {
  						env_add(&env, CONST_BUF_LEN(ds->value), ge, strlen(ge));
  					}
-@@ -974,39 +971,39 @@
+@@ -974,39 +929,39 @@
  			} else {
  				for (i = 0; environ[i]; i++) {
  					char *eq;
@@ -22910,7 +22990,7 @@
  				/* change to the physical directory */
  				if (-1 == chdir(arg.ptr[0])) {
  					*c = '/';
-@@ -1018,12 +1015,12 @@
+@@ -1018,12 +973,12 @@
  
  			/* exec the cgi */
  			execve(arg.ptr[0], arg.ptr, env.ptr);
@@ -22927,7 +23007,7 @@
  			break;
  		}
  		case -1:
-@@ -1031,17 +1028,17 @@
+@@ -1031,17 +986,17 @@
  			break;
  		default:
  			/* father */
@@ -22948,7 +23028,7 @@
  						"pid not found:", strerror(errno));
  				return -1;
  			default:
-@@ -1049,10 +1046,10 @@
+@@ -1049,10 +1004,10 @@
  						"the fastcgi-backend", host->bin_path, "failed to start:");
  				/* the child should not terminate at all */
  				if (WIFEXITED(status)) {
@@ -22962,7 +23042,7 @@
  							"if you try do run PHP as FastCGI backend make sure you use the FastCGI enabled version.\n"
  							"You can find out if it is the right one by executing 'php -v' and it should display '(cgi-fcgi)' "
  							"in the output, NOT (cgi) NOR (cli)\n"
-@@ -1060,8 +1057,8 @@
+@@ -1060,8 +1015,8 @@
  					log_error_write(srv, __FILE__, __LINE__, "s",
  							"If this is PHP on Gentoo add fastcgi to the USE flags");
  				} else if (WIFSIGNALED(status)) {
@@ -22973,7 +23053,7 @@
  							WTERMSIG(status));
  
  					if (WTERMSIG(status) == 11) {
-@@ -1071,8 +1068,8 @@
+@@ -1071,8 +1026,8 @@
  								"If this is PHP try to remove the byte-code caches for now and try again.");
  					}
  				} else {
@@ -22984,7 +23064,7 @@
  							status);
  				}
  				return -1;
-@@ -1082,26 +1079,26 @@
+@@ -1082,26 +1037,26 @@
  			proc->pid = child;
  			proc->last_used = srv->cur_ts;
  			proc->is_local = 1;
@@ -23016,7 +23096,7 @@
  	return 0;
  }
  
-@@ -1111,93 +1108,93 @@
+@@ -1111,93 +1066,93 @@
  	data_unset *du;
  	size_t i = 0;
  	buffer *fcgi_mode = buffer_init();
@@ -23146,7 +23226,7 @@
  						{ "check-local",       NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION },      /* 5 */
  						{ "port",              NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },        /* 6 */
  						{ "min-procs-not-working",         NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },        /* 7 this is broken for now */
-@@ -1205,28 +1202,28 @@
+@@ -1205,28 +1160,28 @@
  						{ "max-load-per-proc", NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },        /* 9 */
  						{ "idle-timeout",      NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },        /* 10 */
  						{ "disable-time",      NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },        /* 11 */
@@ -23185,7 +23265,7 @@
  					buffer_copy_string_buffer(host->id, da_host->key);
  
  					host->check_local  = 1;
-@@ -1238,13 +1235,13 @@
+@@ -1238,13 +1193,13 @@
  					host->disable_time = 60;
  					host->break_scriptfilename_for_php = 0;
  					host->allow_xsendfile = 0; /* handle X-LIGHTTPD-send-file */
@@ -23201,7 +23281,7 @@
  					fcv[5].destination = &(host->check_local);
  					fcv[6].destination = &(host->port);
  					fcv[7].destination = &(host->min_procs);
-@@ -1252,35 +1249,35 @@
+@@ -1252,35 +1207,35 @@
  					fcv[9].destination = &(host->max_load_per_proc);
  					fcv[10].destination = &(host->idle_timeout);
  					fcv[11].destination = &(host->disable_time);
@@ -23247,7 +23327,7 @@
  									da_ext->key, " => (",
  									da_host->key, " ( ...");
  
-@@ -1288,37 +1285,37 @@
+@@ -1288,37 +1243,37 @@
  						}
  					} else {
  						/* tcp/ip */
@@ -23296,7 +23376,7 @@
  						if (s->debug) {
  							log_error_write(srv, __FILE__, __LINE__, "ssbsdsbsdsd",
  									"--- fastcgi spawning local",
-@@ -1328,7 +1325,7 @@
+@@ -1328,7 +1283,7 @@
  									"\n\tmin-procs:", host->min_procs,
  									"\n\tmax-procs:", host->max_procs);
  						}
@@ -23305,7 +23385,7 @@
  						for (pno = 0; pno < host->min_procs; pno++) {
  							fcgi_proc *proc;
  
-@@ -1343,7 +1340,7 @@
+@@ -1343,7 +1298,7 @@
  								buffer_append_string(proc->unixsocket, "-");
  								buffer_append_long(proc->unixsocket, pno);
  							}
@@ -23314,7 +23394,7 @@
  							if (s->debug) {
  								log_error_write(srv, __FILE__, __LINE__, "ssdsbsdsd",
  										"--- fastcgi spawning",
-@@ -1351,7 +1348,7 @@
+@@ -1351,7 +1306,7 @@
  										"\n\tsocket", host->unixsocket,
  										"\n\tcurrent:", pno, "/", host->min_procs);
  							}
@@ -23323,7 +23403,7 @@
  							if (fcgi_spawn_connection(srv, p, host, proc)) {
  								log_error_write(srv, __FILE__, __LINE__, "s",
  										"[ERROR]: spawning fcgi failed.");
-@@ -1359,35 +1356,35 @@
+@@ -1359,35 +1314,35 @@
  							}
  
  							fastcgi_status_init(srv, p->statuskey, host, proc);
@@ -23366,7 +23446,7 @@
  					if (!buffer_is_empty(fcgi_mode)) {
  						if (strcmp(fcgi_mode->ptr, "responder") == 0) {
  							host->mode = FCGI_RESPONDER;
-@@ -1411,16 +1408,16 @@
+@@ -1411,16 +1366,16 @@
  			}
  		}
  	}
@@ -23386,7 +23466,7 @@
  	return 0;
  }
  
-@@ -1429,13 +1426,13 @@
+@@ -1429,13 +1384,13 @@
  	size_t m = 0;
  	size_t i;
  	buffer_uint *r = &(p->fcgi_request_id);
@@ -23402,7 +23482,7 @@
  	if (r->size == 0) {
  		r->size = 16;
  		r->ptr = malloc(sizeof(*r->ptr) * r->size);
-@@ -1443,54 +1440,55 @@
+@@ -1443,54 +1398,55 @@
  		r->size += 16;
  		r->ptr = realloc(r->ptr, sizeof(*r->ptr) * r->size);
  	}
@@ -23460,7 +23540,6 @@
 -		fdevent_event_del(srv->ev, &(hctx->fde_ndx), hctx->fd);
 -		fdevent_unregister(srv->ev, hctx->fd);
 -		close(hctx->fd);
--		srv->cur_fds--;
 +
 +	if (hctx->sock->fd != -1) {
 +		fdevent_event_del(srv->ev, hctx->sock);
@@ -23468,23 +23547,27 @@
 +		closesocket(hctx->sock->fd);
 +		hctx->sock->fd = -1;
 +
-+		srv->cur_fds--;
+ 		srv->cur_fds--;
  	}
 -	
 +
  	if (hctx->request_id != 0) {
  		fcgi_requestid_del(srv, p, hctx->request_id);
  	}
-@@ -1499,7 +1497,7 @@
+@@ -1499,111 +1455,111 @@
  		if (hctx->got_proc) {
  			/* after the connect the process gets a load */
  			hctx->proc->load--;
 -			
+-			status_counter_dec(srv, CONST_STR_LEN("fastcgi.active-requests"));
 +
- 			status_counter_dec(srv, CONST_STR_LEN("fastcgi.active-requests"));
++			status_counter_dec(CONST_STR_LEN("fastcgi.active-requests"));
  
  			fastcgi_status_copy_procname(p->statuskey, hctx->host, hctx->proc);
-@@ -1509,101 +1507,101 @@
+ 			buffer_append_string(p->statuskey, ".load");
+ 
+-			status_counter_set(srv, CONST_BUF_LEN(p->statuskey), hctx->proc->load);
++			status_counter_set(CONST_BUF_LEN(p->statuskey), hctx->proc->load);
  
  			if (p->conf.debug) {
  				log_error_write(srv, __FILE__, __LINE__, "ssdsbsd",
@@ -23624,7 +23707,7 @@
  	if (key_len > 127) {
  		env->ptr[env->used++] = ((key_len >> 24) & 0xff) | 0x80;
  		env->ptr[env->used++] = (key_len >> 16) & 0xff;
-@@ -1612,7 +1610,7 @@
+@@ -1612,7 +1568,7 @@
  	} else {
  		env->ptr[env->used++] = (key_len >> 0) & 0xff;
  	}
@@ -23633,7 +23716,7 @@
  	if (val_len > 127) {
  		env->ptr[env->used++] = ((val_len >> 24) & 0xff) | 0x80;
  		env->ptr[env->used++] = (val_len >> 16) & 0xff;
-@@ -1621,12 +1619,12 @@
+@@ -1621,12 +1577,12 @@
  	} else {
  		env->ptr[env->used++] = (val_len >> 0) & 0xff;
  	}
@@ -23648,7 +23731,7 @@
  	return 0;
  }
  
-@@ -1639,11 +1637,11 @@
+@@ -1639,11 +1595,11 @@
  	header->contentLengthB1 = (contentLength >> 8) & 0xff;
  	header->paddingLength = paddingLength;
  	header->reserved = 0;
@@ -23662,7 +23745,7 @@
   * returns
   *   -1 error
   *    0 connected
-@@ -1665,26 +1663,23 @@
+@@ -1665,26 +1621,23 @@
  	struct sockaddr_un fcgi_addr_un;
  #endif
  	socklen_t servlen;
@@ -23696,7 +23779,7 @@
  		if (buffer_is_empty(proc->connection_name)) {
  			/* on remote spawing we have to set the connection-name now */
  			buffer_copy_string(proc->connection_name, "unix:");
-@@ -1695,16 +1690,18 @@
+@@ -1695,16 +1648,18 @@
  #endif
  	} else {
  		fcgi_addr_in.sin_family = AF_INET;
@@ -23719,7 +23802,7 @@
  		fcgi_addr = (struct sockaddr *) &fcgi_addr_in;
  
  		if (buffer_is_empty(proc->connection_name)) {
-@@ -1715,20 +1712,20 @@
+@@ -1715,20 +1670,20 @@
  			buffer_append_long(proc->connection_name, proc->port);
  		}
  	}
@@ -23745,7 +23828,7 @@
  					"This means that the you have more incoming requests than your fastcgi-backend can handle in parallel. "
  					"Perhaps it helps to spawn more fastcgi backend or php-children, if not decrease server.max-connections."
  					"The load for this fastcgi backend", proc->connection_name, "is", proc->load);
-@@ -1736,8 +1733,8 @@
+@@ -1736,8 +1691,8 @@
  
  			return CONNECTION_OVERLOADED;
  		} else {
@@ -23756,7 +23839,7 @@
  					strerror(errno), "on",
  					proc->connection_name);
  
-@@ -1747,7 +1744,7 @@
+@@ -1747,7 +1702,7 @@
  
  	hctx->reconnects = 0;
  	if (hctx->conf.debug > 1) {
@@ -23765,7 +23848,7 @@
  				"connect succeeded: ", fcgi_fd);
  	}
  
-@@ -1756,21 +1753,21 @@
+@@ -1756,21 +1711,21 @@
  
  static int fcgi_env_add_request_headers(server *srv, connection *con, plugin_data *p) {
  	size_t i;
@@ -23792,7 +23875,7 @@
  			buffer_prepare_append(srv->tmp_buf, ds->key->used + 2);
  			for (j = 0; j < ds->key->used - 1; j++) {
  				char c = '_';
-@@ -1784,20 +1781,20 @@
+@@ -1784,20 +1739,20 @@
  				srv->tmp_buf->ptr[srv->tmp_buf->used++] = c;
  			}
  			srv->tmp_buf->ptr[srv->tmp_buf->used++] = '\0';
@@ -23818,7 +23901,7 @@
  			buffer_prepare_append(srv->tmp_buf, ds->key->used + 2);
  			for (j = 0; j < ds->key->used - 1; j++) {
  				char c = '_';
-@@ -1811,11 +1808,11 @@
+@@ -1811,11 +1766,11 @@
  				srv->tmp_buf->ptr[srv->tmp_buf->used++] = c;
  			}
  			srv->tmp_buf->ptr[srv->tmp_buf->used++] = '\0';
@@ -23832,7 +23915,7 @@
  	return 0;
  }
  
-@@ -1824,24 +1821,24 @@
+@@ -1824,24 +1779,24 @@
  	FCGI_BeginRequestRecord beginRecord;
  	FCGI_Header header;
  	buffer *b;
@@ -23862,7 +23945,7 @@
  	fcgi_header(&(beginRecord.header), FCGI_BEGIN_REQUEST, request_id, sizeof(beginRecord.body), 0);
  	beginRecord.body.roleB0 = host->mode;
  	beginRecord.body.roleB1 = 0;
-@@ -1849,21 +1846,21 @@
+@@ -1849,21 +1804,21 @@
  	memset(beginRecord.body.reserved, 0, sizeof(beginRecord.body.reserved));
  
  	b = chunkqueue_get_append_buffer(hctx->wb);
@@ -23889,7 +23972,7 @@
  			      (const void *) &(srv_sock->addr.ipv6.sin6_addr) :
  			      (const void *) &(srv_sock->addr.ipv4.sin_addr),
  			      b2, sizeof(b2)-1);
-@@ -1872,50 +1869,50 @@
+@@ -1872,50 +1827,50 @@
  #endif
  		fcgi_env_add(p->fcgi_env, CONST_STR_LEN("SERVER_NAME"), s, strlen(s));
  	}
@@ -23954,7 +24037,7 @@
  		/* request.content_length < SSIZE_MAX, see request.c */
  		ltostr(buf, con->request.content_length);
  		fcgi_env_add(p->fcgi_env, CONST_STR_LEN("CONTENT_LENGTH"), buf, strlen(buf));
-@@ -1930,12 +1927,12 @@
+@@ -1930,12 +1885,12 @@
  		 */
  
  		fcgi_env_add(p->fcgi_env, CONST_STR_LEN("SCRIPT_NAME"), CONST_BUF_LEN(con->uri.path));
@@ -23970,7 +24053,7 @@
  			if (!buffer_is_empty(host->docroot)) {
  				buffer_copy_string_buffer(p->path, host->docroot);
  			} else {
-@@ -1957,27 +1954,27 @@
+@@ -1957,27 +1912,27 @@
  	 */
  
  	if (!buffer_is_empty(host->docroot)) {
@@ -24007,7 +24090,7 @@
  		fcgi_env_add(p->fcgi_env, CONST_STR_LEN("SCRIPT_FILENAME"), CONST_BUF_LEN(p->path));
  		fcgi_env_add(p->fcgi_env, CONST_STR_LEN("DOCUMENT_ROOT"), CONST_BUF_LEN(con->physical.doc_root));
  	}
-@@ -1987,7 +1984,7 @@
+@@ -1987,7 +1942,7 @@
  		/**
  		 * /app1/index/list
  		 *
@@ -24016,7 +24099,7 @@
  		 *
  		 * /index/list
  		 *
-@@ -2001,7 +1998,7 @@
+@@ -2001,7 +1956,7 @@
  		    0 == strncmp(con->request.orig_uri->ptr, host->strip_request_uri->ptr, host->strip_request_uri->used - 1)) {
  			/* the left is the same */
  
@@ -24025,7 +24108,7 @@
  					con->request.orig_uri->ptr + (host->strip_request_uri->used - 2),
  					con->request.orig_uri->used - (host->strip_request_uri->used - 2));
  		} else {
-@@ -2018,26 +2015,26 @@
+@@ -2018,26 +1973,26 @@
  	} else {
  		fcgi_env_add(p->fcgi_env, CONST_STR_LEN("QUERY_STRING"), CONST_STR_LEN(""));
  	}
@@ -24058,7 +24141,7 @@
  	fcgi_header(&(header), FCGI_PARAMS, request_id, 0, 0);
  	buffer_append_memory(b, (const char *)&header, sizeof(header));
  
-@@ -2057,7 +2054,7 @@
+@@ -2057,7 +2012,7 @@
  
  			/* we announce toWrite octects
  			 * now take all the request_content chunk that we need to fill this request
@@ -24067,7 +24150,7 @@
  
  			b = chunkqueue_get_append_buffer(hctx->wb);
  			fcgi_header(&(header), FCGI_STDIN, request_id, weWant, 0);
-@@ -2080,16 +2077,16 @@
+@@ -2080,16 +2035,16 @@
  					if (weHave > weWant - written) weHave = weWant - written;
  
  					if (p->conf.debug > 10) {
@@ -24090,7 +24173,7 @@
  					chunkqueue_append_file(hctx->wb, req_c->file.name, req_c->offset, weHave);
  
  					req_c->offset += weHave;
-@@ -2104,7 +2101,7 @@
+@@ -2104,7 +2059,7 @@
  					 * - we reference the tempfile from the request-content-queue several times
  					 *   if the req_c is larger than FCGI_MAX_LENGTH
  					 * - we can't simply cleanup the request-content-queue as soon as possible
@@ -24099,7 +24182,7 @@
  					 * - the idea is to 'steal' the tempfiles and attach the is_temp flag to the last
  					 *   referencing chunk of the fastcgi-write-queue
  					 *
-@@ -2141,7 +2138,7 @@
+@@ -2141,7 +2096,7 @@
  					req_c->offset += weHave;
  					req_cq->bytes_out += weHave;
  					written += weHave;
@@ -24108,7 +24191,7 @@
  					hctx->wb->bytes_in += weHave;
  
  					if (req_c->offset == req_c->mem->used - 1) {
-@@ -2155,12 +2152,12 @@
+@@ -2155,12 +2110,12 @@
  					break;
  				}
  			}
@@ -24123,7 +24206,7 @@
  	b = chunkqueue_get_append_buffer(hctx->wb);
  	/* terminate STDIN */
  	fcgi_header(&(header), FCGI_STDIN, request_id, 0, 0);
-@@ -2175,118 +2172,19 @@
+@@ -2175,118 +2130,19 @@
  		if ((i+1) % 16 == 0) {
  			size_t j;
  			for (j = i-15; j <= i; j++) {
@@ -24138,7 +24221,7 @@
 -	
 -	return 0;
 -}
--
+ 
 -static int fcgi_response_parse(server *srv, connection *con, plugin_data *p, buffer *in) {
 -	char *s, *ns;
 -	
@@ -24146,7 +24229,7 @@
 -	fcgi_extension_host *host= hctx->host;
 -	
 -	UNUSED(srv);
- 
+-
 -	buffer_copy_string_buffer(p->parse_response, in);
 -	
 -	/* search for \n */
@@ -24244,7 +24327,7 @@
  	size_t   len;
  	int      type;
  	int      padding;
-@@ -2327,9 +2225,9 @@
+@@ -2327,9 +2183,9 @@
  		return -1;
  	}
  
@@ -24256,7 +24339,7 @@
  	packet->len = (header->contentLengthB0 | (header->contentLengthB1 << 8)) + header->paddingLength;
  	packet->request_id = (header->requestIdB0 | (header->requestIdB1 << 8));
  	packet->type = header->type;
-@@ -2348,7 +2246,7 @@
+@@ -2348,7 +2204,7 @@
  			size_t weHave = c->mem->used - c->offset - offset - 1;
  
  			if (weHave > weWant) weHave = weWant;
@@ -24265,7 +24348,7 @@
  			buffer_append_string_len(packet->b, c->mem->ptr + c->offset + offset, weHave);
  
  			/* we only skipped the first 8 bytes as they are the fcgi header */
-@@ -2380,65 +2278,42 @@
+@@ -2380,65 +2236,42 @@
  	}
  
  	chunkqueue_remove_finished_chunks(hctx->rb);
@@ -24351,7 +24434,7 @@
  	while (fin == 0) {
  		fastcgi_response_packet packet;
  
-@@ -2454,92 +2329,136 @@
+@@ -2454,92 +2287,136 @@
  
  			/* is the header already finished */
  			if (0 == con->file_started) {
@@ -24549,7 +24632,7 @@
  			if (host->mode != FCGI_AUTHORIZER ||
  			    !(con->http_status == 0 ||
  			      con->http_status == 200)) {
-@@ -2547,39 +2466,39 @@
+@@ -2547,39 +2424,39 @@
  				http_chunk_append_mem(srv, con, NULL, 0);
  				joblist_append(srv, con);
  			}
@@ -24598,7 +24681,7 @@
  		 */
  		switch (proc->state) {
  		case PROC_STATE_KILLED:
-@@ -2592,13 +2511,13 @@
+@@ -2592,13 +2469,13 @@
  			break;
  		case PROC_STATE_OVERLOADED:
  			if (srv->cur_ts <= proc->disabled_until) break;
@@ -24617,7 +24700,7 @@
  					host->unixsocket);
  			break;
  		case PROC_STATE_DIED_WAIT_FOR_PID:
-@@ -2606,7 +2525,7 @@
+@@ -2606,7 +2483,7 @@
  			if (!proc->is_local) break;
  
  			/* the child should not terminate at all */
@@ -24626,7 +24709,7 @@
  			switch(waitpid(proc->pid, &status, WNOHANG)) {
  			case 0:
  				/* child is still alive */
-@@ -2616,45 +2535,45 @@
+@@ -2616,45 +2493,45 @@
  			default:
  				if (WIFEXITED(status)) {
  #if 0
@@ -24684,7 +24767,7 @@
  				if (fcgi_spawn_connection(srv, p, host, proc)) {
  					log_error_write(srv, __FILE__, __LINE__, "s",
  							"ERROR: spawning fcgi failed.");
-@@ -2662,18 +2581,18 @@
+@@ -2662,18 +2539,18 @@
  				}
  			} else {
  				if (srv->cur_ts <= proc->disabled_until) break;
@@ -24708,7 +24791,7 @@
  	return 0;
  }
  
-@@ -2682,19 +2601,19 @@
+@@ -2682,19 +2559,19 @@
  	fcgi_extension_host *host= hctx->host;
  	connection *con   = hctx->remote_conn;
  	fcgi_proc  *proc;
@@ -24732,7 +24815,7 @@
  		hctx->proc->disabled_until = srv->cur_ts + 10;
  		hctx->proc->state = PROC_STATE_DIED;
  
-@@ -2705,12 +2624,12 @@
+@@ -2705,12 +2582,12 @@
  	if (hctx->state == FCGI_STATE_CONNECT_DELAYED) {
  		int socket_error;
  		socklen_t socket_error_len = sizeof(socket_error);
@@ -24749,7 +24832,7 @@
  			hctx->proc->disabled_until = srv->cur_ts + 10;
  			hctx->proc->state = PROC_STATE_DIED;
  
-@@ -2719,12 +2638,12 @@
+@@ -2719,12 +2596,12 @@
  		if (socket_error != 0) {
  			if (!hctx->proc->is_local || p->conf.debug) {
  				/* local procs get restarted */
@@ -24765,7 +24848,7 @@
  			hctx->proc->disabled_until = srv->cur_ts + 5;
  
  			if (hctx->proc->is_local) {
-@@ -2732,17 +2651,17 @@
+@@ -2732,17 +2609,17 @@
  			} else {
  				hctx->proc->state = PROC_STATE_DIED;
  			}
@@ -24777,8 +24860,9 @@
  			fastcgi_status_copy_procname(p->statuskey, hctx->host, hctx->proc);
  			buffer_append_string(p->statuskey, ".died");
  
- 			status_counter_inc(srv, CONST_BUF_LEN(p->statuskey));
+-			status_counter_inc(srv, CONST_BUF_LEN(p->statuskey));
 -		
++			status_counter_inc(CONST_BUF_LEN(p->statuskey));
 +
  			return HANDLER_ERROR;
  		}
@@ -24787,7 +24871,7 @@
  		hctx->state = FCGI_STATE_PREPARE_WRITE;
  	}
  
-@@ -2755,14 +2674,14 @@
+@@ -2755,14 +2632,14 @@
  		/* do we have a running process for this host (max-procs) ? */
  		hctx->proc = NULL;
  
@@ -24807,7 +24891,7 @@
  			return HANDLER_ERROR;
  		}
  
-@@ -2775,50 +2694,50 @@
+@@ -2775,50 +2652,50 @@
  		}
  
  		ret = host->unixsocket->used ? AF_UNIX : AF_INET;
@@ -24879,16 +24963,18 @@
  				"backend is overloaded, we disable it for a 2 seconds and send the request to another backend instead:",
  				"reconnects:", hctx->reconnects,
  				"load:", host->load);
-@@ -2831,7 +2750,7 @@
+@@ -2830,8 +2707,8 @@
+ 			fastcgi_status_copy_procname(p->statuskey, hctx->host, hctx->proc);
  			buffer_append_string(p->statuskey, ".overloaded");
  
- 			status_counter_inc(srv, CONST_BUF_LEN(p->statuskey));
+-			status_counter_inc(srv, CONST_BUF_LEN(p->statuskey));
 -			
++			status_counter_inc(CONST_BUF_LEN(p->statuskey));
 +
  			return HANDLER_ERROR;
  		case CONNECTION_DEAD:
  			/* we got a hard error from the backend like
-@@ -2840,19 +2759,19 @@
+@@ -2840,67 +2717,67 @@
  			 *
  			 * for check if the host is back in 5 seconds
  			 *  */
@@ -24912,7 +24998,11 @@
  			fastcgi_status_copy_procname(p->statuskey, hctx->host, hctx->proc);
  			buffer_append_string(p->statuskey, ".died");
  
-@@ -2863,19 +2782,19 @@
+-			status_counter_inc(srv, CONST_BUF_LEN(p->statuskey));
++			status_counter_inc(CONST_BUF_LEN(p->statuskey));
+ 
+ 			return HANDLER_ERROR;
+ 		case CONNECTION_OK:
  			/* everything is ok, go on */
  
  			fcgi_set_state(srv, hctx, FCGI_STATE_PREPARE_WRITE);
@@ -24932,11 +25022,31 @@
  		hctx->proc->last_used = srv->cur_ts;
  		hctx->got_proc = 1;
 -	
+-		status_counter_inc(srv, CONST_STR_LEN("fastcgi.requests"));
+-		status_counter_inc(srv, CONST_STR_LEN("fastcgi.active-requests"));
 +
- 		status_counter_inc(srv, CONST_STR_LEN("fastcgi.requests"));
- 		status_counter_inc(srv, CONST_STR_LEN("fastcgi.active-requests"));
++		status_counter_inc(CONST_STR_LEN("fastcgi.requests"));
++		status_counter_inc(CONST_STR_LEN("fastcgi.active-requests"));
  
-@@ -2898,9 +2817,9 @@
+ 		fastcgi_status_copy_procname(p->statuskey, hctx->host, hctx->proc);
+ 		buffer_append_string(p->statuskey, ".connected");
+ 
+-		status_counter_inc(srv, CONST_BUF_LEN(p->statuskey));
++		status_counter_inc(CONST_BUF_LEN(p->statuskey));
+ 
+ 		/* the proc-load */
+ 		fastcgi_status_copy_procname(p->statuskey, hctx->host, hctx->proc);
+ 		buffer_append_string(p->statuskey, ".load");
+ 
+-		status_counter_set(srv, CONST_BUF_LEN(p->statuskey), hctx->proc->load);
++		status_counter_set(CONST_BUF_LEN(p->statuskey), hctx->proc->load);
+ 
+ 		/* the host-load */
+ 		fastcgi_status_copy_procname(p->statuskey, hctx->host, NULL);
+ 		buffer_append_string(p->statuskey, ".load");
+ 
+-		status_counter_set(srv, CONST_BUF_LEN(p->statuskey), hctx->host->load);
++		status_counter_set(CONST_BUF_LEN(p->statuskey), hctx->host->load);
  
  		if (p->conf.debug) {
  			log_error_write(srv, __FILE__, __LINE__, "ssdsbsd",
@@ -24949,7 +25059,7 @@
  					"load:", hctx->proc->load);
  		}
  
-@@ -2908,74 +2827,75 @@
+@@ -2908,74 +2785,75 @@
  		if (hctx->request_id == 0) {
  			hctx->request_id = fcgi_requestid_new(srv, p);
  		} else {
@@ -25054,7 +25164,7 @@
  			return HANDLER_WAIT_FOR_EVENT;
  		}
  
-@@ -2987,7 +2907,7 @@
+@@ -2987,7 +2865,7 @@
  		log_error_write(srv, __FILE__, __LINE__, "s", "(debug) unknown state");
  		return HANDLER_ERROR;
  	}
@@ -25063,7 +25173,7 @@
  	return HANDLER_WAIT_FOR_EVENT;
  }
  
-@@ -2996,18 +2916,18 @@
+@@ -2996,18 +2874,18 @@
   * */
  SUBREQUEST_FUNC(mod_fastcgi_handle_subrequest) {
  	plugin_data *p = p_d;
@@ -25086,7 +25196,7 @@
  	 *    and when the host died and we have to select a new one */
  	if (hctx->host == NULL) {
  		size_t k;
-@@ -3016,23 +2936,23 @@
+@@ -3016,23 +2894,23 @@
  		/* get best server */
  		for (k = 0, ndx = -1; k < hctx->ext->used; k++) {
  			host = hctx->ext->hosts[k];
@@ -25114,7 +25224,7 @@
  			con->http_status = 500;
  			con->mode = DIRECT;
  
-@@ -3040,16 +2960,16 @@
+@@ -3040,16 +2918,16 @@
  		}
  
  		host = hctx->ext->hosts[ndx];
@@ -25137,7 +25247,7 @@
  		 *
  		 * as soon as hctx->host is unassigned, decrease the load again */
  		hctx->host->load++;
-@@ -3063,7 +2983,7 @@
+@@ -3063,7 +2941,7 @@
  	case HANDLER_ERROR:
  		proc = hctx->proc;
  		host = hctx->host;
@@ -25146,7 +25256,7 @@
  		if (hctx->state == FCGI_STATE_INIT ||
  		    hctx->state == FCGI_STATE_CONNECT_DELAYED) {
  			if (proc) host->active_procs--;
-@@ -3078,7 +2998,7 @@
+@@ -3078,7 +2956,7 @@
  				return HANDLER_WAIT_FOR_FD;
  			} else {
  				fcgi_connection_close(srv, hctx);
@@ -25155,7 +25265,7 @@
  				buffer_reset(con->physical.path);
  				con->mode = DIRECT;
  				con->http_status = 500;
-@@ -3088,12 +3008,12 @@
+@@ -3088,12 +2966,12 @@
  			}
  		} else {
  			fcgi_connection_close(srv, hctx);
@@ -25170,7 +25280,7 @@
  			return HANDLER_FINISHED;
  		}
  	case HANDLER_WAIT_FOR_EVENT:
-@@ -3115,7 +3035,7 @@
+@@ -3115,7 +2993,7 @@
  	handler_ctx *hctx = ctx;
  	connection  *con  = hctx->remote_conn;
  	plugin_data *p    = hctx->plugin_data;
@@ -25179,7 +25289,7 @@
  	fcgi_proc *proc   = hctx->proc;
  	fcgi_extension_host *host= hctx->host;
  
-@@ -3125,8 +3045,8 @@
+@@ -3125,8 +3003,8 @@
  		case 0:
  			break;
  		case 1:
@@ -25190,7 +25300,7 @@
  		   	    (con->http_status == 200 ||
  			     con->http_status == 0)) {
  				/*
-@@ -3136,26 +3056,26 @@
+@@ -3136,26 +3014,26 @@
  				 */
  
  				buffer_copy_string_buffer(con->physical.doc_root, host->docroot);
@@ -25222,7 +25332,7 @@
  				switch(waitpid(proc->pid, &status, WNOHANG)) {
  				case 0:
  					/* child is still alive */
-@@ -3165,60 +3085,61 @@
+@@ -3165,60 +3043,61 @@
  				default:
  					/* the child should not terminate at all */
  					if (WIFEXITED(status)) {
@@ -25303,7 +25413,7 @@
  				connection_set_state(srv, con, CON_STATE_HANDLE_REQUEST);
  				buffer_reset(con->physical.path);
  				con->http_status = 500;
-@@ -3226,76 +3147,76 @@
+@@ -3226,76 +3105,76 @@
  			} else {
  				/* response might have been already started, kill the connection */
  				fcgi_connection_close(srv, hctx);
@@ -25403,7 +25513,7 @@
  				"fcgi: got a FDEVENT_ERR. Don't know why.");
  		/* kill all connections to the fastcgi process */
  
-@@ -3304,45 +3225,42 @@
+@@ -3304,45 +3183,42 @@
  		fcgi_connection_close(srv, hctx);
  		joblist_append(srv, con);
  	}
@@ -25463,7 +25573,7 @@
  
  static handler_t fcgi_check_extension(server *srv, connection *con, void *p_d, int uri_path_handler) {
  	plugin_data *p = p_d;
-@@ -3351,16 +3269,16 @@
+@@ -3351,16 +3227,16 @@
  	buffer *fn;
  	fcgi_extension *extension = NULL;
  	fcgi_extension_host *host = NULL;
@@ -25483,7 +25593,7 @@
  	fcgi_patch_connection(srv, con, p);
  
  	/* fastcgi.map-extensions maps extensions to existing fastcgi.server entries
-@@ -3368,24 +3286,24 @@
+@@ -3368,24 +3244,24 @@
  	 * fastcgi.map-extensions = ( ".php3" => ".php" )
  	 *
  	 * fastcgi.server = ( ".php" => ... )
@@ -25514,7 +25624,7 @@
  			/* we can reuse k here */
  			for (k = 0; k < p->conf.exts->used; k++) {
  				extension = p->conf.exts->exts[k];
-@@ -3407,15 +3325,15 @@
+@@ -3407,15 +3283,15 @@
  		/* check if extension matches */
  		for (k = 0; k < p->conf.exts->used; k++) {
  			size_t ct_len; /* length of the config entry */
@@ -25535,7 +25645,7 @@
  			/* check extension in the form "/fcgi_pattern" */
  			if (*(extension->key->ptr) == '/' && strncmp(fn->ptr, extension->key->ptr, ct_len) == 0) {
  				break;
-@@ -3441,10 +3359,10 @@
+@@ -3441,10 +3317,10 @@
  			continue;
  		}
  
@@ -25548,7 +25658,7 @@
  	if (!host) {
  		/* sorry, we don't have a server alive for this ext */
  		buffer_reset(con->physical.path);
-@@ -3459,72 +3377,72 @@
+@@ -3459,72 +3335,72 @@
  					"on", extension->key,
  					"are down.");
  		}
@@ -25646,7 +25756,7 @@
  				con->uri.path->used -= con->request.pathinfo->used - 1;
  				con->uri.path->ptr[con->uri.path->used - 1] = '\0';
  			}
-@@ -3532,19 +3450,19 @@
+@@ -3532,19 +3408,19 @@
  	} else {
  		handler_ctx *hctx;
  		hctx = handler_ctx_init();
@@ -25671,7 +25781,7 @@
  		if (con->conf.log_request_handling) {
  			log_error_write(srv, __FILE__, __LINE__, "s", "handling it in mod_fastcgi");
  		}
-@@ -3566,19 +3484,19 @@
+@@ -3566,19 +3442,19 @@
  JOBLIST_FUNC(mod_fastcgi_handle_joblist) {
  	plugin_data *p = p_d;
  	handler_ctx *hctx = con->plugin_ctx[p->id];
@@ -25697,7 +25807,7 @@
  			break;
  		case FCGI_STATE_INIT:
  			/* at reconnect */
-@@ -3595,7 +3513,7 @@
+@@ -3595,7 +3471,7 @@
  
  static handler_t fcgi_connection_close_callback(server *srv, connection *con, void *p_d) {
  	plugin_data *p = p_d;
@@ -25706,7 +25816,7 @@
  	fcgi_connection_close(srv, con->plugin_ctx[p->id]);
  
  	return HANDLER_GO_ON;
-@@ -3604,16 +3522,39 @@
+@@ -3604,16 +3480,39 @@
  TRIGGER_FUNC(mod_fastcgi_handle_trigger) {
  	plugin_data *p = p_d;
  	size_t i, j, n;
@@ -25752,7 +25862,7 @@
  	/* check all childs if they are still up */
  
  	for (i = 0; i < srv->config_context->used; i++) {
-@@ -3628,45 +3569,45 @@
+@@ -3628,45 +3527,45 @@
  			fcgi_extension *ex;
  
  			ex = exts->exts[j];
@@ -25811,7 +25921,7 @@
  					if (buffer_is_empty(host->unixsocket)) {
  						proc->port = host->port + proc->id;
  					} else {
-@@ -3674,13 +3615,13 @@
+@@ -3674,13 +3573,13 @@
  						buffer_append_string(proc->unixsocket, "-");
  						buffer_append_long(proc->unixsocket, proc->id);
  					}
@@ -25827,7 +25937,7 @@
  					proc->prev = NULL;
  					proc->next = host->first;
  					if (host->first) {
-@@ -3688,56 +3629,56 @@
+@@ -3688,56 +3587,56 @@
  					}
  					host->first = proc;
  				}
@@ -25907,7 +26017,7 @@
  					switch (waitpid(proc->pid, &status, WNOHANG)) {
  					case 0:
  						/* child still running after timeout, good */
-@@ -3745,10 +3686,10 @@
+@@ -3745,10 +3644,10 @@
  					case -1:
  						if (errno != EINTR) {
  							/* no PID found ? should never happen */
@@ -25920,7 +26030,7 @@
  #if 0
  							if (errno == ECHILD) {
  								/* someone else has cleaned up for us */
-@@ -3762,25 +3703,26 @@
+@@ -3762,25 +3661,26 @@
  						/* the child should not terminate at all */
  						if (WIFEXITED(status)) {
  							if (proc->state != PROC_STATE_KILLED) {
@@ -25953,7 +26063,7 @@
  				}
  			}
  		}
-@@ -3804,8 +3746,8 @@
+@@ -3804,8 +3704,8 @@
  	p->handle_subrequest       = mod_fastcgi_handle_subrequest;
  	p->handle_joblist          = mod_fastcgi_handle_joblist;
  	p->handle_trigger          = mod_fastcgi_handle_trigger;
@@ -26512,7 +26622,7 @@
  	return 0;
  }
 --- ../lighttpd-1.4.11/src/mod_mysql_vhost.c	2006-01-14 20:35:10.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_mysql_vhost.c	2006-07-16 00:26:04.000000000 +0300
++++ lighttpd-1.4.12/src/mod_mysql_vhost.c	2006-07-20 00:57:19.000000000 +0300
 @@ -1,13 +1,18 @@
 -#include <unistd.h>
  #include <stdio.h>
@@ -26791,11 +26901,12 @@
  		if (sel->used && (qmark = index(sel->ptr, '?'))) {
  			*qmark = '\0';
  			buffer_copy_string(s->mysql_pre, sel->ptr);
-@@ -228,35 +145,35 @@
+@@ -228,35 +145,38 @@
  		} else {
  			buffer_copy_string_buffer(s->mysql_pre, sel);
  		}
 -		
++		buffer_free(sel);
 +
  		/* required:
  		 * - username
@@ -26832,6 +26943,8 @@
 -						FOO(mydb), s->port, FOO(mysock), 0)) {
 +#define FOO(x) (s->core->x->used ? s->core->x->ptr : NULL)
 +
++			s->mysql->free_me = 1;
++
 +			if (!mysql_real_connect(s->mysql, FOO(hostname), FOO(user), FOO(pass),
 +						FOO(db), s->core->port, FOO(sock), 0)) {
  				log_error_write(srv, __FILE__, __LINE__, "s", mysql_error(s->mysql));
@@ -26840,7 +26953,7 @@
  				return HANDLER_ERROR;
  			}
  #undef FOO
-@@ -265,61 +182,47 @@
+@@ -265,61 +185,47 @@
  			/* otherwise we cannot be sure that mysql is fd i-1 */
  			if (-1 == (fd = open("/dev/null", 0))) {
  				close(fd);
@@ -26921,7 +27034,7 @@
  
  	unsigned  cols;
  	MYSQL_ROW row;
-@@ -332,13 +235,6 @@
+@@ -332,13 +238,6 @@
  
  	if (!p->conf.mysql) return HANDLER_GO_ON;
  
@@ -26935,7 +27048,7 @@
  	/* build and run SQL query */
  	buffer_copy_string_buffer(p->tmp_buf, p->conf.mysql_pre);
  	if (p->conf.mysql_post->used) {
-@@ -347,77 +243,43 @@
+@@ -347,77 +246,43 @@
  	}
     	if (mysql_query(p->conf.mysql, p->tmp_buf->ptr)) {
  		log_error_write(srv, __FILE__, __LINE__, "s", mysql_error(p->conf.mysql));
@@ -27026,7 +27139,7 @@
  }
  #else
 --- ../lighttpd-1.4.11/src/mod_proxy.c	2006-01-31 13:01:22.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_proxy.c	2006-07-18 13:03:40.000000000 +0300
++++ lighttpd-1.4.12/src/mod_proxy.c	2006-07-19 20:02:55.000000000 +0300
 @@ -1,6 +1,5 @@
  #include <sys/types.h>
  
@@ -27144,7 +27257,7 @@
 -	int fde_ndx; /* index into the fd-event buffer */
 +	chunkqueue *rb;
 +
-+	iosocket *fd; /* fd to the proxy process */
++	iosocket *sock; /* fd to the proxy process */
  
  	size_t path_info_offset; /* start of path_info in uri.path */
 -	
@@ -27171,7 +27284,7 @@
  	hctx->wb = chunkqueue_init();
 +	hctx->rb = chunkqueue_init();
 +
-+	hctx->fd = iosocket_init();
++	hctx->sock = iosocket_init();
  
 -	hctx->fd = -1;
 -	hctx->fde_ndx = -1;
@@ -27186,7 +27299,7 @@
 -	
 +	chunkqueue_free(hctx->rb);
 +
-+	iosocket_free(hctx->fd);
++	iosocket_free(hctx->sock);
 +
  	free(hctx);
  }
@@ -27474,14 +27587,16 @@
  	p    = hctx->plugin_data;
  	con  = hctx->remote_conn;
 -	
-+
- 	if (hctx->fd != -1) {
+-	if (hctx->fd != -1) {
 -		fdevent_event_del(srv->ev, &(hctx->fde_ndx), hctx->fd);
-+		fdevent_event_del(srv->ev, hctx->fd);
- 		fdevent_unregister(srv->ev, hctx->fd);
+-		fdevent_unregister(srv->ev, hctx->fd);
  
 -		close(hctx->fd);
-+		close(hctx->fd->fd);
++	if (hctx->sock->fd != -1) {
++		fdevent_event_del(srv->ev, hctx->sock);
++		fdevent_unregister(srv->ev, hctx->sock);
++
++		close(hctx->sock->fd);
  		srv->cur_fds--;
  	}
 -	
@@ -27501,7 +27616,7 @@
  	data_proxy *host= hctx->host;
 -	int proxy_fd       = hctx->fd;
 -	
-+	int proxy_fd       = hctx->fd->fd;
++	int proxy_fd       = hctx->sock->fd;
 +
  	memset(&proxy_addr, 0, sizeof(proxy_addr));
 -	
@@ -27816,7 +27931,7 @@
 +	chunkqueue *next_queue = NULL;
 +	chunk *c = NULL;
 +
-+	switch(srv->network_backend_read(srv, con, hctx->fd, hctx->rb)) {
++	switch(srv->network_backend_read(srv, con, hctx->sock, hctx->rb)) {
 +	case NETWORK_STATUS_SUCCESS:
 +		/* we got content */
 +		break;
@@ -28027,21 +28142,23 @@
  	switch(hctx->state) {
  	case PROXY_STATE_INIT:
 -		if (-1 == (hctx->fd = socket(AF_INET, SOCK_STREAM, 0))) {
-+		if (-1 == (hctx->fd->fd = socket(AF_INET, SOCK_STREAM, 0))) {
++		if (-1 == (hctx->sock->fd = socket(AF_INET, SOCK_STREAM, 0))) {
  			log_error_write(srv, __FILE__, __LINE__, "ss", "socket failed: ", strerror(errno));
  			return HANDLER_ERROR;
  		}
 -		hctx->fde_ndx = -1;
 -		
-+		hctx->fd->fde_ndx = -1;
++		hctx->sock->fde_ndx = -1;
 +
  		srv->cur_fds++;
 -		
-+
- 		fdevent_register(srv->ev, hctx->fd, proxy_handle_fdevent, hctx);
+-		fdevent_register(srv->ev, hctx->fd, proxy_handle_fdevent, hctx);
 -		
+-		if (-1 == fdevent_fcntl_set(srv->ev, hctx->fd)) {
 +
- 		if (-1 == fdevent_fcntl_set(srv->ev, hctx->fd)) {
++		fdevent_register(srv->ev, hctx->sock, proxy_handle_fdevent, hctx);
++
++		if (-1 == fdevent_fcntl_set(srv->ev, hctx->sock)) {
  			log_error_write(srv, __FILE__, __LINE__, "ss", "fcntl failed: ", strerror(errno));
 -			
 +
@@ -28066,14 +28183,14 @@
 -				fdevent_event_add(srv->ev, &(hctx->fde_ndx), hctx->fd, FDEVENT_OUT);
 -				
 +
-+				fdevent_event_add(srv->ev, hctx->fd, FDEVENT_OUT);
++				fdevent_event_add(srv->ev, hctx->sock, FDEVENT_OUT);
 +
  				return HANDLER_WAIT_FOR_EVENT;
  			case -1:
  				/* if ECONNREFUSED choose another connection -> FIXME */
 -				hctx->fde_ndx = -1;
 -				
-+				hctx->fd->fde_ndx = -1;
++				hctx->sock->fde_ndx = -1;
 +
  				return HANDLER_ERROR;
  			default:
@@ -28087,12 +28204,12 @@
 -			fdevent_event_del(srv->ev, &(hctx->fde_ndx), hctx->fd);
 +
 +			/* we don't need it anymore */
-+			fdevent_event_del(srv->ev, hctx->fd);
++			fdevent_event_del(srv->ev, hctx->sock);
  
  			/* try to finish the connect() */
 -			if (0 != getsockopt(hctx->fd, SOL_SOCKET, SO_ERROR, &socket_error, &socket_error_len)) {
 -				log_error_write(srv, __FILE__, __LINE__, "ss", 
-+			if (0 != getsockopt(hctx->fd->fd, SOL_SOCKET, SO_ERROR, &socket_error, &socket_error_len)) {
++			if (0 != getsockopt(hctx->sock->fd, SOL_SOCKET, SO_ERROR, &socket_error, &socket_error_len)) {
 +				log_error_write(srv, __FILE__, __LINE__, "ss",
  						"getsockopt failed:", strerror(errno));
 -				
@@ -28127,7 +28244,7 @@
  		/* fall through */
  	case PROXY_STATE_WRITE:;
 -		ret = srv->network_backend_write(srv, con, hctx->fd, hctx->wb); 
-+		ret = srv->network_backend_write(srv, con, hctx->fd, hctx->wb);
++		ret = srv->network_backend_write(srv, con, hctx->sock, hctx->wb);
  
  		chunkqueue_remove_finished_chunks(hctx->wb);
  
@@ -28148,7 +28265,7 @@
 +			return HANDLER_ERROR;
 +		case NETWORK_STATUS_WAIT_FOR_EVENT:
 +
-+			fdevent_event_add(srv->ev, hctx->fd, FDEVENT_OUT);
++			fdevent_event_add(srv->ev, hctx->sock, FDEVENT_OUT);
 +
 +			return HANDLER_WAIT_FOR_EVENT;
  		}
@@ -28159,12 +28276,12 @@
  
 -			fdevent_event_del(srv->ev, &(hctx->fde_ndx), hctx->fd);
 -			fdevent_event_add(srv->ev, &(hctx->fde_ndx), hctx->fd, FDEVENT_IN);
-+			fdevent_event_del(srv->ev, hctx->fd);
-+			fdevent_event_add(srv->ev, hctx->fd, FDEVENT_IN);
++			fdevent_event_del(srv->ev, hctx->sock);
++			fdevent_event_add(srv->ev, hctx->sock, FDEVENT_IN);
  		} else {
 -			fdevent_event_add(srv->ev, &(hctx->fde_ndx), hctx->fd, FDEVENT_OUT);
 -				
-+			fdevent_event_add(srv->ev, hctx->fd, FDEVENT_OUT);
++			fdevent_event_add(srv->ev, hctx->sock, FDEVENT_OUT);
 +
  			return HANDLER_WAIT_FOR_EVENT;
  		}
@@ -28265,7 +28382,7 @@
  				host->port,
 -				hctx->fd);
 -		
-+				hctx->fd->fd);
++				hctx->sock->fd);
 +
  		/* disable this server */
  		host->is_disabled = 1;
@@ -28324,7 +28441,7 @@
  			break;
  		case 1:
 +			log_error_write(srv, __FILE__, __LINE__, "sd",
-+					"proxy: request done", hctx->fd->fd);
++					"proxy: request done", hctx->sock->fd);
  			hctx->host->usage--;
 -			
 +
@@ -28778,8 +28895,8 @@
  	return 0;
  }
 --- ../lighttpd-1.4.11/src/mod_proxy_core.c	1970-01-01 03:00:00.000000000 +0300
-+++ lighttpd-1.4.12/src/mod_proxy_core.c	2006-07-18 17:34:32.000000000 +0300
-@@ -0,0 +1,1709 @@
++++ lighttpd-1.4.12/src/mod_proxy_core.c	2006-07-19 20:02:55.000000000 +0300
+@@ -0,0 +1,1713 @@
 +#include <string.h>
 +#include <stdlib.h>
 +#include <fcntl.h>
@@ -28804,6 +28921,10 @@
 +#include "mod_proxy_core_backlog.h"
 +#include "mod_proxy_core_rewrites.h"
 +
++#define CONFIG_PROXY_CORE_BALANCER "proxy-core.balancer"
++#define CONFIG_PROXY_CORE_PROTOCOL "proxy-core.protocol"
++#define CONFIG_PROXY_CORE_DEBUG "proxy-core.debug"
++#define CONFIG_PROXY_CORE_BACKENDS "proxy-core.backends"
 +#define CONFIG_PROXY_CORE_REWRITE_REQUEST "proxy-core.rewrite-request"
 +#define CONFIG_PROXY_CORE_REWRITE_RESPONSE "proxy-core.rewrite-response"
 +
@@ -28872,8 +28993,8 @@
 +
 +	p->possible_balancers = array_init();
 +	array_insert_int(p->possible_balancers, "fair", PROXY_BALANCE_FAIR);
-+	array_insert_int(p->possible_balancers, "hash", PROXY_BALANCE_RR);
-+	array_insert_int(p->possible_balancers, "round-robin", PROXY_BALANCE_HASH);
++	array_insert_int(p->possible_balancers, "hash", PROXY_BALANCE_HASH);
++	array_insert_int(p->possible_balancers, "round-robin", PROXY_BALANCE_RR);
 +
 +	p->possible_protocols = array_init();
 +	array_insert_int(p->possible_protocols, "http", PROXY_PROTOCOL_HTTP);
@@ -28960,8 +29081,6 @@
 +				return HANDLER_ERROR;
 +			}
 +
-+			TRACE("%s: header-field: %s", config_key, BUF_STR(headers->key));
-+
 +			if (headers->value->used > 1) {
 +				ERROR("%s = ( %s => <...> ) has to a array with only one element", 
 +					config_key,
@@ -28985,11 +29104,6 @@
 +					return HANDLER_ERROR;
 +				}
 +			
-+				TRACE("%s: rewrites-field: %s -> %s", 
-+						config_key, 
-+						BUF_STR(headers->key), 
-+						BUF_STR(rewrites->key));
-+
 +				rw = proxy_rewrite_init();
 +
 +				if (0 != proxy_rewrite_set_regex(rw, rewrites->key)) {
@@ -29013,10 +29127,10 @@
 +	size_t i, j;
 +
 +	config_values_t cv[] = {
-+		{ "proxy-core.backends",       NULL, T_CONFIG_ARRAY, T_CONFIG_SCOPE_CONNECTION },       /* 0 */
-+		{ "proxy-core.debug",          NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },       /* 1 */
-+		{ "proxy-core.balancer",       NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },      /* 2 */
-+		{ "proxy-core.protocol",       NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },      /* 3 */
++		{ CONFIG_PROXY_CORE_BACKENDS,       NULL, T_CONFIG_ARRAY, T_CONFIG_SCOPE_CONNECTION },       /* 0 */
++		{ CONFIG_PROXY_CORE_DEBUG,          NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },       /* 1 */
++		{ CONFIG_PROXY_CORE_BALANCER,       NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },      /* 2 */
++		{ CONFIG_PROXY_CORE_PROTOCOL,       NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },      /* 3 */
 +		{ CONFIG_PROXY_CORE_REWRITE_REQUEST, NULL, T_CONFIG_LOCAL, T_CONFIG_SCOPE_CONNECTION }, /* 4 */
 +		{ CONFIG_PROXY_CORE_REWRITE_RESPONSE, NULL, T_CONFIG_LOCAL, T_CONFIG_SCOPE_CONNECTION },/* 5 */
 +		{ NULL,                        NULL, T_CONFIG_UNSET, T_CONFIG_SCOPE_UNSET }
@@ -29268,6 +29382,8 @@
 +int proxy_http_stream_decoder(server *srv, proxy_session *sess, chunkqueue *raw, chunkqueue *decoded) {
 +	chunk *c;
 +
++	if (raw->first == NULL) return 0;
++
 +	if (sess->is_chunked) {
 +		do {
 +			/* the start should always be a chunk-length */
@@ -29278,6 +29394,8 @@
 +			off_t we_have = 0, we_need = 0;
 +
 +			c = raw->first;
++
++			if (c->mem->used == 0) return 0;
 +
 +			chunk_len = strtol(BUF_STR(c->mem) + c->offset, &err, 16);
 +			if (!(*err == ' ' || *err == '\r' || *err == ';')) {
@@ -29640,7 +29758,7 @@
 +	}
 +
 +	buffer_copy_string_len(ds_dst->key, key, key_len);
-+	buffer_append_string_len(ds_dst->value, value, val_len);
++	buffer_copy_string_len(ds_dst->value, value, val_len);
 +	array_insert_unique(hdrs, (data_unset *)ds_dst);
 +}
 +
@@ -30061,13 +30179,13 @@
 +			cur_max = generate_crc32c(CONST_BUF_LEN(con->uri.path)) +
 +				generate_crc32c(CONST_BUF_LEN(cur_address->name)) + /* we can cache this */
 +				generate_crc32c(CONST_BUF_LEN(con->uri.authority));
-+
++#if 0
 +			TRACE("hash-election: %s - %s - %s: %ld", 
 +					con->uri.path->ptr,
 +					cur_address->name->ptr,
 +					con->uri.authority->ptr,
 +					cur_max);
-+
++#endif
 +			if (address == NULL || (cur_max > last_max)) {
 +				last_max = cur_max;
 +
@@ -30157,14 +30275,14 @@
 +		for (j = 0; j < dc->value->used; j++) {
 +			data_unset *du = dc->value->data[j];
 +
-+			if (buffer_is_equal_string(du->key, CONST_STR_LEN("proxy-core.backends"))) {
++			if (buffer_is_equal_string(du->key, CONST_STR_LEN(CONFIG_PROXY_CORE_BACKENDS))) {
 +				PATCH_OPTION(backends);
 +				PATCH_OPTION(backlog);
-+			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("proxy-core.debug"))) {
++			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN(CONFIG_PROXY_CORE_DEBUG))) {
 +				PATCH_OPTION(debug);
-+			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("proxy-core.balancer"))) {
++			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN(CONFIG_PROXY_CORE_BALANCER))) {
 +				PATCH_OPTION(balancer);
-+			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("proxy-core.protocol"))) {
++			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN(CONFIG_PROXY_CORE_PROTOCOL))) {
 +				PATCH_OPTION(protocol);
 +			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN(CONFIG_PROXY_CORE_REWRITE_REQUEST))) {
 +				PATCH_OPTION(request_rewrites);
@@ -30217,6 +30335,7 @@
 +		 * and didn't got a successful connection yet, sending timeout */
 +		if (srv->cur_ts - con->request_start > 10) {
 +			con->http_status = 504; /* gateway timeout */
++			con->file_finished = 1;
 +
 +			if (sess->proxy_con) {
 +				/* if we are waiting for a proxy-connection right now, close it */
@@ -30248,6 +30367,8 @@
 +				/* no connection pool for this location */
 +				SEGFAULT();
 +			}
++
++			sess->proxy_backend->balancer = p->conf.balancer;
 +
 +			/**
 +			 * ask the balancer for the next address and
@@ -30511,8 +30632,8 @@
 +
 +#endif
 --- ../lighttpd-1.4.11/src/mod_proxy_core_address.c	1970-01-01 03:00:00.000000000 +0300
-+++ lighttpd-1.4.12/src/mod_proxy_core_address.c	2006-07-18 13:03:40.000000000 +0300
-@@ -0,0 +1,85 @@
++++ lighttpd-1.4.12/src/mod_proxy_core_address.c	2006-07-20 00:57:20.000000000 +0300
+@@ -0,0 +1,186 @@
 +#include <stdlib.h>
 +#include <string.h>
 +
@@ -30550,20 +30671,42 @@
 +void proxy_address_pool_free(proxy_address_pool *address_pool) {
 +	if (!address_pool) return;
 +
-+	FOREACH(address_pool, element, proxy_address_free(element))
++	FOREACH(address_pool, element, proxy_address_free(element));
++
++	if (address_pool->ptr) free(address_pool->ptr);
 +
 +	free(address_pool);
 +}
 +
 +void proxy_address_pool_add(proxy_address_pool *address_pool, proxy_address *address) {
++	size_t i;
++
++	/* check if this address is already known */
++
++	for (i = 0; i < address_pool->used; i++) {
++		proxy_address *pool_address = address_pool->ptr[i];
++
++		if (buffer_is_equal(address->name, pool_address->name)) {
++			TRACE("%s is already in the address-pool", BUF_STR(address->name));
++
++			proxy_address_free(address);
++
++			return;
++		}	
++	}
++
++	TRACE("adding %s to the address-pool", BUF_STR(address->name));
++
 +	ARRAY_STATIC_PREPARE_APPEND(address_pool);
-+	
++
 +	address_pool->ptr[address_pool->used++] = address;
 +}
 +
 +int  proxy_address_pool_add_string(proxy_address_pool *address_pool, buffer *name) {
 +	struct addrinfo *res = NULL, pref, *cur;
 +	int ret;
++	buffer *hostname = NULL, *port = NULL;
++	char *colon;
 +
 +	pref.ai_flags = 0;
 +	pref.ai_family = PF_UNSPEC;
@@ -30574,11 +30717,70 @@
 +	pref.ai_canonname = NULL;
 +	pref.ai_next = NULL;
 +
-+	if (0 != (ret = getaddrinfo(name->ptr, "80", &pref, &res))) {
++	/* check the address style
++	 *
++	 * unix:/tmp/socket
++	 * www.example.org
++	 * www.example.org:80
++	 * 127.0.0.1
++	 * 127.0.0.1:80
++	 * [::1]:80
++	 * [::1]
++	 */
++
++	if (buffer_is_empty(name)) return -1;
++
++	if (0 == strncmp(BUF_STR(name), "unix:", 5)) {
++		/* a unix domain socket */
++		ERROR("unix: scheme is not supported for %s", BUF_STR(name));
++		return -1;
++	} else if (name->ptr[0] == '[') {
++		if (name->ptr[name->used - 1] == ']') {
++			/* no port-number attached */
++		
++			hostname = buffer_init();
++			buffer_copy_string_len(hostname, BUF_STR(name) + 1, name->used - 3);
++			port = buffer_init_string("80");
++		} else if (NULL != (colon = strrchr(BUF_STR(name), ':'))) {
++			/* with port number */
++
++			hostname = buffer_init();
++			buffer_copy_string_len(hostname, BUF_STR(name) + 1, colon - BUF_STR(name) - 2);
++			port = buffer_init();
++			buffer_copy_string(port, colon + 1);
++
++		} else {
++			ERROR("this is neither [<ipv6-address>] nor [<ipv6-address>]:<port>: %s", BUF_STR(name));
++
++			return -1;
++		}
++	} else if (name->ptr[name->used - 1] != ']' &&
++		   NULL != (colon = strrchr(BUF_STR(name), ':'))) {
++
++		hostname = buffer_init();
++		buffer_copy_string_len(hostname, BUF_STR(name), colon - BUF_STR(name));
++		port = buffer_init();
++		buffer_copy_string(port, colon + 1);
++	} else {
++		/* no colon, just a IPv4 address or a domain name */
++
++		hostname = buffer_init_string(BUF_STR(name));
++		port = buffer_init_string("80");
++	}
++
++	TRACE("resolving %s on port %s", BUF_STR(hostname), BUF_STR(port));
++	
++	if (0 != (ret = getaddrinfo(BUF_STR(hostname), BUF_STR(port), &pref, &res))) {
 +		ERROR("getaddrinfo failed: %s", gai_strerror(ret));
++
++		buffer_free(hostname);
++		buffer_free(port);
 +
 +		return -1;
 +	}
++
++	buffer_free(hostname);
++	buffer_free(port);
 +
 +	for (cur = res; cur; cur = cur->ai_next) {
 +		proxy_address *a = proxy_address_init();
@@ -30586,8 +30788,28 @@
 +		memcpy(&(a->addr), cur->ai_addr, cur->ai_addrlen);
 +
 +		a->state = PROXY_ADDRESS_STATE_ACTIVE;
++		buffer_prepare_copy(a->name, 128);
 +
-+		buffer_copy_string(a->name, inet_ntoa(a->addr.ipv4.sin_addr));
++		switch (cur->ai_family) {
++		case AF_INET6:
++			a->name->ptr[0] = '[';
++			inet_ntop(cur->ai_family, &(a->addr.ipv6.sin6_addr), a->name->ptr + 1, a->name->size - 2);
++			a->name->used = strlen(a->name->ptr) + 1;
++			buffer_append_string(a->name, "]:");
++			buffer_append_long(a->name, ntohs(a->addr.ipv6.sin6_port));
++			break;
++		case AF_INET:
++			inet_ntop(cur->ai_family, &(a->addr.ipv4.sin_addr), a->name->ptr, a->name->size - 1);
++			a->name->used = strlen(a->name->ptr) + 1;
++
++			buffer_append_string(a->name, ":");
++			buffer_append_long(a->name, ntohs(a->addr.ipv4.sin_port));
++			break;
++		default:
++			ERROR("unknown address-family: %d", cur->ai_family);
++			return -1;
++		}
++
 +
 +		proxy_address_pool_add(address_pool, a);
 +	}
@@ -30635,8 +30857,8 @@
 +
 +#endif
 --- ../lighttpd-1.4.11/src/mod_proxy_core_backend.c	1970-01-01 03:00:00.000000000 +0300
-+++ lighttpd-1.4.12/src/mod_proxy_core_backend.c	2006-07-18 13:03:40.000000000 +0300
-@@ -0,0 +1,45 @@
++++ lighttpd-1.4.12/src/mod_proxy_core_backend.c	2006-07-20 00:57:19.000000000 +0300
+@@ -0,0 +1,47 @@
 +#include <stdlib.h>
 +
 +#include "mod_proxy_core_backend.h"
@@ -30673,6 +30895,8 @@
 +
 +void proxy_backends_free(proxy_backends *backends) {
 +	FOREACH(backends, element, proxy_backend_free(element))
++
++	if (backends->ptr) free(backends->ptr);
 +
 +	free(backends);
 +}
@@ -37490,8 +37714,8 @@
  	return 0;
  }
 --- ../lighttpd-1.4.11/src/mod_sql_vhost_core.c	1970-01-01 03:00:00.000000000 +0300
-+++ lighttpd-1.4.12/src/mod_sql_vhost_core.c	2006-07-16 00:26:04.000000000 +0300
-@@ -0,0 +1,209 @@
++++ lighttpd-1.4.12/src/mod_sql_vhost_core.c	2006-07-20 00:57:20.000000000 +0300
+@@ -0,0 +1,211 @@
 +#include <stdio.h>
 +#include <errno.h>
 +#include <fcntl.h>
@@ -37543,6 +37767,8 @@
 +			buffer_free(s->pass);
 +			buffer_free(s->sock);
 +			buffer_free(s->backend);
++			buffer_free(s->hostname);
++			buffer_free(s->select_vhost);
 +
 +			free(s);
 +		}
@@ -40069,7 +40295,7 @@
  	return 0;
  }
 --- ../lighttpd-1.4.11/src/mod_status.c	2006-01-10 21:45:32.000000000 +0200
-+++ lighttpd-1.4.12/src/mod_status.c	2006-07-16 00:26:04.000000000 +0300
++++ lighttpd-1.4.12/src/mod_status.c	2006-07-19 20:02:55.000000000 +0300
 @@ -4,7 +4,6 @@
  #include <fcntl.h>
  #include <stdlib.h>
@@ -40078,7 +40304,15 @@
  #include <errno.h>
  #include <time.h>
  #include <stdio.h>
-@@ -29,114 +28,114 @@
+@@ -14,6 +13,7 @@
+ #include "response.h"
+ #include "connections.h"
+ #include "log.h"
++#include "status_counter.h"
+ 
+ #include "plugin.h"
+ 
+@@ -29,114 +29,114 @@
  
  typedef struct {
  	PLUGIN_DATA;
@@ -40224,7 +40458,7 @@
  	return HANDLER_GO_ON;
  }
  
-@@ -151,7 +150,7 @@
+@@ -151,7 +151,7 @@
  	buffer_append_string(b, value);
  	BUFFER_APPEND_STRING_CONST(b, "</td>\n");
  	BUFFER_APPEND_STRING_CONST(b, "   </tr>\n");
@@ -40233,7 +40467,7 @@
  	return 0;
  }
  
-@@ -161,13 +160,13 @@
+@@ -161,13 +161,13 @@
  	buffer_append_string(b, key);
  	BUFFER_APPEND_STRING_CONST(b, "</th>\n");
  	BUFFER_APPEND_STRING_CONST(b, "   </tr>\n");
@@ -40249,7 +40483,7 @@
  	if (p->conf.sort) {
  		BUFFER_APPEND_STRING_CONST(b, "<th class=\"status\"><a href=\"#\" class=\"sortheader\" onclick=\"resort(this);return false;\">");
  		buffer_append_string(b, key);
-@@ -177,13 +176,13 @@
+@@ -177,13 +177,13 @@
  		buffer_append_string(b, key);
  		BUFFER_APPEND_STRING_CONST(b, "</th>\n");
  	}
@@ -40265,7 +40499,7 @@
  	if (*avg > size) { *avg /= size; *multiplier = 'k'; }
  	if (*avg > size) { *avg /= size; *multiplier = 'M'; }
  	if (*avg > size) { *avg /= size; *multiplier = 'G'; }
-@@ -202,21 +201,21 @@
+@@ -202,21 +202,21 @@
  	size_t j;
  	double avg;
  	char multiplier = '\0';
@@ -40292,7 +40526,7 @@
  	BUFFER_APPEND_STRING_CONST(b,
  				   "  <style type=\"text/css\">\n"
  				   "    table.status { border: black solid thin; }\n"
-@@ -226,14 +225,14 @@
+@@ -226,14 +226,14 @@
  				   "    a.sortheader { background-color: black; color: white; font-weight: bold; text-decoration: none; display: block; }\n"
  				   "    span.sortarrow { color: white; text-decoration: none; }\n"
  				   "  </style>\n");
@@ -40309,7 +40543,7 @@
  		BUFFER_APPEND_STRING_CONST(b,
  					   "function get_inner_text(el) {\n"
  					   " if((typeof el == 'string')||(typeof el == 'undefined'))\n"
-@@ -251,7 +250,7 @@
+@@ -251,7 +251,7 @@
  					   " }\n"
  					   " return str;\n"
  					   "}\n");
@@ -40318,7 +40552,7 @@
  		BUFFER_APPEND_STRING_CONST(b,
  					   "function sortfn(a,b) {\n"
  					   " var at = get_inner_text(a.cells[sort_column]);\n"
-@@ -266,7 +265,7 @@
+@@ -266,7 +266,7 @@
  					   "  else return 1;\n"
  					   " }\n"
  					   "}\n");
@@ -40327,7 +40561,7 @@
  		BUFFER_APPEND_STRING_CONST(b,
  					   "function resort(lnk) {\n"
  					   " var span = lnk.childNodes[1];\n"
-@@ -276,7 +275,7 @@
+@@ -276,7 +276,7 @@
  					   "  rows[j-1] = table.rows[j];\n"
  					   " sort_column = lnk.parentNode.cellIndex;\n"
  					   " rows.sort(sortfn);\n");
@@ -40336,7 +40570,7 @@
  		BUFFER_APPEND_STRING_CONST(b,
  					   " if (prev_span != null) prev_span.innerHTML = '';\n"
  					   " if (span.getAttribute('sortdir')=='down') {\n"
-@@ -294,175 +293,175 @@
+@@ -294,175 +294,175 @@
  					   "// -->\n"
  					   "</script>\n");
  	}
@@ -40581,7 +40815,7 @@
  	BUFFER_APPEND_STRING_CONST(b, "<tr>");
  	mod_status_header_append_sort(b, p_d, "Client IP");
  	mod_status_header_append_sort(b, p_d, "Read");
-@@ -473,16 +472,16 @@
+@@ -473,16 +473,16 @@
  	mod_status_header_append_sort(b, p_d, "URI");
  	mod_status_header_append_sort(b, p_d, "File");
  	BUFFER_APPEND_STRING_CONST(b, "</tr>\n");
@@ -40605,7 +40839,7 @@
  		if (con->request.content_length) {
  			buffer_append_long(b, c->request_content_queue->bytes_in);
  			BUFFER_APPEND_STRING_CONST(b, "/");
-@@ -490,55 +489,55 @@
+@@ -490,55 +490,55 @@
  		} else {
  			BUFFER_APPEND_STRING_CONST(b, "0/0");
  		}
@@ -40688,7 +40922,7 @@
  	return 0;
  }
  
-@@ -548,7 +547,7 @@
+@@ -548,7 +548,7 @@
  	buffer *b;
  	double avg;
  	time_t ts;
@@ -40697,7 +40931,7 @@
  	b = chunkqueue_get_append_buffer(con->write_queue);
  
  	/* output total number of requests */
-@@ -556,19 +555,19 @@
+@@ -556,19 +556,19 @@
  	avg = p->abs_requests;
  	buffer_append_long(b, avg);
  	BUFFER_APPEND_STRING_CONST(b, "\n");
@@ -40720,7 +40954,7 @@
  	/* output busy servers */
  	BUFFER_APPEND_STRING_CONST(b, "BusyServers: ");
  	buffer_append_long(b, srv->conns->used);
-@@ -577,7 +576,7 @@
+@@ -577,7 +577,7 @@
  	/* set text/plain output */
  
  	response_header_overwrite(srv, con, CONST_STR_LEN("Content-Type"), CONST_STR_LEN("text/plain"));
@@ -40729,7 +40963,14 @@
  	return 0;
  }
  
-@@ -591,10 +590,10 @@
+@@ -585,16 +585,16 @@
+ 	plugin_data *p = p_d;
+ 	buffer *b, *m = p->module_list;
+ 	size_t i;
+-	array *st = srv->status;
++	array *st = status_counter_get_array();
+ 
+ 	if (0 == st->used) {
  		/* we have nothing to send */
  		con->http_status = 204;
  		con->file_finished = 1;
@@ -40742,7 +40983,7 @@
  	b = chunkqueue_get_append_buffer(con->write_queue);
  
  	for (i = 0; i < st->used; i++) {
-@@ -605,27 +604,27 @@
+@@ -605,27 +605,27 @@
  		buffer_append_long(b, ((data_integer *)(st->data[ndx]))->value);
  		buffer_append_string(b, "\n");
  	}
@@ -40776,7 +41017,7 @@
  	return HANDLER_FINISHED;
  }
  
-@@ -634,9 +633,9 @@
+@@ -634,9 +634,9 @@
  	plugin_data *p = p_d;
  	buffer *b, *m = p->module_list;
  	size_t i;
@@ -40789,7 +41030,7 @@
  		/* - poll is most reliable
  		 * - select works everywhere
  		 * - linux-* are experimental
-@@ -661,10 +660,10 @@
+@@ -661,10 +661,10 @@
  #endif
  		{ FDEVENT_HANDLER_UNSET,          NULL }
  	};
@@ -40803,7 +41044,7 @@
  			   "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n"
  			   "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"
  			   "         \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
-@@ -675,7 +674,7 @@
+@@ -675,7 +675,7 @@
  			   " <body>\n"
  			   "  <h1>" PACKAGE_NAME " " PACKAGE_VERSION "</h1>\n"
  			   "  <table border=\"1\">\n");
@@ -40812,7 +41053,7 @@
  	mod_status_header_append(b, "Server-Features");
  #ifdef HAVE_PCRE_H
  	mod_status_row_append(b, "RegEx Conditionals", "enabled");
-@@ -683,21 +682,21 @@
+@@ -683,21 +683,21 @@
  	mod_status_row_append(b, "RegEx Conditionals", "disabled - pcre missing");
  #endif
  	mod_status_header_append(b, "Network Engine");
@@ -40839,7 +41080,7 @@
  		if (i == 0) {
  			buffer_copy_string_buffer(m, pl->name);
  		} else {
-@@ -705,137 +704,135 @@
+@@ -705,137 +705,135 @@
  			buffer_append_string_buffer(m, pl->name);
  		}
  	}
@@ -49181,7 +49422,7 @@
  	return HANDLER_COMEBACK;
  }
 --- ../lighttpd-1.4.11/src/server.c	2006-03-04 19:12:17.000000000 +0200
-+++ lighttpd-1.4.12/src/server.c	2006-07-18 13:03:40.000000000 +0300
++++ lighttpd-1.4.12/src/server.c	2006-07-19 20:02:55.000000000 +0300
 @@ -1,11 +1,9 @@
  #include <sys/types.h>
 -#include <sys/time.h>
@@ -49194,11 +49435,12 @@
  #include <stdlib.h>
  #include <time.h>
  #include <signal.h>
-@@ -29,9 +27,14 @@
+@@ -29,9 +27,15 @@
  #include "plugin.h"
  #include "joblist.h"
  #include "network_backends.h"
 -
++#include "status_counter.h"
 +#ifdef _WIN32
 +/* use local getopt implementation */
 +# undef HAVE_GETOPT_H
@@ -49210,7 +49452,7 @@
  #endif
  
  #ifdef HAVE_VALGRIND_VALGRIND_H
-@@ -60,8 +63,17 @@
+@@ -60,8 +64,17 @@
  /* #define USE_ALARM */
  #endif
  
@@ -49228,7 +49470,7 @@
  static volatile sig_atomic_t handle_sig_alarm = 1;
  static volatile sig_atomic_t handle_sig_hup = 0;
  
-@@ -72,9 +84,9 @@
+@@ -72,9 +85,9 @@
  
  	switch (sig) {
  	case SIGTERM: srv_shutdown = 1; break;
@@ -49240,7 +49482,7 @@
  
  	     break;
  	case SIGALRM: handle_sig_alarm = 1; break;
-@@ -86,9 +98,9 @@
+@@ -86,9 +99,9 @@
  static void signal_handler(int sig) {
  	switch (sig) {
  	case SIGTERM: srv_shutdown = 1; break;
@@ -49252,7 +49494,7 @@
  
  	     break;
  	case SIGALRM: handle_sig_alarm = 1; break;
-@@ -110,35 +122,35 @@
+@@ -110,35 +123,35 @@
  	signal(SIGTSTP, SIG_IGN);
  #endif
  	if (0 != fork()) exit(0);
@@ -49294,7 +49536,7 @@
  	CLEAN(srvconf.errorlog_file);
  	CLEAN(srvconf.groupname);
  	CLEAN(srvconf.username);
-@@ -146,68 +158,63 @@
+@@ -146,68 +159,62 @@
  	CLEAN(srvconf.bindhost);
  	CLEAN(srvconf.event_handler);
  	CLEAN(srvconf.pid_file);
@@ -49310,7 +49552,7 @@
 +
  	CLEAN(config_context);
  	CLEAN(config_touched);
- 	CLEAN(status);
+-	CLEAN(status);
  #undef CLEAN
 -	
 +
@@ -49405,7 +49647,7 @@
  			buffer_free(s->document_root);
  			buffer_free(s->server_name);
  			buffer_free(s->server_tag);
-@@ -242,32 +249,32 @@
+@@ -242,32 +249,31 @@
  			buffer_free(s->error_handler);
  			buffer_free(s->errorfile_prefix);
  			array_free(s->mimetypes);
@@ -49424,7 +49666,7 @@
 +
  	CLEAN(config_context);
  	CLEAN(config_touched);
- 	CLEAN(status);
+-	CLEAN(status);
  	CLEAN(srvconf.upload_tempdirs);
  #undef CLEAN
 -	
@@ -49444,7 +49686,7 @@
  	free(srv);
  }
  
-@@ -281,14 +288,12 @@
+@@ -281,14 +287,12 @@
  " - a light and fast webserver\n" \
  "Build-Date: " __DATE__ " " __TIME__ "\n";
  ;
@@ -49461,7 +49703,7 @@
  #ifdef USE_SELECT
        "\t+ select (generic)\n"
  #else
-@@ -355,11 +360,6 @@
+@@ -355,11 +359,6 @@
  #else
        "\t- crypt support\n"
  #endif
@@ -49473,7 +49715,7 @@
  #ifdef USE_OPENSSL
        "\t+ SSL Support\n"
  #else
-@@ -371,9 +371,9 @@
+@@ -371,9 +370,9 @@
        "\t- PCRE support\n"
  #endif
  #ifdef HAVE_MYSQL
@@ -49485,7 +49727,7 @@
  #endif
  #if defined(HAVE_LDAP_H) && defined(HAVE_LBER_H) && defined(HAVE_LIBLDAP) && defined(HAVE_LIBLBER)
        "\t+ LDAP support\n"
-@@ -410,8 +410,11 @@
+@@ -410,8 +409,11 @@
  #else
        "\t- GDBM support\n"
  #endif
@@ -49499,7 +49741,7 @@
  }
  
  static void show_help (void) {
-@@ -433,277 +436,644 @@
+@@ -433,197 +435,565 @@
  " -h         show this help\n" \
  "\n"
  ;
@@ -49680,18 +49922,6 @@
 -			if (0 != stat(srv->srvconf.pid_file->ptr, &st)) {
 -				log_error_write(srv, __FILE__, __LINE__, "sbs",
 -						"stating existing pid-file failed:", srv->srvconf.pid_file, strerror(errno));
--			}
--			
--			if (!S_ISREG(st.st_mode)) {
--				log_error_write(srv, __FILE__, __LINE__, "sb",
--						"pid-file exists and isn't regular file:", srv->srvconf.pid_file);
--				return -1;
--			}
--			
--			if (-1 == (pid_fd = open(srv->srvconf.pid_file->ptr, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH))) {
--				log_error_write(srv, __FILE__, __LINE__, "sbs",
--						"opening pid-file failed:", srv->srvconf.pid_file, strerror(errno));
--				return -1;
 +		if (handle_sig_hup) {
 +			handler_t r;
 +
@@ -49722,80 +49952,45 @@
 +				graceful_shutdown = 1; /* shutdown without killing running connections */
 +				graceful_restart = 1;  /* don't delete pid file */
  			}
--		}
--	}
+-			
+-			if (!S_ISREG(st.st_mode)) {
+-				log_error_write(srv, __FILE__, __LINE__, "sb",
+-						"pid-file exists and isn't regular file:", srv->srvconf.pid_file);
+-				return -1;
 +#else
 +			/* cycle logfiles */
- 
--	if (srv->event_handler == FDEVENT_HANDLER_SELECT) {
--		/* select limits itself
--		 *
--		 * as it is a hard limit and will lead to a segfault we add some safety
--		 * */
--		srv->max_fds = FD_SETSIZE - 200;
--	} else {
--		srv->max_fds = 4096;
--	}
++
 +			switch(r = plugins_call_handle_sighup(srv)) {
 +			case HANDLER_GO_ON:
 +				break;
 +			default:
 +				log_error_write(srv, __FILE__, __LINE__, "sd", "sighup-handler return with an error", r);
 +				break;
-+			}
- 
--	if (i_am_root) {
--		struct group *grp = NULL;
--		struct passwd *pwd = NULL;
--		int use_rlimit = 1;
+ 			}
+-			
+-			if (-1 == (pid_fd = open(srv->srvconf.pid_file->ptr, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH))) {
+-				log_error_write(srv, __FILE__, __LINE__, "sbs",
+-						"opening pid-file failed:", srv->srvconf.pid_file, strerror(errno));
++
 +			if (-1 == log_error_cycle()) {
 +				log_error_write(srv, __FILE__, __LINE__, "s", "cycling errorlog failed, dying");
- 
--#ifdef HAVE_VALGRIND_VALGRIND_H
--		if (RUNNING_ON_VALGRIND) use_rlimit = 0;
--#endif
--		
--#ifdef HAVE_GETRLIMIT
--		if (0 != getrlimit(RLIMIT_NOFILE, &rlim)) {
--			log_error_write(srv, __FILE__, __LINE__,
--					"ss", "couldn't get 'max filedescriptors'",
--					strerror(errno));
--			return -1;
--		}
--		
--		if (use_rlimit && srv->srvconf.max_fds) {
--			/* set rlimits */
--			
--			rlim.rlim_cur = srv->srvconf.max_fds;
--			rlim.rlim_max = srv->srvconf.max_fds;
--			
--			if (0 != setrlimit(RLIMIT_NOFILE, &rlim)) {
--				log_error_write(srv, __FILE__, __LINE__,
--						"ss", "couldn't set 'max filedescriptors'",
--						strerror(errno));
++
  				return -1;
  			}
 +#endif
  		}
+-	}
  
--		/* #372: solaris need some fds extra for devpoll */	
--		if (rlim.rlim_cur > 10) rlim.rlim_cur -= 10;
+-	if (srv->event_handler == FDEVENT_HANDLER_SELECT) {
+-		/* select limits itself
 +		if (handle_sig_alarm) {
 +			/* a new second */
- 
--		if (srv->event_handler == FDEVENT_HANDLER_SELECT) {
--			srv->max_fds = rlim.rlim_cur < FD_SETSIZE - 200 ? rlim.rlim_cur : FD_SETSIZE - 200;
--		} else {
--			srv->max_fds = rlim.rlim_cur;
--		}
++
 +#ifdef USE_ALARM
 +			/* reset notification */
 +			handle_sig_alarm = 0;
 +#endif
- 
--		/* set core file rlimit, if enable_cores is set */
--		if (use_rlimit && srv->srvconf.enable_cores && getrlimit(RLIMIT_CORE, &rlim) == 0) {
--			rlim.rlim_cur = rlim.rlim_max;
++
 +			/* get current time */
 +			min_ts = time(NULL);
 +
@@ -50115,10 +50310,11 @@
 +#endif
 +
 +	log_init();
++	status_counter_init();
 +
 +	/* for nice %b handling in strfime() */
 +	setlocale(LC_TIME, "C");
-+
++	
 +	if (NULL == (srv = server_init())) {
 +		fprintf(stderr, "did this really happen?\n");
 +		return -1;
@@ -50278,61 +50474,51 @@
 +#endif
 +	if (srv->event_handler == FDEVENT_HANDLER_SELECT) {
 +		/* select limits itself
-+		 *
-+		 * as it is a hard limit and will lead to a segfault we add some safety
-+		 * */
+ 		 *
+ 		 * as it is a hard limit and will lead to a segfault we add some safety
+ 		 * */
+-		srv->max_fds = FD_SETSIZE - 200;
 +        fprintf(stderr, "%s.%d: max parallel connections: %d\r\n", __FILE__, __LINE__, FD_SETSIZE);
 +		srv->max_fds = FD_SETSIZE - 4;
-+	} else {
-+		srv->max_fds = 4096;
-+	}
-+
-+	if (i_am_root) {
-+		struct group *grp = NULL;
-+		struct passwd *pwd = NULL;
-+		int use_rlimit = 1;
-+
-+#ifdef HAVE_VALGRIND_VALGRIND_H
-+		if (RUNNING_ON_VALGRIND) use_rlimit = 0;
-+#endif
-+
-+#ifdef HAVE_GETRLIMIT
-+		if (0 != getrlimit(RLIMIT_NOFILE, &rlim)) {
-+			log_error_write(srv, __FILE__, __LINE__,
-+					"ss", "couldn't get 'max filedescriptors'",
-+					strerror(errno));
-+			return -1;
-+		}
-+
-+		if (use_rlimit && srv->srvconf.max_fds) {
-+			/* set rlimits */
-+
-+			rlim.rlim_cur = srv->srvconf.max_fds;
-+			rlim.rlim_max = srv->srvconf.max_fds;
-+
-+			if (0 != setrlimit(RLIMIT_NOFILE, &rlim)) {
-+				log_error_write(srv, __FILE__, __LINE__,
-+						"ss", "couldn't set 'max filedescriptors'",
-+						strerror(errno));
-+				return -1;
-+			}
-+		}
-+
-+		/* #372: solaris need some fds extra for devpoll */
-+		if (rlim.rlim_cur > 10) rlim.rlim_cur -= 10;
-+
-+		if (srv->event_handler == FDEVENT_HANDLER_SELECT) {
-+			srv->max_fds = rlim.rlim_cur < FD_SETSIZE - 200 ? rlim.rlim_cur : FD_SETSIZE - 200;
-+		} else {
-+			srv->max_fds = rlim.rlim_cur;
-+		}
-+
-+		/* set core file rlimit, if enable_cores is set */
-+		if (use_rlimit && srv->srvconf.enable_cores && getrlimit(RLIMIT_CORE, &rlim) == 0) {
-+			rlim.rlim_cur = rlim.rlim_max;
- 			setrlimit(RLIMIT_CORE, &rlim);
- 		}
+ 	} else {
+ 		srv->max_fds = 4096;
+ 	}
+@@ -636,7 +1006,7 @@
+ #ifdef HAVE_VALGRIND_VALGRIND_H
+ 		if (RUNNING_ON_VALGRIND) use_rlimit = 0;
  #endif
+-		
++
+ #ifdef HAVE_GETRLIMIT
+ 		if (0 != getrlimit(RLIMIT_NOFILE, &rlim)) {
+ 			log_error_write(srv, __FILE__, __LINE__,
+@@ -644,13 +1014,13 @@
+ 					strerror(errno));
+ 			return -1;
+ 		}
+-		
++
+ 		if (use_rlimit && srv->srvconf.max_fds) {
+ 			/* set rlimits */
+-			
++
+ 			rlim.rlim_cur = srv->srvconf.max_fds;
+ 			rlim.rlim_max = srv->srvconf.max_fds;
+-			
++
+ 			if (0 != setrlimit(RLIMIT_NOFILE, &rlim)) {
+ 				log_error_write(srv, __FILE__, __LINE__,
+ 						"ss", "couldn't set 'max filedescriptors'",
+@@ -659,7 +1029,7 @@
+ 			}
+ 		}
+ 
+-		/* #372: solaris need some fds extra for devpoll */	
++		/* #372: solaris need some fds extra for devpoll */
+ 		if (rlim.rlim_cur > 10) rlim.rlim_cur -= 10;
+ 
+ 		if (srv->event_handler == FDEVENT_HANDLER_SELECT) {
+@@ -677,33 +1047,33 @@
  		if (srv->event_handler == FDEVENT_HANDLER_SELECT) {
  			/* don't raise the limit above FD_SET_SIZE */
  			if (srv->max_fds > FD_SETSIZE - 200) {
@@ -50616,7 +50802,7 @@
  	}
  #endif
  
-@@ -1007,330 +1378,34 @@
+@@ -1007,330 +1378,36 @@
  
  	for (i = 0; i < srv->srv_sockets.used; i++) {
  		server_socket *srv_socket = srv->srv_sockets.ptr[i];
@@ -50837,7 +51023,8 @@
 -				srv->sockets_disabled = 1;
 -			}
 -		}
--
++	lighty_mainloop(srv);
+ 
 -		if (graceful_shutdown && srv->conns->used == 0) {
 -			/* we are in graceful shutdown phase and all connections are closed
 -			 * we are ready to terminate without harming anyone */
@@ -50856,7 +51043,7 @@
 -				srv->want_fds--;
 -			}
 -		}
-+	lighty_mainloop(srv);
++	status_counter_free();
  
 -		if ((n = fdevent_poll(srv->ev, 1000)) > 0) {
 -			/* n is the number of events */
@@ -52045,6 +52232,103 @@
  			for (j = 0; j < ctrl.used; j++) {
  				if (ctrl.ptr[j] == ndx) {
  					ctrl.ptr[j] = ctrl.ptr[--ctrl.used];
+--- ../lighttpd-1.4.11/src/status_counter.c	1970-01-01 03:00:00.000000000 +0300
++++ lighttpd-1.4.12/src/status_counter.c	2006-07-19 20:02:55.000000000 +0300
+@@ -0,0 +1,75 @@
++#include <stdlib.h>
++
++#include "status_counter.h"
++/**
++ * The status array can carry all the status information you want
++ * the key to the array is <module-prefix>.<name>
++ * and the values are counters
++ *
++ * example:
++ *   fastcgi.backends        = 10
++ *   fastcgi.active-backends = 6
++ *   fastcgi.backend.<key>.load = 24
++ *   fastcgi.backend.<key>....
++ *
++ *   fastcgi.backend.<key>.disconnects = ...
++ */
++
++static array *counters = NULL;
++
++void status_counter_init(void) {
++	counters = array_init();
++}
++void status_counter_free(void) {
++	array_free(counters);
++}
++
++array *status_counter_get_array(void) {
++	return counters;
++}
++
++data_integer *status_counter_get_counter(const char *s, size_t len) {
++	data_integer *di;
++	array *status = status_counter_get_array();
++
++	if (NULL == (di = (data_integer *)array_get_element(status, s))) {
++		/* not found, create it */
++
++		if (NULL == (di = (data_integer *)array_get_unused_element(status, TYPE_INTEGER))) {
++			di = data_integer_init();
++		}
++		buffer_copy_string_len(di->key, s, len);
++		di->value = 0;
++
++		array_insert_unique(status, (data_unset *)di);
++	}
++	return di;
++}
++
++/* dummies of the statistic framework functions
++ * they will be moved to a statistics.c later */
++int status_counter_inc(const char *s, size_t len) {
++	data_integer *di = status_counter_get_counter(s, len);
++
++	di->value++;
++
++	return 0;
++}
++
++int status_counter_dec(const char *s, size_t len) {
++	data_integer *di = status_counter_get_counter(s, len);
++
++	if (di->value > 0) di->value--;
++
++	return 0;
++}
++
++int status_counter_set(const char *s, size_t len, int val) {
++	data_integer *di = status_counter_get_counter(s, len);
++
++	di->value = val;
++
++	return 0;
++}
++
++
+--- ../lighttpd-1.4.11/src/status_counter.h	1970-01-01 03:00:00.000000000 +0300
++++ lighttpd-1.4.12/src/status_counter.h	2006-07-19 20:02:55.000000000 +0300
+@@ -0,0 +1,16 @@
++#ifndef _STATUS_COUNTER_H_
++#define _STATUS_COUNTER_H_
++
++#include <sys/types.h>
++
++#include "array.h"
++
++void status_counter_init(void);
++void status_counter_free(void);
++array *status_counter_get_array(void);
++data_integer *status_counter_get_counter(const char *s, size_t len);
++int status_counter_inc(const char *s, size_t len);
++int status_counter_dec(const char *s, size_t len);
++int status_counter_set(const char *s, size_t len, int val);
++
++#endif 
 --- ../lighttpd-1.4.11/src/stream.c	2005-09-23 21:50:15.000000000 +0300
 +++ lighttpd-1.4.12/src/stream.c	2006-07-16 00:26:04.000000000 +0300
 @@ -1,7 +1,6 @@
@@ -52248,7 +52532,7 @@
 +#endif
 +
 --- ../lighttpd-1.4.11/src/sys-socket.h	2005-08-11 01:26:39.000000000 +0300
-+++ lighttpd-1.4.12/src/sys-socket.h	2006-07-18 13:03:40.000000000 +0300
++++ lighttpd-1.4.12/src/sys-socket.h	2006-07-19 20:02:55.000000000 +0300
 @@ -1,15 +1,26 @@
  #ifndef WIN32_SOCKET_H
  #define WIN32_SOCKET_H
@@ -52277,7 +52561,7 @@
  #else
  #include <sys/socket.h>
  #include <sys/ioctl.h>
-@@ -18,7 +29,25 @@
+@@ -18,7 +29,29 @@
  #include <sys/un.h>
  #include <arpa/inet.h>
  
@@ -52290,6 +52574,10 @@
 +
  #include <netdb.h>
 +#endif /* !_WIN32 */
++
++#ifdef HAVE_INET_NTOP
++# define HAVE_IPV6
++#endif
 +
 +typedef union {
 +#ifdef HAVE_IPV6
@@ -52831,14 +53119,14 @@
 +status.config-url           = "/server-config"
 +
 --- ../lighttpd-1.4.11/tests/docroot/www/dummydir/.svn/entries	2006-03-09 19:21:49.000000000 +0200
-+++ lighttpd-1.4.12/tests/docroot/www/dummydir/.svn/entries	2006-07-18 17:34:32.000000000 +0300
++++ lighttpd-1.4.12/tests/docroot/www/dummydir/.svn/entries	2006-07-20 00:57:20.000000000 +0300
 @@ -9,5 +9,6 @@
     last-author="jan"
     kind="dir"
     uuid="152afb58-edef-0310-8abb-c4023f1b3aa9"
 -   revision="1040"/>
 +   repos="svn://svn.lighttpd.net/lighttpd"
-+   revision="1202"/>
++   revision="1210"/>
  </wc-entries>
 --- ../lighttpd-1.4.11/tests/fastcgi-10.conf	2005-08-31 23:36:34.000000000 +0300
 +++ lighttpd-1.4.12/tests/fastcgi-10.conf	2006-07-16 00:26:04.000000000 +0300
