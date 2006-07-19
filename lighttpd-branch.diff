@@ -13320,10 +13320,22 @@
 +	free(sock);
 +}
 --- ../lighttpd-1.4.11/src/iosocket.h	1970-01-01 03:00:00.000000000 +0300
-+++ lighttpd-1.4.12/src/iosocket.h	2006-07-18 13:03:40.000000000 +0300
-@@ -0,0 +1,32 @@
++++ lighttpd-1.4.12/src/iosocket.h	2006-07-20 01:14:57.000000000 +0300
+@@ -0,0 +1,44 @@
 +#ifndef _IOSOCKET_H_
 +#define _IOSOCKET_H_
++
++/**
++ * make sure we know about OPENSSL all the time
++ *
++ * if we don't include config.h here we run into different sizes 
++ * for the iosocket-struct depending on config.h include before 
++ * iosocket.h or not
++ */
++
++#ifdef HAVE_CONFIG_H
++# include "config.h"
++#endif
 +
 +#if defined HAVE_LIBSSL && defined HAVE_OPENSSL_SSL_H
 +# define USE_OPENSSL
@@ -53119,14 +53131,14 @@
 +status.config-url           = "/server-config"
 +
 --- ../lighttpd-1.4.11/tests/docroot/www/dummydir/.svn/entries	2006-03-09 19:21:49.000000000 +0200
-+++ lighttpd-1.4.12/tests/docroot/www/dummydir/.svn/entries	2006-07-20 00:57:20.000000000 +0300
++++ lighttpd-1.4.12/tests/docroot/www/dummydir/.svn/entries	2006-07-20 01:14:57.000000000 +0300
 @@ -9,5 +9,6 @@
     last-author="jan"
     kind="dir"
     uuid="152afb58-edef-0310-8abb-c4023f1b3aa9"
 -   revision="1040"/>
 +   repos="svn://svn.lighttpd.net/lighttpd"
-+   revision="1210"/>
++   revision="1211"/>
  </wc-entries>
 --- ../lighttpd-1.4.11/tests/fastcgi-10.conf	2005-08-31 23:36:34.000000000 +0300
 +++ lighttpd-1.4.12/tests/fastcgi-10.conf	2006-07-16 00:26:04.000000000 +0300
