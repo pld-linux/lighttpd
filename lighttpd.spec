@@ -14,7 +14,7 @@
 %bcond_without	ipv6		# IPv4-only version (doesn't require IPv6 in kernel)
 %bcond_without	largefile	# largefile support (see notes above)
 %bcond_without	ssl		# ssl support
-%bcond_with	mysql		# mysql support in mod_mysql_vhost
+%bcond_without	mysql		# mysql support in mod_mysql_vhost
 %bcond_with	ldap		# ldap support in mod_auth
 %bcond_with	lua		# LUA support in mod_cml (needs LUA >= 5.1)
 %bcond_with	memcache	# memcached support in mod_cml / mod_trigger_b4_dl
@@ -25,9 +25,9 @@
 %bcond_with	valgrind	# compile code with valgrind support.
 %bcond_with	deflate		# build deflate module (needs patch update with current svn)
 
-%define		_rel 3.29
+%define		_rel 3.42
 # svn snapshot
-%define		_svn	1199
+%define		_svn	1211
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -87,6 +87,7 @@ Source130:	%{name}-php-spawned.conf
 Source131:	%{name}-php-external.conf
 Source132:	%{name}-ssl.conf
 Source133:	%{name}-mod_proxy_core.conf
+Source134:	%{name}-mod_mysql_vhost.conf
 Patch100:	%{name}-branch.diff
 Patch0:		%{name}-mod_deflate.patch
 Patch1:		%{name}-use_bin_sh.patch
@@ -654,6 +655,7 @@ install %{SOURCE111} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_expire.conf
 install %{SOURCE112} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_fastcgi.conf
 install %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
 install %{SOURCE114} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_indexfile.conf
+install %{SOURCE134} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_mysql_vhost.conf
 install %{SOURCE115} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy.conf
 install %{SOURCE133} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_core.conf
 install %{SOURCE118} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_rrdtool.conf
