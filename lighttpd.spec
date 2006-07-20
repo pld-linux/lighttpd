@@ -3,6 +3,9 @@
 # - mysql issue: http://www.freebsd.org/cgi/query-pr.cgi?pr=76866
 # - fam over gamin is possible, just configure doesn't check other than gamin
 # - feature stat-cache-fam (doesn't work)
+# - lighttpd writes early startup messages to stderr, and if started from
+#   rc-scripts the stderr is closed which causes lighttpd to abort():
+#   2006-07-20 21:05:52: (server.c.1233) WARNING: unknown config-key: url.rewrite-final (ignored)
 #
 # NOTES:
 # - fcgi-devel is only used for the test-scripts
@@ -25,7 +28,7 @@
 %bcond_with	valgrind	# compile code with valgrind support.
 %bcond_with	deflate		# build deflate module (needs patch update with current svn)
 
-%define		_rel 3.42
+%define		_rel 3.43
 # svn snapshot
 %define		_svn	1211
 
