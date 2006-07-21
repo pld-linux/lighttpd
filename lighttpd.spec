@@ -123,8 +123,10 @@ Requires(postun):	/usr/sbin/groupdel
 Requires(postun):	/usr/sbin/userdel
 Requires(pre):	/bin/id
 Requires(pre):	/usr/bin/getgid
+Requires(pre):	/usr/lib/rpm/user_group.sh
 Requires(pre):	/usr/sbin/groupadd
 Requires(pre):	/usr/sbin/useradd
+Requires(pre):	/usr/sbin/usermod
 Requires:	%{name}-mod_dirlisting
 Requires:	%{name}-mod_indexfile
 Requires:	%{name}-mod_staticfile
@@ -572,8 +574,8 @@ PHP support via FastCGI, spawning controlled externally
 %package ssl
 Summary:	lighttpd support for SSLv2 and SSLv3
 Group:		Networking/Daemons
-Requires:	%{name} = %{version}-%{release}
 URL:		http://www.lighttpd.net/documentation/ssl.html
+Requires:	%{name} = %{version}-%{release}
 
 %description ssl
 lighttpd support for SSLv2 and SSLv3.
