@@ -28,19 +28,21 @@
 %bcond_with	valgrind	# compile code with valgrind support.
 %bcond_with	deflate		# build deflate module (needs patch update with current svn)
 
-%define		_rel 3.43
+%define		_rel 0.43
 # svn snapshot
-%define		_svn	1211
+#define		_svn	1211
+# Prerelease snapshot: DATE-TIME
+%define _snap 20060724-0947
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.11
+Version:	1.4.12
 Release:	%{_rel}%{?_svn:.%{_svn}}
 License:	BSD
 Group:		Networking/Daemons
-Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
-# Source0-md5:	f55eebb9815c94a7de35906bb557ecd3
+Source0:	http://www.lighttpd.net/download/%{name}-%{version}-%{_snap}.tar.gz
+# Source0-md5:	9b9f004921282ab806248c9bf56806da
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -582,7 +584,7 @@ lighttpd support for SSLv2 and SSLv3.
 
 %prep
 %setup -q
-%patch100 -p1
+#patch100 -p1
 #%patch0 -p1 # applied already?
 #%patch1 -p1 # outdated
 %patch2 -p1
