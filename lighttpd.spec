@@ -28,7 +28,7 @@
 %bcond_with	valgrind	# compile code with valgrind support.
 %bcond_with	deflate		# build deflate module (needs patch update with current svn)
 
-%define		_rel 0.43
+%define		_rel 0.50
 # svn snapshot
 #define		_svn	1211
 # Prerelease snapshot: DATE-TIME
@@ -97,7 +97,7 @@ Patch100:	%{name}-branch.diff
 Patch0:		%{name}-mod_deflate.patch
 Patch1:		%{name}-use_bin_sh.patch
 Patch2:		%{name}-initgroups.patch
-Patch3:		%{name}-ticket-475.patch
+Patch3:		http://trac.lighttpd.net/trac/attachment/ticket/444/lighttpd-apr1.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -588,7 +588,7 @@ lighttpd support for SSLv2 and SSLv3.
 #%patch0 -p1 # applied already?
 #%patch1 -p1 # outdated
 %patch2 -p1
-#%patch3 -p2
+%patch3 -p1
 install %{SOURCE6} mime.types.sh
 
 # build mime.types.conf
