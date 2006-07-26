@@ -97,7 +97,7 @@ Patch100:	%{name}-branch.diff
 Patch0:		%{name}-mod_deflate.patch
 Patch1:		%{name}-use_bin_sh.patch
 Patch2:		%{name}-initgroups.patch
-Patch3:		http://trac.lighttpd.net/trac/attachment/ticket/444/lighttpd-apr1.patch
+Patch3:		http://trac.lighttpd.net/trac/attachment/ticket/444/lighttpd-apr1.patch?format=txt
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
