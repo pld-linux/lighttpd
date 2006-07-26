@@ -28,7 +28,7 @@
 %bcond_with	valgrind	# compile code with valgrind support.
 %bcond_with	deflate		# build deflate module (needs patch update with current svn)
 
-%define		_rel 0.50
+%define		_rel 0.51
 # svn snapshot
 #define		_svn	1211
 # Prerelease snapshot: DATE-TIME
@@ -640,7 +640,6 @@ install %{SOURCE7} %{SOURCE8} %{SOURCE9} $RPM_BUILD_ROOT%{_lighttpddir}/html
 install %{SOURCE10} $RPM_BUILD_ROOT%{_lighttpddir}/html/pld_button.png
 install %{SOURCE11} $RPM_BUILD_ROOT%{_lighttpddir}/html/index.html
 
-
 # NOTE: the order of the modules is somewhat important as the modules are
 # handled in the way they are specified. mod_rewrite should always be the first
 # module, mod_accesslog always the last.
@@ -812,7 +811,7 @@ EOF
 %dir %{_lighttpddir}
 %dir %{_lighttpddir}/cgi-bin
 %dir %{_lighttpddir}/html
-%{_lighttpddir}/html/*
+%config(noreplace,missingok) %verify(not md5 mtime size) %{_lighttpddir}/html/*
 
 %files mod_access
 %defattr(644,root,root,755)
