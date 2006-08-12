@@ -9,8 +9,8 @@
 # - disable largefile, if you have 2.4 kernel to get sendfile() support, and don't need > 2GB file requests,
 #   see http://article.gmane.org/gmane.comp.web.lighttpd:722
 # - please make subpackages of modules that depend other modules than:
-#  - pcre (core binary needs it too)
-#  - openssl (core binary needs it too)
+#   -- pcre (core binary needs it too)
+#   -- openssl (core binary needs it too)
 #
 # Conditional build for lighttpd:
 %bcond_without	xattr		# support of extended attributes
