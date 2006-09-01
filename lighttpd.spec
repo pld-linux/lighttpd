@@ -28,11 +28,11 @@
 %bcond_with	valgrind	# compile code with valgrind support.
 %bcond_with	deflate		# build deflate module (needs patch update with current svn)
 
-%define		_rel 0.51
+%define		_rel 0.52
 # svn snapshot
 #define		_svn	1211
 # Prerelease snapshot: DATE-TIME
-%define _snap 20060724-0947
+%define _snap 20060901-1232
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
@@ -42,7 +42,7 @@ Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}%{?_svn:.%{_svn}}
 License:	BSD
 Group:		Networking/Daemons
 Source0:	http://www.lighttpd.net/download/%{name}-%{version}-%{_snap}.tar.gz
-# Source0-md5:	9b9f004921282ab806248c9bf56806da
+# Source0-md5:	85924f4bb0c56d90672a56771013265d
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -588,7 +588,7 @@ lighttpd support for SSLv2 and SSLv3.
 #%patch0 -p1 # applied already?
 #%patch1 -p1 # outdated
 %patch2 -p1
-%patch3 -p1
+#%patch3 -p1 # NEEDS UPDATE
 install %{SOURCE6} mime.types.sh
 
 # build mime.types.conf
@@ -894,7 +894,7 @@ EOF
 %files mod_mysql_vhost
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_mysql_vhost.conf
-%attr(755,root,root) %{_libdir}/mod_sql_vhost_core.so
+#%attr(755,root,root) %{_libdir}/mod_sql_vhost_core.so
 %attr(755,root,root) %{_libdir}/mod_mysql_vhost.so
 %endif
 
@@ -903,10 +903,12 @@ EOF
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy.conf
 %attr(755,root,root) %{_libdir}/mod_proxy.so
 
+%if 0
 %files mod_proxy_core
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy_core.conf
 %attr(755,root,root) %{_libdir}/mod_proxy_core.so
+%endif
 
 %files mod_redirect
 %defattr(644,root,root,755)
