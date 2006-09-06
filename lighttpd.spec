@@ -28,21 +28,25 @@
 %bcond_with	valgrind	# compile code with valgrind support.
 %bcond_with	deflate		# build deflate module (needs patch update with current svn)
 
-%define		_rel 0.52
+%define		_rel 0.55
 # svn snapshot
-#define		_svn	1211
+%define		_svn	1277
 # Prerelease snapshot: DATE-TIME
-%define _snap 20060901-1232
+#define _snap 20060901-1232
+#define _snap 20060724-0947
+
+# version we're applying branch diff
+%define		_basever	1.4.11
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.12
+Version:	1.5.0
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}%{?_svn:.%{_svn}}
 License:	BSD
 Group:		Networking/Daemons
-Source0:	http://www.lighttpd.net/download/%{name}-%{version}-%{_snap}.tar.gz
-# Source0-md5:	85924f4bb0c56d90672a56771013265d
+Source0:	http://www.lighttpd.net/download/%{name}-%{_basever}.tar.gz
+# Source0-md5:	f55eebb9815c94a7de35906bb557ecd3
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -93,11 +97,12 @@ Source131:	%{name}-php-external.conf
 Source132:	%{name}-ssl.conf
 Source133:	%{name}-mod_proxy_core.conf
 Source134:	%{name}-mod_mysql_vhost.conf
+Source135:	%{name}-mod_uploadprogress.conf
 Patch100:	%{name}-branch.diff
 Patch0:		%{name}-mod_deflate.patch
 Patch1:		%{name}-use_bin_sh.patch
 Patch2:		%{name}-initgroups.patch
-Patch3:		http://trac.lighttpd.net/trac/attachment/ticket/444/lighttpd-apr1.patch?format=txt
+Patch3:		http://trac.lighttpd.net/trac/attachment/ticket/444/%{name}-apr1.patch?format=txt
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -484,6 +489,14 @@ Another anti hot-linking module.
 %description mod_trigger_b4_dl -l pl
 Jeszcze jeden modu³ blokuj±cy bezpo¶rednie linkowanie.
 
+%package mod_uploadprogress
+Summary:	lighttpd module for upload progress
+Group:		Networking/Daemons
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_uploadprogress
+Upload progress module.
+
 %package mod_userdir
 Summary:	lighttpd module for user homedirs
 Group:		Networking/Daemons
@@ -583,12 +596,12 @@ Requires:	%{name} = %{version}-%{release}
 lighttpd support for SSLv2 and SSLv3.
 
 %prep
-%setup -q
-#patch100 -p1
+%setup -q -n %{name}-%{_basever}
+%patch100 -p1
 #%patch0 -p1 # applied already?
 #%patch1 -p1 # outdated
 %patch2 -p1
-#%patch3 -p1 # NEEDS UPDATE
+%patch3 -p1
 install %{SOURCE6} mime.types.sh
 
 # build mime.types.conf
@@ -661,9 +674,7 @@ install %{SOURCE111} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_expire.conf
 install %{SOURCE112} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_fastcgi.conf
 install %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
 install %{SOURCE114} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_indexfile.conf
-install %{SOURCE134} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_mysql_vhost.conf
 install %{SOURCE115} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy.conf
-install %{SOURCE133} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_core.conf
 install %{SOURCE118} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_rrdtool.conf
 install %{SOURCE119} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_scgi.conf
 install %{SOURCE120} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_secdownload.conf
@@ -673,9 +684,12 @@ install %{SOURCE123} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_ssi.conf
 install %{SOURCE124} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_staticfile.conf
 install %{SOURCE125} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_status.conf
 install %{SOURCE126} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_trigger_b4_dl.conf
+install %{SOURCE135} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_uploadprogress.conf
 install %{SOURCE127} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_userdir.conf
 install %{SOURCE128} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_usertrack.conf
 install %{SOURCE129} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_webdav.conf
+install %{SOURCE133} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_core.conf
+install %{SOURCE134} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_mysql_vhost.conf
 
 install %{SOURCE101} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/90_mod_accesslog.conf
 
@@ -778,9 +792,11 @@ fi
 %module_scripts mod_staticfile
 %module_scripts mod_status
 %module_scripts mod_trigger_b4_dl
+%module_scripts mod_uploadprogress
 %module_scripts mod_userdir
 %module_scripts mod_usertrack
 %module_scripts mod_webdav
+
 %module_scripts php-spawned
 %module_scripts php-external
 
@@ -894,7 +910,7 @@ EOF
 %files mod_mysql_vhost
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_mysql_vhost.conf
-#%attr(755,root,root) %{_libdir}/mod_sql_vhost_core.so
+%attr(755,root,root) %{_libdir}/mod_sql_vhost_core.so
 %attr(755,root,root) %{_libdir}/mod_mysql_vhost.so
 %endif
 
@@ -903,12 +919,10 @@ EOF
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy.conf
 %attr(755,root,root) %{_libdir}/mod_proxy.so
 
-%if 0
 %files mod_proxy_core
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy_core.conf
 %attr(755,root,root) %{_libdir}/mod_proxy_core.so
-%endif
 
 %files mod_redirect
 %defattr(644,root,root,755)
@@ -964,6 +978,11 @@ EOF
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_trigger_b4_dl.conf
 %attr(755,root,root) %{_libdir}/mod_trigger_b4_dl.so
+
+%files mod_uploadprogress
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_uploadprogress.conf
+%attr(755,root,root) %{_libdir}/mod_uploadprogress.so
 
 %files mod_userdir
 %defattr(644,root,root,755)
