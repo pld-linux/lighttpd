@@ -172,7 +172,6 @@ powodu problemów z obci±¿eniem.
 %package mod_access
 Summary:	lighttpd module for making access restrictions
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/access.html
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(access)
 
@@ -183,7 +182,6 @@ path names.
 %package mod_accesslog
 Summary:	lighttpd module to record access logs
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/accesslog.html
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_accesslog
@@ -192,7 +190,6 @@ CLF like by default, flexible like Apache.
 %package mod_alias
 Summary:	lighttpd module for making url aliasing
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/alias.html
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(alias)
 
@@ -203,7 +200,6 @@ given url-subset.
 %package mod_auth
 Summary:	lighttpd module for authentication support
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/authentication.html
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(auth)
 
@@ -214,7 +210,6 @@ basic and digest.
 %package mod_cgi
 Summary:	lighttpd module for CGI handling
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/cgi.html
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(cgi)
 
@@ -228,7 +223,6 @@ very straight and simple way...
 Summary:	lighttpd module for Cache Meta Language
 Summary(pl):	Modu³ Cache Meta Language
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/cml.html
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_cml
@@ -244,7 +238,6 @@ z drugiej strony do budowania strony z fragmentów przy u¿yciu LUA.
 Summary:	lighttpd module for output compression
 Summary(pl):	Kompresja wyj¶cia
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/compress.html
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_compress
@@ -279,7 +272,6 @@ It doesn't support caching compressed output like mod_compress.
 %package mod_dirlisting
 Summary:	lighttpd module for directory listings
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/dirlisting.html
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_dirlisting
@@ -296,7 +288,6 @@ Requires:	%{name} = %{version}-%{release}
 %package mod_evhost
 Summary:	lighttpd module for enhanced virtual-hosting
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/evhost.html
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_evhost
@@ -307,7 +298,6 @@ hostname.
 %package mod_expire
 Summary:	lighttpd module for controlling the expiration of content in caches
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/expire.html
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_expire
@@ -316,7 +306,6 @@ mod_expire controls the setting of the the Expire response header.
 %package mod_fastcgi
 Summary:	lighttpd module for FastCGI interface
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/fastcgi.html
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_fastcgi
@@ -345,7 +334,6 @@ indexfile module.
 Summary:	lighttpd module for MySQL based vhosting
 Summary(pl):	vhosty oparte na MySQL-u
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/mysqlvhost.html
 Requires:	%{name} = %{version}-%{release}
 Conflicts:	%{name}-mod_simple_vhost
 
@@ -358,7 +346,6 @@ Ten modu³ udostêpnia wirtualne hosty (vhosty) oparte na tabeli MySQL.
 %package mod_proxy
 Summary:	lighttpd module for proxying requests
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/proxy.html
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_proxy
@@ -380,7 +367,6 @@ This is the new proxy code.
 %package mod_redirect
 Summary:	lighttpd module for URL redirects
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/redirect.html
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_redirect
@@ -389,7 +375,6 @@ With mod_redirect module you can redirects a set of URLs externally.
 %package mod_rewrite
 Summary:	lighttpd module for internal redirects, URL rewrite
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/rewrite.html
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_rewrite
@@ -399,7 +384,6 @@ webserver BEFORE they are handled.
 %package mod_rrdtool
 Summary:	lighttpd module for monitoring traffic and server load
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/rrdtool.html
 Requires:	%{name} = %{version}-%{release}
 Requires:	rrdtool
 
@@ -413,7 +397,6 @@ webserver.
 %package mod_scgi
 Summary:	lighttpd module for SCGI interface
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/scgi.html
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_scgi
@@ -423,7 +406,6 @@ Python + WSGI.
 %package mod_secdownload
 Summary:	lighttpd module for secure and fast downloading
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/secdownload.html
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_secdownload
@@ -433,7 +415,6 @@ and a countermeasure against deep-linking.
 %package mod_setenv
 Summary:	lighttpd module for setting conditional request headers
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/setenv.html
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_setenv
@@ -442,7 +423,6 @@ mod_setenv is used to add request headers.
 %package mod_simple_vhost
 Summary:	lighttpd module for simple virtual-hosting
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/simple-vhost.html
 Requires:	%{name} = %{version}-%{release}
 Conflicts:	%{name}-mod_mysql_vhost
 
@@ -452,7 +432,6 @@ lighttpd module for simple virtual-hosting.
 %package mod_ssi
 Summary:	lighttpd module for server-side includes
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/ssi.html
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_ssi
@@ -470,7 +449,6 @@ lighttpd module for static file serving.
 %package mod_status
 Summary:	lighttpd module for displaying server status
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/status.html
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_status
@@ -480,7 +458,6 @@ mod_status displays the server's status and configuration.
 Summary:	Trigger before Download
 Summary(pl):	Wyzwalacz przed ¶ci±ganiem
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/trigger_b4_dl.html
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_trigger_b4_dl
@@ -500,7 +477,6 @@ Upload progress module.
 %package mod_userdir
 Summary:	lighttpd module for user homedirs
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/userdir.html
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_userdir
@@ -518,7 +494,6 @@ Requires:	%{name} = %{version}-%{release}
 Summary:	WebDAV module for lighttpd
 Summary(pl):	Modu³ WebDAV dla libghttpd
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/webdav.html
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_webdav
@@ -589,7 +564,6 @@ PHP support via FastCGI, spawning controlled externally
 %package ssl
 Summary:	lighttpd support for SSLv2 and SSLv3
 Group:		Networking/Daemons
-URL:		http://www.lighttpd.net/documentation/ssl.html
 Requires:	%{name} = %{version}-%{release}
 
 %description ssl
