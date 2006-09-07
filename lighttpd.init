@@ -115,6 +115,12 @@ case "$1" in
 		RETVAL=7
 	fi
 	;;
+  configtest)
+		show "Checking lighttpd config syntax"
+		configtest
+		RETVAL=$?
+		[ $RETVAL = 0 ] && ok || fail
+	;;
   flush-logs)
 	if [ -f /var/lock/subsys/lighttpd ]; then
 		nls "Rotating %s logs" lighttpd
@@ -126,7 +132,7 @@ case "$1" in
 	fi
 	;;
   *)
-	msg_usage "$0 {start|stop|restart|reload|force-reload|graceful|flush-logs|status}"
+	msg_usage "$0 {start|stop|restart|reload|force-reload|graceful|configtest|flush-logs|status}"
 	exit 3
 	;;
 esac
