@@ -30,23 +30,20 @@
 
 %define		_rel 0.55
 # svn snapshot
-%define		_svn	1277
+#define		_svn	1277
 # Prerelease snapshot: DATE-TIME
-#define _snap 20060901-1232
-#define _snap 20060724-0947
-
-# version we're applying branch diff
-%define		_basever	1.4.11
+%define _snap 20060907-1319
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.5.0
+Version:	1.4.12
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}%{?_svn:.%{_svn}}
 License:	BSD
 Group:		Networking/Daemons
-Source0:	http://www.lighttpd.net/download/%{name}-%{_basever}.tar.gz
-# Source0-md5:	f55eebb9815c94a7de35906bb557ecd3
+#Source0:	http://www.lighttpd.net/download/%{name}-%{_basever}.tar.gz
+Source0:	http://www.lighttpd.net/download/%{name}-%{version}-%{_snap}.tar.gz
+# Source0-md5:	a9c4747984235db61b9685388e9160f7
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -570,12 +567,12 @@ Requires:	%{name} = %{version}-%{release}
 lighttpd support for SSLv2 and SSLv3.
 
 %prep
-%setup -q -n %{name}-%{_basever}
-%patch100 -p1
+%setup -q
+#%patch100 -p1
 #%patch0 -p1 # applied already?
 #%patch1 -p1 # outdated
 %patch2 -p1
-%patch3 -p1
+#%patch3 -p1
 install %{SOURCE6} mime.types.sh
 
 # build mime.types.conf
@@ -884,7 +881,7 @@ EOF
 %files mod_mysql_vhost
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_mysql_vhost.conf
-%attr(755,root,root) %{_libdir}/mod_sql_vhost_core.so
+#%attr(755,root,root) %{_libdir}/mod_sql_vhost_core.so
 %attr(755,root,root) %{_libdir}/mod_mysql_vhost.so
 %endif
 
@@ -893,10 +890,12 @@ EOF
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy.conf
 %attr(755,root,root) %{_libdir}/mod_proxy.so
 
+%if 0
 %files mod_proxy_core
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy_core.conf
 %attr(755,root,root) %{_libdir}/mod_proxy_core.so
+%endif
 
 %files mod_redirect
 %defattr(644,root,root,755)
@@ -953,10 +952,12 @@ EOF
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_trigger_b4_dl.conf
 %attr(755,root,root) %{_libdir}/mod_trigger_b4_dl.so
 
+%if 0
 %files mod_uploadprogress
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_uploadprogress.conf
 %attr(755,root,root) %{_libdir}/mod_uploadprogress.so
+%endif
 
 %files mod_userdir
 %defattr(644,root,root,755)
