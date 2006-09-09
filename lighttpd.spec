@@ -36,7 +36,7 @@
 %define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
 %endif
 
-%define		_rel 3.1
+%define		_rel 4
 
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
