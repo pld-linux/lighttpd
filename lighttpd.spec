@@ -19,7 +19,7 @@
 %bcond_without	ssl		# ssl support
 %bcond_without	mysql		# mysql support in mod_mysql_vhost
 %bcond_with	ldap		# ldap support in mod_auth
-%bcond_with	lua		# LUA support in mod_cml (needs LUA >= 5.1)
+%bcond_without	lua		# LUA support in mod_cml (needs LUA >= 5.1)
 %bcond_with	memcache	# memcached support in mod_cml / mod_trigger_b4_dl
 %bcond_with	gamin		# gamin for reducing number of stat() calls.
 				# NOTE: must be enabled in config: server.stat-cache-engine = "fam"
@@ -33,7 +33,7 @@
 # Prerelease
 %define _snap r1309
 
-%define		_rel 0.58
+%define		_rel 0.59
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -93,13 +93,13 @@ Source131:	%{name}-php-external.conf
 Source132:	%{name}-ssl.conf
 Source133:	%{name}-mod_proxy_core.conf
 Source134:	%{name}-mod_mysql_vhost.conf
-Source135:	%{name}-mod_uploadprogress.conf
 Patch100:	%{name}-branch.diff
 Patch0:		%{name}-mod_deflate.patch
 Patch1:		%{name}-use_bin_sh.patch
 Patch2:		%{name}-initgroups.patch
 Patch3:		http://trac.lighttpd.net/trac/attachment/ticket/444/%{name}-apr1.patch?format=txt
 Patch4:		%{name}-mod_evasive-status_code.patch
+Patch5:		%{name}-lua-version.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -463,14 +463,6 @@ Another anti hot-linking module.
 %description mod_trigger_b4_dl -l pl
 Jeszcze jeden modu³ blokuj±cy bezpo¶rednie linkowanie.
 
-%package mod_uploadprogress
-Summary:	lighttpd module for upload progress
-Group:		Networking/Daemons
-Requires:	%{name} = %{version}-%{release}
-
-%description mod_uploadprogress
-Upload progress module.
-
 %package mod_userdir
 Summary:	lighttpd module for user homedirs
 Group:		Networking/Daemons
@@ -574,10 +566,10 @@ lighttpd support for SSLv2 and SSLv3.
 %patch2 -p1
 #%patch3 -p1
 %patch4 -p0
-install %{SOURCE6} mime.types.sh
+%patch5 -p1
 
 # build mime.types.conf
-./mime.types.sh /etc/mime.types
+sh %{SOURCE6} /etc/mime.types
 
 %build
 %{__libtoolize}
@@ -656,7 +648,6 @@ install %{SOURCE123} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_ssi.conf
 install %{SOURCE124} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_staticfile.conf
 install %{SOURCE125} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_status.conf
 install %{SOURCE126} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_trigger_b4_dl.conf
-install %{SOURCE135} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_uploadprogress.conf
 install %{SOURCE127} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_userdir.conf
 install %{SOURCE128} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_usertrack.conf
 install %{SOURCE129} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_webdav.conf
@@ -764,7 +755,6 @@ fi
 %module_scripts mod_staticfile
 %module_scripts mod_status
 %module_scripts mod_trigger_b4_dl
-%module_scripts mod_uploadprogress
 %module_scripts mod_userdir
 %module_scripts mod_usertrack
 %module_scripts mod_webdav
@@ -952,13 +942,6 @@ EOF
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_trigger_b4_dl.conf
 %attr(755,root,root) %{_libdir}/mod_trigger_b4_dl.so
-
-%if 0
-%files mod_uploadprogress
-%defattr(644,root,root,755)
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_uploadprogress.conf
-%attr(755,root,root) %{_libdir}/mod_uploadprogress.so
-%endif
 
 %files mod_userdir
 %defattr(644,root,root,755)
