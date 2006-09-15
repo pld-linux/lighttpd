@@ -28,20 +28,12 @@
 %bcond_with	valgrind	# compile code with valgrind support.
 %bcond_with	deflate		# build deflate module (needs patch update with current svn)
 
-%define		_rel 0.55
 # SVN snapshot
 #define		_svn	1277
-# Prerelease snapshot: DATE-TIME
-%define _snap 20060907-1319
-
-%if 0%{?_snap}
-%define _source http://www.lighttpd.net/download/%{name}-%{version}-%{_snap}.tar.gz
-%else
-%define _source http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
-%endif
+# Prerelease
+%define _snap r1309
 
 %define		_rel 0.58
-
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -50,7 +42,7 @@ Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}%{?_svn:.%{_svn}}
 License:	BSD
 Group:		Networking/Daemons
 Source0:	http://www.lighttpd.net/download/%{name}-%{version}-%{_snap}.tar.gz
-# Source0-md5:	a9c4747984235db61b9685388e9160f7
+# Source0-md5:	a887b075858cb28bf9fd11d86556509e
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
