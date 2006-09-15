@@ -33,7 +33,7 @@
 # Prerelease
 %define _snap r1309
 
-%define		_rel 0.59
+%define		_rel 0.60
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -91,9 +91,9 @@ Source129:	%{name}-mod_webdav.conf
 Source130:	%{name}-php-spawned.conf
 Source131:	%{name}-php-external.conf
 Source132:	%{name}-ssl.conf
-Source133:	%{name}-mod_proxy_core.conf
-Source134:	%{name}-mod_mysql_vhost.conf
-Patch100:	%{name}-branch.diff
+Source133:	%{name}-mod_mysql_vhost.conf
+Source134:	%{name}-mod_magnet.conf
+#Patch100:	%{name}-branch.diff
 Patch0:		%{name}-mod_deflate.patch
 Patch1:		%{name}-use_bin_sh.patch
 Patch2:		%{name}-initgroups.patch
@@ -326,6 +326,14 @@ Provides:	webserver(indexfile)
 
 %description mod_indexfile
 indexfile module.
+
+%package mod_magnet
+Summary:	lighttpd powermagnet module
+Group:		Networking/Daemons
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_magnet
+mod_magnet is a module to control the request handling in lighty.
 
 %package mod_mysql_vhost
 Summary:	lighttpd module for MySQL based vhosting
@@ -638,6 +646,7 @@ install %{SOURCE111} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_expire.conf
 install %{SOURCE112} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_fastcgi.conf
 install %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
 install %{SOURCE114} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_indexfile.conf
+install %{SOURCE134} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_magnet.conf
 install %{SOURCE115} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy.conf
 install %{SOURCE118} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_rrdtool.conf
 install %{SOURCE119} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_scgi.conf
@@ -651,8 +660,7 @@ install %{SOURCE126} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_trigger_b4_dl.c
 install %{SOURCE127} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_userdir.conf
 install %{SOURCE128} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_usertrack.conf
 install %{SOURCE129} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_webdav.conf
-install %{SOURCE133} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_core.conf
-install %{SOURCE134} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_mysql_vhost.conf
+install %{SOURCE133} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_mysql_vhost.conf
 
 install %{SOURCE101} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/90_mod_accesslog.conf
 
@@ -742,6 +750,7 @@ fi
 %module_scripts mod_fastcgi
 %module_scripts mod_flv_streaming
 %module_scripts mod_indexfile
+%module_scripts mod_magnet
 %module_scripts mod_mysql_vhost
 %module_scripts mod_proxy
 %module_scripts mod_redirect
@@ -868,11 +877,15 @@ EOF
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_indexfile.conf
 %attr(755,root,root) %{_libdir}/mod_indexfile.so
 
+%files mod_magnet
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_magnet.conf
+%attr(755,root,root) %{_libdir}/mod_magnet.so
+
 %if %{with mysql}
 %files mod_mysql_vhost
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_mysql_vhost.conf
-#%attr(755,root,root) %{_libdir}/mod_sql_vhost_core.so
 %attr(755,root,root) %{_libdir}/mod_mysql_vhost.so
 %endif
 
@@ -880,13 +893,6 @@ EOF
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy.conf
 %attr(755,root,root) %{_libdir}/mod_proxy.so
-
-%if 0
-%files mod_proxy_core
-%defattr(644,root,root,755)
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy_core.conf
-%attr(755,root,root) %{_libdir}/mod_proxy_core.so
-%endif
 
 %files mod_redirect
 %defattr(644,root,root,755)
