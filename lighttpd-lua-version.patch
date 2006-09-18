@@ -1,0 +1,11 @@
+--- lighttpd-1.4.12/configure.in~	2006-09-15 13:44:36.000000000 +0300
++++ lighttpd-1.4.12/configure.in	2006-09-15 19:46:03.095907193 +0300
+@@ -400,7 +400,7 @@
+ 
+  if test x"$LUA_LIBS" = x; then
+    # try pkgconfig
+-   PKG_CHECK_MODULES(LUA, lua >= 5.1, [
++   PKG_CHECK_MODULES(LUA, lua >= 5.0, [
+      AC_DEFINE([HAVE_LUA], [1], [liblua])
+      AC_DEFINE([HAVE_LUA_H], [1], [lua.h])
+    ])
