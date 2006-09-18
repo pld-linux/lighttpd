@@ -95,7 +95,6 @@ Source133:	%{name}-mod_mysql_vhost.conf
 Source134:	%{name}-mod_magnet.conf
 #Patch100:	%{name}-branch.diff
 Patch0:		%{name}-mod_deflate.patch
-Patch1:		%{name}-use_bin_sh.patch
 Patch2:		%{name}-initgroups.patch
 Patch3:		http://trac.lighttpd.net/trac/attachment/ticket/444/%{name}-apr1.patch?format=txt
 Patch4:		%{name}-mod_evasive-status_code.patch
@@ -570,7 +569,6 @@ lighttpd support for SSLv2 and SSLv3.
 %setup -q
 #%patch100 -p1
 #%patch0 -p1 # applied already?
-#%patch1 -p1 # outdated
 %patch2 -p1
 #%patch3 -p1
 %patch4 -p0
