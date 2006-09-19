@@ -3,38 +3,18 @@
 #
 # http://trac.lighttpd.net/trac/ticket/388
 
---- lighttpd-1.4.12/src/proc_open.c~	2006-09-19 15:32:30.253386029 +0300
-+++ lighttpd-1.4.12/src/proc_open.c	2006-09-19 15:33:59.405384132 +0300
-@@ -148,17 +148,9 @@
- 	STARTUPINFO si;
- 	BOOL procok;
- 	SECURITY_ATTRIBUTES security;
--	const char *shell = NULL;
--	const char *windir = NULL;
-+	const char *shell = "/bin/sh";
- 	buffer *cmdline;
- 
--	if (NULL == (shell = getenv(SHELLENV)) &&
--			NULL == (windir = getenv("SystemRoot")) &&
--			NULL == (windir = getenv("windir"))) {
--		fprintf(stderr, "One of %s,%%SystemRoot,%%windir is required", SHELLENV);
--		return -1;
--	}
+--- lighttpd-1.4.12/src/proc_open.c~	2006-09-19 15:49:41.846531074 +0300
++++ lighttpd-1.4.12/src/proc_open.c	2006-09-19 15:51:13.658593480 +0300
+@@ -219,11 +219,7 @@
+ /* {{{ proc_open */
+ int proc_open(proc_handler_t *proc, const char *command) {
+ 	pid_t child;
+-	const char *shell;
 -
- 	/* we use this to allow the child to inherit handles */
- 	memset(&security, 0, sizeof(security));
- 	security.nLength = sizeof(security);
-@@ -180,12 +172,7 @@
- 	memset(&pi, 0, sizeof(pi));
- 
- 	cmdline = buffer_init();
--	if (shell) {
--		buffer_append_string(cmdline, shell);
--	} else {
--		buffer_append_string(cmdline, windir);
--		buffer_append_string(cmdline, "\\system32\\cmd.exe");
+-	if (NULL == (shell = getenv(SHELLENV))) {
+-		shell = "/bin/sh";
 -	}
-+	buffer_append_string(cmdline, shell);
- 	buffer_append_string_len(cmdline, CONST_STR_LEN(" /c "));
- 	buffer_append_string(cmdline, command);
- 	procok = CreateProcess(NULL, cmdline->ptr, &security, &security, TRUE,
++	const char *shell = "/bin/sh";
+ 
+ 	if (proc_open_pipes(proc) != 0) {
+ 		return -1;
