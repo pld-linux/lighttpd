@@ -31,9 +31,9 @@
 # SVN snapshot
 #define		_svn	1277
 # Prerelease
-%define _snap r1309
+%define _snap r1327
 
-%define		_rel 0.61
+%define		_rel 0.64
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -42,7 +42,7 @@ Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}%{?_svn:.%{_svn}}
 License:	BSD
 Group:		Networking/Daemons
 Source0:	http://www.lighttpd.net/download/%{name}-%{version}-%{_snap}.tar.gz
-# Source0-md5:	a887b075858cb28bf9fd11d86556509e
+# Source0-md5:	a85be3eed436183fe75b949b336f89a7
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -99,7 +99,6 @@ Patch1:		%{name}-use_bin_sh.patch
 Patch2:		%{name}-initgroups.patch
 Patch3:		http://trac.lighttpd.net/trac/attachment/ticket/444/%{name}-apr1.patch?format=txt
 Patch4:		%{name}-mod_evasive-status_code.patch
-Patch5:		%{name}-lua-version.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -574,7 +573,6 @@ lighttpd support for SSLv2 and SSLv3.
 %patch2 -p1
 #%patch3 -p1
 %patch4 -p0
-%patch5 -p1
 
 # build mime.types.conf
 sh %{SOURCE6} /etc/mime.types
