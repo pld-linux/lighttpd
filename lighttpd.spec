@@ -31,9 +31,9 @@
 # SVN snapshot
 #define		_svn	1277
 # Prerelease
-%define _snap r1332
+#define _snap r1332
 
-%define		_rel 0.65
+%define		_rel 0.66
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -41,8 +41,8 @@ Version:	1.4.12
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}%{?_svn:.%{_svn}}
 License:	BSD
 Group:		Networking/Daemons
-Source0:	http://www.lighttpd.net/download/%{name}-%{version}-%{_snap}.tar.gz
-# Source0-md5:	8d0aff4b894dda889560fa1ff28259df
+Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
+# Source0-md5:	8f6756452138f5da384251f849b329f2
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
