@@ -1,4 +1,5 @@
 # TODO:
+# - pl for -mod_magnet
 # - test ldap and mysql (failed at this time)
 # - mysql issue: http://www.freebsd.org/cgi/query-pr.cgi?pr=76866
 # - fam over gamin is possible, just configure doesn't check other than gamin
@@ -33,7 +34,7 @@
 # Prerelease
 #define _snap r1332
 
-%define		_rel 0.66
+%define		_rel 1
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
