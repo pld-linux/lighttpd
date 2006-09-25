@@ -20,7 +20,7 @@
 %bcond_without	ssl		# ssl support
 %bcond_without	mysql		# mysql support in mod_mysql_vhost
 %bcond_with	ldap		# ldap support in mod_auth
-%bcond_without	lua		# LUA support in mod_cml (needs LUA >= 5.1)
+%bcond_with	lua		# LUA support in mod_cml (needs LUA >= 5.1)
 %bcond_with	memcache	# memcached support in mod_cml / mod_trigger_b4_dl
 %bcond_with	gamin		# gamin for reducing number of stat() calls.
 				# NOTE: must be enabled in config: server.stat-cache-engine = "fam"
@@ -98,7 +98,8 @@ Source134:	%{name}-mod_magnet.conf
 Patch0:		%{name}-mod_deflate.patch
 Patch1:		%{name}-use_bin_sh.patch
 Patch2:		%{name}-initgroups.patch
-Patch3:		http://trac.lighttpd.net/trac/attachment/ticket/444/%{name}-apr1.patch?format=txt
+# http://trac.lighttpd.net/trac/ticket/444
+Patch3:		%{name}-apr1.patch
 Patch4:		%{name}-mod_evasive-status_code.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
@@ -111,7 +112,7 @@ BuildRequires:	bzip2-devel
 BuildRequires:	libtool
 BuildRequires:	libuuid-devel
 %{?with_webdav_props:BuildRequires:	libxml2-devel}
-%{?with_lua:BuildRequires:	lua50-devel >= 5.0.2-5.1}
+%{?with_lua:BuildRequires:	lua51-devel >= 5.1}
 BuildRequires:	mailcap >= 2.1.14-4.4
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?with_ldap:BuildRequires:	openldap-devel}
