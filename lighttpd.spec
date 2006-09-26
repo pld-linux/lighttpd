@@ -34,7 +34,7 @@
 # Prerelease
 #define _snap r1332
 
-%define		_rel 1
+%define		_rel 2
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -570,10 +570,10 @@ lighttpd support for SSLv2 and SSLv3.
 %prep
 %setup -q
 #%patch100 -p1
-#%patch0 -p1 # applied already?
+#%patch0 -p1
 %patch1 -p1
 %patch2 -p1
-#%patch3 -p1
+%patch3 -p1
 %patch4 -p0
 
 # build mime.types.conf
