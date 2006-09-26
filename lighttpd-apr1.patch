@@ -1,5 +1,5 @@
---- lighttpd-1.4.12/src/http_auth.c~	2006-09-26 11:33:30.664679536 +0300
-+++ lighttpd-1.4.12/src/http_auth.c	2006-09-26 11:35:18.617105290 +0300
+--- lighttpd-1.4.12/src/http_auth.c	2006-09-26 11:35:18.617105290 +0300
++++ lighttpd-1.4.12/src/http_auth.c	2006-09-26 11:43:39.928372212 +0300
 @@ -39,6 +39,17 @@
  # include "md5.h"
  #endif
@@ -18,7 +18,7 @@
  handler_t auth_ldap_init(server *srv, mod_auth_plugin_config *s);
  
  static const char base64_pad = '=';
-@@ -405,6 +416,177 @@
+@@ -405,6 +416,178 @@
  	return -1;
  }
  
@@ -187,7 +187,8 @@
 +     */
 +    memset(final, 0, sizeof(final));
 +
-+	// FIXME
++	/* FIXME
++	 */
 +#define apr_cpystrn strncpy
 +    apr_cpystrn(result, passwd, nbytes - 1);
 +}
@@ -196,7 +197,7 @@
  /**
   *
   *
-@@ -621,6 +621,14 @@
+@@ -439,6 +622,14 @@
  			return 0;
  		}
  	} else if (p->conf.auth_backend == AUTH_BACKEND_HTPASSWD) { 
@@ -211,11 +212,11 @@
  #ifdef HAVE_CRYPT	
  		char salt[32];
  		char *crypted;
-@@ -494,6 +684,7 @@
- 		} else {
- 			fprintf(stderr, "%s.%d\n", __FILE__, __LINE__);
+@@ -493,6 +684,7 @@
  		}
-+		}
- 
- #endif
- 	} else if (p->conf.auth_backend == AUTH_BACKEND_PLAIN) {
+ 	
+ #endif	
++	}
+ 	} else if (p->conf.auth_backend == AUTH_BACKEND_PLAIN) { 
+ 		if (0 == strcmp(password->ptr, pw)) {
+ 			return 0;
