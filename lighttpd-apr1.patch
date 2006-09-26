@@ -1,5 +1,5 @@
---- lighttpd-1.4.12/src/http_auth.c	2006-07-22 15:45:29.000000000 +0300
-+++ lighttpd-1.4.12.apr1/src/http_auth.c	2006-07-25 21:10:35.215248417 +0300
+--- lighttpd-1.4.12/src/http_auth.c~	2006-09-26 11:33:30.664679536 +0300
++++ lighttpd-1.4.12/src/http_auth.c	2006-09-26 11:35:18.617105290 +0300
 @@ -39,6 +39,17 @@
  # include "md5.h"
  #endif
@@ -196,10 +196,10 @@
  /**
   *
   *
-@@ -441,6 +623,14 @@
+@@ -621,6 +621,14 @@
  			return 0;
  		}
- 	} else if (p->conf.auth_backend == AUTH_BACKEND_HTPASSWD) {
+ 	} else if (p->conf.auth_backend == AUTH_BACKEND_HTPASSWD) { 
 +		char sample[120];
 +		if (!strncmp(password->ptr, APR1_ID, strlen(APR1_ID))) {
 +			/*
@@ -208,7 +208,7 @@
 +			apr_md5_encode(pw, password->ptr, sample, sizeof(sample));
 +			return (strcmp(sample, password->ptr) == 0) ? 0 : 1;
 +		} else {
- #ifdef HAVE_CRYPT
+ #ifdef HAVE_CRYPT	
  		char salt[32];
  		char *crypted;
 @@ -494,6 +684,7 @@
