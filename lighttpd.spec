@@ -59,6 +59,7 @@ Source9:	http://www.lighttpd.net/light_logo.png
 Source10:	http://gdl.hopto.org/~spider/pldstats/gfx/pld1.png
 # Source10-md5:	486ecec3f6f4fe7f9bf7cee757b864f4
 Source11:	%{name}-pld.html
+Source12:	%{name}.monitrc
 Source100:	%{name}-mod_access.conf
 Source101:	%{name}-mod_accesslog.conf
 Source102:	%{name}-mod_alias.conf
@@ -603,7 +604,7 @@ sh %{SOURCE6} /etc/mime.types
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d/init.d,sysconfig}} \
+install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d/init.d,sysconfig,monit}} \
 	$RPM_BUILD_ROOT%{_sysconfdir}/{conf,webapps}.d \
 	$RPM_BUILD_ROOT{/var/log/{%{name},archiv/%{name}},/var/run/%{name}}
 
@@ -614,6 +615,7 @@ install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 install %{SOURCE2} %{SOURCE3} mime.types.conf $RPM_BUILD_ROOT%{_sysconfdir}
 install %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
 install %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
+install %{SOURCE12} $RPM_BUILD_ROOT/etc/monit/%{name}.monitrc
 
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 
@@ -787,6 +789,7 @@ EOF
 %attr(640,root,lighttpd) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.user
 
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/%{name}
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/monit/%{name}.monitrc
 %attr(750,root,root) %dir /var/log/archiv/%{name}
 %dir %attr(770,root,lighttpd) /var/log/%{name}
 %dir %attr(770,root,lighttpd) /var/run/%{name}
