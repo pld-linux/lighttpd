@@ -2,7 +2,6 @@ check process lighttpd with pidfile /var/run/lighttpd.pid
    group www
    start program = "/etc/rc.d/init.d/lighttpd start"
    stop  program = "/etc/rc.d/init.d/lighttpd stop"
-   check host localhost with address localhost
 		if failed url http://localhost/ timeout 10 seconds then restart
 #   if failed host 192.168.1.1 port 443 type TCPSSL 
 #	certmd5 12-34-56-78-90-AB-CD-EF-12-34-56-78-90-AB-CD-EF
