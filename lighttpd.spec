@@ -34,7 +34,7 @@
 # Prerelease
 #define _snap r1332
 
-%define		_rel 2
+%define		_rel 3
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
