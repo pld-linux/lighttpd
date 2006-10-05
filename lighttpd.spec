@@ -587,6 +587,7 @@ sh %{SOURCE6} /etc/mime.types
 %{__automake}
 
 %configure \
+	--enable-maintainer-mode \
 	%{!?with_ipv6:--disable-ipv6} \
 	%{!?with_largefile:--disable-lfs} \
 	%{?with_valgrind:--with-valgrind} \
@@ -673,7 +674,6 @@ install %{SOURCE132} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/ssl.conf
 %if %{without mysql}
 # avoid packaging dummy module
 rm -f $RPM_BUILD_ROOT%{_libdir}/mod_mysql_vhost.so
-rm -f $RPM_BUILD_ROOT%{_libdir}/mod_sql_vhost_core.so
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_mysql_vhost.conf
 %endif
 %if %{without deflate}
