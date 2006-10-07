@@ -1,5 +1,4 @@
 # TODO:
-# - pl for -mod_magnet
 # - test ldap and mysql (failed at this time)
 # - mysql issue: http://www.freebsd.org/cgi/query-pr.cgi?pr=76866
 # - fam over gamin is possible, just configure doesn't check other than gamin
@@ -170,6 +169,7 @@ powodu problemów z obci±¿eniem.
 
 %package mod_access
 Summary:	lighttpd module for making access restrictions
+Summary(pl):	Modu³ lighttpd ograniczaj±cy dostêp
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(access)
@@ -178,26 +178,40 @@ Provides:	webserver(access)
 The access module is used to deny access to files with given trailing
 path names.
 
+%description mod_access -l pl
+Modu³ access s³u¿y do ograniczania dostêpu do plików o podanych
+¶cie¿kach.
+
 %package mod_accesslog
 Summary:	lighttpd module to record access logs
+Summary(pl):	Modu³ lighttpd do zapisu logów dostêpu
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_accesslog
 CLF like by default, flexible like Apache.
 
+%description mod_accesslog -l pl
+Domy¶lnie podobny do CLF, elastyczny jak Apache.
+
 %package mod_alias
-Summary:	lighttpd module for making url aliasing
+Summary:	lighttpd module for making URL aliasing
+Summary(pl):	Modu³ lighttpd odpowiadaj±cy za aliasy URL-i
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(alias)
 
 %description mod_alias
 The alias module is used to specify a special document-root for a
-given url-subset.
+given URL-subset.
+
+%description mod_alias -l pl
+Modul alias s³u¿y do okre¶lania specjalnego drzewa (document-roota)
+dla podanego podzbioru URL-i.
 
 %package mod_auth
 Summary:	lighttpd module for authentication support
+Summary(pl):	Modu³ lighttpd do obs³ugi uwierzytelniania
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(auth)
@@ -206,8 +220,13 @@ Provides:	webserver(auth)
 lighttpd supportes both authentication method described by RFC 2617:
 basic and digest.
 
+%description mod_auth -l pl
+lighttpd obs³uguje obie metody uwierzytelniania opisane w RFC 2617:
+basic i digest.
+
 %package mod_cgi
 Summary:	lighttpd module for CGI handling
+Summary(pl):	Modu³ lighttpd do obs³ugi CGI
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(cgi)
@@ -216,7 +235,13 @@ Provides:	webserver(cgi)
 The cgi module provides a CGI-conforming interface.
 
 CGI programs allow you to enhance the functionality of the server in a
-very straight and simple way...
+very straight and simple way.
+
+%description mod_cgi -l pl
+Modu³ cgi udostêpnia interfejs zgodny z CGI.
+
+Programy CGI pozwalaj± rozszerzaæ funkcjonalno¶æ serwera w bardzo
+prosty i naturalny sposób.
 
 %package mod_cml
 Summary:	lighttpd module for Cache Meta Language
@@ -235,7 +260,7 @@ z drugiej strony do budowania strony z fragmentów przy u¿yciu LUA.
 
 %package mod_compress
 Summary:	lighttpd module for output compression
-Summary(pl):	Kompresja wyj¶cia
+Summary(pl):	Modu³ lighttpd do kompresji wyj¶cia
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -258,8 +283,8 @@ Serwer automatycznie negocjuje, która metoda kompresji jest u¿ywana.
 Obs³ugiwane s± gzip, deflate i bzip.
 
 %package mod_deflate
-Summary:	lighttpd module for output compression
-Summary(pl):	Kompresja wyj¶cia
+Summary:	lighttpd module for output compression using deflate method
+Summary(pl):	Modu³ lighttpd do kompresji wyj¶cia metod± deflate
 Group:		Networking/Daemons
 URL:		http://trac.lighttpd.net/trac/wiki/Mod_Deflate
 Requires:	%{name} = %{version}-%{release}
@@ -268,8 +293,14 @@ Requires:	%{name} = %{version}-%{release}
 mod_deflate can compress any output from lighttpd static or dynamic.
 It doesn't support caching compressed output like mod_compress.
 
+%description mod_deflate -l pl
+mod_deflate potrafi kompresowaæ statyczne i dynamiczne wyj¶cie z
+lighttpd. Nie obs³uguje cache'owania wyniku kompresji, jak robi to
+mod_compress.
+
 %package mod_dirlisting
 Summary:	lighttpd module for directory listings
+Summary(pl):	Modu³ lighttpd do tworzenia listingów katalogów
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -277,15 +308,25 @@ Requires:	%{name} = %{version}-%{release}
 mod_dirlisting generates HTML based directory listings with full CSS
 control.
 
+%description mod_dirlisting -l pl
+mod_dirlisting tworzy listingi katalogów w formacie HTML z pe³n±
+kontrol± CSS.
+
 %package mod_evasive
 Summary:	lighttpd evasive module
+Summary(pl):	Modu³ evasive dla lighttpd
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_evasive
+lighttpd evasive module.
+
+%description mod_evasive -l pl
+Modu³ evasive dla lighttpd.
 
 %package mod_evhost
 Summary:	lighttpd module for enhanced virtual-hosting
+Summary(pl):	Modu³ lighttpd rozszerzaj±cy obs³ugê hostów wirtualnych
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -294,16 +335,26 @@ mod_evhost builds the document-root based on a pattern which contains
 wildcards. Those wildcards can represent parts of the submitted
 hostname.
 
+%description mod_evhost -l pl
+mod_evhost tworzy document-root w oparciu o wzorzec zawieraj±cy znaki
+wieloznaczne (wildcards). Znaki te reprezentuj± czê¶ci przekazanej
+nazwy hosta.
+
 %package mod_expire
 Summary:	lighttpd module for controlling the expiration of content in caches
+Summary(pl):	Modu³ lighttpd steruj±cy wygasaniem tre¶ci w cache'ach
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_expire
 mod_expire controls the setting of the the Expire response header.
 
+%description mod_expire -l pl
+mod_expire steruje ustawianiem nag³ówka odpowiedzi Expire.
+
 %package mod_fastcgi
 Summary:	lighttpd module for FastCGI interface
+Summary(pl):	Modu³ lighttpd do interfejsu FastCGI
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -312,16 +363,26 @@ The FastCGI interface is the fastest and most secure way to interface
 external process-handlers like Perl, PHP and your self-written
 applications.
 
+%description mod_fastcgi -l pl
+Interfejs FastCGI to najszybszy i najbezpieczniejszy sposób
+komunikacji z zewnêtrznymi programami obs³uguj±cymi procesy, takimi
+jak Perl, PHP czy w³asne aplikacje.
+
 %package mod_flv_streaming
 Summary:	lighttpd module for flv streaming
+Summary(pl):	Modu³ lighttpd do streamingu flv
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_flv_streaming
 lighttpd module for flv streaming.
 
+%description mod_flv_streaming -l pl
+Modu³ lighttpd do streamingu flv.
+
 %package mod_indexfile
 Summary:	lighttpd indexfile module
+Summary(pl):	Modu³ indexfile dla lighttpd
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(indexfile)
@@ -329,17 +390,24 @@ Provides:	webserver(indexfile)
 %description mod_indexfile
 indexfile module.
 
+%description mod_indexfile -l pl
+Modu³ indexfile.
+
 %package mod_magnet
 Summary:	lighttpd powermagnet module
+Summary(pl):	Modu³ powermagnet dla lighttpd
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_magnet
 mod_magnet is a module to control the request handling in lighty.
 
+%description mod_magnet -l pl
+mod_magnet to modu³ steruj±cy obs³ug± ¿±dañ w lighty.
+
 %package mod_mysql_vhost
 Summary:	lighttpd module for MySQL based vhosting
-Summary(pl):	vhosty oparte na MySQL-u
+Summary(pl):	Modu³ lighttpd obs³uguj±cy vhosty oparte na MySQL-u
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Conflicts:	%{name}-mod_simple_vhost
@@ -352,15 +420,21 @@ Ten modu³ udostêpnia wirtualne hosty (vhosty) oparte na tabeli MySQL.
 
 %package mod_proxy
 Summary:	lighttpd module for proxying requests
+Summary(pl):	Modu³ lighttpd do przekazywania ¿±dañ
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_proxy
-The proxy module a simplest way to connect lighttpd to java servers
+The proxy module a simplest way to connect lighttpd to Java servers
 which have a HTTP-interface.
+
+%description mod_proxy -l pl
+Modu³ proxy to najprostszy sposób ³±czenia lighttpd z serwerami Javy
+maj±cymi interfejs HTTP.
 
 %package mod_proxy_core
 Summary:	lighttpd module for proxying requests
+Summary(pl):	Modu³ lighttpd do przekazywania ¿±dañ
 Group:		Networking/Daemons
 URL:		http://blog.lighttpd.net/articles/2006/07/18/mod_proxy_core-commited-to-svn
 Requires:	%{name} = %{version}-%{release}
@@ -371,16 +445,28 @@ which have a HTTP-interface.
 
 This is the new proxy code.
 
+%description mod_proxy_core -l pl
+Modu³ proxy to najprostszy sposób ³±czenia lighttpd z serwerami Javy
+maj±cymi interfejs HTTP.
+
+Ten pakiet zawiera nowy modu³ proxy.
+
 %package mod_redirect
 Summary:	lighttpd module for URL redirects
+Summary(pl):	Modu³ lighttpd do przekierowañ URL-i
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_redirect
-With mod_redirect module you can redirects a set of URLs externally.
+With mod_redirect module you can redirect a set of URLs externally.
+
+%description mod_redirect -l pl
+Przy u¿yciu modu³u mod_redirect mo¿na przekierowaæ zbiór URL-i na
+zewn±trz.
 
 %package mod_rewrite
 Summary:	lighttpd module for internal redirects, URL rewrite
+Summary(pl):	Modu³ lighttpd do wewnêtrznych przekierowañ i przepisywania URL-i
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -388,8 +474,13 @@ Requires:	%{name} = %{version}-%{release}
 This module allows you rewrite a set of URLs interally in the
 webserver BEFORE they are handled.
 
+%description mod_rewrite -l pl
+Ten modu³ pozwala na przepisywanie zbioru URL-i wewnêtrznie w serwerze
+WWW _przed_ ich obs³ug±.
+
 %package mod_rrdtool
 Summary:	lighttpd module for monitoring traffic and server load
+Summary(pl):	Modu³ lighttpd do monitorowania ruchu i obci±¿enia serwera
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Requires:	rrdtool
@@ -401,8 +492,17 @@ bandwidth, machine-room temperature, server load average).
 With this module you can monitor the traffic and load on the
 webserver.
 
+%description mod_rrdtool -l pl
+RRD to system przechowywania i wy¶wietlania danych zale¿nych od czasu
+(np. obci±¿enia sieci, temperatury w serwerowni, ¶redniego obci±¿enia
+serwera).
+
+Przy u¿yciu tego modu³u mo¿na monitorowaæ ruch i obci±¿enie serwera
+WWW.
+
 %package mod_scgi
 Summary:	lighttpd module for SCGI interface
+Summary(pl):	Modu³ lighttpd do interfejsu SCGI
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -410,8 +510,13 @@ Requires:	%{name} = %{version}-%{release}
 SCGI is a fast and simplified CGI interface. It is mostly used by
 Python + WSGI.
 
+%description mod_scgi -l pl
+SCGI to szybki i uproszczony interfejs CGI. Jest u¿ywany g³ównie przez
+Pythona z WSGI.
+
 %package mod_secdownload
 Summary:	lighttpd module for secure and fast downloading
+Summary(pl):	Modu³ lighttpd do bezpiecznego i szybkiego ¶ci±gania danych
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -419,16 +524,25 @@ Requires:	%{name} = %{version}-%{release}
 With this module you can easily achieve authenticated file requests
 and a countermeasure against deep-linking.
 
+%description mod_secdownload -l pl
+Przy u¿yciu tego modu³u mo¿na ³atwo umo¿liwiæ ¶ci±ganie plików z
+uwierzytelnieniem i zapobiec u¿ywaniu bezpo¶rednich odno¶ników.
+
 %package mod_setenv
 Summary:	lighttpd module for setting conditional request headers
+Summary(pl):	Modu³ lighttpd do ustawiania warunkowych nag³ówków ¿±dañ
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_setenv
 mod_setenv is used to add request headers.
 
+%description mod_setenv -l pl
+mod_setenv s³u¿y do dodawania nag³ówków ¿±dañ.
+
 %package mod_simple_vhost
 Summary:	lighttpd module for simple virtual-hosting
+Summary(pl):	Modu³ lighttpd do prostych hostów wirtualnych
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Conflicts:	%{name}-mod_mysql_vhost
@@ -436,8 +550,12 @@ Conflicts:	%{name}-mod_mysql_vhost
 %description mod_simple_vhost
 lighttpd module for simple virtual-hosting.
 
+%description mod_simple_vhost -l pl
+Modu³ lighttpd do prostych hostów wirtualnych.
+
 %package mod_ssi
 Summary:	lighttpd module for server-side includes
+Summary(pl):	Modu³ lighttpd do SSI (server-side includes)
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -445,21 +563,33 @@ Requires:	%{name} = %{version}-%{release}
 The module for server-side includes provides a compatability layer for
 NSCA/Apache SSI.
 
+%description mod_ssi -l pl
+Modu³ server-side includes udostêpnia warstwê kompatybilno¶ci z SSI
+znanym z NSCA/Apache'a.
+
 %package mod_staticfile
 Summary:	lighttpd module for static file serving
+Summary(pl):	Modu³ lighttpd do serwowania statycznych plików
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_staticfile
 lighttpd module for static file serving.
 
+%description mod_staticfile -l pl
+Modu³ lighttpd do serwowania statycznych plików.
+
 %package mod_status
 Summary:	lighttpd module for displaying server status
+Summary(pl):	Modu³ lighttpd do wy¶wietlania stanu serwera
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_status
 mod_status displays the server's status and configuration.
+
+%description mod_status -l pl
+mod_status wy¶wietla stan i konfiguracjê serwera.
 
 %package mod_trigger_b4_dl
 Summary:	Trigger before Download
@@ -475,6 +605,7 @@ Jeszcze jeden modu³ blokuj±cy bezpo¶rednie linkowanie.
 
 %package mod_userdir
 Summary:	lighttpd module for user homedirs
+Summary(pl):	Modu³ lighttpd obs³uguj±cy katalogi domowe u¿ytkowników
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -482,12 +613,21 @@ Requires:	%{name} = %{version}-%{release}
 The userdir module provides a simple way to link user-based
 directories into the global namespace of the webserver.
 
+%description mod_userdir -l pl
+Modu³ userdir udostêpnia prosty sposób w³±czenia katalogów
+u¿ytkowników do globalnej przestrzeni nazw serwera WWW.
+
 %package mod_usertrack
 Summary:	lighttpd usertrack module
+Summary(pl):	Modu³ usertrack dla lighttpd
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_usertrack
+lighttpd usertrack module.
+
+%description mod_usertrack -l pl
+Modu³ usertrack dla lighttpd.
 
 %package mod_webdav
 Summary:	WebDAV module for lighttpd
@@ -540,6 +680,7 @@ pomocy serwera WWW ani samego programu.
 
 %package php-spawned
 Summary:	PHP support via FastCGI, spawned by lighttpd
+Summary(pl):	Obs³uga PHP przez FastCGI, uruchamiane przez lighttpd
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-mod_fastcgi = %{version}-%{release}
@@ -547,10 +688,14 @@ Requires:	php-fcgi
 Obsoletes:	lighttpd-php-external
 
 %description php-spawned
-PHP support via FastCGI, spawned by lighttpd
+PHP support via FastCGI, spawned by lighttpd.
+
+%description php-spawned -l pl
+Obs³uga PHP przez FastCGI, uruchamiane przez lighttpd.
 
 %package php-external
 Summary:	PHP support via FastCGI, spawning controlled externally
+Summary(pl):	Obs³uga PHP przez FastCGI, uruchamianie sterowane zewnêtrznie
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-mod_fastcgi = %{version}-%{release}
@@ -558,15 +703,22 @@ Requires:	php-fcgi-init
 Obsoletes:	lighttpd-php-spawned
 
 %description php-external
-PHP support via FastCGI, spawning controlled externally
+PHP support via FastCGI, spawning controlled externally.
+
+%description php-external -l pl
+Obs³uga PHP przez FastCGI, uruchamianie sterowane zewnêtrznie.
 
 %package ssl
 Summary:	lighttpd support for SSLv2 and SSLv3
+Summary(pl):	Obs³uga SSLv2 i SSLv3 dla lighttpd
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description ssl
 lighttpd support for SSLv2 and SSLv3.
+
+%description ssl -l pl
+Obs³uga SSLv2 i SSLv3 dla lighttpd.
 
 %prep
 %setup -q
