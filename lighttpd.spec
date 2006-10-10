@@ -33,16 +33,16 @@
 # Prerelease
 #define _snap r1332
 
-%define		_rel 3
+%define		_rel 1
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.12
+Version:	1.4.13
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}%{?_svn:.%{_svn}}
 License:	BSD
 Group:		Networking/Daemons
 Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
-# Source0-md5:	8f6756452138f5da384251f849b329f2
+# Source0-md5:	d775d6478391b95d841a1018c8db0b95
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -95,12 +95,9 @@ Source132:	%{name}-ssl.conf
 Source133:	%{name}-mod_mysql_vhost.conf
 Source134:	%{name}-mod_magnet.conf
 #Patch100: %{name}-branch.diff
-Patch0:		%{name}-mod_deflate.patch
-Patch1:		%{name}-use_bin_sh.patch
-Patch2:		%{name}-initgroups.patch
-# http://trac.lighttpd.net/trac/ticket/444
-Patch3:		%{name}-apr1.patch
-Patch4:		%{name}-mod_evasive-status_code.patch
+Patch0:		%{name}-use_bin_sh.patch
+Patch1:		%{name}-mod_evasive-status_code.patch
+Patch2:		%{name}-mod_deflate.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -723,11 +720,8 @@ Obs³uga SSLv2 i SSLv3 dla lighttpd.
 %prep
 %setup -q
 #%patch100 -p1
-#%patch0 -p1
+%patch0 -p1
 %patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p0
 
 # build mime.types.conf
 sh %{SOURCE6} /etc/mime.types
