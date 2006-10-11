@@ -19,7 +19,7 @@
 %bcond_without	ssl		# ssl support
 %bcond_without	mysql		# mysql support in mod_mysql_vhost
 %bcond_with	ldap		# ldap support in mod_auth
-%bcond_with	lua		# LUA support in mod_cml (needs LUA >= 5.1)
+%bcond_without	lua		# LUA support in mod_cml (needs LUA >= 5.1)
 %bcond_with	memcache	# memcached support in mod_cml / mod_trigger_b4_dl
 %bcond_with	gamin		# gamin for reducing number of stat() calls.
 				# NOTE: must be enabled in config: server.stat-cache-engine = "fam"
@@ -33,7 +33,7 @@
 # Prerelease
 #define _snap r1332
 
-%define		_rel 1
+%define		_rel 2
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -109,7 +109,7 @@ BuildRequires:	bzip2-devel
 BuildRequires:	libtool
 BuildRequires:	libuuid-devel
 %{?with_webdav_props:BuildRequires:	libxml2-devel}
-%{?with_lua:BuildRequires:	lua51-devel >= 5.1}
+%{?with_lua:BuildRequires:	lua51-devel}
 BuildRequires:	mailcap >= 2.1.14-4.4
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?with_ldap:BuildRequires:	openldap-devel}
@@ -741,7 +741,7 @@ sh %{SOURCE6} /etc/mime.types
 	%{?with_mysql:--with-mysql} \
 	%{?with_ldap:--with-ldap} \
 	%{?with_ssl:--with-openssl} \
-	%{?with_lua:--with-lua} \
+	%{?with_lua:--with-lua=lua51} \
 	%{?with_memcache:--with-memcache} \
 	%{?with_webdav_props:--with-webdav-props} \
 	%{?with_gamin:--with-gamin} \
