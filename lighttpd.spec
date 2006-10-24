@@ -25,6 +25,7 @@
 				# NOTE: must be enabled in config: server.stat-cache-engine = "fam"
 %bcond_with	gdbm		# gdbm in mod_trigger_b4_dl
 %bcond_with	webdav_props	# properties in mod_webdav (includes extra sqlite3/libxml deps)
+%bcond_with	webdav_locks	# webdav locks with extra efsprogs deps
 %bcond_with	valgrind	# compile code with valgrind support.
 %bcond_with	deflate		# build deflate module (needs patch update with current svn)
 
@@ -32,6 +33,10 @@
 #define		_svn	1277
 # Prerelease
 #define _snap r1332
+
+%if %{with_webdav_locks}
+%define		webdav_progs	1
+%endif
 
 %define		_rel 2
 Summary:	Fast and light HTTP server
@@ -103,6 +108,7 @@ URL:		http://www.lighttpd.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	bzip2-devel
+%{?with_webdav_locks:BuildRequires:	e2fsprogs-devel}
 %{?with_gamin:BuildRequires:	gamin-devel}
 %{?with_gdbm:BuildRequires:	gdbm-devel}
 %{?with_memcache:BuildRequires:	libmemcache-devel}
@@ -129,6 +135,11 @@ Requires(pre):	/usr/lib/rpm/user_group.sh
 Requires(pre):	/usr/sbin/groupadd
 Requires(pre):	/usr/sbin/useradd
 Requires(pre):	/usr/sbin/usermod
+%{?with_webdav_locks:Requires:	e2fsprogs}
+%if %{with webdav_progs}
+Requries:	libxml
+Requires:	sqlite
+%endif
 Requires:	%{name}-mod_dirlisting
 Requires:	%{name}-mod_indexfile
 Requires:	%{name}-mod_staticfile
@@ -642,6 +653,7 @@ So far we have
 - MKCOL
 - DELETE
 - PUT
+- LOCK (experimental)
 
 and the usual GET, POST, HEAD from HTTP/1.1.
 
@@ -657,6 +669,7 @@ zaimplementowane. Jak na razie s±:
 - MKCOL
 - DELETE
 - PUT
+- LOCK (experimental)
 oraz zwyk³e GET, POST, HEAD z HTTP/1.1.
 
 Jak na razie montowanie zasobu webdav pod Windows XP dzia³a i
@@ -744,6 +757,7 @@ sh %{SOURCE6} /etc/mime.types
 	%{?with_lua:--with-lua=lua51} \
 	%{?with_memcache:--with-memcache} \
 	%{?with_webdav_props:--with-webdav-props} \
+	%{?with_webdav_locks:--with-webdav-locks} \
 	%{?with_gamin:--with-gamin} \
 	%{?with_gdbm:--with-gdbm}
 
