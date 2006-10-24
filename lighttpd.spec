@@ -34,7 +34,7 @@
 # Prerelease
 #define _snap r1332
 
-%if %{with_webdav_locks}
+%if %{with webdav_locks}
 %define		webdav_progs	1
 %endif
 
@@ -135,11 +135,6 @@ Requires(pre):	/usr/lib/rpm/user_group.sh
 Requires(pre):	/usr/sbin/groupadd
 Requires(pre):	/usr/sbin/useradd
 Requires(pre):	/usr/sbin/usermod
-%{?with_webdav_locks:Requires:	e2fsprogs}
-%if %{with webdav_progs}
-Requries:	libxml
-Requires:	sqlite
-%endif
 Requires:	%{name}-mod_dirlisting
 Requires:	%{name}-mod_indexfile
 Requires:	%{name}-mod_staticfile
@@ -642,6 +637,11 @@ Summary:	WebDAV module for lighttpd
 Summary(pl):	Modu³ WebDAV dla libghttpd
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
+%{?with_webdav_locks:Requires:	e2fsprogs}
+%if %{with webdav_progs}
+Requires:	libxml
+Requires:	sqlite
+%endif
 
 %description mod_webdav
 The WebDAV module is a very minimalistic implementation of RFC 2518.
