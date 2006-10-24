@@ -108,7 +108,7 @@ URL:		http://www.lighttpd.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	bzip2-devel
-%{?with_webdav_locks:BuildRequires:	e2fsprogs-devel}
+%{?with_webdav_locks:BuildRequires:	libuuid-devel}
 %{?with_gamin:BuildRequires:	gamin-devel}
 %{?with_gdbm:BuildRequires:	gdbm-devel}
 %{?with_memcache:BuildRequires:	libmemcache-devel}
@@ -637,7 +637,6 @@ Summary:	WebDAV module for lighttpd
 Summary(pl):	Modu³ WebDAV dla libghttpd
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
-%{?with_webdav_locks:Requires:	e2fsprogs}
 %if %{with webdav_progs}
 Requires:	libxml
 Requires:	sqlite
