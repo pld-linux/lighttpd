@@ -108,12 +108,12 @@ URL:		http://www.lighttpd.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	bzip2-devel
-%{?with_webdav_locks:BuildRequires:	libuuid-devel}
 %{?with_gamin:BuildRequires:	gamin-devel}
 %{?with_gdbm:BuildRequires:	gdbm-devel}
 %{?with_memcache:BuildRequires:	libmemcache-devel}
 BuildRequires:	libtool
 BuildRequires:	libuuid-devel
+%{?with_webdav_locks:BuildRequires:	libuuid-devel}
 %{?with_webdav_props:BuildRequires:	libxml2-devel}
 %{?with_lua:BuildRequires:	lua51-devel}
 BuildRequires:	mailcap >= 2.1.14-4.4
@@ -637,10 +637,6 @@ Summary:	WebDAV module for lighttpd
 Summary(pl):	Modu³ WebDAV dla libghttpd
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
-%if %{with webdav_progs}
-Requires:	libxml
-Requires:	sqlite
-%endif
 
 %description mod_webdav
 The WebDAV module is a very minimalistic implementation of RFC 2518.
