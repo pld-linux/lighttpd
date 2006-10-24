@@ -944,6 +944,7 @@ EOF
 %doc NEWS README ChangeLog doc/lighttpd.conf doc/*.txt doc/rrdtool-graph.sh
 %dir %attr(750,root,lighttpd) %{_sysconfdir}
 %dir %attr(750,root,root) %{_sysconfdir}/webapps.d
+%dir %attr(570,root,root) %{_sysconfdir}/lighttpd/conf.d
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}.conf
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mime.types.conf
 %attr(640,root,lighttpd) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.user
