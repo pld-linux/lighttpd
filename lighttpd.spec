@@ -113,7 +113,6 @@ BuildRequires:	bzip2-devel
 %{?with_memcache:BuildRequires:	libmemcache-devel}
 BuildRequires:	libtool
 BuildRequires:	libuuid-devel
-%{?with_webdav_locks:BuildRequires:	libuuid-devel}
 %{?with_webdav_props:BuildRequires:	libxml2-devel}
 %{?with_lua:BuildRequires:	lua51-devel}
 BuildRequires:	mailcap >= 2.1.14-4.4
