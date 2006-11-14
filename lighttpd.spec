@@ -231,6 +231,7 @@ Summary:	lighttpd module for CGI handling
 Summary(pl):	Modu³ lighttpd do obs³ugi CGI
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}-mod_alias = %{version}-%{release}
 Provides:	webserver(cgi)
 
 %description mod_cgi
