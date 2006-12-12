@@ -1,27 +1,14 @@
-diff -uwN --recursive lighttpd-1.4.11/configure.in lighttpd-1.4.11.extforward/configure.in
---- lighttpd-1.4.11/configure.in	2006-03-04 15:32:38.000000000 +0100
-+++ lighttpd-1.4.11.extforward/configure.in	2006-05-26 19:18:45.928214713 +0200
+--- lighttpd-1.4.13/configure.in~	2006-12-12 19:59:48.956431896 +0200
++++ lighttpd-1.4.13/configure.in	2006-12-12 20:00:40.387576647 +0200
 @@ -538,7 +538,7 @@
  AC_OUTPUT
  
  
--do_build="mod_cgi mod_fastcgi mod_proxy mod_evhost mod_simple_vhost mod_access mod_alias mod_setenv mod_usertrack mod_auth mod_status mod_accesslog mod_rrdtool mod_secdownload mod_expire mod_compress mod_dirlisting mod_indexfiles mod_userdir mod_webdav mod_staticfile mod_scgi" 
-+do_build="mod_cgi mod_fastcgi mod_extforward mod_proxy mod_evhost mod_simple_vhost mod_access mod_alias mod_setenv mod_usertrack mod_auth mod_status mod_accesslog mod_rrdtool mod_secdownload mod_expire mod_compress mod_dirlisting mod_indexfiles mod_userdir mod_webdav mod_staticfile mod_scgi" 
+-do_build="mod_cgi mod_fastcgi mod_proxy mod_evhost mod_simple_vhost mod_access mod_alias mod_setenv mod_usertrack mod_auth mod_status mod_accesslog mod_rrdtool mod_secdownload mod_expire mod_compress mod_dirlisting mod_indexfiles mod_userdir mod_webdav mod_staticfile mod_scgi mod_flv_streaming"
++do_build="mod_cgi mod_fastcgi mod_extforward mod_proxy mod_evhost mod_simple_vhost mod_access mod_alias mod_setenv mod_usertrack mod_auth mod_status mod_accesslog mod_rrdtool mod_secdownload mod_expire mod_compress mod_dirlisting mod_indexfiles mod_userdir mod_webdav mod_staticfile mod_scgi mod_flv_streaming"
  
  plugins="mod_rewrite mod_redirect mod_ssi mod_trigger_b4_dl"
  features="regex-conditionals"
-diff -uwN --recursive lighttpd-1.4.11/debian/lighttpd.install lighttpd-1.4.11.extforward/debian/lighttpd.install
---- lighttpd-1.4.11/debian/lighttpd.install	2006-05-26 19:19:54.000000000 +0200
-+++ lighttpd-1.4.11.extforward/debian/lighttpd.install	2006-05-26 19:33:49.950585807 +0200
-@@ -11,6 +11,7 @@
- debian/tmp/usr/lib/lighttpd/mod_evasive.so
- debian/tmp/usr/lib/lighttpd/mod_evhost.so
- debian/tmp/usr/lib/lighttpd/mod_expire.so
-+debian/tmp/usr/lib/lighttpd/mod_extforward.so
- debian/tmp/usr/lib/lighttpd/mod_fastcgi.so
- debian/tmp/usr/lib/lighttpd/mod_flv_streaming.so
- debian/tmp/usr/lib/lighttpd/mod_indexfile.so
-diff -uwN --recursive lighttpd-1.4.11/src/Makefile.am lighttpd-1.4.11.extforward/src/Makefile.am
 --- lighttpd-1.4.11/src/Makefile.am	2006-03-07 13:20:20.000000000 +0100
 +++ lighttpd-1.4.11.extforward/src/Makefile.am	2006-05-26 19:17:55.028343433 +0200
 @@ -193,6 +193,11 @@
@@ -36,7 +23,6 @@ diff -uwN --recursive lighttpd-1.4.11/src/Makefile.am lighttpd-1.4.11.extforward
  lib_LTLIBRARIES += mod_access.la
  mod_access_la_SOURCES = mod_access.c
  mod_access_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-diff -uwN --recursive lighttpd-1.4.11/src/mod_extforward.c lighttpd-1.4.11.extforward/src/mod_extforward.c
 --- lighttpd-1.4.11/src/mod_extforward.c	1970-01-01 01:00:00.000000000 +0100
 +++ lighttpd-1.4.11.extforward/src/mod_extforward.c	2006-05-26 23:54:32.050640213 +0200
 @@ -0,0 +1,490 @@
