@@ -38,7 +38,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		_rel 3
+%define		_rel 4
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -99,10 +99,12 @@ Source131:	%{name}-php-external.conf
 Source132:	%{name}-ssl.conf
 Source133:	%{name}-mod_mysql_vhost.conf
 Source134:	%{name}-mod_magnet.conf
+Source135:	lighttpd-mod_extforward.conf
 #Patch100: %{name}-branch.diff
 Patch0:		%{name}-use_bin_sh.patch
 Patch1:		%{name}-mod_evasive-status_code.patch
 Patch2:		%{name}-mod_deflate.patch
+Patch3:		%{name}-mod_extforward-v2.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -354,6 +356,16 @@ mod_expire controls the setting of the the Expire response header.
 
 %description mod_expire -l pl
 mod_expire steruje ustawianiem nag³ówka odpowiedzi Expire.
+
+%package mod_extforward
+Summary:	lighttpd module to extract the client's "real" ip from X-Forwarded-For header
+Group:		Networking/Daemons
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_extforward
+This module will extract the client's "real" ip from X-Forwarded-For header
+which is added by squid or other proxies. It might be useful for servers behind
+reverse proxy servers.
 
 %package mod_fastcgi
 Summary:	lighttpd module for FastCGI interface
@@ -730,6 +742,7 @@ Obs³uga SSLv2 i SSLv3 dla lighttpd.
 #%patch100 -p1
 %patch0 -p1
 %patch1 -p1
+%patch3 -p1
 
 # build mime.types.conf
 sh %{SOURCE6} /etc/mime.types
@@ -801,6 +814,7 @@ install %{SOURCE108} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_dirlisting.conf
 install %{SOURCE109} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evasive.conf
 install %{SOURCE110} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evhost.conf
 install %{SOURCE111} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_expire.conf
+install %{SOURCE135} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_extforward.conf
 install %{SOURCE112} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_fastcgi.conf
 install %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
 install %{SOURCE114} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_indexfile.conf
@@ -904,6 +918,7 @@ fi
 %module_scripts mod_evasive
 %module_scripts mod_evhost
 %module_scripts mod_expire
+%module_scripts mod_extforward
 %module_scripts mod_fastcgi
 %module_scripts mod_flv_streaming
 %module_scripts mod_indexfile
@@ -1020,6 +1035,11 @@ EOF
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_expire.conf
 %attr(755,root,root) %{_libdir}/mod_expire.so
+
+%files mod_extforward
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_extforward.conf
+%attr(755,root,root) %{_libdir}/mod_extforward.so
 
 %files mod_fastcgi
 %defattr(644,root,root,755)
