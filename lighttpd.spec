@@ -365,12 +365,12 @@ Requires:	%{name} = %{version}-%{release}
 
 %description mod_extforward
 This module will extract the client's "real" IP from X-Forwarded-For
-header which is added by squid or other proxies. It might be useful
+header which is added by Squid or other proxies. It might be useful
 for servers behind reverse proxy servers.
 
 %description mod_extforward -l pl
 Ten modu³ wyci±ga "prawdziwy" IP klienta z nag³ówka X-Forwarded-For
-dodawanego przez squida czy inne proxy. Mo¿e byæ przydatny dla
+dodawanego przez Squida czy inne proxy. Mo¿e byæ przydatny dla
 serwerów stoj±cych za odwrotnymi serwerami proxy.
 
 %package mod_fastcgi
