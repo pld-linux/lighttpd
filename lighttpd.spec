@@ -99,7 +99,7 @@ Source131:	%{name}-php-external.conf
 Source132:	%{name}-ssl.conf
 Source133:	%{name}-mod_mysql_vhost.conf
 Source134:	%{name}-mod_magnet.conf
-Source135:	lighttpd-mod_extforward.conf
+Source135:	%{name}-mod_extforward.conf
 #Patch100: %{name}-branch.diff
 Patch0:		%{name}-use_bin_sh.patch
 Patch1:		%{name}-mod_evasive-status_code.patch
@@ -363,9 +363,9 @@ Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_extforward
-This module will extract the client's "real" ip from X-Forwarded-For header
-which is added by squid or other proxies. It might be useful for servers behind
-reverse proxy servers.
+This module will extract the client's "real" ip from X-Forwarded-For
+header which is added by squid or other proxies. It might be useful
+for servers behind reverse proxy servers.
 
 %package mod_fastcgi
 Summary:	lighttpd module for FastCGI interface
@@ -775,7 +775,8 @@ sh %{SOURCE6} /etc/mime.types
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d/init.d,sysconfig,monit}} \
 	$RPM_BUILD_ROOT%{_sysconfdir}/{conf,webapps}.d \
-	$RPM_BUILD_ROOT{/var/log/{%{name},archiv/%{name}},/var/run/%{name}}
+	$RPM_BUILD_ROOT{/var/log/{%{name},archiv/%{name}},/var/run/%{name}} \
+	$RPM_BUILD_ROOT%{_datadir}/lighttpd/errors
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
@@ -973,6 +974,9 @@ EOF
 %dir %{_lighttpddir}/cgi-bin
 %dir %{_lighttpddir}/html
 %config(noreplace,missingok) %verify(not md5 mtime size) %{_lighttpddir}/html/*
+
+%dir %{_datadir}/lighttpd
+%dir %{_datadir}/lighttpd/errordocs
 
 %files mod_access
 %defattr(644,root,root,755)
