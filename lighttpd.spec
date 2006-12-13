@@ -776,7 +776,7 @@ rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d/init.d,sysconfig,monit}} \
 	$RPM_BUILD_ROOT%{_sysconfdir}/{conf,webapps}.d \
 	$RPM_BUILD_ROOT{/var/log/{%{name},archiv/%{name}},/var/run/%{name}} \
-	$RPM_BUILD_ROOT%{_datadir}/lighttpd/errors
+	$RPM_BUILD_ROOT%{_datadir}/lighttpd/errordocs
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
