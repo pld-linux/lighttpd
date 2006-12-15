@@ -38,7 +38,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		_rel 4
+%define		_rel 5
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -140,6 +140,7 @@ Requires:	%{name}-mod_dirlisting
 Requires:	%{name}-mod_indexfile
 Requires:	%{name}-mod_staticfile
 Requires:	rc-scripts
+Requires:	webapps
 Provides:	group(http)
 Provides:	group(lighttpd)
 Provides:	user(lighttpd)
