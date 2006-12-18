@@ -47,8 +47,8 @@ Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}%{?_svn:.%{_svn}}
 License:	BSD
 Group:		Networking/Daemons
 #Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
-Source0:	http://www.lighttpd.net/download/lighttpd-1.5.0-r1454.tar.gz
-# Source0-md5:	0ab06ecbb715b3a3130aef67fb758b85
+Source0:	http://www.lighttpd.net/download/lighttpd-1.5.0-r1477.tar.gz
+# Source0-md5:	012ac28b6cb4a00c75ee39bc461b0b15
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -101,6 +101,8 @@ Source132:	%{name}-ssl.conf
 Source133:	%{name}-mod_mysql_vhost.conf
 Source134:	%{name}-mod_magnet.conf
 Source135:	%{name}-mod_extforward.conf
+Source136:	%{name}-mod_uploadprogress.conf
+Source137:	%{name}-mod_proxy_core.conf
 #Patch100: %{name}-branch.diff
 Patch0:		%{name}-use_bin_sh.patch
 Patch1:		%{name}-mod_evasive-status_code.patch
@@ -459,7 +461,7 @@ maj±cymi interfejs HTTP.
 Summary:	lighttpd module for proxying requests
 Summary(pl):	Modu³ lighttpd do przekazywania ¿±dañ
 Group:		Networking/Daemons
-URL:		http://blog.lighttpd.net/articles/2006/07/18/mod_proxy_core-commited-to-svn
+URL:		http://trac.lighttpd.net/trac/wiki/Docs:ModProxyCore
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_proxy_core
@@ -626,6 +628,14 @@ Another anti hot-linking module.
 %description mod_trigger_b4_dl -l pl
 Jeszcze jeden modu³ blokuj±cy bezpo¶rednie linkowanie.
 
+%package mod_uploadprogress
+Summary:	lighttpd module for upload progress
+Group:		Networking/Daemons
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_uploadprogress
+Upload progress module.
+
 %package mod_userdir
 Summary:	lighttpd module for user homedirs
 Summary(pl):	Modu³ lighttpd obs³uguj±cy katalogi domowe u¿ytkowników
@@ -748,7 +758,7 @@ Obs³uga SSLv2 i SSLv3 dla lighttpd.
 %prep
 %setup -q
 #%patch100 -p1
-%patch0 -p1
+#%patch0 -p1
 #%patch1 -p1
 #%patch3 -p1
 
@@ -830,6 +840,7 @@ install %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.c
 install %{SOURCE114} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_indexfile.conf
 install %{SOURCE134} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_magnet.conf
 install %{SOURCE115} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy.conf
+install %{SOURCE137} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_core.conf
 install %{SOURCE118} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_rrdtool.conf
 install %{SOURCE119} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_scgi.conf
 install %{SOURCE120} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_secdownload.conf
@@ -839,6 +850,7 @@ install %{SOURCE123} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_ssi.conf
 install %{SOURCE124} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_staticfile.conf
 install %{SOURCE125} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_status.conf
 install %{SOURCE126} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_trigger_b4_dl.conf
+install %{SOURCE136} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_uploadprogress.conf
 install %{SOURCE127} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_userdir.conf
 install %{SOURCE128} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_usertrack.conf
 install %{SOURCE129} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_webdav.conf
@@ -850,12 +862,13 @@ install %{SOURCE130} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/php-spawned.conf
 install %{SOURCE131} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/php-external.conf
 install %{SOURCE132} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/ssl.conf
 
-%if !%{with mysql}
+%if %{without mysql}
 # avoid packaging dummy module
 rm -f $RPM_BUILD_ROOT%{_libdir}/mod_mysql_vhost.so
+rm -f $RPM_BUILD_ROOT%{_libdir}/mod_sql_vhost_core.so
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_mysql_vhost.conf
 %endif
-%if !%{with deflate}
+%if %{without deflate}
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_deflate.conf
 %endif
 
@@ -947,6 +960,7 @@ fi
 %module_scripts mod_staticfile
 %module_scripts mod_status
 %module_scripts mod_trigger_b4_dl
+%module_scripts mod_uploadprogress
 %module_scripts mod_userdir
 %module_scripts mod_usertrack
 %module_scripts mod_webdav
@@ -1089,6 +1103,7 @@ EOF
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_mysql_vhost.conf
 %attr(755,root,root) %{_libdir}/mod_mysql_vhost.so
+%attr(755,root,root) %{_libdir}/mod_sql_vhost_core.so
 %endif
 
 %if 0
@@ -1100,8 +1115,12 @@ EOF
 
 %files mod_proxy_core
 %defattr(644,root,root,755)
-#%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy_core.conf
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy_core.conf
 %attr(755,root,root) %{_libdir}/mod_proxy_core.so
+%attr(755,root,root) %{_libdir}/mod_proxy_backend_ajp13.so
+%attr(755,root,root) %{_libdir}/mod_proxy_backend_fastcgi.so
+%attr(755,root,root) %{_libdir}/mod_proxy_backend_http.so
+%attr(755,root,root) %{_libdir}/mod_proxy_backend_scgi.so
 
 %files mod_redirect
 %defattr(644,root,root,755)
@@ -1159,6 +1178,11 @@ EOF
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_trigger_b4_dl.conf
 %attr(755,root,root) %{_libdir}/mod_trigger_b4_dl.so
+
+%files mod_uploadprogress
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_uploadprogress.conf
+%attr(755,root,root) %{_libdir}/mod_uploadprogress.so
 
 %files mod_userdir
 %defattr(644,root,root,755)
