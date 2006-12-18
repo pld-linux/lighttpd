@@ -105,9 +105,9 @@ Source136:	%{name}-mod_uploadprogress.conf
 Source137:	%{name}-mod_proxy_core.conf
 #Patch100: %{name}-branch.diff
 Patch0:		%{name}-use_bin_sh.patch
-Patch1:		%{name}-mod_evasive-status_code.patch
-Patch2:		%{name}-mod_deflate.patch
-Patch3:		%{name}-mod_extforward-v2.patch
+#Patch1:		%{name}-mod_evasive-status_code.patch
+#Patch2:		%{name}-mod_deflate.patch
+#Patch3:		%{name}-mod_extforward-v2.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -790,7 +790,7 @@ Obs³uga SSLv2 i SSLv3 dla lighttpd.
 %prep
 %setup -q
 #%patch100 -p1
-#%patch0 -p1
+%patch0 -p1
 #%patch1 -p1
 #%patch3 -p1
 
