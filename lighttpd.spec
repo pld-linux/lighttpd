@@ -476,6 +476,38 @@ maj±cymi interfejs HTTP.
 
 Ten pakiet zawiera nowy modu³ proxy.
 
+%package mod_proxy_backend_ajp13
+Summary:	lighttpd proxy backend for ajp13 protocol
+Group:		Networking/Daemons
+Requires:	%{name}-mod_proxy_core = %{version}-%{release}
+
+%description mod_proxy_backend_ajp13
+lighttpd proxy backend for ajp13 protocol
+
+%package mod_proxy_backend_fastcgi
+Summary:	lighttpd proxy backend for FastCGI protocol
+Group:		Networking/Daemons
+Requires:	%{name}-mod_proxy_core = %{version}-%{release}
+
+%description mod_proxy_backend_fastcgi
+lighttpd proxy backend for FastCGI protocol
+
+%package mod_proxy_backend_http
+Summary:	lighttpd proxy backend for HTTP protocol
+Group:		Networking/Daemons
+Requires:	%{name}-mod_proxy_core = %{version}-%{release}
+
+%description mod_proxy_backend_http
+lighttpd proxy backend for HTTP protocol
+
+%package mod_proxy_backend_scgi
+Summary:	lighttpd proxy backend for SCGI protocol
+Group:		Networking/Daemons
+Requires:	%{name}-mod_proxy_core = %{version}-%{release}
+
+%description mod_proxy_backend_scgi
+lighttpd proxy backend for SCGI protocol
+
 %package mod_redirect
 Summary:	lighttpd module for URL redirects
 Summary(pl):	Modu³ lighttpd do przekierowañ URL-i
@@ -1117,9 +1149,21 @@ EOF
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy_core.conf
 %attr(755,root,root) %{_libdir}/mod_proxy_core.so
+
+%files mod_proxy_backend_ajp13
+%defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/mod_proxy_backend_ajp13.so
+
+%files mod_proxy_backend_fastcgi
+%defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/mod_proxy_backend_fastcgi.so
+
+%files mod_proxy_backend_http
+%defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/mod_proxy_backend_http.so
+
+%files mod_proxy_backend_scgi
+%defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/mod_proxy_backend_scgi.so
 
 %files mod_redirect
