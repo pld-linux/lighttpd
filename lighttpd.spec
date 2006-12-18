@@ -482,7 +482,7 @@ Group:		Networking/Daemons
 Requires:	%{name}-mod_proxy_core = %{version}-%{release}
 
 %description mod_proxy_backend_ajp13
-lighttpd proxy backend for ajp13 protocol
+lighttpd proxy backend for Apache JServ Protocol version 1.3
 
 %package mod_proxy_backend_fastcgi
 Summary:	lighttpd proxy backend for FastCGI protocol
