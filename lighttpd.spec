@@ -19,7 +19,7 @@
 %bcond_without	ssl		# ssl support
 %bcond_without	mysql		# mysql support in mod_mysql_vhost
 %bcond_with	ldap		# ldap support in mod_auth
-%bcond_without	lua		# LUA support in mod_cml (needs LUA >= 5.1)
+%bcond_with	lua		# LUA support in mod_cml (needs LUA >= 5.1)
 %bcond_with	memcache	# memcached support in mod_cml / mod_trigger_b4_dl
 %bcond_with	gamin		# gamin for reducing number of stat() calls.
 				# NOTE: must be enabled in config: server.stat-cache-engine = "fam"
@@ -38,16 +38,17 @@
 %define		webdav_progs	1
 %endif
 
-%define		_rel 6
+%define		_rel 0.1
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.13
+Version:	1.5.0
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}%{?_svn:.%{_svn}}
 License:	BSD
 Group:		Networking/Daemons
-Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
-# Source0-md5:	d775d6478391b95d841a1018c8db0b95
+#Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
+Source0:	http://www.lighttpd.net/download/lighttpd-1.5.0-r1454.tar.gz
+# Source0-md5:	0ab06ecbb715b3a3130aef67fb758b85
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -748,8 +749,8 @@ Obs³uga SSLv2 i SSLv3 dla lighttpd.
 %setup -q
 #%patch100 -p1
 %patch0 -p1
-%patch1 -p1
-%patch3 -p1
+#%patch1 -p1
+#%patch3 -p1
 
 # build mime.types.conf
 sh %{SOURCE6} /etc/mime.types
@@ -934,6 +935,7 @@ fi
 %module_scripts mod_magnet
 %module_scripts mod_mysql_vhost
 %module_scripts mod_proxy
+%module_scripts mod_proxy_core
 %module_scripts mod_redirect
 %module_scripts mod_rewrite
 %module_scripts mod_rrdtool
@@ -1009,6 +1011,7 @@ EOF
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_auth.conf
 %attr(755,root,root) %{_libdir}/mod_auth.so
 
+%if 0
 %files mod_cgi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_cgi.conf
@@ -1018,6 +1021,7 @@ EOF
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_cml.conf
 %attr(755,root,root) %{_libdir}/mod_cml.so
+%endif
 
 %files mod_compress
 %defattr(644,root,root,755)
@@ -1051,6 +1055,7 @@ EOF
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_expire.conf
 %attr(755,root,root) %{_libdir}/mod_expire.so
 
+%if 0
 %files mod_extforward
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_extforward.conf
@@ -1060,6 +1065,7 @@ EOF
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_fastcgi.conf
 %attr(755,root,root) %{_libdir}/mod_fastcgi.so
+%endif
 
 %files mod_flv_streaming
 %defattr(644,root,root,755)
@@ -1071,10 +1077,12 @@ EOF
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_indexfile.conf
 %attr(755,root,root) %{_libdir}/mod_indexfile.so
 
+%if 0
 %files mod_magnet
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_magnet.conf
 %attr(755,root,root) %{_libdir}/mod_magnet.so
+%endif
 
 %if %{with mysql}
 %files mod_mysql_vhost
@@ -1083,10 +1091,17 @@ EOF
 %attr(755,root,root) %{_libdir}/mod_mysql_vhost.so
 %endif
 
+%if 0
 %files mod_proxy
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy.conf
 %attr(755,root,root) %{_libdir}/mod_proxy.so
+%endif
+
+%files mod_proxy_core
+%defattr(644,root,root,755)
+#%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy_core.conf
+%attr(755,root,root) %{_libdir}/mod_proxy_core.so
 
 %files mod_redirect
 %defattr(644,root,root,755)
@@ -1103,10 +1118,12 @@ EOF
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_rrdtool.conf
 %attr(755,root,root) %{_libdir}/mod_rrdtool.so
 
+%if 0
 %files mod_scgi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_scgi.conf
 %attr(755,root,root) %{_libdir}/mod_scgi.so
+%endif
 
 %files mod_secdownload
 %defattr(644,root,root,755)
