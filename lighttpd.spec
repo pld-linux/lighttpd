@@ -38,7 +38,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		_rel 6
+%define		_rel 6.1
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -858,6 +858,8 @@ rm -f $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_mysql_vhost.conf
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_deflate.conf
 %endif
 
+touch $RPM_BUILD_ROOT/var/log/%{name}/{access,error}.log
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -868,6 +870,13 @@ rm -rf $RPM_BUILD_ROOT
 %addusertogroup lighttpd http
 
 %post
+for a in access.log error.log; do
+	if [ ! -f /var/log/%{name}/$a ]; then
+		touch /var/log/%{name}/$a
+		chown lighttpd:lighttpd /var/log/%{name}/$a
+		chmod 644 /var/log/%{name}/$a
+	fi
+done
 /sbin/chkconfig --add %{name}
 
 %preun
@@ -971,7 +980,9 @@ EOF
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/%{name}
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/monit/%{name}.monitrc
 %attr(750,root,root) %dir /var/log/archiv/%{name}
-%dir %attr(770,root,lighttpd) /var/log/%{name}
+%dir %attr(751,root,root) /var/log/%{name}
+%ghost %attr(644,lighttpd,lighttpd) /var/log/%{name}/access.log
+%ghost %attr(644,lighttpd,lighttpd) /var/log/%{name}/error.log
 %dir %attr(770,root,lighttpd) /var/run/%{name}
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
