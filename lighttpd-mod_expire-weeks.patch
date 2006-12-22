@@ -1,0 +1,49 @@
+--- lighttpd-1.4.13/src/mod_expire.c	2006-12-19 14:39:05.036374620 +0200
++++ lighttpd-1.4.13/src/mod_expire.c	2006-12-19 14:56:31.510009332 +0200
+@@ -85,7 +85,7 @@
+ 	/*
+ 	 * parse
+ 	 *
+-	 * '(access|modification) [plus] {<num> <type>}*'
++	 * '(access|now|modification) [plus] {<num> <type>}*'
+ 	 *
+ 	 * e.g. 'access 1 years'
+ 	 */
+@@ -101,6 +101,9 @@
+ 	if (0 == strncmp(ts, "access ", 7)) {
+ 		type  = 0;
+ 		ts   += 7;
++	} else if (0 == strncmp(ts, "now ", 4)) {
++		type  = 0;
++		ts   += 4;
+ 	} else if (0 == strncmp(ts, "modification ", 13)) {
+ 		type  = 1;
+ 		ts   += 13;
+@@ -119,7 +122,7 @@
+ 		ts   += 5;
+ 	}
+ 
+-	/* the rest is just <number> (years|months|days|hours|minutes|seconds) */
++	/* the rest is just <number> (years|months|weeks|days|hours|minutes|seconds) */
+ 	while (1) {
+ 		char *space, *err;
+ 		int num;
+@@ -151,6 +154,9 @@
+ 			} else if (slen == 6 &&
+ 				   0 == strncmp(ts, "months", slen)) {
+ 				num *= 60 * 60 * 24 * 30;
++			} else if (slen == 5 &&
++				   0 == strncmp(ts, "weeks", slen)) {
++				num *= 60 * 60 * 24 * 7;
+ 			} else if (slen == 4 &&
+ 				   0 == strncmp(ts, "days", slen)) {
+ 				num *= 60 * 60 * 24;
+@@ -177,6 +183,8 @@
+ 				num *= 60 * 60 * 24 * 30 * 12;
+ 			} else if (0 == strcmp(ts, "months")) {
+ 				num *= 60 * 60 * 24 * 30;
++			} else if (0 == strcmp(ts, "weeks")) {
++				num *= 60 * 60 * 24 * 7;
+ 			} else if (0 == strcmp(ts, "days")) {
+ 				num *= 60 * 60 * 24;
+ 			} else if (0 == strcmp(ts, "hours")) {
