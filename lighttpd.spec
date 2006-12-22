@@ -8,7 +8,6 @@
 #   2006-07-20 21:05:52: (server.c.1233) WARNING: unknown config-key: url.rewrite-final (ignored)
 #
 # NOTES:
-# - fcgi-devel is only used for the test-scripts
 # - disable largefile, if you have 2.4 kernel to get sendfile() support, and don't need > 2GB file requests,
 #   see http://article.gmane.org/gmane.comp.web.lighttpd:722
 #
@@ -38,7 +37,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		_rel 6.1
+%define		_rel 6.2
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -105,11 +104,13 @@ Patch0:		%{name}-use_bin_sh.patch
 Patch1:		%{name}-mod_evasive-status_code.patch
 Patch2:		%{name}-mod_deflate.patch
 Patch3:		%{name}-mod_extforward-v2.patch
+Patch4:		%{name}-mod_expire-weeks.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	bzip2-devel
+BuildRequires:	fcgi-devel
 %{?with_gamin:BuildRequires:	gamin-devel}
 %{?with_gdbm:BuildRequires:	gdbm-devel}
 %{?with_memcache:BuildRequires:	libmemcache-devel}
@@ -750,6 +751,7 @@ Obs³uga SSLv2 i SSLv3 dla lighttpd.
 %patch0 -p1
 %patch1 -p1
 %patch3 -p1
+%patch4 -p1
 
 # build mime.types.conf
 sh %{SOURCE6} /etc/mime.types
@@ -849,6 +851,8 @@ install %{SOURCE130} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/php-spawned.conf
 install %{SOURCE131} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/php-external.conf
 install %{SOURCE132} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/ssl.conf
 
+touch $RPM_BUILD_ROOT/var/lib/lighttpd/lighttpd.rrd
+
 %if !%{with mysql}
 # avoid packaging dummy module
 rm -f $RPM_BUILD_ROOT%{_libdir}/mod_mysql_vhost.so
@@ -945,7 +949,18 @@ fi
 %module_scripts mod_proxy
 %module_scripts mod_redirect
 %module_scripts mod_rewrite
-%module_scripts mod_rrdtool
+
+%post mod_rrdtool
+if [ ! -f /var/lib/lighttpd/lighttpd.rrd ]; then
+	touch /var/lib/lighttpd/lighttpd.rrd
+	chown lighttpd:stats /var/lib/lighttpd/lighttpd.rrd
+	chmod 640 /var/lib/lighttpd/lighttpd.rrd
+fi
+%module_post
+
+%postun mod_rrdtool
+%module_postun
+
 %module_scripts mod_scgi
 %module_scripts mod_secdownload
 %module_scripts mod_setenv
@@ -1113,6 +1128,7 @@ EOF
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_rrdtool.conf
 %attr(755,root,root) %{_libdir}/mod_rrdtool.so
+%ghost %attr(640,lighttpd,stats) /var/lib/lighttpd/lighttpd.rrd
 
 %files mod_scgi
 %defattr(644,root,root,755)
