@@ -40,7 +40,7 @@
 
 %define		_rel 0.1
 Summary:	Fast and light HTTP server
-Summary(pl):	Szybki i lekki serwer HTTP
+Summary(pl.UTF-8):   Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.5.0
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}%{?_svn:.%{_svn}}
@@ -165,19 +165,19 @@ Output-Compression, URL-Rewriting and many more) make lighttpd the
 perfect webserver-software for every server that is suffering load
 problems.
 
-%description -l pl
+%description -l pl.UTF-8
 lighttpd jest bezpiecznym, szybkim, przyjaznym i bardzo elastycznym
-serwerem WWW, ktÛry zosta≥ zoptymalizowany pod k±tem
-wysokowydajno∂ciowych ∂rodowisk. Zajmuje bardzo ma≥± ilo∂Ê pamiÍci w
-porÛwnaniu do innych serwerÛw WWW oraz dba o zajÍto∂Ê procesora.
+serwerem WWW, kt√≥ry zosta≈Ç zoptymalizowany pod kƒÖtem
+wysokowydajno≈õciowych ≈õrodowisk. Zajmuje bardzo ma≈ÇƒÖ ilo≈õƒá pamiƒôci w
+por√≥wnaniu do innych serwer√≥w WWW oraz dba o zajƒôto≈õƒá procesora.
 Szeroki zestaw opcji (FastCGI, CGI, uwierzytelnianie, kompresja
-wyj∂cia, przepisywanie URL-i i wiele innych) czyni± z lighttpd
-doskona≥e oprogramowanie web-serwerowe na kaødy serwer cierpi±cy z
-powodu problemÛw z obci±øeniem.
+wyj≈õcia, przepisywanie URL-i i wiele innych) czyniƒÖ z lighttpd
+doskona≈Çe oprogramowanie web-serwerowe na ka≈ºdy serwer cierpiƒÖcy z
+powodu problem√≥w z obciƒÖ≈ºeniem.
 
 %package mod_access
 Summary:	lighttpd module for making access restrictions
-Summary(pl):	Modu≥ lighttpd ograniczaj±cy dostÍp
+Summary(pl.UTF-8):   Modu≈Ç lighttpd ograniczajƒÖcy dostƒôp
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(access)
@@ -186,25 +186,25 @@ Provides:	webserver(access)
 The access module is used to deny access to files with given trailing
 path names.
 
-%description mod_access -l pl
-Modu≥ access s≥uøy do ograniczania dostÍpu do plikÛw o podanych
-∂cieøkach.
+%description mod_access -l pl.UTF-8
+Modu≈Ç access s≈Çu≈ºy do ograniczania dostƒôpu do plik√≥w o podanych
+≈õcie≈ºkach.
 
 %package mod_accesslog
 Summary:	lighttpd module to record access logs
-Summary(pl):	Modu≥ lighttpd do zapisu logÛw dostÍpu
+Summary(pl.UTF-8):   Modu≈Ç lighttpd do zapisu log√≥w dostƒôpu
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_accesslog
 CLF like by default, flexible like Apache.
 
-%description mod_accesslog -l pl
-Domy∂lnie podobny do CLF, elastyczny jak Apache.
+%description mod_accesslog -l pl.UTF-8
+Domy≈õlnie podobny do CLF, elastyczny jak Apache.
 
 %package mod_alias
 Summary:	lighttpd module for making URL aliasing
-Summary(pl):	Modu≥ lighttpd odpowiadaj±cy za aliasy URL-i
+Summary(pl.UTF-8):   Modu≈Ç lighttpd odpowiadajƒÖcy za aliasy URL-i
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(alias)
@@ -213,13 +213,13 @@ Provides:	webserver(alias)
 The alias module is used to specify a special document-root for a
 given URL-subset.
 
-%description mod_alias -l pl
-Modul alias s≥uøy do okre∂lania specjalnego drzewa (document-roota)
+%description mod_alias -l pl.UTF-8
+Modul alias s≈Çu≈ºy do okre≈õlania specjalnego drzewa (document-roota)
 dla podanego podzbioru URL-i.
 
 %package mod_auth
 Summary:	lighttpd module for authentication support
-Summary(pl):	Modu≥ lighttpd do obs≥ugi uwierzytelniania
+Summary(pl.UTF-8):   Modu≈Ç lighttpd do obs≈Çugi uwierzytelniania
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(auth)
@@ -228,13 +228,13 @@ Provides:	webserver(auth)
 lighttpd supportes both authentication method described by RFC 2617:
 basic and digest.
 
-%description mod_auth -l pl
-lighttpd obs≥uguje obie metody uwierzytelniania opisane w RFC 2617:
+%description mod_auth -l pl.UTF-8
+lighttpd obs≈Çuguje obie metody uwierzytelniania opisane w RFC 2617:
 basic i digest.
 
 %package mod_cgi
 Summary:	lighttpd module for CGI handling
-Summary(pl):	Modu≥ lighttpd do obs≥ugi CGI
+Summary(pl.UTF-8):   Modu≈Ç lighttpd do obs≈Çugi CGI
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-mod_alias = %{version}-%{release}
@@ -246,15 +246,15 @@ The cgi module provides a CGI-conforming interface.
 CGI programs allow you to enhance the functionality of the server in a
 very straight and simple way.
 
-%description mod_cgi -l pl
-Modu≥ cgi udostÍpnia interfejs zgodny z CGI.
+%description mod_cgi -l pl.UTF-8
+Modu≈Ç cgi udostƒôpnia interfejs zgodny z CGI.
 
-Programy CGI pozwalaj± rozszerzaÊ funkcjonalno∂Ê serwera w bardzo
-prosty i naturalny sposÛb.
+Programy CGI pozwalajƒÖ rozszerzaƒá funkcjonalno≈õƒá serwera w bardzo
+prosty i naturalny spos√≥b.
 
 %package mod_cml
 Summary:	lighttpd module for Cache Meta Language
-Summary(pl):	Modu≥ Cache Meta Language
+Summary(pl.UTF-8):   Modu≈Ç Cache Meta Language
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -263,13 +263,13 @@ CML is a Meta language to describe the dependencies of a page at one
 side and building a page from its fragments on the other side using
 LUA.
 
-%description mod_cml -l pl
-CML to metajÍzyk s≥uø±cy z jednej strony do opisu zaleøno∂ci strony i
-z drugiej strony do budowania strony z fragmentÛw przy uøyciu LUA.
+%description mod_cml -l pl.UTF-8
+CML to metajƒôzyk s≈Çu≈ºƒÖcy z jednej strony do opisu zale≈ºno≈õci strony i
+z drugiej strony do budowania strony z fragment√≥w przy u≈ºyciu LUA.
 
 %package mod_compress
 Summary:	lighttpd module for output compression
-Summary(pl):	Modu≥ lighttpd do kompresji wyj∂cia
+Summary(pl.UTF-8):   Modu≈Ç lighttpd do kompresji wyj≈õcia
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -282,18 +282,18 @@ Only static content is supported up to now.
 The server negotiates automatically which compression method is used.
 Supported are gzip, deflate, bzip.
 
-%description mod_compress -l pl
-Kompresja wyj∂cia zmniejsza obci±øenie sieci i moøe poprawiÊ ca≥kowit±
-przepustowo∂Ê serwera WWW.
+%description mod_compress -l pl.UTF-8
+Kompresja wyj≈õcia zmniejsza obciƒÖ≈ºenie sieci i mo≈ºe poprawiƒá ca≈ÇkowitƒÖ
+przepustowo≈õƒá serwera WWW.
 
-Jak na razie obs≥ugiwana jest tylko statyczna tre∂Ê.
+Jak na razie obs≈Çugiwana jest tylko statyczna tre≈õƒá.
 
-Serwer automatycznie negocjuje, ktÛra metoda kompresji jest uøywana.
-Obs≥ugiwane s± gzip, deflate i bzip.
+Serwer automatycznie negocjuje, kt√≥ra metoda kompresji jest u≈ºywana.
+Obs≈Çugiwane sƒÖ gzip, deflate i bzip.
 
 %package mod_deflate
 Summary:	lighttpd module for output compression using deflate method
-Summary(pl):	Modu≥ lighttpd do kompresji wyj∂cia metod± deflate
+Summary(pl.UTF-8):   Modu≈Ç lighttpd do kompresji wyj≈õcia metodƒÖ deflate
 Group:		Networking/Daemons
 URL:		http://trac.lighttpd.net/trac/wiki/Mod_Deflate
 Requires:	%{name} = %{version}-%{release}
@@ -302,14 +302,14 @@ Requires:	%{name} = %{version}-%{release}
 mod_deflate can compress any output from lighttpd static or dynamic.
 It doesn't support caching compressed output like mod_compress.
 
-%description mod_deflate -l pl
-mod_deflate potrafi kompresowaÊ statyczne i dynamiczne wyj∂cie z
-lighttpd. Nie obs≥uguje cache'owania wyniku kompresji, jak robi to
+%description mod_deflate -l pl.UTF-8
+mod_deflate potrafi kompresowaƒá statyczne i dynamiczne wyj≈õcie z
+lighttpd. Nie obs≈Çuguje cache'owania wyniku kompresji, jak robi to
 mod_compress.
 
 %package mod_dirlisting
 Summary:	lighttpd module for directory listings
-Summary(pl):	Modu≥ lighttpd do tworzenia listingÛw katalogÛw
+Summary(pl.UTF-8):   Modu≈Ç lighttpd do tworzenia listing√≥w katalog√≥w
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -317,25 +317,25 @@ Requires:	%{name} = %{version}-%{release}
 mod_dirlisting generates HTML based directory listings with full CSS
 control.
 
-%description mod_dirlisting -l pl
-mod_dirlisting tworzy listingi katalogÛw w formacie HTML z pe≥n±
-kontrol± CSS.
+%description mod_dirlisting -l pl.UTF-8
+mod_dirlisting tworzy listingi katalog√≥w w formacie HTML z pe≈ÇnƒÖ
+kontrolƒÖ CSS.
 
 %package mod_evasive
 Summary:	lighttpd evasive module
-Summary(pl):	Modu≥ evasive dla lighttpd
+Summary(pl.UTF-8):   Modu≈Ç evasive dla lighttpd
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_evasive
 lighttpd evasive module.
 
-%description mod_evasive -l pl
-Modu≥ evasive dla lighttpd.
+%description mod_evasive -l pl.UTF-8
+Modu≈Ç evasive dla lighttpd.
 
 %package mod_evhost
 Summary:	lighttpd module for enhanced virtual-hosting
-Summary(pl):	Modu≥ lighttpd rozszerzaj±cy obs≥ugÍ hostÛw wirtualnych
+Summary(pl.UTF-8):   Modu≈Ç lighttpd rozszerzajƒÖcy obs≈Çugƒô host√≥w wirtualnych
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -344,26 +344,26 @@ mod_evhost builds the document-root based on a pattern which contains
 wildcards. Those wildcards can represent parts of the submitted
 hostname.
 
-%description mod_evhost -l pl
-mod_evhost tworzy document-root w oparciu o wzorzec zawieraj±cy znaki
-wieloznaczne (wildcards). Znaki te reprezentuj± czÍ∂ci przekazanej
+%description mod_evhost -l pl.UTF-8
+mod_evhost tworzy document-root w oparciu o wzorzec zawierajƒÖcy znaki
+wieloznaczne (wildcards). Znaki te reprezentujƒÖ czƒô≈õci przekazanej
 nazwy hosta.
 
 %package mod_expire
 Summary:	lighttpd module for controlling the expiration of content in caches
-Summary(pl):	Modu≥ lighttpd steruj±cy wygasaniem tre∂ci w cache'ach
+Summary(pl.UTF-8):   Modu≈Ç lighttpd sterujƒÖcy wygasaniem tre≈õci w cache'ach
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_expire
 mod_expire controls the setting of the the Expire response header.
 
-%description mod_expire -l pl
-mod_expire steruje ustawianiem nag≥Ûwka odpowiedzi Expire.
+%description mod_expire -l pl.UTF-8
+mod_expire steruje ustawianiem nag≈Ç√≥wka odpowiedzi Expire.
 
 %package mod_extforward
 Summary:	lighttpd module to extract the client's "real" IP from X-Forwarded-For header
-Summary(pl):	Modu≥ lighttpd wyci±gaj±cy "prawdziwy" IP klienta z nag≥Ûwka X-Forwarded-For
+Summary(pl.UTF-8):   Modu≈Ç lighttpd wyciƒÖgajƒÖcy "prawdziwy" IP klienta z nag≈Ç√≥wka X-Forwarded-For
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -372,14 +372,14 @@ This module will extract the client's "real" IP from X-Forwarded-For
 header which is added by Squid or other proxies. It might be useful
 for servers behind reverse proxy servers.
 
-%description mod_extforward -l pl
-Ten modu≥ wyci±ga "prawdziwy" IP klienta z nag≥Ûwka X-Forwarded-For
-dodawanego przez Squida czy inne proxy. Moøe byÊ przydatny dla
-serwerÛw stoj±cych za odwrotnymi serwerami proxy.
+%description mod_extforward -l pl.UTF-8
+Ten modu≈Ç wyciƒÖga "prawdziwy" IP klienta z nag≈Ç√≥wka X-Forwarded-For
+dodawanego przez Squida czy inne proxy. Mo≈ºe byƒá przydatny dla
+serwer√≥w stojƒÖcych za odwrotnymi serwerami proxy.
 
 %package mod_fastcgi
 Summary:	lighttpd module for FastCGI interface
-Summary(pl):	Modu≥ lighttpd do interfejsu FastCGI
+Summary(pl.UTF-8):   Modu≈Ç lighttpd do interfejsu FastCGI
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -388,26 +388,26 @@ The FastCGI interface is the fastest and most secure way to interface
 external process-handlers like Perl, PHP and your self-written
 applications.
 
-%description mod_fastcgi -l pl
-Interfejs FastCGI to najszybszy i najbezpieczniejszy sposÛb
-komunikacji z zewnÍtrznymi programami obs≥uguj±cymi procesy, takimi
-jak Perl, PHP czy w≥asne aplikacje.
+%description mod_fastcgi -l pl.UTF-8
+Interfejs FastCGI to najszybszy i najbezpieczniejszy spos√≥b
+komunikacji z zewnƒôtrznymi programami obs≈ÇugujƒÖcymi procesy, takimi
+jak Perl, PHP czy w≈Çasne aplikacje.
 
 %package mod_flv_streaming
 Summary:	lighttpd module for flv streaming
-Summary(pl):	Modu≥ lighttpd do streamingu flv
+Summary(pl.UTF-8):   Modu≈Ç lighttpd do streamingu flv
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_flv_streaming
 lighttpd module for flv streaming.
 
-%description mod_flv_streaming -l pl
-Modu≥ lighttpd do streamingu flv.
+%description mod_flv_streaming -l pl.UTF-8
+Modu≈Ç lighttpd do streamingu flv.
 
 %package mod_indexfile
 Summary:	lighttpd indexfile module
-Summary(pl):	Modu≥ indexfile dla lighttpd
+Summary(pl.UTF-8):   Modu≈Ç indexfile dla lighttpd
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(indexfile)
@@ -415,24 +415,24 @@ Provides:	webserver(indexfile)
 %description mod_indexfile
 indexfile module.
 
-%description mod_indexfile -l pl
-Modu≥ indexfile.
+%description mod_indexfile -l pl.UTF-8
+Modu≈Ç indexfile.
 
 %package mod_magnet
 Summary:	lighttpd powermagnet module
-Summary(pl):	Modu≥ powermagnet dla lighttpd
+Summary(pl.UTF-8):   Modu≈Ç powermagnet dla lighttpd
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_magnet
 mod_magnet is a module to control the request handling in lighty.
 
-%description mod_magnet -l pl
-mod_magnet to modu≥ steruj±cy obs≥ug± ø±daÒ w lighty.
+%description mod_magnet -l pl.UTF-8
+mod_magnet to modu≈Ç sterujƒÖcy obs≈ÇugƒÖ ≈ºƒÖda≈Ñ w lighty.
 
 %package mod_mysql_vhost
 Summary:	lighttpd module for MySQL based vhosting
-Summary(pl):	Modu≥ lighttpd obs≥uguj±cy vhosty oparte na MySQL-u
+Summary(pl.UTF-8):   Modu≈Ç lighttpd obs≈ÇugujƒÖcy vhosty oparte na MySQL-u
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Conflicts:	%{name}-mod_simple_vhost
@@ -440,12 +440,12 @@ Conflicts:	%{name}-mod_simple_vhost
 %description mod_mysql_vhost
 This module provides virtual hosts (vhosts) based on a MySQL table.
 
-%description mod_mysql_vhost -l pl
-Ten modu≥ udostÍpnia wirtualne hosty (vhosty) oparte na tabeli MySQL.
+%description mod_mysql_vhost -l pl.UTF-8
+Ten modu≈Ç udostƒôpnia wirtualne hosty (vhosty) oparte na tabeli MySQL.
 
 %package mod_proxy
 Summary:	lighttpd module for proxying requests
-Summary(pl):	Modu≥ lighttpd do przekazywania ø±daÒ
+Summary(pl.UTF-8):   Modu≈Ç lighttpd do przekazywania ≈ºƒÖda≈Ñ
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -453,13 +453,13 @@ Requires:	%{name} = %{version}-%{release}
 The proxy module a simplest way to connect lighttpd to Java servers
 which have a HTTP-interface.
 
-%description mod_proxy -l pl
-Modu≥ proxy to najprostszy sposÛb ≥±czenia lighttpd z serwerami Javy
-maj±cymi interfejs HTTP.
+%description mod_proxy -l pl.UTF-8
+Modu≈Ç proxy to najprostszy spos√≥b ≈ÇƒÖczenia lighttpd z serwerami Javy
+majƒÖcymi interfejs HTTP.
 
 %package mod_proxy_core
 Summary:	lighttpd module for proxying requests
-Summary(pl):	Modu≥ lighttpd do przekazywania ø±daÒ
+Summary(pl.UTF-8):   Modu≈Ç lighttpd do przekazywania ≈ºƒÖda≈Ñ
 Group:		Networking/Daemons
 URL:		http://trac.lighttpd.net/trac/wiki/Docs:ModProxyCore
 Requires:	%{name} = %{version}-%{release}
@@ -470,11 +470,11 @@ which have a HTTP-interface.
 
 This is the new proxy code.
 
-%description mod_proxy_core -l pl
-Modu≥ proxy to najprostszy sposÛb ≥±czenia lighttpd z serwerami Javy
-maj±cymi interfejs HTTP.
+%description mod_proxy_core -l pl.UTF-8
+Modu≈Ç proxy to najprostszy spos√≥b ≈ÇƒÖczenia lighttpd z serwerami Javy
+majƒÖcymi interfejs HTTP.
 
-Ten pakiet zawiera nowy modu≥ proxy.
+Ten pakiet zawiera nowy modu≈Ç proxy.
 
 %package mod_proxy_backend_ajp13
 Summary:	lighttpd proxy backend for ajp13 protocol
@@ -510,20 +510,20 @@ lighttpd proxy backend for SCGI protocol
 
 %package mod_redirect
 Summary:	lighttpd module for URL redirects
-Summary(pl):	Modu≥ lighttpd do przekierowaÒ URL-i
+Summary(pl.UTF-8):   Modu≈Ç lighttpd do przekierowa≈Ñ URL-i
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_redirect
 With mod_redirect module you can redirect a set of URLs externally.
 
-%description mod_redirect -l pl
-Przy uøyciu modu≥u mod_redirect moøna przekierowaÊ zbiÛr URL-i na
-zewn±trz.
+%description mod_redirect -l pl.UTF-8
+Przy u≈ºyciu modu≈Çu mod_redirect mo≈ºna przekierowaƒá zbi√≥r URL-i na
+zewnƒÖtrz.
 
 %package mod_rewrite
 Summary:	lighttpd module for internal redirects, URL rewrite
-Summary(pl):	Modu≥ lighttpd do wewnÍtrznych przekierowaÒ i przepisywania URL-i
+Summary(pl.UTF-8):   Modu≈Ç lighttpd do wewnƒôtrznych przekierowa≈Ñ i przepisywania URL-i
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -531,13 +531,13 @@ Requires:	%{name} = %{version}-%{release}
 This module allows you rewrite a set of URLs interally in the
 webserver BEFORE they are handled.
 
-%description mod_rewrite -l pl
-Ten modu≥ pozwala na przepisywanie zbioru URL-i wewnÍtrznie w serwerze
-WWW _przed_ ich obs≥ug±.
+%description mod_rewrite -l pl.UTF-8
+Ten modu≈Ç pozwala na przepisywanie zbioru URL-i wewnƒôtrznie w serwerze
+WWW _przed_ ich obs≈ÇugƒÖ.
 
 %package mod_rrdtool
 Summary:	lighttpd module for monitoring traffic and server load
-Summary(pl):	Modu≥ lighttpd do monitorowania ruchu i obci±øenia serwera
+Summary(pl.UTF-8):   Modu≈Ç lighttpd do monitorowania ruchu i obciƒÖ≈ºenia serwera
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Requires:	rrdtool
@@ -549,17 +549,17 @@ bandwidth, machine-room temperature, server load average).
 With this module you can monitor the traffic and load on the
 webserver.
 
-%description mod_rrdtool -l pl
-RRD to system przechowywania i wy∂wietlania danych zaleønych od czasu
-(np. obci±øenia sieci, temperatury w serwerowni, ∂redniego obci±øenia
+%description mod_rrdtool -l pl.UTF-8
+RRD to system przechowywania i wy≈õwietlania danych zale≈ºnych od czasu
+(np. obciƒÖ≈ºenia sieci, temperatury w serwerowni, ≈õredniego obciƒÖ≈ºenia
 serwera).
 
-Przy uøyciu tego modu≥u moøna monitorowaÊ ruch i obci±øenie serwera
+Przy u≈ºyciu tego modu≈Çu mo≈ºna monitorowaƒá ruch i obciƒÖ≈ºenie serwera
 WWW.
 
 %package mod_scgi
 Summary:	lighttpd module for SCGI interface
-Summary(pl):	Modu≥ lighttpd do interfejsu SCGI
+Summary(pl.UTF-8):   Modu≈Ç lighttpd do interfejsu SCGI
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -567,13 +567,13 @@ Requires:	%{name} = %{version}-%{release}
 SCGI is a fast and simplified CGI interface. It is mostly used by
 Python + WSGI.
 
-%description mod_scgi -l pl
-SCGI to szybki i uproszczony interfejs CGI. Jest uøywany g≥Ûwnie przez
+%description mod_scgi -l pl.UTF-8
+SCGI to szybki i uproszczony interfejs CGI. Jest u≈ºywany g≈Ç√≥wnie przez
 Pythona z WSGI.
 
 %package mod_secdownload
 Summary:	lighttpd module for secure and fast downloading
-Summary(pl):	Modu≥ lighttpd do bezpiecznego i szybkiego ∂ci±gania danych
+Summary(pl.UTF-8):   Modu≈Ç lighttpd do bezpiecznego i szybkiego ≈õciƒÖgania danych
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -581,25 +581,25 @@ Requires:	%{name} = %{version}-%{release}
 With this module you can easily achieve authenticated file requests
 and a countermeasure against deep-linking.
 
-%description mod_secdownload -l pl
-Przy uøyciu tego modu≥u moøna ≥atwo umoøliwiÊ ∂ci±ganie plikÛw z
-uwierzytelnieniem i zapobiec uøywaniu bezpo∂rednich odno∂nikÛw.
+%description mod_secdownload -l pl.UTF-8
+Przy u≈ºyciu tego modu≈Çu mo≈ºna ≈Çatwo umo≈ºliwiƒá ≈õciƒÖganie plik√≥w z
+uwierzytelnieniem i zapobiec u≈ºywaniu bezpo≈õrednich odno≈õnik√≥w.
 
 %package mod_setenv
 Summary:	lighttpd module for setting conditional request headers
-Summary(pl):	Modu≥ lighttpd do ustawiania warunkowych nag≥ÛwkÛw ø±daÒ
+Summary(pl.UTF-8):   Modu≈Ç lighttpd do ustawiania warunkowych nag≈Ç√≥wk√≥w ≈ºƒÖda≈Ñ
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_setenv
 mod_setenv is used to add request headers.
 
-%description mod_setenv -l pl
-mod_setenv s≥uøy do dodawania nag≥ÛwkÛw ø±daÒ.
+%description mod_setenv -l pl.UTF-8
+mod_setenv s≈Çu≈ºy do dodawania nag≈Ç√≥wk√≥w ≈ºƒÖda≈Ñ.
 
 %package mod_simple_vhost
 Summary:	lighttpd module for simple virtual-hosting
-Summary(pl):	Modu≥ lighttpd do prostych hostÛw wirtualnych
+Summary(pl.UTF-8):   Modu≈Ç lighttpd do prostych host√≥w wirtualnych
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Conflicts:	%{name}-mod_mysql_vhost
@@ -607,12 +607,12 @@ Conflicts:	%{name}-mod_mysql_vhost
 %description mod_simple_vhost
 lighttpd module for simple virtual-hosting.
 
-%description mod_simple_vhost -l pl
-Modu≥ lighttpd do prostych hostÛw wirtualnych.
+%description mod_simple_vhost -l pl.UTF-8
+Modu≈Ç lighttpd do prostych host√≥w wirtualnych.
 
 %package mod_ssi
 Summary:	lighttpd module for server-side includes
-Summary(pl):	Modu≥ lighttpd do SSI (server-side includes)
+Summary(pl.UTF-8):   Modu≈Ç lighttpd do SSI (server-side includes)
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -620,45 +620,45 @@ Requires:	%{name} = %{version}-%{release}
 The module for server-side includes provides a compatability layer for
 NSCA/Apache SSI.
 
-%description mod_ssi -l pl
-Modu≥ server-side includes udostÍpnia warstwÍ kompatybilno∂ci z SSI
+%description mod_ssi -l pl.UTF-8
+Modu≈Ç server-side includes udostƒôpnia warstwƒô kompatybilno≈õci z SSI
 znanym z NSCA/Apache'a.
 
 %package mod_staticfile
 Summary:	lighttpd module for static file serving
-Summary(pl):	Modu≥ lighttpd do serwowania statycznych plikÛw
+Summary(pl.UTF-8):   Modu≈Ç lighttpd do serwowania statycznych plik√≥w
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_staticfile
 lighttpd module for static file serving.
 
-%description mod_staticfile -l pl
-Modu≥ lighttpd do serwowania statycznych plikÛw.
+%description mod_staticfile -l pl.UTF-8
+Modu≈Ç lighttpd do serwowania statycznych plik√≥w.
 
 %package mod_status
 Summary:	lighttpd module for displaying server status
-Summary(pl):	Modu≥ lighttpd do wy∂wietlania stanu serwera
+Summary(pl.UTF-8):   Modu≈Ç lighttpd do wy≈õwietlania stanu serwera
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_status
 mod_status displays the server's status and configuration.
 
-%description mod_status -l pl
-mod_status wy∂wietla stan i konfiguracjÍ serwera.
+%description mod_status -l pl.UTF-8
+mod_status wy≈õwietla stan i konfiguracjƒô serwera.
 
 %package mod_trigger_b4_dl
 Summary:	Trigger before Download
-Summary(pl):	Wyzwalacz przed ∂ci±ganiem
+Summary(pl.UTF-8):   Wyzwalacz przed ≈õciƒÖganiem
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_trigger_b4_dl
 Another anti hot-linking module.
 
-%description mod_trigger_b4_dl -l pl
-Jeszcze jeden modu≥ blokuj±cy bezpo∂rednie linkowanie.
+%description mod_trigger_b4_dl -l pl.UTF-8
+Jeszcze jeden modu≈Ç blokujƒÖcy bezpo≈õrednie linkowanie.
 
 %package mod_uploadprogress
 Summary:	lighttpd module for upload progress
@@ -670,7 +670,7 @@ Upload progress module.
 
 %package mod_userdir
 Summary:	lighttpd module for user homedirs
-Summary(pl):	Modu≥ lighttpd obs≥uguj±cy katalogi domowe uøytkownikÛw
+Summary(pl.UTF-8):   Modu≈Ç lighttpd obs≈ÇugujƒÖcy katalogi domowe u≈ºytkownik√≥w
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -678,25 +678,25 @@ Requires:	%{name} = %{version}-%{release}
 The userdir module provides a simple way to link user-based
 directories into the global namespace of the webserver.
 
-%description mod_userdir -l pl
-Modu≥ userdir udostÍpnia prosty sposÛb w≥±czenia katalogÛw
-uøytkownikÛw do globalnej przestrzeni nazw serwera WWW.
+%description mod_userdir -l pl.UTF-8
+Modu≈Ç userdir udostƒôpnia prosty spos√≥b w≈ÇƒÖczenia katalog√≥w
+u≈ºytkownik√≥w do globalnej przestrzeni nazw serwera WWW.
 
 %package mod_usertrack
 Summary:	lighttpd usertrack module
-Summary(pl):	Modu≥ usertrack dla lighttpd
+Summary(pl.UTF-8):   Modu≈Ç usertrack dla lighttpd
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_usertrack
 lighttpd usertrack module.
 
-%description mod_usertrack -l pl
-Modu≥ usertrack dla lighttpd.
+%description mod_usertrack -l pl.UTF-8
+Modu≈Ç usertrack dla lighttpd.
 
 %package mod_webdav
 Summary:	WebDAV module for lighttpd
-Summary(pl):	Modu≥ WebDAV dla libghttpd
+Summary(pl.UTF-8):   Modu≈Ç WebDAV dla libghttpd
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
@@ -717,37 +717,37 @@ and the usual GET, POST, HEAD from HTTP/1.1.
 So far mounting a webdav resource into Windows XP works and the basic
 litmus tests are passed.
 
-%description mod_webdav -l pl
-Modu≥ WebDAV to bardzo minimalistyczna implementacja RFC 2518.
-Minimalistyczna oznacza, øe jeszcze nie wszystkie operacje s±
-zaimplementowane. Jak na razie s±:
+%description mod_webdav -l pl.UTF-8
+Modu≈Ç WebDAV to bardzo minimalistyczna implementacja RFC 2518.
+Minimalistyczna oznacza, ≈ºe jeszcze nie wszystkie operacje sƒÖ
+zaimplementowane. Jak na razie sƒÖ:
 - PROPFIND
 - OPTIONS
 - MKCOL
 - DELETE
 - PUT
 - LOCK (experimental)
-oraz zwyk≥e GET, POST, HEAD z HTTP/1.1.
+oraz zwyk≈Çe GET, POST, HEAD z HTTP/1.1.
 
-Jak na razie montowanie zasobu webdav pod Windows XP dzia≥a i
-podstawowe testy lakmusowe przechodz±.
+Jak na razie montowanie zasobu webdav pod Windows XP dzia≈Ça i
+podstawowe testy lakmusowe przechodzƒÖ.
 
 %package -n spawn-fcgi
 Summary:	Spawn fcgi-process directly
-Summary(pl):	Bezpo∂rednie uruchamianie procesÛw fcgi
+Summary(pl.UTF-8):   Bezpo≈õrednie uruchamianie proces√≥w fcgi
 Group:		Applications
 
 %description -n spawn-fcgi
 spawn-fcgi is used to spawn fcgi-process directly without the help of
 a webserver or the programm itself.
 
-%description -n spawn-fcgi -l pl
-spawn-fcgi s≥uøy do uruchamiania procesÛw fcgi bezpo∂rednio, bez
+%description -n spawn-fcgi -l pl.UTF-8
+spawn-fcgi s≈Çu≈ºy do uruchamiania proces√≥w fcgi bezpo≈õrednio, bez
 pomocy serwera WWW ani samego programu.
 
 %package php-spawned
 Summary:	PHP support via FastCGI, spawned by lighttpd
-Summary(pl):	Obs≥uga PHP przez FastCGI, uruchamiane przez lighttpd
+Summary(pl.UTF-8):   Obs≈Çuga PHP przez FastCGI, uruchamiane przez lighttpd
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-mod_fastcgi = %{version}-%{release}
@@ -757,12 +757,12 @@ Obsoletes:	lighttpd-php-external
 %description php-spawned
 PHP support via FastCGI, spawned by lighttpd.
 
-%description php-spawned -l pl
-Obs≥uga PHP przez FastCGI, uruchamiane przez lighttpd.
+%description php-spawned -l pl.UTF-8
+Obs≈Çuga PHP przez FastCGI, uruchamiane przez lighttpd.
 
 %package php-external
 Summary:	PHP support via FastCGI, spawning controlled externally
-Summary(pl):	Obs≥uga PHP przez FastCGI, uruchamianie sterowane zewnÍtrznie
+Summary(pl.UTF-8):   Obs≈Çuga PHP przez FastCGI, uruchamianie sterowane zewnƒôtrznie
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-mod_fastcgi = %{version}-%{release}
@@ -772,20 +772,20 @@ Obsoletes:	lighttpd-php-spawned
 %description php-external
 PHP support via FastCGI, spawning controlled externally.
 
-%description php-external -l pl
-Obs≥uga PHP przez FastCGI, uruchamianie sterowane zewnÍtrznie.
+%description php-external -l pl.UTF-8
+Obs≈Çuga PHP przez FastCGI, uruchamianie sterowane zewnƒôtrznie.
 
 %package ssl
 Summary:	lighttpd support for SSLv2 and SSLv3
-Summary(pl):	Obs≥uga SSLv2 i SSLv3 dla lighttpd
+Summary(pl.UTF-8):   Obs≈Çuga SSLv2 i SSLv3 dla lighttpd
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 
 %description ssl
 lighttpd support for SSLv2 and SSLv3.
 
-%description ssl -l pl
-Obs≥uga SSLv2 i SSLv3 dla lighttpd.
+%description ssl -l pl.UTF-8
+Obs≈Çuga SSLv2 i SSLv3 dla lighttpd.
 
 %prep
 %setup -q
