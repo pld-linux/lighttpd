@@ -37,7 +37,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		_rel 7
+%define		_rel 8
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -744,6 +744,19 @@ lighttpd support for SSLv2 and SSLv3.
 %description ssl -l pl.UTF-8
 Obsługa SSLv2 i SSLv3 dla lighttpd.
 
+%package -n monit-rc-lighttpd
+Summary:	lighttpd support for monit
+Summary(pl.UTF-8):	Wsparcie lighttpd dla monit
+Group:		Applications/System
+Requires:	%{name} = %{version}-%{release}
+Requires:	monit
+
+%description -n monit-rc-lighttpd
+monitrc file for monitoring MySQL database server.
+
+%description -n monit-rc-lighttpd -l pl.UTF-8
+Plik monitrc do monitorowania serwera baz danych MySQL.
+
 %prep
 %setup -q
 %patch100 -p0
@@ -991,7 +1004,6 @@ EOF
 %attr(640,root,lighttpd) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.user
 
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/%{name}
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/monit/%{name}.monitrc
 %attr(750,root,root) %dir /var/log/archiv/%{name}
 %dir %attr(751,root,root) /var/log/%{name}
 %ghost %attr(644,lighttpd,lighttpd) /var/log/%{name}/access.log
@@ -1199,3 +1211,7 @@ EOF
 %files ssl
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/ssl.conf
+
+%files -n monit-rc-lighttpd
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/monit/%{name}.monitrc
