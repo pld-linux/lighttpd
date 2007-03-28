@@ -1,7 +1,7 @@
 Index: configure.in
 ===================================================================
---- configure.in	(.../tags/lighttpd-1.4.13)	(revision 1706)
-+++ configure.in	(.../branches/lighttpd-1.4.x)	(revision 1706)
+--- configure.in	(.../tags/lighttpd-1.4.13)	(revision 1718)
++++ configure.in	(.../branches/lighttpd-1.4.x)	(revision 1718)
 @@ -398,7 +398,7 @@
  
  AC_MSG_RESULT($WITH_LUA)
@@ -22,8 +22,8 @@ Index: configure.in
  features="regex-conditionals"
 Index: src/mod_cgi.c
 ===================================================================
---- src/mod_cgi.c	(.../tags/lighttpd-1.4.13)	(revision 1706)
-+++ src/mod_cgi.c	(.../branches/lighttpd-1.4.x)	(revision 1706)
+--- src/mod_cgi.c	(.../tags/lighttpd-1.4.13)	(revision 1718)
++++ src/mod_cgi.c	(.../branches/lighttpd-1.4.x)	(revision 1718)
 @@ -842,6 +842,12 @@
  				    CONST_BUF_LEN(con->authed_user));
  		}
@@ -39,8 +39,8 @@ Index: src/mod_cgi.c
  		cgi_env_add(&env, CONST_STR_LEN("CONTENT_LENGTH"), buf, strlen(buf));
 Index: src/base.h
 ===================================================================
---- src/base.h	(.../tags/lighttpd-1.4.13)	(revision 1706)
-+++ src/base.h	(.../branches/lighttpd-1.4.x)	(revision 1706)
+--- src/base.h	(.../tags/lighttpd-1.4.13)	(revision 1718)
++++ src/base.h	(.../branches/lighttpd-1.4.x)	(revision 1718)
 @@ -481,7 +481,9 @@
  	enum { STAT_CACHE_ENGINE_UNSET,
  			STAT_CACHE_ENGINE_NONE,
@@ -53,9 +53,9 @@ Index: src/base.h
  } server_config;
 Index: src/connections.c
 ===================================================================
---- src/connections.c	(.../tags/lighttpd-1.4.13)	(revision 1706)
-+++ src/connections.c	(.../branches/lighttpd-1.4.x)	(revision 1706)
-@@ -500,6 +500,7 @@
+--- src/connections.c	(.../tags/lighttpd-1.4.13)	(revision 1718)
++++ src/connections.c	(.../branches/lighttpd-1.4.x)	(revision 1718)
+@@ -500,11 +500,10 @@
  	case 201:
  	case 301:
  	case 302:
@@ -63,7 +63,12 @@ Index: src/connections.c
  		break;
  
  	case 206: /* write_queue is already prepared */
-@@ -970,7 +971,7 @@
+-		con->file_finished = 1;
+-
+ 		break;
+ 	case 205: /* class: header only */
+ 	case 304:
+@@ -970,7 +969,7 @@
  								}
  							} else {
  								/* a splited \r \n */
@@ -74,8 +79,8 @@ Index: src/connections.c
  					}
 Index: src/configfile.c
 ===================================================================
---- src/configfile.c	(.../tags/lighttpd-1.4.13)	(revision 1706)
-+++ src/configfile.c	(.../branches/lighttpd-1.4.x)	(revision 1706)
+--- src/configfile.c	(.../tags/lighttpd-1.4.13)	(revision 1718)
++++ src/configfile.c	(.../branches/lighttpd-1.4.x)	(revision 1718)
 @@ -218,13 +218,19 @@
  		srv->srvconf.stat_cache_engine = STAT_CACHE_ENGINE_SIMPLE;
  	} else if (buffer_is_equal_string(stat_cache_string, CONST_STR_LEN("simple"))) {
@@ -99,8 +104,8 @@ Index: src/configfile.c
  
 Index: src/mod_scgi.c
 ===================================================================
---- src/mod_scgi.c	(.../tags/lighttpd-1.4.13)	(revision 1706)
-+++ src/mod_scgi.c	(.../branches/lighttpd-1.4.x)	(revision 1706)
+--- src/mod_scgi.c	(.../tags/lighttpd-1.4.13)	(revision 1718)
++++ src/mod_scgi.c	(.../branches/lighttpd-1.4.x)	(revision 1718)
 @@ -2528,7 +2528,7 @@
  				    hctx->reconnects < 5) {
  					scgi_reconnect(srv, hctx);
@@ -112,8 +117,8 @@ Index: src/mod_scgi.c
  						"fcgi-fd:", hctx->fd);
 Index: src/request.c
 ===================================================================
---- src/request.c	(.../tags/lighttpd-1.4.13)	(revision 1706)
-+++ src/request.c	(.../branches/lighttpd-1.4.x)	(revision 1706)
+--- src/request.c	(.../tags/lighttpd-1.4.13)	(revision 1718)
++++ src/request.c	(.../branches/lighttpd-1.4.x)	(revision 1718)
 @@ -85,6 +85,9 @@
  	/* Host is empty */
  	if (host_len == 0) return -1;
@@ -126,8 +131,8 @@ Index: src/request.c
  		const char c = host->ptr[i];
 Index: src/network_backends.h
 ===================================================================
---- src/network_backends.h	(.../tags/lighttpd-1.4.13)	(revision 1706)
-+++ src/network_backends.h	(.../branches/lighttpd-1.4.x)	(revision 1706)
+--- src/network_backends.h	(.../tags/lighttpd-1.4.13)	(revision 1718)
++++ src/network_backends.h	(.../branches/lighttpd-1.4.x)	(revision 1718)
 @@ -14,7 +14,7 @@
  # include <sys/uio.h>
  #endif
@@ -139,8 +144,8 @@ Index: src/network_backends.h
  #endif
 Index: src/mod_proxy.c
 ===================================================================
---- src/mod_proxy.c	(.../tags/lighttpd-1.4.13)	(revision 1706)
-+++ src/mod_proxy.c	(.../branches/lighttpd-1.4.x)	(revision 1706)
+--- src/mod_proxy.c	(.../tags/lighttpd-1.4.13)	(revision 1718)
++++ src/mod_proxy.c	(.../branches/lighttpd-1.4.x)	(revision 1718)
 @@ -656,6 +656,7 @@
  		}
  
@@ -152,7 +157,7 @@ Index: src/mod_proxy.c
 Index: src/mod_extforward.c
 ===================================================================
 --- src/mod_extforward.c	(.../tags/lighttpd-1.4.13)	(revision 0)
-+++ src/mod_extforward.c	(.../branches/lighttpd-1.4.x)	(revision 1706)
++++ src/mod_extforward.c	(.../branches/lighttpd-1.4.x)	(revision 1718)
 @@ -0,0 +1,490 @@
 +#include <ctype.h>
 +#include <stdlib.h>
@@ -652,8 +657,8 @@ Name: svn:eol-style
 
 Index: src/Makefile.am
 ===================================================================
---- src/Makefile.am	(.../tags/lighttpd-1.4.13)	(revision 1706)
-+++ src/Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 1706)
+--- src/Makefile.am	(.../tags/lighttpd-1.4.13)	(revision 1718)
++++ src/Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 1718)
 @@ -199,6 +199,11 @@
  mod_fastcgi_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
  mod_fastcgi_la_LIBADD = $(common_libadd)
@@ -668,8 +673,8 @@ Index: src/Makefile.am
  mod_access_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
 Index: src/network_writev.c
 ===================================================================
---- src/network_writev.c	(.../tags/lighttpd-1.4.13)	(revision 1706)
-+++ src/network_writev.c	(.../branches/lighttpd-1.4.x)	(revision 1706)
+--- src/network_writev.c	(.../tags/lighttpd-1.4.13)	(revision 1718)
++++ src/network_writev.c	(.../branches/lighttpd-1.4.x)	(revision 1718)
 @@ -55,7 +55,7 @@
  			const size_t max_chunks = MAX_IOVEC;
  #elif defined(UIO_MAXIOV) /* Linux x86 (glibc-2.2.5-233) */
@@ -681,8 +686,8 @@ Index: src/network_writev.c
  #error "sysconf() doesnt return _SC_IOV_MAX ..., check the output of 'man writev' for the EINVAL error and send the output to jan@kneschke.de"
 Index: src/mod_expire.c
 ===================================================================
---- src/mod_expire.c	(.../tags/lighttpd-1.4.13)	(revision 1706)
-+++ src/mod_expire.c	(.../branches/lighttpd-1.4.x)	(revision 1706)
+--- src/mod_expire.c	(.../tags/lighttpd-1.4.13)	(revision 1718)
++++ src/mod_expire.c	(.../branches/lighttpd-1.4.x)	(revision 1718)
 @@ -85,7 +85,7 @@
  	/*
  	 * parse
@@ -732,8 +737,8 @@ Index: src/mod_expire.c
  			} else if (0 == strcmp(ts, "hours")) {
 Index: src/network_freebsd_sendfile.c
 ===================================================================
---- src/network_freebsd_sendfile.c	(.../tags/lighttpd-1.4.13)	(revision 1706)
-+++ src/network_freebsd_sendfile.c	(.../branches/lighttpd-1.4.x)	(revision 1706)
+--- src/network_freebsd_sendfile.c	(.../tags/lighttpd-1.4.13)	(revision 1718)
++++ src/network_freebsd_sendfile.c	(.../branches/lighttpd-1.4.x)	(revision 1718)
 @@ -25,7 +25,7 @@
  
  
@@ -745,8 +750,8 @@ Index: src/network_freebsd_sendfile.c
  # endif
 Index: src/http_auth.c
 ===================================================================
---- src/http_auth.c	(.../tags/lighttpd-1.4.13)	(revision 1706)
-+++ src/http_auth.c	(.../branches/lighttpd-1.4.x)	(revision 1706)
+--- src/http_auth.c	(.../tags/lighttpd-1.4.13)	(revision 1718)
++++ src/http_auth.c	(.../branches/lighttpd-1.4.x)	(revision 1718)
 @@ -733,8 +733,9 @@
  			}
  		}
@@ -760,8 +765,8 @@ Index: src/http_auth.c
  		buffer_append_string_buffer(p->ldap_filter, username);
 Index: src/http_auth.h
 ===================================================================
---- src/http_auth.h	(.../tags/lighttpd-1.4.13)	(revision 1706)
-+++ src/http_auth.h	(.../branches/lighttpd-1.4.x)	(revision 1706)
+--- src/http_auth.h	(.../tags/lighttpd-1.4.13)	(revision 1718)
++++ src/http_auth.h	(.../branches/lighttpd-1.4.x)	(revision 1718)
 @@ -36,6 +36,7 @@
  	buffer *auth_ldap_filter;
  	buffer *auth_ldap_cafile;
@@ -772,8 +777,8 @@ Index: src/http_auth.h
  
 Index: src/mod_auth.c
 ===================================================================
---- src/mod_auth.c	(.../tags/lighttpd-1.4.13)	(revision 1706)
-+++ src/mod_auth.c	(.../branches/lighttpd-1.4.x)	(revision 1706)
+--- src/mod_auth.c	(.../tags/lighttpd-1.4.13)	(revision 1718)
++++ src/mod_auth.c	(.../branches/lighttpd-1.4.x)	(revision 1718)
 @@ -113,6 +113,7 @@
  	PATCH(auth_ldap_filter);
  	PATCH(auth_ldap_cafile);
@@ -817,10 +822,32 @@ Index: src/mod_auth.c
  
  		p->config_storage[i] = s;
  		ca = ((data_config *)srv->config_context->data[i])->value;
+Index: src/http-header-glue.c
+===================================================================
+--- src/http-header-glue.c	(.../tags/lighttpd-1.4.13)	(revision 1718)
++++ src/http-header-glue.c	(.../branches/lighttpd-1.4.x)	(revision 1718)
+@@ -148,7 +148,7 @@
+ 				char dst[INET6_ADDRSTRLEN];
+ 
+ 				log_error_write(srv, __FILE__, __LINE__,
+-						"SSSS", "NOTICE: getnameinfo failed: ",
++						"SSS", "NOTICE: getnameinfo failed: ",
+ 						strerror(errno), ", using ip-address instead");
+ 
+ 				buffer_append_string(o,
+@@ -162,7 +162,7 @@
+ 		case AF_INET:
+ 			if (NULL == (he = gethostbyaddr((char *)&our_addr.ipv4.sin_addr, sizeof(struct in_addr), AF_INET))) {
+ 				log_error_write(srv, __FILE__, __LINE__,
+-						"SdSS", "NOTICE: gethostbyaddr failed: ",
++						"SdS", "NOTICE: gethostbyaddr failed: ",
+ 						h_errno, ", using ip-address instead");
+ 
+ 				buffer_append_string(o, inet_ntoa(our_addr.ipv4.sin_addr));
 Index: src/mod_fastcgi.c
 ===================================================================
---- src/mod_fastcgi.c	(.../tags/lighttpd-1.4.13)	(revision 1706)
-+++ src/mod_fastcgi.c	(.../branches/lighttpd-1.4.x)	(revision 1706)
+--- src/mod_fastcgi.c	(.../tags/lighttpd-1.4.13)	(revision 1718)
++++ src/mod_fastcgi.c	(.../branches/lighttpd-1.4.x)	(revision 1718)
 @@ -275,6 +275,7 @@
  	buffer *key; /* like .php */
  
@@ -928,8 +955,8 @@ Index: src/mod_fastcgi.c
  		/*
 Index: src/server.c
 ===================================================================
---- src/server.c	(.../tags/lighttpd-1.4.13)	(revision 1706)
-+++ src/server.c	(.../branches/lighttpd-1.4.x)	(revision 1706)
+--- src/server.c	(.../tags/lighttpd-1.4.13)	(revision 1718)
++++ src/server.c	(.../branches/lighttpd-1.4.x)	(revision 1718)
 @@ -163,6 +163,7 @@
  #undef CLEAN
  
@@ -971,7 +998,7 @@ Index: src/server.c
 Index: doc/extforward.txt
 ===================================================================
 --- doc/extforward.txt	(.../tags/lighttpd-1.4.13)	(revision 0)
-+++ doc/extforward.txt	(.../branches/lighttpd-1.4.x)	(revision 1706)
++++ doc/extforward.txt	(.../branches/lighttpd-1.4.x)	(revision 1718)
 @@ -0,0 +1,96 @@
 +==============
 +mod_extforward
@@ -1071,8 +1098,8 @@ Index: doc/extforward.txt
 +Note that "all" has precedence over specific entries, so "all except" setups will not work.
 Index: doc/Makefile.am
 ===================================================================
---- doc/Makefile.am	(.../tags/lighttpd-1.4.13)	(revision 1706)
-+++ doc/Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 1706)
+--- doc/Makefile.am	(.../tags/lighttpd-1.4.13)	(revision 1718)
++++ doc/Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 1718)
 @@ -6,6 +6,7 @@
  cgi.txt \
  compress.txt \
@@ -1091,18 +1118,130 @@ Index: doc/Makefile.am
  	 features.html \
 Index: NEWS
 ===================================================================
---- NEWS	(.../tags/lighttpd-1.4.13)	(revision 1706)
-+++ NEWS	(.../branches/lighttpd-1.4.x)	(revision 1706)
-@@ -3,6 +3,9 @@
+--- NEWS	(.../tags/lighttpd-1.4.13)	(revision 1718)
++++ NEWS	(.../branches/lighttpd-1.4.x)	(revision 1718)
+@@ -3,6 +3,23 @@
  NEWS
  ====
  
 +- 1.4.14 - ???
 +  * added mod_extforward module [1665]
++  * added HTTPS=on to the environment of cgi scripts (#861)
++  * fix handling of 303 #1045
++  * made the configure check for lua more portable [1677]  
++  * fix http 500 errors (colin.stephen/at/o2.com) #1041
++  * prevent wrong pidfile unlinking on graceful restart (Chris Webb) [1656]
++  * ignore empty packets from STDERR stream. #998 
++  * fix a crash for files with an mtime of 0 reported by cubiq on irc [1519]
++  * allow empty passwords with ldap (Jörg Sonnenberger) [1516]
++  * mod_scgi.c segfault fix #964
++  * Added round-robin support to mod_fastcgi [1500]
++  * Handle DragonFlyBSD the same way as Freebsd (Jörg Sonnenberger) [1492]
++  * added now and weeks support to mod_expire. #943
++  * fix cpu hog in certain requests [1473]
++  * fix for handling hostnames with trailing dot [1406]
 +
  - 1.4.13 - 2006-10-09
  
    * added initgroups in spawn-fcgi (#871)
+@@ -56,7 +73,7 @@
+ - 1.4.11 - 2006-03-09
+ 
+   * added ability to specify which ip address spawn-fci listens on
+-    (agkr@pobox.com)
++    (agkr/at/pobox.com)
+   * added mod_flv_streaming to streaming Flash Movies efficiently
+   * fixed handling of error codes returned by mod_dav_svn behing a
+     mod_proxy
+@@ -68,7 +85,7 @@
+   * fixed local source retrieval on windows
+     (secunia)
+   * fixed hanging cgi if remote side is dieing while reading
+-    from the pipe (sandy@meebo.com)
++    from the pipe (sandy/at/meebo.com)
+ 
+ - 1.4.10 - 2006-02-08
+ 
+@@ -84,23 +101,23 @@
+ 
+ - 1.4.9 - 2006-01-14
+ 
+-  * added server.core-files option (sandy <sandy@meebo.com>)
++  * added server.core-files option (sandy <sandy/at/meebo.com>)
+   * added docs for mod_status
+-  * added mod_evasive to limit the number of connections by IP (<w1zzard@techpowerup.com>)
++  * added mod_evasive to limit the number of connections by IP (<w1zzard/at/techpowerup.com>)
+   * added the power-magnet to mod_cml
+   * added internal statistics to mod_fastcgi
+   * added server.statistics-url to get internal statistics from mod_status
+   * added support for conditional range-requests through If-Range
+   * added static building via scons
+-  * fixed 100% cpu loops in mod_cgi ("sandy" <sjen@cs.stanford.edu>)
+-  * fixed handling for secure-download.timeout (jamis@37signals.com)
+-  * fixed IE bug in content-charset in the output of mod_dirlisting (sniper@php.net)
+-  * fixed typos and language in the docs (ryan-2005@ryandesign.com)
+-  * fixed assertion in mod_cgi on HEAD request is Content-Length (<sandy@meebo.com>)
++  * fixed 100% cpu loops in mod_cgi ("sandy" <sjen/at/cs.stanford.edu>)
++  * fixed handling for secure-download.timeout (jamis/at/37signals.com)
++  * fixed IE bug in content-charset in the output of mod_dirlisting (sniper/at/php.net)
++  * fixed typos and language in the docs (ryan-2005/at/ryandesign.com)
++  * fixed assertion in mod_cgi on HEAD request is Content-Length (<sandy/at/meebo.com>)
+   * fixed handling if equal but duplicate If-Modified-Since request headers
+   * fixed endless loops in mod_fastcgi if backend is dead
+   * fixed Depth: 1 handling in PROPFIND requests on empty dirs
+-  * fixed encoding of UTF8 encoded dirlistings (Jani Taskinen <sniper@iki.fi>)
++  * fixed encoding of UTF8 encoded dirlistings (Jani Taskinen <sniper/at/iki.fi>)
+   * fixed initial bind to a unix-domain socket through server.bind
+   * fixed handling of lowercase filesystems
+   * fixed duplicate request headers cause by mod_setenv
+@@ -108,12 +125,12 @@
+ - 1.4.8 - 2005-11-23
+ 
+   * added auto-reconnect to ldap-server in mod_auth
+-    (joerg@netbsd.org)
++    (joerg/at/netbsd.org)
+   * changed auth.ldap-cafile to be optional
+-    (joerg@netbsd.org)
++    (joerg/at/netbsd.org)
+   * added strip_request_uri in mod_fastcgi
+   * added more X-* headers to mod_proxy
+-    (Ben Grimm <bengrimm@gmail.com>)
++    (Ben Grimm <bengrimm/at/gmail.com>)
+   * added 'debug' to simple-vhost to suppress the
+     (mod_simple_vhost.c.157) No such file or directory /servers/ww.lighttpd.net/pages/
+     messages by default
+@@ -124,11 +141,11 @@
+   * fixed encoding the filenames in PROPFIND in mod_webdav
+   * fixed range request handling in network_writev
+   * fixed retry on connect error in mod_fastcgi
+-    (Robert G. Jakabosky <bobby@alphatrade.com>)
++    (Robert G. Jakabosky <bobby/at/alphatrade.com>)
+   * fixed possible crash in mod_webdav if sqlite3 support
+     is available but not use
+   * fixed fdvent-handler init if server.max-worker was used
+-    (Siddharth Vijayakrishnan <mail@bluefireworks.net>)
++    (Siddharth Vijayakrishnan <mail/at/bluefireworks.net>)
+   * fixed missing cleanup in mysql_vhost
+   * fixed assert() in "connections.c:962:
+       connection_handle_read_state: Assertion 'c->mem->used' failed."
+@@ -139,7 +156,7 @@
+   * fixed unsigned/signed comparisions
+   * fixed streaming in mod_cgi
+   * fixed possible overflow in password-salt handling
+-    (reported on slashdot by james-web@and.org)
++    (reported on slashdot by james-web/at/and.org)
+   * fixed server-traffic-limit if connection limit is not set
+ 
+ - 1.4.7 - 2005-11-02
+@@ -150,7 +167,7 @@
+   * added support for %I in mod_accesslog
+   * added better compat to Apache for ?auto in mod_status
+   * added support for userdirs without a entry in /etc/passwd in mod_userdir
+-    (rob@inversepath.com)
++    (rob/at/inversepath.com)
+   * added startup-time selectable network-backend
+   * added location of upload-files to config as array
+   * added webdav.log-xml for logging xml-content in mod_webdav
 
 Property changes on: .
 ___________________________________________________________________
