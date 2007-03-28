@@ -37,7 +37,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		_rel 8
+%define		_rel 9
 Summary:	Fast and light HTTP server
 Summary(pl):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -103,7 +103,6 @@ Patch100: %{name}-branch.diff
 Patch0:		%{name}-use_bin_sh.patch
 Patch1:		%{name}-mod_evasive-status_code.patch
 Patch2:		%{name}-mod_deflate.patch
-Patch3:		%{name}-mod_extforward-v2.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -749,7 +748,6 @@ Obs³uga SSLv2 i SSLv3 dla lighttpd.
 %patch100 -p0
 %patch0 -p1
 %patch1 -p1
-%patch3 -p1
 
 # build mime.types.conf
 sh %{SOURCE6} /etc/mime.types
