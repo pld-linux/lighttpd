@@ -38,9 +38,14 @@ configtest() {
 }
 
 start() {
-	daemon env SHELL=/bin/sh lighttpd -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
+	env SHELL=/bin/sh lighttpd -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
 	RETVAL=$?
-	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/lighttpd
+	if [ $RETVAL -eq 0 ]; then
+		ok
+	   	touch /var/lock/subsys/lighttpd
+	else
+		fail
+	fi
 	return $RETVAL
 }
 
