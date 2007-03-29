@@ -32,7 +32,7 @@
 # SVN snapshot
 #define		_svn	1277
 # Prerelease
-#define _snap r1332
+%define _snap r1691
 
 %if %{with webdav_locks}
 %define		webdav_progs	1
@@ -47,8 +47,8 @@ Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}%{?_svn:.%{_svn}}
 License:	BSD
 Group:		Networking/Daemons
 #Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
-Source0:	http://www.lighttpd.net/download/lighttpd-1.5.0-r1477.tar.gz
-# Source0-md5:	012ac28b6cb4a00c75ee39bc461b0b15
+Source0:	http://www.lighttpd.net/assets/2007/2/23/lighttpd-1.5.0-r1691.tar.gz
+# Source0-md5:	529909adbafee7e2c26bb427226f1457
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -103,6 +103,7 @@ Source134:	%{name}-mod_magnet.conf
 Source135:	%{name}-mod_extforward.conf
 Source136:	%{name}-mod_uploadprogress.conf
 Source137:	%{name}-mod_proxy_core.conf
+Source137:	%{name}-mod_proxy_backend_fastcgi.conf
 #Patch100: %{name}-branch.diff
 Patch0:		%{name}-use_bin_sh.patch
 #Patch1:		%{name}-mod_evasive-status_code.patch
@@ -115,6 +116,7 @@ BuildRequires:	automake
 BuildRequires:	bzip2-devel
 %{?with_gamin:BuildRequires:	gamin-devel}
 %{?with_gdbm:BuildRequires:	gdbm-devel}
+BuildRequires:	glib2-devel
 %{?with_memcache:BuildRequires:	libmemcache-devel}
 BuildRequires:	libtool
 BuildRequires:	libuuid-devel
@@ -1025,6 +1027,7 @@ EOF
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}
+%attr(755,root,root) %{_libdir}/mod_chunked.so
 %{_mandir}/man?/*
 %dir %{_lighttpddir}
 %dir %{_lighttpddir}/cgi-bin
@@ -1057,12 +1060,19 @@ EOF
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_auth.conf
 %attr(755,root,root) %{_libdir}/mod_auth.so
 
-%if 0
 %files mod_cgi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_cgi.conf
 %attr(755,root,root) %{_libdir}/mod_cgi.so
 
+%if %{with deflate}
+%files mod_deflate
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_deflate.conf
+%attr(755,root,root) %{_libdir}/mod_deflate.so
+%endif
+
+%if 0
 %files mod_cml
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_cml.conf
@@ -1073,13 +1083,6 @@ EOF
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_compress.conf
 %attr(755,root,root) %{_libdir}/mod_compress.so
-
-%if %{with deflate}
-%files mod_deflate
-%defattr(644,root,root,755)
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_deflate.conf
-%attr(755,root,root) %{_libdir}/mod_deflate.so
-%endif
 
 %files mod_dirlisting
 %defattr(644,root,root,755)
@@ -1123,7 +1126,7 @@ EOF
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_indexfile.conf
 %attr(755,root,root) %{_libdir}/mod_indexfile.so
 
-%if 0
+%if %{with lua}
 %files mod_magnet
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_magnet.conf
@@ -1156,6 +1159,7 @@ EOF
 
 %files mod_proxy_backend_fastcgi
 %defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy_backend_fastcgi.conf
 %attr(755,root,root) %{_libdir}/mod_proxy_backend_fastcgi.so
 
 %files mod_proxy_backend_http
