@@ -37,7 +37,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		_rel 10
+%define		_rel 11
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -795,7 +795,7 @@ sh %{SOURCE6} /etc/mime.types
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d/init.d,sysconfig,monit}} \
 	$RPM_BUILD_ROOT%{_sysconfdir}/{conf,webapps}.d \
-	$RPM_BUILD_ROOT{/var/log/{%{name},archiv/%{name}},/var/run/%{name}} \
+	$RPM_BUILD_ROOT{/var/log/{%{name},archive/%{name}},/var/run/%{name}} \
 	$RPM_BUILD_ROOT%{_datadir}/lighttpd/errordocs \
 	$RPM_BUILD_ROOT/var/lib/lighttpd
 
