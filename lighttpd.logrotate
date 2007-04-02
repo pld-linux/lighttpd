@@ -1,5 +1,5 @@
 /var/log/lighttpd/*.log {
-	olddir /var/log/archiv/lighttpd
+	olddir /var/log/archive/lighttpd
 
 	create 644 lighttpd lighttpd
 
