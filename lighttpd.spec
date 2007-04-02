@@ -1004,7 +1004,7 @@ EOF
 %attr(640,root,lighttpd) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.user
 
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/%{name}
-%attr(750,root,root) %dir /var/log/archiv/%{name}
+%attr(750,root,root) %dir /var/log/archive/%{name}
 %dir %attr(751,root,root) /var/log/%{name}
 %ghost %attr(644,lighttpd,lighttpd) /var/log/%{name}/access.log
 %ghost %attr(644,lighttpd,lighttpd) /var/log/%{name}/error.log
