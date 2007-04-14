@@ -37,16 +37,16 @@
 %define		webdav_progs	1
 %endif
 
-%define		_rel 11
+%define		_rel 1
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.13
+Version:	1.4.15
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}%{?_svn:.%{_svn}}
 License:	BSD
 Group:		Networking/Daemons
 Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
-# Source0-md5:	d775d6478391b95d841a1018c8db0b95
+# Source0-md5:	d2ceaaf242b2b3593ff4d8222d543649
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -99,11 +99,9 @@ Source132:	%{name}-ssl.conf
 Source133:	%{name}-mod_mysql_vhost.conf
 Source134:	%{name}-mod_magnet.conf
 Source135:	%{name}-mod_extforward.conf
-Patch100: %{name}-branch.diff
 Patch0:		%{name}-use_bin_sh.patch
 Patch1:		%{name}-mod_evasive-status_code.patch
 Patch2:		%{name}-mod_deflate.patch
-Patch3:		%{name}-mod_extforward-v2.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -759,10 +757,8 @@ Plik monitrc do monitorowania serwera baz danych MySQL.
 
 %prep
 %setup -q
-%patch100 -p0
 %patch0 -p1
 %patch1 -p1
-%patch3 -p1
 
 # build mime.types.conf
 sh %{SOURCE6} /etc/mime.types
