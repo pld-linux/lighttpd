@@ -45,8 +45,8 @@ Version:	1.4.15
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}%{?_svn:.%{_svn}}
 License:	BSD
 Group:		Networking/Daemons
-Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
-# Source0-md5:	d2ceaaf242b2b3593ff4d8222d543649
+Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.bz2
+# Source0-md5:	b994b8c359da578dec073cae52c4924f
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
