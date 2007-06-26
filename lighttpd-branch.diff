@@ -1,0 +1,1175 @@
+Index: src/base.h
+===================================================================
+--- src/base.h	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ src/base.h	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -269,6 +269,9 @@
+ 	unsigned short use_ipv6;
+ 	unsigned short is_ssl;
+ 	unsigned short allow_http11;
++	unsigned short etag_use_inode;
++	unsigned short etag_use_mtime;
++	unsigned short etag_use_size;
+ 	unsigned short force_lowercase_filenames; /* if the FS is case-insensitive, force all files to lower-case */
+ 	unsigned short max_request_size;
+ 
+Index: src/connections.c
+===================================================================
+--- src/connections.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ src/connections.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -1252,6 +1252,16 @@
+ 	socklen_t cnt_len;
+ 	/* accept it and register the fd */
+ 
++	/**
++	 * check if we can still open a new connections
++	 *
++	 * see #1216
++	 */
++
++	if (srv->conns->used >= srv->max_conns) {
++		return NULL;
++	}
++
+ 	cnt_len = sizeof(cnt_addr);
+ 
+ 	if (-1 == (cnt = accept(srv_socket->fd, (struct sockaddr *) &cnt_addr, &cnt_len))) {
+@@ -1265,6 +1275,9 @@
+ 		case ECONNABORTED: /* this is a FreeBSD thingy */
+ 			/* we were stopped _after_ we had a connection */
+ 			break;
++		case EMFILE:
++			/* out of fds */
++			break;
+ 		default:
+ 			log_error_write(srv, __FILE__, __LINE__, "ssd", "accept failed:", strerror(errno), errno);
+ 		}
+@@ -1432,6 +1445,7 @@
+ 				} else if (con->in_error_handler) {
+ 					/* error-handler is back and has generated content */
+ 					/* if Status: was set, take it otherwise use 200 */
++					con->http_status = con->error_handler_saved_status;
+ 				}
+ 
+ 				if (con->http_status == 0) con->http_status = 200;
+Index: src/mod_staticfile.c
+===================================================================
+--- src/mod_staticfile.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ src/mod_staticfile.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -25,6 +25,7 @@
+ 
+ typedef struct {
+ 	array *exclude_ext;
++	unsigned short etags_used;
+ } plugin_config;
+ 
+ typedef struct {
+@@ -82,6 +83,7 @@
+ 
+ 	config_values_t cv[] = {
+ 		{ "static-file.exclude-extensions", NULL, T_CONFIG_ARRAY, T_CONFIG_SCOPE_CONNECTION },       /* 0 */
++		{ "static-file.etags",    NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION }, /* 1 */
+ 		{ NULL,                         NULL, T_CONFIG_UNSET, T_CONFIG_SCOPE_UNSET }
+ 	};
+ 
+@@ -94,8 +96,10 @@
+ 
+ 		s = calloc(1, sizeof(plugin_config));
+ 		s->exclude_ext    = array_init();
++		s->etags_used     = 1;
+ 
+ 		cv[0].destination = s->exclude_ext;
++		cv[1].destination = &(s->etags_used);
+ 
+ 		p->config_storage[i] = s;
+ 
+@@ -114,6 +118,7 @@
+ 	plugin_config *s = p->config_storage[0];
+ 
+ 	PATCH(exclude_ext);
++	PATCH(etags_used);
+ 
+ 	/* skip the first, the global context */
+ 	for (i = 1; i < srv->config_context->used; i++) {
+@@ -129,7 +134,9 @@
+ 
+ 			if (buffer_is_equal_string(du->key, CONST_STR_LEN("static-file.exclude-extensions"))) {
+ 				PATCH(exclude_ext);
+-			}
++			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("static-file.etags"))) {
++				PATCH(etags_used);
++			} 
+ 		}
+ 	}
+ 
+@@ -446,11 +453,17 @@
+ 	response_header_overwrite(srv, con, CONST_STR_LEN("Accept-Ranges"), CONST_STR_LEN("bytes"));
+ 
+ 	if (allow_caching) {
+-		if (NULL == array_get_element(con->response.headers, "ETag")) {
+-			/* generate e-tag */
+-			etag_mutate(con->physical.etag, sce->etag);
++		etag_flags_t flags;
+ 
+-			response_header_overwrite(srv, con, CONST_STR_LEN("ETag"), CONST_BUF_LEN(con->physical.etag));
++		flags =   (con->conf.etag_use_mtime ? ETAG_USE_MTIME : 0) | (con->conf.etag_use_inode ? ETAG_USE_INODE : 0) | (con->conf.etag_use_size ? ETAG_USE_SIZE : 0);
++
++		if (p->conf.etags_used && flags != 0 && !buffer_is_empty(sce->etag)) {
++			if (NULL == array_get_element(con->response.headers, "ETag")) {
++				/* generate e-tag */
++				etag_mutate(con->physical.etag, sce->etag);
++
++				response_header_overwrite(srv, con, CONST_STR_LEN("ETag"), CONST_BUF_LEN(con->physical.etag));
++			}
+ 		}
+ 
+ 		/* prepare header */
+Index: src/configfile.c
+===================================================================
+--- src/configfile.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ src/configfile.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -89,7 +89,9 @@
+ 		{ "server.core-files",           NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION }, /* 45 */
+ 		{ "ssl.cipher-list",             NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_SERVER },      /* 46 */
+ 		{ "ssl.use-sslv2",               NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION }, /* 47 */
+-
++		{ "etag.use-inode",             NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_SERVER }, /* 48 */
++		{ "etag.use-mtime",             NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_SERVER }, /* 49 */
++		{ "etag.use-size",             NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_SERVER }, /* 50 */
+ 		{ "server.host",                 "use server.bind instead", T_CONFIG_DEPRECATED, T_CONFIG_SCOPE_UNSET },
+ 		{ "server.docroot",              "use server.document-root instead", T_CONFIG_DEPRECATED, T_CONFIG_SCOPE_UNSET },
+ 		{ "server.virtual-root",         "load mod_simple_vhost and use simple-vhost.server-root instead", T_CONFIG_DEPRECATED, T_CONFIG_SCOPE_UNSET },
+@@ -162,6 +164,9 @@
+ #endif
+ 		s->kbytes_per_second = 0;
+ 		s->allow_http11  = 1;
++		s->etag_use_inode = 1;
++		s->etag_use_mtime = 1;
++		s->etag_use_size  = 1;
+ 		s->range_requests = 1;
+ 		s->force_lowercase_filenames = 0;
+ 		s->global_kbytes_per_second = 0;
+@@ -206,6 +211,9 @@
+ 
+ 		cv[46].destination = s->ssl_cipher_list;
+ 		cv[47].destination = &(s->ssl_use_sslv2);
++		cv[48].destination = &(s->etag_use_inode);
++		cv[49].destination = &(s->etag_use_mtime);
++		cv[50].destination = &(s->etag_use_size);
+ 
+ 		srv->config_storage[i] = s;
+ 
+@@ -280,8 +288,10 @@
+ 	PATCH(ssl_ca_file);
+ 	PATCH(ssl_cipher_list);
+ 	PATCH(ssl_use_sslv2);
+-
+-
++	PATCH(etag_use_inode);
++	PATCH(etag_use_mtime);
++	PATCH(etag_use_size);
++ 
+ 	return 0;
+ }
+ 
+@@ -323,6 +333,12 @@
+ 				PATCH(max_read_idle);
+ 			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("mimetype.use-xattr"))) {
+ 				PATCH(use_xattr);
++			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("etag.use-inode"))) {
++				PATCH(etag_use_inode);
++			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("etag.use-mtime"))) {
++				PATCH(etag_use_mtime);
++			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("etag.use-size"))) {
++				PATCH(etag_use_size);
+ 			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("ssl.pemfile"))) {
+ 				PATCH(ssl_pemfile);
+ 			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("ssl.ca-file"))) {
+Index: src/etag.c
+===================================================================
+--- src/etag.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ src/etag.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -8,12 +8,22 @@
+ 	return 0;
+ }
+ 
+-int etag_create(buffer *etag, struct stat *st) {
+-	buffer_copy_off_t(etag, st->st_ino);
+-	buffer_append_string_len(etag, CONST_STR_LEN("-"));
+-	buffer_append_off_t(etag, st->st_size);
+-	buffer_append_string_len(etag, CONST_STR_LEN("-"));
+-	buffer_append_long(etag, st->st_mtime);
++int etag_create(buffer *etag, struct stat *st,etag_flags_t flags) {
++	if (0 == flags) return 0;
++	
++	if (flags & ETAG_USE_INODE) {
++		buffer_copy_off_t(etag, st->st_ino);
++		buffer_append_string_len(etag, CONST_STR_LEN("-"));
++	}
++	
++	if (flags & ETAG_USE_SIZE) {
++		buffer_append_off_t(etag, st->st_size);
++		buffer_append_string_len(etag, CONST_STR_LEN("-"));
++	}
++	
++	if (flags & ETAG_USE_MTIME) {
++		buffer_append_long(etag, st->st_mtime);
++	}
+ 
+ 	return 0;
+ }
+Index: src/mod_scgi.c
+===================================================================
+--- src/mod_scgi.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ src/mod_scgi.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -803,7 +803,7 @@
+ 			buffer_append_string_buffer(b, host->bin_path);
+ 
+ 			/* exec the cgi */
+-			execle("/bin/sh", "sh", "-c", b->ptr, NULL, env.ptr);
++			execle("/bin/sh", "sh", "-c", b->ptr, (char *)NULL, env.ptr);
+ 
+ 			log_error_write(srv, __FILE__, __LINE__, "sbs",
+ 					"execl failed for:", host->bin_path, strerror(errno));
+Index: src/etag.h
+===================================================================
+--- src/etag.h	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ src/etag.h	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -7,8 +7,10 @@
+ 
+ #include "buffer.h"
+ 
++typedef enum { ETAG_USE_INODE = 1, ETAG_USE_MTIME = 2, ETAG_USE_SIZE = 4 } etag_flags_t;
++
+ int etag_is_equal(buffer *etag, const char *matches);
+-int etag_create(buffer *etag, struct stat *st);
++int etag_create(buffer *etag, struct stat *st, etag_flags_t flags);
+ int etag_mutate(buffer *mut, buffer *etag);
+ 
+ 
+Index: src/request.c
+===================================================================
+--- src/request.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ src/request.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -284,8 +284,6 @@
+ 
+ 	int done = 0;
+ 
+-	data_string *ds = NULL;
+-
+ 	/*
+ 	 * Request: "^(GET|POST|HEAD) ([^ ]+(\\?[^ ]+|)) (HTTP/1\\.[01])$"
+ 	 * Option : "^([-a-zA-Z]+): (.+)$"
+@@ -715,12 +713,24 @@
+ 			switch(*cur) {
+ 			case '\r':
+ 				if (con->parse_request->ptr[i+1] == '\n') {
++					data_string *ds = NULL;
++
+ 					/* End of Headerline */
+ 					con->parse_request->ptr[i] = '\0';
+ 					con->parse_request->ptr[i+1] = '\0';
+ 
+ 					if (in_folding) {
+-						if (!ds) {
++						buffer *key_b;
++						/**
++						 * we use a evil hack to handle the line-folding
++						 * 
++						 * As array_insert_unique() deletes 'ds' in the case of a duplicate
++						 * ds points somewhere and we get a evil crash. As a solution we keep the old
++						 * "key" and get the current value from the hash and append us
++						 *
++						 * */
++
++						if (!key || !key_len) {
+ 							/* 400 */
+ 
+ 							if (srv->srvconf.log_request_header_on_error) {
+@@ -737,7 +747,15 @@
+ 							con->response.keep_alive = 0;
+ 							return 0;
+ 						}
+-						buffer_append_string(ds->value, value);
++
++						key_b = buffer_init();
++						buffer_copy_string_len(key_b, key, key_len);
++
++						if (NULL != (ds = (data_string *)array_get_element(con->request.headers, key_b->ptr))) {
++							buffer_append_string(ds->value, value);
++						}
++
++						buffer_free(key_b);
+ 					} else {
+ 						int s_len;
+ 						key = con->parse_request->ptr + first;
+@@ -969,7 +987,12 @@
+ 					first = i+1;
+ 					is_key = 1;
+ 					value = 0;
+-					key_len = 0;
++#if 0
++					/**
++					 * for Bug 1230 keep the key_len a live
++					 */
++					key_len = 0; 
++#endif
+ 					in_folding = 0;
+ 				} else {
+ 					if (srv->srvconf.log_request_header_on_error) {
+Index: src/stat_cache.c
+===================================================================
+--- src/stat_cache.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ src/stat_cache.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -608,14 +608,16 @@
+ 				break;
+ 			}
+ 		}
+-		etag_create(sce->etag, &(sce->st));
++ 		etag_create(sce->etag, &(sce->st),
++			(con->conf.etag_use_mtime ? ETAG_USE_MTIME : 0) | (con->conf.etag_use_inode ? ETAG_USE_INODE : 0) | (con->conf.etag_use_size ? ETAG_USE_SIZE : 0));
+ #ifdef HAVE_XATTR
+-		if (buffer_is_empty(sce->content_type)) {
++		if (con->conf.use_xattr && buffer_is_empty(sce->content_type)) {
+ 			stat_cache_attr_get(sce->content_type, name->ptr);
+ 		}
+ #endif
+ 	} else if (S_ISDIR(st.st_mode)) {
+-		etag_create(sce->etag, &(sce->st));
++ 		etag_create(sce->etag, &(sce->st),
++			(con->conf.etag_use_mtime ? ETAG_USE_MTIME : 0) | (con->conf.etag_use_inode ? ETAG_USE_INODE : 0) | (con->conf.etag_use_size ? ETAG_USE_SIZE : 0));
+ 	}
+ 
+ #ifdef HAVE_FAM_H
+Index: src/http_auth.c
+===================================================================
+--- src/http_auth.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ src/http_auth.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -830,8 +830,14 @@
+ 
+ 	username = buffer_init();
+ 
+-	base64_decode(username, realm_str);
++	if (!base64_decode(username, realm_str)) {
++		buffer_free(username);
+ 
++		log_error_write(srv, __FILE__, __LINE__, "sb", "decodeing base64-string failed", username);
++
++		return 0;
++	}
++
+ 	/* r2 == user:password */
+ 	if (NULL == (pw = strchr(username->ptr, ':'))) {
+ 		buffer_free(username);
+@@ -967,7 +973,7 @@
+ 	for (c = b->ptr; *c; c++) {
+ 		/* skip whitespaces */
+ 		while (*c == ' ' || *c == '\t') c++;
+-		if (!c) break;
++		if (!*c) break;
+ 
+ 		for (i = 0; dkv[i].key; i++) {
+ 			if ((0 == strncmp(c, dkv[i].key, dkv[i].key_len))) {
+@@ -1016,9 +1022,24 @@
+ 
+ 		log_error_write(srv, __FILE__, __LINE__, "s",
+ 				"digest: missing field");
++
++		buffer_free(b);
+ 		return -1;
+ 	}
+ 
++	/**
++	 * protect the md5-sess against missing cnonce and nonce
++	 */
++	if (algorithm &&
++	    0 == strcasecmp(algorithm, "md5-sess") &&
++	    (!nonce || !cnonce)) {
++		log_error_write(srv, __FILE__, __LINE__, "s",
++				"digest: (md5-sess: missing field");
++
++		buffer_free(b);
++		return -1;
++	}
++
+ 	m = get_http_method_name(con->request.http_method);
+ 
+ 	/* password-string == HA1 */
+Index: src/mod_status.c
+===================================================================
+--- src/mod_status.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ src/mod_status.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -220,6 +220,7 @@
+ 	BUFFER_APPEND_STRING_CONST(b,
+ 				   "  <style type=\"text/css\">\n"
+ 				   "    table.status { border: black solid thin; }\n"
++				   "    td { white-space: nowrap; }\n"
+ 				   "    td.int { background-color: #f0f0f0; text-align: right }\n"
+ 				   "    td.string { background-color: #f0f0f0; text-align: left }\n"
+ 				   "    th.status { background-color: black; color: white; font-weight: bold; }\n"
+@@ -520,6 +521,16 @@
+ 			buffer_append_string_encoded(b, CONST_BUF_LEN(c->uri.path), ENCODING_HTML);
+ 		}
+ 
++		if (!buffer_is_empty(c->uri.query)) {
++			BUFFER_APPEND_STRING_CONST(b, "?");
++			buffer_append_string_encoded(b, CONST_BUF_LEN(c->uri.query), ENCODING_HTML);
++		}
++
++		if (!buffer_is_empty(c->request.orig_uri)) {
++			BUFFER_APPEND_STRING_CONST(b, " (");
++			buffer_append_string_encoded(b, CONST_BUF_LEN(c->request.orig_uri), ENCODING_HTML);
++			BUFFER_APPEND_STRING_CONST(b, ")");
++		}
+ 		BUFFER_APPEND_STRING_CONST(b, "</td><td class=\"string\">");
+ 
+ 		buffer_append_string_buffer(b, c->physical.path);
+Index: src/mod_ssi.c
+===================================================================
+--- src/mod_ssi.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ src/mod_ssi.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -702,7 +702,7 @@
+ 			/* close stdin */
+ 			close(STDIN_FILENO);
+ 
+-			execl("/bin/sh", "sh", "-c", cmd, NULL);
++			execl("/bin/sh", "sh", "-c", cmd, (char *)NULL);
+ 
+ 			log_error_write(srv, __FILE__, __LINE__, "sss", "spawing exec failed:", strerror(errno), cmd);
+ 
+Index: src/spawn-fcgi.c
+===================================================================
+--- src/spawn-fcgi.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ src/spawn-fcgi.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -169,7 +169,7 @@
+ 			strcat(b, appPath);
+ 
+ 			/* exec the cgi */
+-			execl("/bin/sh", "sh", "-c", b, NULL);
++			execl("/bin/sh", "sh", "-c", b, (char *)NULL);
+ 
+ 			exit(errno);
+ 
+Index: src/mod_fastcgi.c
+===================================================================
+--- src/mod_fastcgi.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ src/mod_fastcgi.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -69,7 +69,7 @@
+ 	buffer *unixsocket; /* config.socket + "-" + id */
+ 	unsigned port;  /* config.port + pno */
+ 
+-	buffer *connection_name; /* either tcp:<host>:<port> or unix:<socket> for debuggin purposes */
++	buffer *connection_name; /* either tcp:<host>:<port> or unix:<socket> for debugging purposes */
+ 
+ 	pid_t pid;   /* PID of the spawned process (0 if not spawned locally) */
+ 
+@@ -80,7 +80,7 @@
+ 	size_t requests;  /* see max_requests */
+ 	struct fcgi_proc *prev, *next; /* see first */
+ 
+-	time_t disabled_until; /* this proc is disabled until, use something else until than */
++	time_t disabled_until; /* this proc is disabled until, use something else until then */
+ 
+ 	int is_local;
+ 
+@@ -88,7 +88,7 @@
+ 		PROC_STATE_UNSET,    /* init-phase */
+ 		PROC_STATE_RUNNING,  /* alive */
+ 		PROC_STATE_OVERLOADED, /* listen-queue is full,
+-					  don't send something to this proc for the next 2 seconds */
++					  don't send anything to this proc for the next 2 seconds */
+ 		PROC_STATE_DIED_WAIT_FOR_PID, /* */
+ 		PROC_STATE_DIED,     /* marked as dead, should be restarted */
+ 		PROC_STATE_KILLED    /* was killed as we don't have the load anymore */
+@@ -145,7 +145,7 @@
+ 	unsigned short disable_time;
+ 
+ 	/*
+-	 * same fastcgi processes get a little bit larger
++	 * some fastcgi processes get a little bit larger
+ 	 * than wanted. max_requests_per_proc kills a
+ 	 * process after a number of handled requests.
+ 	 *
+@@ -184,7 +184,7 @@
+ 	 * bin-path is the path to the binary
+ 	 *
+ 	 * check min_procs and max_procs for the number
+-	 * of process to start-up
++	 * of process to start up
+ 	 */
+ 	buffer *bin_path;
+ 
+@@ -217,7 +217,7 @@
+ 	unsigned short mode;
+ 
+ 	/*
+-	 * check_local tell you if the phys file is stat()ed
++	 * check_local tells you if the phys file is stat()ed
+ 	 * or not. FastCGI doesn't care if the service is
+ 	 * remote. If the web-server side doesn't contain
+ 	 * the fastcgi-files we should not stat() for them
+@@ -228,7 +228,7 @@
+ 	/*
+ 	 * append PATH_INFO to SCRIPT_FILENAME
+ 	 *
+-	 * php needs this if cgi.fix_pathinfo is provied
++	 * php needs this if cgi.fix_pathinfo is provided
+ 	 *
+ 	 */
+ 
+@@ -247,7 +247,7 @@
+ 	num_procs.
+ 
+ 	only if a process is killed max_id waits for the process itself
+-	to die and decrements its afterwards */
++	to die and decrements it afterwards */
+ 
+ 	buffer *strip_request_uri;
+ 
+@@ -826,7 +826,7 @@
+ 		} else {
+ 			struct hostent *he;
+ 
+-			/* set a usefull default */
++			/* set a useful default */
+ 			fcgi_addr_in.sin_addr.s_addr = htonl(INADDR_ANY);
+ 
+ 
+@@ -869,7 +869,7 @@
+ 	}
+ 
+ 	if (-1 == connect(fcgi_fd, fcgi_addr, servlen)) {
+-		/* server is not up, spawn in  */
++		/* server is not up, spawn it  */
+ 		pid_t child;
+ 		int val;
+ 
+@@ -1029,10 +1029,11 @@
+ 							"child exited with status",
+ 							WEXITSTATUS(status), host->bin_path);
+ 					log_error_write(srv, __FILE__, __LINE__, "s",
+-							"if you try do run PHP as FastCGI backend make sure you use the FastCGI enabled version.\n"
++							"If you're trying to run PHP as a FastCGI backend, make sure you're using the FastCGI-enabled version.\n"
+ 							"You can find out if it is the right one by executing 'php -v' and it should display '(cgi-fcgi)' "
+-							"in the output, NOT (cgi) NOR (cli)\n"
+-							"For more information check http://www.lighttpd.net/documentation/fastcgi.html#preparing-php-as-a-fastcgi-program");
++							"in the output, NOT '(cgi)' NOR '(cli)'.\n"
++							"For more information, check http://trac.lighttpd.net/trac/wiki/Docs%3AModFastCGI#preparing-php-as-a-fastcgi-program"
++							"If this is PHP on Gentoo, add 'fastcgi' to the USE flags.");
+ 				} else if (WIFSIGNALED(status)) {
+ 					log_error_write(srv, __FILE__, __LINE__, "sd",
+ 							"terminated by signal:",
+@@ -1040,9 +1041,9 @@
+ 
+ 					if (WTERMSIG(status) == 11) {
+ 						log_error_write(srv, __FILE__, __LINE__, "s",
+-								"to be exact: it seg-fault, crashed, died, ... you get the idea." );
++								"to be exact: it segfaulted, crashed, died, ... you get the idea." );
+ 						log_error_write(srv, __FILE__, __LINE__, "s",
+-								"If this is PHP try to remove the byte-code caches for now and try again.");
++								"If this is PHP, try removing the bytecode caches for now and try again.");
+ 					}
+ 				} else {
+ 					log_error_write(srv, __FILE__, __LINE__, "sd",
+@@ -1066,7 +1067,7 @@
+ 
+ 		if (p->conf.debug) {
+ 			log_error_write(srv, __FILE__, __LINE__, "sb",
+-					"(debug) socket is already used, won't spawn:",
++					"(debug) socket is already used; won't spawn:",
+ 					proc->connection_name);
+ 		}
+ 	}
+@@ -1508,7 +1509,7 @@
+ 	 *
+ 	 * next step is resetting this attemp and setup a connection again
+ 	 *
+-	 * if we have more then 5 reconnects for the same request, die
++	 * if we have more than 5 reconnects for the same request, die
+ 	 *
+ 	 * 2.
+ 	 *
+@@ -1626,7 +1627,7 @@
+ 	CONNECTION_UNSET,
+ 	CONNECTION_OK,
+ 	CONNECTION_DELAYED, /* retry after event, take same host */
+-	CONNECTION_OVERLOADED, /* disable for 1 seconds, take another backend */
++	CONNECTION_OVERLOADED, /* disable for 1 second, take another backend */
+ 	CONNECTION_DEAD /* disable for 60 seconds, take another backend */
+ } connection_result_t;
+ 
+@@ -1669,7 +1670,7 @@
+ 		fcgi_addr_in.sin_family = AF_INET;
+ 		if (0 == inet_aton(host->host->ptr, &(fcgi_addr_in.sin_addr))) {
+ 			log_error_write(srv, __FILE__, __LINE__, "sbs",
+-					"converting IP-adress failed for", host->host,
++					"converting IP address failed for", host->host,
+ 					"\nBe sure to specify an IP address here");
+ 
+ 			return -1;
+@@ -1694,16 +1695,16 @@
+ 		    errno == EINTR) {
+ 			if (hctx->conf.debug > 2) {
+ 				log_error_write(srv, __FILE__, __LINE__, "sb",
+-					"connect delayed, will continue later:", proc->connection_name);
++					"connect delayed; will continue later:", proc->connection_name);
+ 			}
+ 
+ 			return CONNECTION_DELAYED;
+ 		} else if (errno == EAGAIN) {
+ 			if (hctx->conf.debug) {
+ 				log_error_write(srv, __FILE__, __LINE__, "sbsd",
+-					"This means that the you have more incoming requests than your fastcgi-backend can handle in parallel. "
+-					"Perhaps it helps to spawn more fastcgi backend or php-children, if not decrease server.max-connections."
+-					"The load for this fastcgi backend", proc->connection_name, "is", proc->load);
++					"This means that you have more incoming requests than your FastCGI backend can handle in parallel."
++					"It might help to spawn more FastCGI backends or PHP children; if not, decrease server.max-connections."
++					"The load for this FastCGI backend", proc->connection_name, "is", proc->load);
+ 			}
+ 
+ 			return CONNECTION_OVERLOADED;
+@@ -1881,8 +1882,6 @@
+ 	fcgi_env_add(p->fcgi_env, CONST_STR_LEN("REMOTE_ADDR"), s, strlen(s));
+ 
+ 	if (!buffer_is_empty(con->authed_user)) {
+-		fcgi_env_add(p->fcgi_env, CONST_STR_LEN("REMOTE_USER"), CONST_BUF_LEN(con->authed_user));
+-	
+ 		/* AUTH_TYPE fix by Troy Kruthoff (tkruthoff@gmail.com)
+ 		 * section 4.1.1 of RFC 3875 (cgi spec) requires the server to set a AUTH_TYPE env
+ 		 * declaring the type of authentication used.	 (see http://tools.ietf.org/html/rfc3875#page-11)
+@@ -1896,6 +1895,8 @@
+ 		char *http_authorization = NULL;
+ 		data_string *ds;
+ 	  	
++		fcgi_env_add(p->fcgi_env, CONST_STR_LEN("REMOTE_USER"), CONST_BUF_LEN(con->authed_user));
++	
+ 		if (NULL != (ds = (data_string *)array_get_element(con->request.headers, "Authorization"))) {
+ 			http_authorization = ds->value->ptr;
+ 		}
+@@ -2055,8 +2056,8 @@
+ 			off_t written = 0;
+ 			off_t weHave = 0;
+ 
+-			/* we announce toWrite octects
+-			 * now take all the request_content chunk that we need to fill this request
++			/* we announce toWrite octets
++			 * now take all the request_content chunks that we need to fill this request
+ 			 * */
+ 
+ 			b = chunkqueue_get_append_buffer(hctx->wb);
+@@ -2356,7 +2357,7 @@
+ 		}
+ 
+ 		if (packet->b->used < packet->len + 1) {
+-			/* we didn't got the full packet */
++			/* we didn't get the full packet */
+ 
+ 			buffer_free(packet->b);
+ 			return -1;
+@@ -2558,7 +2559,7 @@
+ 			if (host->mode != FCGI_AUTHORIZER ||
+ 			    !(con->http_status == 0 ||
+ 			      con->http_status == 200)) {
+-				/* send chunk-end if nesseary */
++				/* send chunk-end if necessary */
+ 				http_chunk_append_mem(srv, con, NULL, 0);
+ 				joblist_append(srv, con);
+ 			}
+@@ -2653,7 +2654,7 @@
+ 			if (proc->state != PROC_STATE_DIED) break;
+ 
+ 		case PROC_STATE_DIED:
+-			/* local proc get restarted by us,
++			/* local procs get restarted by us,
+ 			 * remote ones hopefully by the admin */
+ 
+ 			if (proc->is_local) {
+@@ -2774,7 +2775,7 @@
+ 		     proc && proc->state != PROC_STATE_RUNNING;
+ 		     proc = proc->next);
+ 
+-		/* all childs are dead */
++		/* all children are dead */
+ 		if (proc == NULL) {
+ 			hctx->fde_ndx = -1;
+ 
+@@ -2834,7 +2835,7 @@
+ 			 * -> EAGAIN */
+ 
+ 			log_error_write(srv, __FILE__, __LINE__, "ssdsd",
+-				"backend is overloaded, we disable it for a 2 seconds and send the request to another backend instead:",
++				"backend is overloaded; we'll disable it for 2 seconds and send the request to another backend instead:",
+ 				"reconnects:", hctx->reconnects,
+ 				"load:", host->load);
+ 
+@@ -2864,7 +2865,7 @@
+ 			}
+ 
+ 			log_error_write(srv, __FILE__, __LINE__, "ssdsd",
+-				"backend died, we disable it for a 5 seconds and send the request to another backend instead:",
++				"backend died; we'll disable it for 5 seconds and send the request to another backend instead:",
+ 				"reconnects:", hctx->reconnects,
+ 				"load:", host->load);
+ 
+@@ -2950,7 +2951,7 @@
+ 				if (hctx->wb->bytes_out == 0 &&
+ 				    hctx->reconnects < 5) {
+ 					usleep(10000); /* take away the load of the webserver
+-							* to let the php a chance to restart
++							* to give the php a chance to restart
+ 							*/
+ 
+ 					fcgi_reconnect(srv, hctx);
+@@ -3152,9 +3153,9 @@
+ 		   	    (con->http_status == 200 ||
+ 			     con->http_status == 0)) {
+ 				/*
+-				 * If we are here in AUTHORIZER mode then a request for autorizer
+-				 * was proceeded already, and status 200 has been returned. We need
+-				 * now to handle autorized request.
++				 * If we are here in AUTHORIZER mode then a request for authorizer
++				 * was processed already, and status 200 has been returned. We need
++				 * now to handle authorized request.
+ 				 */
+ 
+ 				buffer_copy_string_buffer(con->physical.doc_root, host->docroot);
+@@ -3220,7 +3221,7 @@
+ 			}
+ 
+ 			if (con->file_started == 0) {
+-				/* nothing has been send out yet, try to use another child */
++				/* nothing has been sent out yet, try to use another child */
+ 
+ 				if (hctx->wb->bytes_out == 0 &&
+ 				    hctx->reconnects < 5) {
+@@ -3270,8 +3271,8 @@
+ 		    hctx->state == FCGI_STATE_WRITE) {
+ 			/* we are allowed to send something out
+ 			 *
+-			 * 1. in a unfinished connect() call
+-			 * 2. in a unfinished write() call (long POST request)
++			 * 1. in an unfinished connect() call
++			 * 2. in an unfinished write() call (long POST request)
+ 			 */
+ 			return mod_fastcgi_handle_subrequest(srv, con, p);
+ 		} else {
+@@ -3286,8 +3287,8 @@
+ 		if (hctx->state == FCGI_STATE_CONNECT_DELAYED) {
+ 			/* getoptsock will catch this one (right ?)
+ 			 *
+-			 * if we are in connect we might get a EINPROGRESS
+-			 * in the first call and a FDEVENT_HUP in the
++			 * if we are in connect we might get an EINPROGRESS
++			 * in the first call and an FDEVENT_HUP in the
+ 			 * second round
+ 			 *
+ 			 * FIXME: as it is a bit ugly.
+@@ -3485,7 +3486,7 @@
+ 		return HANDLER_FINISHED;
+ 	}
+ 
+-	/* a note about no handler is not sent yey */
++	/* a note about no handler is not sent yet */
+ 	extension->note_is_sent = 0;
+ 
+ 	/*
+@@ -3520,7 +3521,7 @@
+ 			}
+ 
+ 			/* the prefix is the SCRIPT_NAME,
+-			 * everthing from start to the next slash
++			 * everything from start to the next slash
+ 			 * this is important for check-local = "disable"
+ 			 *
+ 			 * if prefix = /admin.fcgi
+@@ -3630,13 +3631,13 @@
+ 
+ 	/* perhaps we should kill a connect attempt after 10-15 seconds
+ 	 *
+-	 * currently we wait for the TCP timeout which is on Linux 180 seconds
++	 * currently we wait for the TCP timeout which is 180 seconds on Linux
+ 	 *
+ 	 *
+ 	 *
+ 	 */
+ 
+-	/* check all childs if they are still up */
++	/* check all children if they are still up */
+ 
+ 	for (i = 0; i < srv->config_context->used; i++) {
+ 		plugin_config *conf;
+@@ -3718,11 +3719,11 @@
+ 
+ 					if (srv->cur_ts - proc->last_used > host->idle_timeout) {
+ 						/* a proc is idling for a long time now,
+-						 * terminated it */
++						 * terminate it */
+ 
+ 						if (p->conf.debug) {
+ 							log_error_write(srv, __FILE__, __LINE__, "ssbsd",
+-									"idle-timeout reached, terminating child:",
++									"idle-timeout reached; terminating child:",
+ 									"socket:", proc->connection_name,
+ 									"pid", proc->pid);
+ 						}
+Index: src/mod_access.c
+===================================================================
+--- src/mod_access.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ src/mod_access.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -111,6 +111,15 @@
+ }
+ #undef PATCH
+ 
++/**
++ * URI handler
++ *
++ * we will get called twice:
++ * - after the clean up of the URL and 
++ * - after the pathinfo checks are done
++ *
++ * this handles the issue of trailing slashes
++ */
+ URIHANDLER_FUNC(mod_access_uri_handler) {
+ 	plugin_data *p = p_d;
+ 	int s_len;
+@@ -122,28 +131,41 @@
+ 
+ 	s_len = con->uri.path->used - 1;
+ 
++	if (con->conf.log_request_handling) {
++ 		log_error_write(srv, __FILE__, __LINE__, "s", 
++				"-- mod_access_uri_handler called");
++	}
++
+ 	for (k = 0; k < p->conf.access_deny->used; k++) {
+ 		data_string *ds = (data_string *)p->conf.access_deny->data[k];
+ 		int ct_len = ds->value->used - 1;
++		int denied = 0;
+ 
++
+ 		if (ct_len > s_len) continue;
+-
+ 		if (ds->value->used == 0) continue;
+ 
+ 		/* if we have a case-insensitive FS we have to lower-case the URI here too */
+ 
+ 		if (con->conf.force_lowercase_filenames) {
+ 			if (0 == strncasecmp(con->uri.path->ptr + s_len - ct_len, ds->value->ptr, ct_len)) {
+-				con->http_status = 403;
+-
+-				return HANDLER_FINISHED;
++				denied = 1;
+ 			}
+ 		} else {
+ 			if (0 == strncmp(con->uri.path->ptr + s_len - ct_len, ds->value->ptr, ct_len)) {
+-				con->http_status = 403;
++				denied = 1;
++			}
++		}
+ 
+-				return HANDLER_FINISHED;
++		if (denied) {
++			con->http_status = 403;
++
++			if (con->conf.log_request_handling) {
++	 			log_error_write(srv, __FILE__, __LINE__, "sb", 
++					"url denied as we match:", ds->value);
+ 			}
++
++			return HANDLER_FINISHED;
+ 		}
+ 	}
+ 
+@@ -158,7 +180,8 @@
+ 
+ 	p->init        = mod_access_init;
+ 	p->set_defaults = mod_access_set_defaults;
+-	p->handle_uri_clean  = mod_access_uri_handler;
++	p->handle_uri_clean = mod_access_uri_handler;
++	p->handle_subrequest_start  = mod_access_uri_handler;
+ 	p->cleanup     = mod_access_free;
+ 
+ 	p->data        = NULL;
+Index: src/mod_accesslog.c
+===================================================================
+--- src/mod_accesslog.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ src/mod_accesslog.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -507,7 +507,7 @@
+ 				 *
+ 				 */
+ 
+-				execl("/bin/sh", "sh", "-c", s->access_logfile->ptr + 1, NULL);
++				execl("/bin/sh", "sh", "-c", s->access_logfile->ptr + 1, (char *)NULL);
+ 
+ 				log_error_write(srv, __FILE__, __LINE__, "sss",
+ 						"spawning log-process failed: ", strerror(errno),
+Index: src/server.c
+===================================================================
+--- src/server.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ src/server.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -775,6 +775,22 @@
+ 			return -1;
+ 		}
+ 
++		/**
++		 * we are not root can can't increase the fd-limit, but we can reduce it
++		 */
++		if (srv->srvconf.max_fds && srv->srvconf.max_fds < rlim.rlim_cur) {
++			/* set rlimits */
++
++			rlim.rlim_cur = srv->srvconf.max_fds;
++
++			if (0 != setrlimit(RLIMIT_NOFILE, &rlim)) {
++				log_error_write(srv, __FILE__, __LINE__,
++						"ss", "couldn't set 'max filedescriptors'",
++						strerror(errno));
++				return -1;
++			}
++		}
++
+ 		if (srv->event_handler == FDEVENT_HANDLER_SELECT) {
+ 			srv->max_fds = rlim.rlim_cur < FD_SETSIZE - 200 ? rlim.rlim_cur : FD_SETSIZE - 200;
+ 		} else {
+Index: src/proc_open.c
+===================================================================
+--- src/proc_open.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ src/proc_open.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -255,7 +255,7 @@
+ 		 */
+ 		proc_close_parents(proc);
+ 
+-		execl(shell, shell, "-c", command, NULL);
++		execl(shell, shell, "-c", command, (char *)NULL);
+ 		_exit(127);
+ 
+ 	} else if (child < 0) {
+Index: tests/mod-auth.t
+===================================================================
+--- tests/mod-auth.t	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ tests/mod-auth.t	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -8,7 +8,7 @@
+ 
+ use strict;
+ use IO::Socket;
+-use Test::More tests => 10;
++use Test::More tests => 13;
+ use LightyTest;
+ 
+ my $tf = LightyTest->new();
+@@ -93,7 +93,44 @@
+ $t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 400 } ];
+ ok($tf->handle_http($t) == 0, 'Digest-Auth: missing nc (noncecount instead), no crash');
+ 
++$t->{REQUEST}  = ( <<EOF
++GET /server-status HTTP/1.0
++Authorization: Basic =
++EOF
++ );
++$t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 401 } ];
++ok($tf->handle_http($t) == 0, 'Basic-Auth: Invalid Base64');
+ 
+ 
++$t->{REQUEST}  = ( <<EOF
++GET /server-status HTTP/1.0
++User-Agent: Wget/1.9.1
++Authorization: Digest username="jan", realm="jan",
++	nonce="b1d12348b4620437c43dd61c50ae4639", algorithm="md5-sess",
++	uri="/MJ-BONG.xm.mpc", qop=auth, noncecount=00000001",
++	cnonce="036FCA5B86F7E7C4965C7F9B8FE714B7",
++	nc="asd",
++	response="29B32C2953C763C6D033C8A49983B87E"
++EOF
++ );
++$t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 401 } ];
++ok($tf->handle_http($t) == 0, 'Digest-Auth: md5-sess + missing cnonce');
++
++$t->{REQUEST}  = ( <<EOF
++GET /server-status HTTP/1.0
++User-Agent: Wget/1.9.1
++Authorization: Digest username="jan", realm="jan",
++	nonce="b1d12348b4620437c43dd61c50ae4639", algorithm="md5-sess",
++	uri="/MJ-BONG.xm.mpc", qop=auth, noncecount=00000001",
++	cnonce="036FCA5B86F7E7C4965C7F9B8FE714B7",
++	nc="asd",
++	response="29B32C2953C763C6D033C8A49983B87E"     
++EOF
++ );
++$t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 401 } ];
++ok($tf->handle_http($t) == 0, 'Digest-Auth: trailing WS');
++
++
++
+ ok($tf->stop_proc == 0, "Stopping lighttpd");
+ 
+Index: tests/mod-access.t
+===================================================================
+--- tests/mod-access.t	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ tests/mod-access.t	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -8,7 +8,7 @@
+ 
+ use strict;
+ use IO::Socket;
+-use Test::More tests => 3;
++use Test::More tests => 4;
+ use LightyTest;
+ 
+ my $tf = LightyTest->new();
+@@ -23,5 +23,12 @@
+ $t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 403 } ];
+ ok($tf->handle_http($t) == 0, 'forbid access to ...~');
+ 
++$t->{REQUEST}  = ( <<EOF
++GET /index.html~/ HTTP/1.0
++EOF
++ );
++$t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 403 } ];
++ok($tf->handle_http($t) == 0, '#1230 - forbid access to ...~ - trailing slash');
++
+ ok($tf->stop_proc == 0, "Stopping lighttpd");
+ 
+Index: tests/core-request.t
+===================================================================
+--- tests/core-request.t	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ tests/core-request.t	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -8,7 +8,7 @@
+ 
+ use strict;
+ use IO::Socket;
+-use Test::More tests => 33;
++use Test::More tests => 36;
+ use LightyTest;
+ 
+ my $tf = LightyTest->new();
+@@ -273,6 +273,38 @@
+ $t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 200 } ];
+ ok($tf->handle_http($t) == 0, 'uppercase filenames');
+ 
++$t->{REQUEST}  = ( <<EOF
++GET / HTTP/1.0
++Location: foo
++Location: foobar
++  baz
++EOF
++ );
++$t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 200 } ];
++ok($tf->handle_http($t) == 0, '#1232 - duplicate headers with line-wrapping');
+ 
++$t->{REQUEST}  = ( <<EOF
++GET / HTTP/1.0
++Location: 
++Location: foobar
++  baz
++EOF
++ );
++$t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 200 } ];
++ok($tf->handle_http($t) == 0, '#1232 - duplicate headers with line-wrapping - test 2');
++
++$t->{REQUEST}  = ( <<EOF
++GET / HTTP/1.0
++A: 
++Location: foobar
++  baz
++EOF
++ );
++$t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 200 } ];
++ok($tf->handle_http($t) == 0, '#1232 - duplicate headers with line-wrapping - test 3');
++
++
++
++
+ ok($tf->stop_proc == 0, "Stopping lighttpd");
+ 
+Index: tests/prepare.sh
+===================================================================
+--- tests/prepare.sh	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ tests/prepare.sh	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -25,6 +25,7 @@
+ # copy everything into the right places
+ cp $srcdir/docroot/www/*.html \
+    $srcdir/docroot/www/*.php \
++   $srcdir/docroot/www/*.html~ \
+    $srcdir/docroot/www/*.pl \
+    $srcdir/docroot/www/*.fcgi \
+    $srcdir/docroot/www/*.shtml \
+Index: tests/docroot/www/index.html~
+===================================================================
+Index: tests/docroot/www/Makefile.am
+===================================================================
+--- tests/docroot/www/Makefile.am	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ tests/docroot/www/Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -1,5 +1,5 @@
+ EXTRA_DIST=cgi.php cgi.pl dummydir index.html index.txt phpinfo.php \
+ 	   redirect.php cgi-pathinfo.pl get-env.php get-server-env.php \
+ 	   nph-status.pl prefix.fcgi get-header.pl ssi.shtml get-post-len.pl \
+-	   exec-date.shtml
++	   exec-date.shtml index.html~
+ SUBDIRS=go indexfile expire
+Index: NEWS
+===================================================================
+--- NEWS	(.../tags/lighttpd-1.4.15)	(revision 1878)
++++ NEWS	(.../branches/lighttpd-1.4.x)	(revision 1878)
+@@ -3,9 +3,26 @@
+ NEWS
+ ====
+ 
++- 1.4.16 - 
++
++  * added static-file.etags, etag.use-inode, etag.use-mtime, etag.use-size
++    to customize the generation of ETags for static files. (#1209) 
++    (patch by <Yusufg@gmail.com>)
++  * fixed typecast of NULL on execl() (#1235)
++    (patch by F. Denis)
++  * fixed circumventing url.access-deny by trailing slash (#1230)
++  * fixed crash on duplicate headers with trailing WS (#1232)
++  * fixed accepting more connections then requested (#1216)
++  * fixed mem-leak in mod_auth (reported by Stefan Esser)
++  * fixed crash with md5-sess and cnonce not set in mod_auth (reported by Stefan Esser)
++  * fixed missing check for base64 encoded string in mod_auth and Basic auth
++    (reported by Stefan Esser)
++  * fixed possible crash in Auth-Digest header parser on trailing WS in 
++    mod_auth (reported by Stefan Esser) 
++
+ - 1.4.15 - 2007-04-13
+ 
+-  * fixed broken Set-Cookie headers 
++  * fixed broken Set-Cookie headers
+ 
+ - 1.4.14 - 2007-04-13
+ 
+@@ -29,7 +46,7 @@
+   * fix cpu hog in certain requests [1473] CVE-2007-1869
+   * fix for handling hostnames with trailing dot [1406]
+   * fixed header-injection via server.tag (#1106)
+-  * disabled caching of files without a content-type to solve the 
++  * disabled caching of files without a content-type to solve the
+     aggressive caching of FF
+   * remove trailing white-spaces from HTTP-requests before parsing (#1098)
+   * fixed accesslog.use-syslog in a conditional and the caching of the
+@@ -42,7 +59,7 @@
+   * fixed crash on url.redirect and url.rewrite if %0 is used in a global context
+     (#800)
+   * fixed possible crash in debug-message in mod_extforward
+-  * fixed compilation of mod_extforward on glibc < 2.3.4 
++  * fixed compilation of mod_extforward on glibc < 2.3.4
+   * fixed include of empty in the configfiles (#1076)
+   * send SIGUSR1 to fastcgi children before SIGTERM. libfcgi wants SIGUSR1. (#737)
+   * fixed missing AUTH_TYPE entry in the fastcgi environment. (#889)
+@@ -54,16 +71,16 @@
+   * added initgroups in spawn-fcgi (#871)
+   * added apr1 support htpasswd in mod-auth (#870)
+   * added lighty.stat() to mod_magnet
+-  * fixed segfault in splitted CRLF CRLF sequences 
++  * fixed segfault in splitted CRLF CRLF sequences
+     (introduced in 1.4.12) (#876)
+   * fixed compilation of LOCK support in mod-webdav
+   * fixed fragments in request-URLs (#869)
+   * fixed pkg-config check for lua5.1 on debian
+-  * fixed Content-Length = 0 on HEAD requests without 
++  * fixed Content-Length = 0 on HEAD requests without
+     a known Content-Length (#119)
+   * fixed mkdir() forcing 0700 (#884)
+   * fixed writev() on FreeBSD 4.x and older (#875)
+-  * removed warning about a 404-error-handler 
++  * removed warning about a 404-error-handler
+     returned 404
+   * backported and fixed the buildsystem changes for
+     webdav locks
