@@ -1,7 +1,7 @@
 Index: src/base.h
 ===================================================================
---- src/base.h	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ src/base.h	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- src/base.h	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ src/base.h	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -269,6 +269,9 @@
  	unsigned short use_ipv6;
  	unsigned short is_ssl;
@@ -14,8 +14,8 @@ Index: src/base.h
  
 Index: src/connections.c
 ===================================================================
---- src/connections.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ src/connections.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- src/connections.c	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ src/connections.c	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -1252,6 +1252,16 @@
  	socklen_t cnt_len;
  	/* accept it and register the fd */
@@ -53,8 +53,8 @@ Index: src/connections.c
  				if (con->http_status == 0) con->http_status = 200;
 Index: src/mod_staticfile.c
 ===================================================================
---- src/mod_staticfile.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ src/mod_staticfile.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- src/mod_staticfile.c	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ src/mod_staticfile.c	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -25,6 +25,7 @@
  
  typedef struct {
@@ -125,8 +125,8 @@ Index: src/mod_staticfile.c
  		/* prepare header */
 Index: src/configfile.c
 ===================================================================
---- src/configfile.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ src/configfile.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- src/configfile.c	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ src/configfile.c	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -89,7 +89,9 @@
  		{ "server.core-files",           NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION }, /* 45 */
  		{ "ssl.cipher-list",             NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_SERVER },      /* 46 */
@@ -186,9 +186,9 @@ Index: src/configfile.c
  			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("ssl.ca-file"))) {
 Index: src/etag.c
 ===================================================================
---- src/etag.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ src/etag.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
-@@ -8,12 +8,22 @@
+--- src/etag.c	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ src/etag.c	(.../branches/lighttpd-1.4.x)	(revision 1880)
+@@ -8,13 +8,25 @@
  	return 0;
  }
  
@@ -200,9 +200,11 @@ Index: src/etag.c
 -	buffer_append_long(etag, st->st_mtime);
 +int etag_create(buffer *etag, struct stat *st,etag_flags_t flags) {
 +	if (0 == flags) return 0;
-+	
+ 
++	buffer_reset(etag);
++
 +	if (flags & ETAG_USE_INODE) {
-+		buffer_copy_off_t(etag, st->st_ino);
++		buffer_append_off_t(etag, st->st_ino);
 +		buffer_append_string_len(etag, CONST_STR_LEN("-"));
 +	}
 +	
@@ -214,13 +216,14 @@ Index: src/etag.c
 +	if (flags & ETAG_USE_MTIME) {
 +		buffer_append_long(etag, st->st_mtime);
 +	}
- 
++
  	return 0;
  }
+ 
 Index: src/mod_scgi.c
 ===================================================================
---- src/mod_scgi.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ src/mod_scgi.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- src/mod_scgi.c	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ src/mod_scgi.c	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -803,7 +803,7 @@
  			buffer_append_string_buffer(b, host->bin_path);
  
@@ -232,8 +235,8 @@ Index: src/mod_scgi.c
  					"execl failed for:", host->bin_path, strerror(errno));
 Index: src/etag.h
 ===================================================================
---- src/etag.h	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ src/etag.h	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- src/etag.h	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ src/etag.h	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -7,8 +7,10 @@
  
  #include "buffer.h"
@@ -248,8 +251,8 @@ Index: src/etag.h
  
 Index: src/request.c
 ===================================================================
---- src/request.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ src/request.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- src/request.c	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ src/request.c	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -284,8 +284,6 @@
  
  	int done = 0;
@@ -318,8 +321,8 @@ Index: src/request.c
  					if (srv->srvconf.log_request_header_on_error) {
 Index: src/stat_cache.c
 ===================================================================
---- src/stat_cache.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ src/stat_cache.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- src/stat_cache.c	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ src/stat_cache.c	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -608,14 +608,16 @@
  				break;
  			}
@@ -342,8 +345,8 @@ Index: src/stat_cache.c
  #ifdef HAVE_FAM_H
 Index: src/http_auth.c
 ===================================================================
---- src/http_auth.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ src/http_auth.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- src/http_auth.c	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ src/http_auth.c	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -830,8 +830,14 @@
  
  	username = buffer_init();
@@ -396,8 +399,8 @@ Index: src/http_auth.c
  	/* password-string == HA1 */
 Index: src/mod_status.c
 ===================================================================
---- src/mod_status.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ src/mod_status.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- src/mod_status.c	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ src/mod_status.c	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -220,6 +220,7 @@
  	BUFFER_APPEND_STRING_CONST(b,
  				   "  <style type=\"text/css\">\n"
@@ -425,8 +428,8 @@ Index: src/mod_status.c
  		buffer_append_string_buffer(b, c->physical.path);
 Index: src/mod_ssi.c
 ===================================================================
---- src/mod_ssi.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ src/mod_ssi.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- src/mod_ssi.c	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ src/mod_ssi.c	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -702,7 +702,7 @@
  			/* close stdin */
  			close(STDIN_FILENO);
@@ -438,8 +441,8 @@ Index: src/mod_ssi.c
  
 Index: src/spawn-fcgi.c
 ===================================================================
---- src/spawn-fcgi.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ src/spawn-fcgi.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- src/spawn-fcgi.c	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ src/spawn-fcgi.c	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -169,7 +169,7 @@
  			strcat(b, appPath);
  
@@ -451,8 +454,8 @@ Index: src/spawn-fcgi.c
  
 Index: src/mod_fastcgi.c
 ===================================================================
---- src/mod_fastcgi.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ src/mod_fastcgi.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- src/mod_fastcgi.c	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ src/mod_fastcgi.c	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -69,7 +69,7 @@
  	buffer *unixsocket; /* config.socket + "-" + id */
  	unsigned port;  /* config.port + pno */
@@ -665,7 +668,15 @@ Index: src/mod_fastcgi.c
  
  			buffer_free(packet->b);
  			return -1;
-@@ -2558,7 +2559,7 @@
+@@ -2439,7 +2440,6 @@
+ 		b->used = r + 1; /* one extra for the fake \0 */
+ 		b->ptr[b->used - 1] = '\0';
+ 	} else {
+-		if (errno == EAGAIN) return 0;
+ 		log_error_write(srv, __FILE__, __LINE__, "ssdsb",
+ 				"unexpected end-of-file (perhaps the fastcgi process died):",
+ 				"pid:", proc->pid,
+@@ -2558,7 +2558,7 @@
  			if (host->mode != FCGI_AUTHORIZER ||
  			    !(con->http_status == 0 ||
  			      con->http_status == 200)) {
@@ -674,7 +685,7 @@ Index: src/mod_fastcgi.c
  				http_chunk_append_mem(srv, con, NULL, 0);
  				joblist_append(srv, con);
  			}
-@@ -2653,7 +2654,7 @@
+@@ -2653,7 +2653,7 @@
  			if (proc->state != PROC_STATE_DIED) break;
  
  		case PROC_STATE_DIED:
@@ -683,7 +694,7 @@ Index: src/mod_fastcgi.c
  			 * remote ones hopefully by the admin */
  
  			if (proc->is_local) {
-@@ -2774,7 +2775,7 @@
+@@ -2774,7 +2774,7 @@
  		     proc && proc->state != PROC_STATE_RUNNING;
  		     proc = proc->next);
  
@@ -692,7 +703,7 @@ Index: src/mod_fastcgi.c
  		if (proc == NULL) {
  			hctx->fde_ndx = -1;
  
-@@ -2834,7 +2835,7 @@
+@@ -2834,7 +2834,7 @@
  			 * -> EAGAIN */
  
  			log_error_write(srv, __FILE__, __LINE__, "ssdsd",
@@ -701,7 +712,7 @@ Index: src/mod_fastcgi.c
  				"reconnects:", hctx->reconnects,
  				"load:", host->load);
  
-@@ -2864,7 +2865,7 @@
+@@ -2864,7 +2864,7 @@
  			}
  
  			log_error_write(srv, __FILE__, __LINE__, "ssdsd",
@@ -710,7 +721,7 @@ Index: src/mod_fastcgi.c
  				"reconnects:", hctx->reconnects,
  				"load:", host->load);
  
-@@ -2950,7 +2951,7 @@
+@@ -2950,7 +2950,7 @@
  				if (hctx->wb->bytes_out == 0 &&
  				    hctx->reconnects < 5) {
  					usleep(10000); /* take away the load of the webserver
@@ -719,7 +730,7 @@ Index: src/mod_fastcgi.c
  							*/
  
  					fcgi_reconnect(srv, hctx);
-@@ -3152,9 +3153,9 @@
+@@ -3152,9 +3152,9 @@
  		   	    (con->http_status == 200 ||
  			     con->http_status == 0)) {
  				/*
@@ -732,7 +743,7 @@ Index: src/mod_fastcgi.c
  				 */
  
  				buffer_copy_string_buffer(con->physical.doc_root, host->docroot);
-@@ -3220,7 +3221,7 @@
+@@ -3220,7 +3220,7 @@
  			}
  
  			if (con->file_started == 0) {
@@ -741,7 +752,7 @@ Index: src/mod_fastcgi.c
  
  				if (hctx->wb->bytes_out == 0 &&
  				    hctx->reconnects < 5) {
-@@ -3270,8 +3271,8 @@
+@@ -3270,8 +3270,8 @@
  		    hctx->state == FCGI_STATE_WRITE) {
  			/* we are allowed to send something out
  			 *
@@ -752,7 +763,7 @@ Index: src/mod_fastcgi.c
  			 */
  			return mod_fastcgi_handle_subrequest(srv, con, p);
  		} else {
-@@ -3286,8 +3287,8 @@
+@@ -3286,8 +3286,8 @@
  		if (hctx->state == FCGI_STATE_CONNECT_DELAYED) {
  			/* getoptsock will catch this one (right ?)
  			 *
@@ -763,7 +774,7 @@ Index: src/mod_fastcgi.c
  			 * second round
  			 *
  			 * FIXME: as it is a bit ugly.
-@@ -3485,7 +3486,7 @@
+@@ -3485,7 +3485,7 @@
  		return HANDLER_FINISHED;
  	}
  
@@ -772,7 +783,7 @@ Index: src/mod_fastcgi.c
  	extension->note_is_sent = 0;
  
  	/*
-@@ -3520,7 +3521,7 @@
+@@ -3520,7 +3520,7 @@
  			}
  
  			/* the prefix is the SCRIPT_NAME,
@@ -781,7 +792,7 @@ Index: src/mod_fastcgi.c
  			 * this is important for check-local = "disable"
  			 *
  			 * if prefix = /admin.fcgi
-@@ -3630,13 +3631,13 @@
+@@ -3630,13 +3630,13 @@
  
  	/* perhaps we should kill a connect attempt after 10-15 seconds
  	 *
@@ -797,7 +808,7 @@ Index: src/mod_fastcgi.c
  
  	for (i = 0; i < srv->config_context->used; i++) {
  		plugin_config *conf;
-@@ -3718,11 +3719,11 @@
+@@ -3718,11 +3718,11 @@
  
  					if (srv->cur_ts - proc->last_used > host->idle_timeout) {
  						/* a proc is idling for a long time now,
@@ -813,8 +824,8 @@ Index: src/mod_fastcgi.c
  						}
 Index: src/mod_access.c
 ===================================================================
---- src/mod_access.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ src/mod_access.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- src/mod_access.c	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ src/mod_access.c	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -111,6 +111,15 @@
  }
  #undef PATCH
@@ -891,8 +902,8 @@ Index: src/mod_access.c
  	p->data        = NULL;
 Index: src/mod_accesslog.c
 ===================================================================
---- src/mod_accesslog.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ src/mod_accesslog.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- src/mod_accesslog.c	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ src/mod_accesslog.c	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -507,7 +507,7 @@
  				 *
  				 */
@@ -904,8 +915,8 @@ Index: src/mod_accesslog.c
  						"spawning log-process failed: ", strerror(errno),
 Index: src/server.c
 ===================================================================
---- src/server.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ src/server.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- src/server.c	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ src/server.c	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -775,6 +775,22 @@
  			return -1;
  		}
@@ -931,8 +942,8 @@ Index: src/server.c
  		} else {
 Index: src/proc_open.c
 ===================================================================
---- src/proc_open.c	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ src/proc_open.c	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- src/proc_open.c	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ src/proc_open.c	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -255,7 +255,7 @@
  		 */
  		proc_close_parents(proc);
@@ -944,8 +955,8 @@ Index: src/proc_open.c
  	} else if (child < 0) {
 Index: tests/mod-auth.t
 ===================================================================
---- tests/mod-auth.t	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ tests/mod-auth.t	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- tests/mod-auth.t	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ tests/mod-auth.t	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -8,7 +8,7 @@
  
  use strict;
@@ -1002,8 +1013,8 @@ Index: tests/mod-auth.t
  
 Index: tests/mod-access.t
 ===================================================================
---- tests/mod-access.t	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ tests/mod-access.t	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- tests/mod-access.t	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ tests/mod-access.t	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -8,7 +8,7 @@
  
  use strict;
@@ -1028,8 +1039,8 @@ Index: tests/mod-access.t
  
 Index: tests/core-request.t
 ===================================================================
---- tests/core-request.t	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ tests/core-request.t	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- tests/core-request.t	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ tests/core-request.t	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -8,7 +8,7 @@
  
  use strict;
@@ -1080,8 +1091,8 @@ Index: tests/core-request.t
  
 Index: tests/prepare.sh
 ===================================================================
---- tests/prepare.sh	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ tests/prepare.sh	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- tests/prepare.sh	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ tests/prepare.sh	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -25,6 +25,7 @@
  # copy everything into the right places
  cp $srcdir/docroot/www/*.html \
@@ -1094,8 +1105,8 @@ Index: tests/docroot/www/index.html~
 ===================================================================
 Index: tests/docroot/www/Makefile.am
 ===================================================================
---- tests/docroot/www/Makefile.am	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ tests/docroot/www/Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 1878)
+--- tests/docroot/www/Makefile.am	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ tests/docroot/www/Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 1880)
 @@ -1,5 +1,5 @@
  EXTRA_DIST=cgi.php cgi.pl dummydir index.html index.txt phpinfo.php \
  	   redirect.php cgi-pathinfo.pl get-env.php get-server-env.php \
@@ -1105,9 +1116,9 @@ Index: tests/docroot/www/Makefile.am
  SUBDIRS=go indexfile expire
 Index: NEWS
 ===================================================================
---- NEWS	(.../tags/lighttpd-1.4.15)	(revision 1878)
-+++ NEWS	(.../branches/lighttpd-1.4.x)	(revision 1878)
-@@ -3,9 +3,26 @@
+--- NEWS	(.../tags/lighttpd-1.4.15)	(revision 1880)
++++ NEWS	(.../branches/lighttpd-1.4.x)	(revision 1880)
+@@ -3,9 +3,28 @@
  NEWS
  ====
  
@@ -1127,6 +1138,8 @@ Index: NEWS
 +    (reported by Stefan Esser)
 +  * fixed possible crash in Auth-Digest header parser on trailing WS in 
 +    mod_auth (reported by Stefan Esser) 
++  * fixed check on stale errno values, which broke handling of broken fastcgi
++    applications. (#1245)
 +
  - 1.4.15 - 2007-04-13
  
@@ -1135,7 +1148,7 @@ Index: NEWS
  
  - 1.4.14 - 2007-04-13
  
-@@ -29,7 +46,7 @@
+@@ -29,7 +48,7 @@
    * fix cpu hog in certain requests [1473] CVE-2007-1869
    * fix for handling hostnames with trailing dot [1406]
    * fixed header-injection via server.tag (#1106)
@@ -1144,7 +1157,7 @@ Index: NEWS
      aggressive caching of FF
    * remove trailing white-spaces from HTTP-requests before parsing (#1098)
    * fixed accesslog.use-syslog in a conditional and the caching of the
-@@ -42,7 +59,7 @@
+@@ -42,7 +61,7 @@
    * fixed crash on url.redirect and url.rewrite if %0 is used in a global context
      (#800)
    * fixed possible crash in debug-message in mod_extforward
@@ -1153,7 +1166,7 @@ Index: NEWS
    * fixed include of empty in the configfiles (#1076)
    * send SIGUSR1 to fastcgi children before SIGTERM. libfcgi wants SIGUSR1. (#737)
    * fixed missing AUTH_TYPE entry in the fastcgi environment. (#889)
-@@ -54,16 +71,16 @@
+@@ -54,16 +73,16 @@
    * added initgroups in spawn-fcgi (#871)
    * added apr1 support htpasswd in mod-auth (#870)
    * added lighty.stat() to mod_magnet
