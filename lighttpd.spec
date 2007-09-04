@@ -37,7 +37,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		_rel 2
+%define		_rel 3
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -795,7 +795,8 @@ install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d
 	$RPM_BUILD_ROOT%{_sysconfdir}/{conf,webapps}.d \
 	$RPM_BUILD_ROOT{/var/log/{%{name},archive/%{name}},/var/run/%{name}} \
 	$RPM_BUILD_ROOT%{_datadir}/lighttpd/errordocs \
-	$RPM_BUILD_ROOT/var/lib/lighttpd
+	$RPM_BUILD_ROOT/var/lib/lighttpd \
+	$RPM_BUILD_ROOT/var/cache/lighttpd/mod_compress
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
@@ -1023,6 +1024,9 @@ EOF
 # rrdtool database is stored there
 %dir %attr(771,root,lighttpd) /var/lib/lighttpd
 
+# mod_compress can put cached files there
+%dir /var/cache/lighttpd
+
 %files mod_access
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_access.conf
@@ -1057,6 +1061,7 @@ EOF
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_compress.conf
 %attr(755,root,root) %{_libdir}/mod_compress.so
+%dir %attr(775,root,lighttpd) /var/cache/lighttpd/mod_compress
 
 %if %{with deflate}
 %files mod_deflate
