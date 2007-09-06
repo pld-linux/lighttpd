@@ -751,10 +751,10 @@ Requires:	%{name} = %{version}-%{release}
 Requires:	monit
 
 %description -n monit-rc-lighttpd
-monitrc file for monitoring MySQL database server.
+monitrc file for monitoring lighttpd web server.
 
 %description -n monit-rc-lighttpd -l pl.UTF-8
-Plik monitrc do monitorowania serwera baz danych MySQL.
+Plik monitrc do monitorowania serwera www lighttpd.
 
 %prep
 %setup -q
