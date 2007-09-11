@@ -37,16 +37,16 @@
 %define		webdav_progs	1
 %endif
 
-%define		_rel 3
+%define		_rel 1
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.17
+Version:	1.4.18
 Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}%{?_svn:.%{_svn}}
 License:	BSD
 Group:		Networking/Daemons
 Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.bz2
-# Source0-md5:	85c99c2d6baf8ad9e38e6267efe7d9aa
+# Source0-md5:	26f98dddf9d8c0775221b800986003ee
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
