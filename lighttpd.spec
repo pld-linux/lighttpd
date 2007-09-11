@@ -144,6 +144,7 @@ Provides:	group(http)
 Provides:	group(lighttpd)
 Provides:	user(lighttpd)
 Provides:	webserver
+Conflicts:	logrotate < 3.7.4
 # for the posttrans scriptlet, conflicts because in vserver environment rpm package is not installed.
 Conflicts:	rpm < 4.4.2-0.2
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
