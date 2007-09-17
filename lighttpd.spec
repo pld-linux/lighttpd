@@ -37,7 +37,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		_rel 1
+%define		_rel 2
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -53,8 +53,8 @@ Source3:	%{name}.user
 Source4:	%{name}.logrotate
 Source5:	%{name}.sysconfig
 Source6:	%{name}-mime.types.sh
-Source7:	http://www.lighttpd.net/favicon.ico
-# Source7-md5:	a358994becabd4060393a5454bde505d
+Source7:	http://glen.alkohol.ee/pld/lighty/favicon.ico
+# Source7-md5:	688f8569ddb9b39c058d435eab8c7c1e
 Source8:	http://www.lighttpd.net/light_button.png
 # Source8-md5:	02330e2313fadc29144edfd6000879f8
 Source9:	http://www.lighttpd.net/light_logo.png
