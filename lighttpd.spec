@@ -37,7 +37,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		_rel 3
+%define		_rel 4
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -99,10 +99,12 @@ Source132:	%{name}-ssl.conf
 Source133:	%{name}-mod_mysql_vhost.conf
 Source134:	%{name}-mod_magnet.conf
 Source135:	%{name}-mod_extforward.conf
+Source136:	lighttpd-mod_h264_streaming.conf
 #Patch100:	%{name}-branch.diff
 Patch0:		%{name}-use_bin_sh.patch
 Patch1:		%{name}-mod_evasive-status_code.patch
-#Patchx:		%{name}-mod_deflate.patch
+Patch2:		%{name}-mod_h264_streaming.patch
+#Patchx:	%{name}-mod_deflate.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -401,6 +403,18 @@ lighttpd module for flv streaming.
 
 %description mod_flv_streaming -l pl.UTF-8
 Moduł lighttpd do streamingu flv.
+
+%package mod_h264_streaming
+Summary:	lighttpd module for h264 streaming
+License:	GPL v3+
+Group:		Networking/Daemons
+URL:		http://h264.code-shop.com/
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_h264_streaming
+lighttpd module for h264 streaming.
+
+Please note that this module is experimental and work-in-progress.
 
 %package mod_indexfile
 Summary:	lighttpd indexfile module
@@ -762,6 +776,7 @@ Plik monitrc do monitorowania serwera www lighttpd.
 #%patch100 -p0
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 # build mime.types.conf
 sh %{SOURCE6} /etc/mime.types
@@ -839,6 +854,7 @@ install %{SOURCE111} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_expire.conf
 install %{SOURCE135} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_extforward.conf
 install %{SOURCE112} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_fastcgi.conf
 install %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
+install %{SOURCE136} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_h264_streaming.conf
 install %{SOURCE114} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_indexfile.conf
 install %{SOURCE134} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_magnet.conf
 install %{SOURCE115} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy.conf
@@ -954,6 +970,7 @@ fi
 %module_scripts mod_extforward
 %module_scripts mod_fastcgi
 %module_scripts mod_flv_streaming
+%module_scripts mod_h264_streaming
 %module_scripts mod_indexfile
 %module_scripts mod_magnet
 %module_scripts mod_mysql_vhost
@@ -1105,6 +1122,11 @@ EOF
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_flv_streaming.conf
 %attr(755,root,root) %{_libdir}/mod_flv_streaming.so
+
+%files mod_h264_streaming
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_h264_streaming.conf
+%attr(755,root,root) %{_libdir}/mod_h264_streaming.so
 
 %files mod_indexfile
 %defattr(644,root,root,755)
