@@ -120,7 +120,7 @@ BuildRequires:	libuuid-devel
 %{?with_lua:BuildRequires:	lua51-devel}
 BuildRequires:	mailcap >= 2.1.14-4.4
 %{?with_mysql:BuildRequires:	mysql-devel}
-%{?with_ldap:BuildRequires:	openldap-devel}
+%{?with_ldap:BuildRequires:	openldap-devel >= 2.4.6}
 %{?with_ssl:BuildRequires:	openssl-devel}
 BuildRequires:	pcre-devel
 BuildRequires:	pkgconfig
