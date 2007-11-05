@@ -1,657 +1,136 @@
-Index: src/connections.c
+Index: configure.in
 ===================================================================
---- src/connections.c	(.../tags/lighttpd-1.4.16)	(revision 1922)
-+++ src/connections.c	(.../branches/lighttpd-1.4.x)	(revision 1922)
-@@ -1412,42 +1412,42 @@
+--- configure.in	(.../tags/lighttpd-1.4.18)	(revision 2015)
++++ configure.in	(.../branches/lighttpd-1.4.x)	(revision 2015)
+@@ -1,7 +1,7 @@
+ #                                               -*- Autoconf -*-
+ # Process this file with autoconf to produce a configure script.
+ AC_PREREQ(2.57)
+-AC_INIT(lighttpd, 1.4.18, jan@kneschke.de)
++AC_INIT(lighttpd, 1.4.19, jan@kneschke.de)
+ AC_CONFIG_SRCDIR([src/server.c])
  
- 			switch (r = http_response_prepare(srv, con)) {
- 			case HANDLER_FINISHED:
--				if (con->http_status == 404 ||
--				    con->http_status == 403) {
--					/* 404 error-handler */
-+				if (con->mode == DIRECT) {
-+					if (con->http_status == 404 ||
-+					    con->http_status == 403) {
-+						/* 404 error-handler */
- 
--					if (con->in_error_handler == 0 &&
--					    (!buffer_is_empty(con->conf.error_handler) ||
--					     !buffer_is_empty(con->error_handler))) {
--						/* call error-handler */
-+						if (con->in_error_handler == 0 &&
-+						    (!buffer_is_empty(con->conf.error_handler) ||
-+						     !buffer_is_empty(con->error_handler))) {
-+							/* call error-handler */
- 
--						con->error_handler_saved_status = con->http_status;
--						con->http_status = 0;
-+							con->error_handler_saved_status = con->http_status;
-+							con->http_status = 0;
- 
--						if (buffer_is_empty(con->error_handler)) {
--							buffer_copy_string_buffer(con->request.uri, con->conf.error_handler);
--						} else {
--							buffer_copy_string_buffer(con->request.uri, con->error_handler);
--						}
--						buffer_reset(con->physical.path);
-+							if (buffer_is_empty(con->error_handler)) {
-+								buffer_copy_string_buffer(con->request.uri, con->conf.error_handler);
-+							} else {
-+								buffer_copy_string_buffer(con->request.uri, con->error_handler);
-+							}
-+							buffer_reset(con->physical.path);
- 
--						con->in_error_handler = 1;
-+							con->in_error_handler = 1;
- 
--						connection_set_state(srv, con, CON_STATE_HANDLE_REQUEST);
-+							connection_set_state(srv, con, CON_STATE_HANDLE_REQUEST);
- 
--						done = -1;
--						break;
-+							done = -1;
-+							break;
-+						} else if (con->in_error_handler) {
-+							/* error-handler is a 404 */
+ AC_CANONICAL_TARGET
+Index: src/configfile-glue.c
+===================================================================
+--- src/configfile-glue.c	(.../tags/lighttpd-1.4.18)	(revision 2015)
++++ src/configfile-glue.c	(.../branches/lighttpd-1.4.x)	(revision 2015)
+@@ -341,6 +341,10 @@
+ 		}
+ 		break;
+ 	}
++	case COMP_HTTP_SCHEME:
++		l = con->uri.scheme;
++		break;
 +
-+							con->http_status = con->error_handler_saved_status;
-+						}
- 					} else if (con->in_error_handler) {
--						/* error-handler is a 404 */
--
--						con->http_status = con->error_handler_saved_status;
-+						/* error-handler is back and has generated content */
-+						/* if Status: was set, take it otherwise use 200 */
- 					}
--				} else if (con->in_error_handler) {
--					/* error-handler is back and has generated content */
--					/* if Status: was set, take it otherwise use 200 */
--					con->http_status = con->error_handler_saved_status;
- 				}
--
- 				if (con->http_status == 0) con->http_status = 200;
+ 	case COMP_HTTP_URL:
+ 		l = con->uri.path;
+ 		break;
+Index: src/array.h
+===================================================================
+--- src/array.h	(.../tags/lighttpd-1.4.18)	(revision 2015)
++++ src/array.h	(.../branches/lighttpd-1.4.x)	(revision 2015)
+@@ -90,6 +90,7 @@
+ 	COMP_HTTP_COOKIE,
+ 	COMP_HTTP_REMOTEIP,
+ 	COMP_HTTP_QUERYSTRING,
++	COMP_HTTP_SCHEME,
  
- 				/* we have something to send, go on */
+ 	COMP_LAST_ELEMENT
+ } comp_key_t;
 Index: src/mod_staticfile.c
 ===================================================================
---- src/mod_staticfile.c	(.../tags/lighttpd-1.4.16)	(revision 1922)
-+++ src/mod_staticfile.c	(.../branches/lighttpd-1.4.x)	(revision 1922)
-@@ -506,6 +506,7 @@
- 	 */
- 	http_chunk_append_file(srv, con, con->physical.path, 0, sce->st.st_size);
+--- src/mod_staticfile.c	(.../tags/lighttpd-1.4.18)	(revision 2015)
++++ src/mod_staticfile.c	(.../branches/lighttpd-1.4.x)	(revision 2015)
+@@ -483,8 +483,24 @@
+ 			/* if the value is the same as our ETag, we do a Range-request,
+ 			 * otherwise a full 200 */
  
-+	con->http_status = 200;
- 	con->file_finished = 1;
- 
- 	return HANDLER_FINISHED;
-Index: src/etag.c
-===================================================================
---- src/etag.c	(.../tags/lighttpd-1.4.16)	(revision 1922)
-+++ src/etag.c	(.../branches/lighttpd-1.4.x)	(revision 1922)
-@@ -1,4 +1,5 @@
- #include <string.h>
-+#include <stdint.h>
- 
- #include "buffer.h"
- #include "etag.h"
-@@ -31,7 +32,8 @@
- }
- 
- int etag_mutate(buffer *mut, buffer *etag) {
--	size_t h, i;
-+	size_t i;
-+	uint32_t h;
- 
- 	for (h=0, i=0; i < etag->used; ++i) h = (h<<5)^(h>>27)^(etag->ptr[i]);
- 
-Index: src/mod_mysql_vhost.c
-===================================================================
---- src/mod_mysql_vhost.c	(.../tags/lighttpd-1.4.16)	(revision 1922)
-+++ src/mod_mysql_vhost.c	(.../branches/lighttpd-1.4.x)	(revision 1922)
-@@ -252,6 +252,11 @@
- 
- 				return HANDLER_ERROR;
+-			if (!buffer_is_equal(ds->value, con->physical.etag)) {
++			if (ds->value->ptr[0] == '"') {
++				/**
++				 * client wants a ETag
++				 */
++				if (!con->physical.etag) {
++					do_range_request = 0;
++				} else if (!buffer_is_equal(ds->value, con->physical.etag)) {
++					do_range_request = 0;
++				}
++			} else if (!mtime) {
++				/**
++				 * we don't have a Last-Modified and can match the If-Range: 
++				 *
++				 * sending all
++				 */
+ 				do_range_request = 0;
++			} else if (!buffer_is_equal(ds->value, mtime)) {
++				do_range_request = 0;
  			}
-+
-+			/* in mysql versions above 5.0.3 the reconnect flag is off by default */
-+			my_bool reconnect = 1;
-+			mysql_options(s->mysql, MYSQL_OPT_RECONNECT, &reconnect);
-+
- #define FOO(x) (s->x->used ? s->x->ptr : NULL)
- 
- 			if (!mysql_real_connect(s->mysql, FOO(hostname), FOO(myuser), FOO(mypass),
-Index: src/mod_compress.c
-===================================================================
---- src/mod_compress.c	(.../tags/lighttpd-1.4.16)	(revision 1922)
-+++ src/mod_compress.c	(.../branches/lighttpd-1.4.x)	(revision 1922)
-@@ -589,6 +589,13 @@
- 	/* don't compress files that are too large as we need to much time to handle them */
- 	if (max_fsize && (sce->st.st_size >> 10) > max_fsize) return HANDLER_GO_ON;
- 
-+	/* don't try to compress files less than 128 bytes
-+	 *
-+	 * - extra overhead for compression
-+	 * - mmap() fails for st_size = 0 :)
-+	 */
-+	if (sce->st.st_size < 128) return HANDLER_GO_ON;
-+
- 	/* check if mimetype is in compress-config */
- 	for (m = 0; m < p->conf.compress->used; m++) {
- 		data_string *compress_ds = (data_string *)p->conf.compress->data[m];
-Index: src/mod_dirlisting.c
-===================================================================
---- src/mod_dirlisting.c	(.../tags/lighttpd-1.4.16)	(revision 1922)
-+++ src/mod_dirlisting.c	(.../branches/lighttpd-1.4.x)	(revision 1922)
-@@ -59,6 +59,7 @@
- 
- 	buffer *external_css;
- 	buffer *encoding;
-+	buffer *set_footer;
- } plugin_config;
- 
- typedef struct {
-@@ -173,6 +174,7 @@
- 			excludes_buffer_free(s->excludes);
- 			buffer_free(s->external_css);
- 			buffer_free(s->encoding);
-+			buffer_free(s->set_footer);
- 
- 			free(s);
  		}
-@@ -240,7 +242,9 @@
- #define CONFIG_SHOW_HEADER      "dir-listing.show-header"
- #define CONFIG_HIDE_HEADER_FILE "dir-listing.hide-header-file"
- #define CONFIG_DIR_LISTING      "server.dir-listing"
-+#define CONFIG_SET_FOOTER       "dir-listing.set-footer"
  
-+
- SETDEFAULTS_FUNC(mod_dirlisting_set_defaults) {
- 	plugin_data *p = p_d;
- 	size_t i = 0;
-@@ -256,6 +260,7 @@
- 		{ CONFIG_SHOW_HEADER,      NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION }, /* 7 */
- 		{ CONFIG_HIDE_HEADER_FILE, NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION }, /* 8 */
- 		{ CONFIG_DIR_LISTING,      NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION }, /* 9 */
-+		{ CONFIG_SET_FOOTER,       NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION }, /* 10 */
- 
- 		{ NULL,                          NULL, T_CONFIG_UNSET, T_CONFIG_SCOPE_UNSET }
- 	};
-@@ -278,6 +283,7 @@
- 		s->show_header = 0;
- 		s->hide_header_file = 0;
- 		s->encoding = buffer_init();
-+		s->set_footer = buffer_init();
- 
- 		cv[0].destination = s->excludes;
- 		cv[1].destination = &(s->dir_listing);
-@@ -289,6 +295,7 @@
- 		cv[7].destination = &(s->show_header);
- 		cv[8].destination = &(s->hide_header_file);
- 		cv[9].destination = &(s->dir_listing); /* old name */
-+		cv[10].destination = s->set_footer;
- 
- 		p->config_storage[i] = s;
- 		ca = ((data_config *)srv->config_context->data[i])->value;
-@@ -318,6 +325,7 @@
- 	PATCH(show_header);
- 	PATCH(hide_header_file);
- 	PATCH(excludes);
-+	PATCH(set_footer);
- 
- 	/* skip the first, the global context */
- 	for (i = 1; i < srv->config_context->used; i++) {
-@@ -348,6 +356,8 @@
- 				PATCH(show_header);
- 			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN(CONFIG_HIDE_HEADER_FILE))) {
- 				PATCH(hide_header_file);
-+			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN(CONFIG_SET_FOOTER))) {
-+				PATCH(set_footer);
- 			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN(CONFIG_EXCLUDE))) {
- 				PATCH(excludes);
- 			}
-@@ -467,8 +477,7 @@
- 			"h2 {margin-bottom: 12px;}\n"
- 			"table {margin-left: 12px;}\n"
- 			"th, td {"
--			" font-family: \"Courier New\", Courier, monospace;"
--			" font-size: 10pt;"
-+			" font: 90% monospace;"
- 			" text-align: left;"
- 			"}\n"
- 			"th {"
-@@ -488,8 +497,7 @@
- 			" padding-bottom: 14px;"
- 			"}\n"
- 			"div.foot {"
--			" font-family: \"Courier New\", Courier, monospace;"
--			" font-size: 10pt;"
-+			" font: 90% monospace;"
- 			" color: #787878;"
- 			" padding-top: 4px;"
- 			"}\n"
-@@ -569,7 +577,9 @@
- 		"<div class=\"foot\">"
- 	);
- 
--	if (buffer_is_empty(con->conf.server_tag)) {
-+	if (p->conf.set_footer->used > 1) {
-+		buffer_append_string_buffer(out, p->conf.set_footer);
-+	} else if (buffer_is_empty(con->conf.server_tag)) {
- 		BUFFER_APPEND_STRING_CONST(out, PACKAGE_NAME "/" PACKAGE_VERSION);
- 	} else {
- 		buffer_append_string_buffer(out, con->conf.server_tag);
-Index: tests/404-handler.conf
+Index: src/response.c
 ===================================================================
---- tests/404-handler.conf	(.../tags/lighttpd-1.4.16)	(revision 0)
-+++ tests/404-handler.conf	(.../branches/lighttpd-1.4.x)	(revision 1922)
-@@ -0,0 +1,49 @@
-+debug.log-request-handling   = "enable"
-+debug.log-response-header   = "enable"
-+debug.log-request-header   = "enable"
-+
-+server.document-root         = env.SRCDIR + "/tmp/lighttpd/servers/www.example.org/pages/"
-+server.pid-file              = env.SRCDIR + "/tmp/lighttpd/lighttpd.pid"
-+
-+## bind to port (default: 80)
-+server.port                 = 2048
-+
-+## bind to localhost (default: all interfaces)
-+server.bind                = "localhost"
-+server.errorlog            = env.SRCDIR + "/tmp/lighttpd/logs/lighttpd.error.log"
-+server.name                = "www.example.org"
-+server.tag                 = "Apache 1.3.29"
-+
-+
-+server.modules              = (
-+				  "mod_fastcgi",
-+				  "mod_cgi",
-+				"mod_accesslog" )
-+
-+######################## MODULE CONFIG ############################
-+
-+
-+accesslog.filename          = env.SRCDIR + "/tmp/lighttpd/logs/lighttpd.access.log"
-+
-+mimetype.assign             = ( ".html" => "text/html" )
-+
-+cgi.assign = (".pl" => "/usr/bin/perl" )
-+
-+# fastcgi.server += ( "/404.pl" =>
-+#                    ( "404-handler" =>
-+#                      (
-+#                        "socket" => env.SRCDIR + "/tmp/pl-404-fastcgi-1.socket",
-+#                        "bin-path" => server.document-root + "/404.pl",
-+#                        "max-procs" => 1,
-+#                        "check-local" => "disable",
-+#                        "broken-scriptfilename" => "enable",
-+#                      )
-+#                    ),
-+#                  )
-+
-+$HTTP["url"] =~ "^/static/" {
-+  server.error-handler-404 = "/404.html"
-+}
-+else $HTTP["url"] =~ "." {
-+  server.error-handler-404 = "/404.pl"
-+}
-Index: tests/mod-cgi.t
+--- src/response.c	(.../tags/lighttpd-1.4.18)	(revision 2015)
++++ src/response.c	(.../branches/lighttpd-1.4.x)	(revision 2015)
+@@ -180,6 +180,7 @@
+ 		buffer_copy_string_buffer(con->uri.authority, con->request.http_host);
+ 		buffer_to_lower(con->uri.authority);
+ 
++		config_patch_connection(srv, con, COMP_HTTP_SCHEME);    /* Scheme:      */
+ 		config_patch_connection(srv, con, COMP_HTTP_HOST);      /* Host:        */
+ 		config_patch_connection(srv, con, COMP_HTTP_REMOTEIP);  /* Client-IP */
+ 		config_patch_connection(srv, con, COMP_HTTP_REFERER);   /* Referer:     */
+Index: src/configparser.y
 ===================================================================
---- tests/mod-cgi.t	(.../tags/lighttpd-1.4.16)	(revision 1922)
-+++ tests/mod-cgi.t	(.../branches/lighttpd-1.4.x)	(revision 1922)
-@@ -8,7 +8,7 @@
- 
- use strict;
- use IO::Socket;
--use Test::More tests => 15;
-+use Test::More tests => 16;
- use LightyTest;
- 
- my $tf = LightyTest->new();
-@@ -115,6 +115,13 @@
-  );
- $t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.1', 'HTTP-Status' => 200, '+Content-Length' => '' } ];
- ok($tf->handle_http($t) == 0, 'cgi-env: HTTP_HOST');
-+# broken header crash
-+$t->{REQUEST}  = ( <<EOF
-+GET /crlfcrash.pl HTTP/1.0
-+EOF
-+ );
-+$t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 500 } ];
-+ok($tf->handle_http($t) == 0, 'broken header via perl cgi');
- 
- ok($tf->stop_proc == 0, "Stopping lighttpd");
- 
-Index: tests/docroot/www/crlfcrash.pl
+--- src/configparser.y	(.../tags/lighttpd-1.4.18)	(revision 2015)
++++ src/configparser.y	(.../branches/lighttpd-1.4.x)	(revision 2015)
+@@ -422,6 +422,7 @@
+       { COMP_HTTP_COOKIE,        CONST_STR_LEN("HTTP[\"cookie\"]"     ) },
+       { COMP_HTTP_REMOTEIP,      CONST_STR_LEN("HTTP[\"remoteip\"]"   ) },
+       { COMP_HTTP_QUERYSTRING,   CONST_STR_LEN("HTTP[\"querystring\"]") },
++      { COMP_HTTP_SCHEME,        CONST_STR_LEN("HTTP[\"scheme\"]"     ) },
+       { COMP_UNSET, NULL, 0 },
+     };
+     size_t i;
+Index: doc/configuration.txt
 ===================================================================
---- tests/docroot/www/crlfcrash.pl	(.../tags/lighttpd-1.4.16)	(revision 0)
-+++ tests/docroot/www/crlfcrash.pl	(.../branches/lighttpd-1.4.x)	(revision 1922)
-@@ -0,0 +1,4 @@
-+#!/usr/bin/env perl
-+#
-+print "Location: http://www.example.org/\r\n\n\n";
-+exit;
-Index: tests/docroot/www/404.pl
+--- doc/configuration.txt	(.../tags/lighttpd-1.4.18)	(revision 2015)
++++ doc/configuration.txt	(.../branches/lighttpd-1.4.x)	(revision 2015)
+@@ -85,6 +85,8 @@
+ 
+ $HTTP["cookie"]
+   match on cookie
++$HTTP["scheme"]
++  match on scheme
+ $HTTP["host"]
+   match on host
+ $HTTP["useragent"]
+Index: SConstruct
 ===================================================================
---- tests/docroot/www/404.pl	(.../tags/lighttpd-1.4.16)	(revision 0)
-+++ tests/docroot/www/404.pl	(.../branches/lighttpd-1.4.x)	(revision 1922)
-@@ -0,0 +1,33 @@
-+#!/usr/bin/perl
-+use CGI qw/:standard/;
-+my $cgi = new CGI;
-+my $request_uri = $ENV{'REQUEST_URI'};
-+print (STDERR "REQUEST_URI: $request_uri\n");
-+
-+if ($request_uri =~ m/^\/dynamic\/200\// ) {
-+  print header ( -status => 200,
-+                 -type   => 'text/plain' );
-+  print ("found here\n");
-+}
-+elsif ($request_uri =~ m|^/dynamic/302/| ) {
-+  print header( -status=>302,
-+                -location => 'http://www.example.org/');
-+}
-+elsif ($request_uri =~ m/^\/dynamic\/404\// ) {
-+  print header ( -status => 404
-+                 -type   => 'text/plain' );
-+  print ("Not found here\n");
-+}
-+elsif ($request_uri =~ m/^\/send404\.pl/ ) {
-+  print header ( -status => 404
-+                 -type   => 'text/plain' );
-+  print ("Not found here (send404)\n");
-+}
-+elsif ($request_uri =~ m/^\/dynamic\/nostatus\// ) {
-+  print ("found here\n");
-+}
-+else {
-+  print header ( -status => 500,
-+                 -type   => 'text/plain');
-+  print ("huh\n");
-+};
-
-Property changes on: tests/docroot/www/404.pl
-___________________________________________________________________
-Name: svn:executable
-   + *
-
-Index: tests/docroot/www/send404.pl
-===================================================================
---- tests/docroot/www/send404.pl	(.../tags/lighttpd-1.4.16)	(revision 0)
-+++ tests/docroot/www/send404.pl	(.../branches/lighttpd-1.4.x)	(revision 1922)
-@@ -0,0 +1,5 @@
-+#!/usr/bin/perl
-+use CGI qw/:standard/;
-+print header ( -status => 404
-+               -type   => 'text/plain' );
-+print ("send404\n");
-
-Property changes on: tests/docroot/www/send404.pl
-___________________________________________________________________
-Name: svn:executable
-   + *
-
-Index: tests/docroot/www/404.html
-===================================================================
---- tests/docroot/www/404.html	(.../tags/lighttpd-1.4.16)	(revision 0)
-+++ tests/docroot/www/404.html	(.../branches/lighttpd-1.4.x)	(revision 1922)
-@@ -0,0 +1 @@
-+static not found
-Index: tests/docroot/www/404.fcgi
-===================================================================
---- tests/docroot/www/404.fcgi	(.../tags/lighttpd-1.4.16)	(revision 0)
-+++ tests/docroot/www/404.fcgi	(.../branches/lighttpd-1.4.x)	(revision 1922)
-@@ -0,0 +1,27 @@
-+#!/usr/bin/perl
-+#use CGI qw/:standard/;
-+use CGI::Fast qw(:standard);
-+my $cgi = new CGI;
-+while (new CGI::Fast) {
-+    my $request_uri = $ENV{'REQUEST_URI'};
-+    print (STDERR "REQUEST_URI: $request_uri\n");
-+    if ($request_uri =~ m/^\/dynamic\/200\// ) {
-+      print header ( -status => 200,
-+                     -type   => 'text/plain' );
-+      print ("found here\n");
-+    }
-+    elsif ($request_uri =~ m|^/dynamic/302/| ) {
-+      print header( -status=>302,
-+                    -location => 'http://www.example.org/');
-+    }
-+    elsif ($request_uri =~ m/^\/dynamic\/404\// ) {
-+      print header ( -status => 404
-+                     -type   => 'text/plain' );
-+      print ("Not found here\n");
-+    }
-+    else {
-+      print header ( -status => 500,
-+                     -type   => 'text/plain');
-+      print ("huh\n");
-+    };
-+};
-
-Property changes on: tests/docroot/www/404.fcgi
-___________________________________________________________________
-Name: svn:executable
-   + *
-
-Index: tests/core-404-handler.t
-===================================================================
---- tests/core-404-handler.t	(.../tags/lighttpd-1.4.16)	(revision 0)
-+++ tests/core-404-handler.t	(.../branches/lighttpd-1.4.x)	(revision 1922)
-@@ -0,0 +1,76 @@
-+#!/usr/bin/env perl
-+#
-+# combinations we have to test:
-+# plain 404 case
-+# 404-handler -> static file (verify content)
-+# 404-handler -> fastcgi
-+#   returning 200
-+#   returning 302 + Location
-+#   returning 404
-+#   returning no status -> 200
-+#
-+BEGIN {
-+    # add current source dir to the include-path
-+    # we need this for make distcheck
-+   (my $srcdir = $0) =~ s#/[^/]+$#/#;
-+   unshift @INC, $srcdir;
-+}
-+
-+use strict;
-+use IO::Socket;
-+use Test::More tests => 8;
-+use LightyTest;
-+
-+my $tf = LightyTest->new();
-+my $t;
-+$tf->{CONFIGFILE} = '404-handler.conf';
-+
-+ok($tf->start_proc == 0, "Starting lighttpd") or die();
-+
-+$t->{REQUEST}  = ( <<EOF
-+GET /static/notfound HTTP/1.0
-+EOF
-+ );
-+$t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 200, 'HTTP-Content' => "static not found\n" } ];
-+ok($tf->handle_http($t) == 0, '404 handler => static');
-+
-+#
-+#
-+#
-+$t->{REQUEST}  = ( <<EOF
-+GET /dynamic/200/notfound HTTP/1.0
-+EOF
-+ );
-+$t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 200, 'HTTP-Content' => "found here\n" } ];
-+ok($tf->handle_http($t) == 0, '404 handler => dynamic(200)');
-+
-+$t->{REQUEST}  = ( <<EOF
-+GET /dynamic/302/notfound HTTP/1.0
-+EOF
-+ );
-+$t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 302, 'Location' => "http://www.example.org/" } ];
-+ok($tf->handle_http($t) == 0, '404 handler => dynamic(302)');
-+
-+$t->{REQUEST}  = ( <<EOF
-+GET /dynamic/404/notfound HTTP/1.0
-+EOF
-+ );
-+$t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 404, 'HTTP-Content' => "Not found here\n" } ];
-+ok($tf->handle_http($t) == 0, '404 handler => dynamic(404)');
-+
-+$t->{REQUEST}  = ( <<EOF
-+GET /dynamic/nostatus/notfound HTTP/1.0
-+EOF
-+ );
-+$t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 200, 'HTTP-Content' => "found here\n" } ];
-+ok($tf->handle_http($t) == 0, '404 handler => dynamic(nostatus)');
-+
-+$t->{REQUEST}  = ( <<EOF
-+GET /send404.pl HTTP/1.0
-+EOF
-+ );
-+$t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 404, 'HTTP-Content' => "send404\n" } ];
-+ok($tf->handle_http($t) == 0, '404 generated by CGI should stay 404');
-+
-+ok($tf->stop_proc == 0, "Stopping lighttpd");
-+
-Index: doc/lighttpd.conf
-===================================================================
---- doc/lighttpd.conf	(.../tags/lighttpd-1.4.16)	(revision 1922)
-+++ doc/lighttpd.conf	(.../branches/lighttpd-1.4.x)	(revision 1922)
-@@ -37,10 +37,10 @@
+--- SConstruct	(.../tags/lighttpd-1.4.18)	(revision 2015)
++++ SConstruct	(.../branches/lighttpd-1.4.x)	(revision 2015)
+@@ -5,7 +5,7 @@
+ from stat import *
  
- ## a static document-root, for virtual-hosting take look at the
- ## server.virtual-* options
--server.document-root        = "/www/pages/"
-+server.document-root        = "/srv/www/htdocs/"
+ package = 'lighttpd'
+-version = '1.4.18'
++version = '1.4.19'
  
- ## where to send error-messages to
--server.errorlog             = "/www/logs/lighttpd.error.log"
-+server.errorlog             = "/var/log/lighttpd/error.log"
- 
- # files to check for if .../ is requested
- index-file.names            = ( "index.php", "index.html",
-@@ -101,7 +101,9 @@
-   ".wmv"          =>      "video/x-ms-wmv",
-   ".bz2"          =>      "application/x-bzip",
-   ".tbz"          =>      "application/x-bzip-compressed-tar",
--  ".tar.bz2"      =>      "application/x-bzip-compressed-tar"
-+  ".tar.bz2"      =>      "application/x-bzip-compressed-tar",
-+  # default mime type
-+  ""              =>      "application/octet-stream",
-  )
- 
- # Use the "Content-Type" extended attribute to obtain mime type if possible
-@@ -113,7 +115,7 @@
- # server.tag                 = "lighttpd"
- 
- #### accesslog module
--accesslog.filename          = "/www/logs/access.log"
-+accesslog.filename          = "/var/log/lighttpd/access.log"
- 
- ## deny access the file-extensions
- #
-@@ -138,7 +140,7 @@
- #server.port                = 81
- 
- ## bind to localhost (default: all interfaces)
--#server.bind                = "grisu.home.kneschke.de"
-+#server.bind                = "127.0.0.1"
- 
- ## error-handler for status 404
- #server.error-handler-404   = "/error-handler.html"
-@@ -158,15 +160,16 @@
- ## or
- ##   virtual-server-root + http-host + virtual-server-docroot
- ##
--#simple-vhost.server-root   = "/home/weigon/wwwroot/servers/"
--#simple-vhost.default-host  = "grisu.home.kneschke.de"
--#simple-vhost.document-root = "/pages/"
-+#simple-vhost.server-root   = "/srv/www/vhosts/"
-+#simple-vhost.default-host  = "www.example.org"
-+#simple-vhost.document-root = "/htdocs/"
- 
- 
- ##
- ## Format: <errorfile-prefix><status-code>.html
- ## -> ..../status-404.html for 'File not found'
--#server.errorfile-prefix    = "/home/weigon/projects/lighttpd/doc/status-"
-+#server.errorfile-prefix    = "/usr/share/lighttpd/errors/status-"
-+#server.errorfile-prefix    = "/srv/www/errors/status-"
- 
- ## virtual directory listings
- #dir-listing.activate       = "enable"
-@@ -189,7 +192,7 @@
- #server.groupname           = "wwwrun"
- 
- #### compress module
--#compress.cache-dir         = "/tmp/lighttpd/cache/compress/"
-+#compress.cache-dir         = "/var/cache/lighttpd/compress/"
- #compress.filetype          = ("text/plain", "text/html")
- 
- #### proxy module
-@@ -209,8 +212,8 @@
- #fastcgi.server             = ( ".php" =>
- #                               ( "localhost" =>
- #                                 (
--#                                   "socket" => "/tmp/php-fastcgi.socket",
--#                                   "bin-path" => "/usr/local/bin/php"
-+#                                   "socket" => "/var/run/lighttpd/php-fastcgi.socket",
-+#                                   "bin-path" => "/usr/local/bin/php-cgi"
- #                                 )
- #                               )
- #                            )
-@@ -222,7 +225,7 @@
- 
- #### SSL engine
- #ssl.engine                 = "enable"
--#ssl.pemfile                = "server.pem"
-+#ssl.pemfile                = "/etc/ssl/private/lighttpd.pem"
- 
- #### status module
- #status.status-url          = "/server-status"
-@@ -269,7 +272,7 @@
- # %3 => subdomain 1 name
- # %4 => subdomain 2 name
- #
--#evhost.path-pattern        = "/home/storage/dev/www/%3/htdocs/"
-+#evhost.path-pattern        = "/srv/www/vhosts/%3/htdocs/"
- 
- #### expire module
- #expire.url                 = ( "/buggy/" => "access 2 hours", "/asdhas/" => "access plus 1 seconds 2 minutes")
-@@ -279,14 +282,14 @@
- 
- #### rrdtool
- #rrdtool.binary             = "/usr/bin/rrdtool"
--#rrdtool.db-name            = "/var/www/lighttpd.rrd"
-+#rrdtool.db-name            = "/var/lib/lighttpd/lighttpd.rrd"
- 
- #### setenv
- #setenv.add-request-header  = ( "TRAV_ENV" => "mysql://user@host/db" )
- #setenv.add-response-header = ( "X-Secret-Message" => "42" )
- 
- ## for mod_trigger_b4_dl
--# trigger-before-download.gdbm-filename = "/home/weigon/testbase/trigger.db"
-+# trigger-before-download.gdbm-filename = "/var/lib/lighttpd/trigger.db"
- # trigger-before-download.memcache-hosts = ( "127.0.0.1:11211" )
- # trigger-before-download.trigger-url = "^/trigger/"
- # trigger-before-download.download-url = "^/download/"
+ def checkCHeaders(autoconf, hdrs):
+ 	p = re.compile('[^A-Z0-9]')
 Index: NEWS
 ===================================================================
---- NEWS	(.../tags/lighttpd-1.4.16)	(revision 1922)
-+++ NEWS	(.../branches/lighttpd-1.4.x)	(revision 1922)
-@@ -3,6 +3,13 @@
+--- NEWS	(.../tags/lighttpd-1.4.18)	(revision 2015)
++++ NEWS	(.../branches/lighttpd-1.4.x)	(revision 2015)
+@@ -3,6 +3,11 @@
  NEWS
  ====
  
-+- 1.4.17 -
-+  * added dir-listing.set-footer in mod_dirlisting (#1277)
-+  * fixed hardcoded font-sizes in mod_dirlisting (#1267)
-+  * fixed different ETag length on 32/64 platforms (#1279)
-+  * fixed compression of files < 128 bytes by disabling compression (#1241)
-+  * fixed mysql server reconnects (#518)
++- 1.4.19 -
 +
- - 1.4.16 - 
++  * added support for If-Range: <date> (#1346)
++  * added support for matching $HTTP["scheme"] in configs
++
+ - 1.4.18 - 2007-09-09
  
-   * added static-file.etags, etag.use-inode, etag.use-mtime, etag.use-size
+   * fixed compile error on IRIX 6.5.x on prctl() (#1333)
