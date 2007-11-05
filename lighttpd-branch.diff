@@ -105,19 +105,6 @@ Index: doc/configuration.txt
  $HTTP["host"]
    match on host
  $HTTP["useragent"]
-Index: SConstruct
-===================================================================
---- SConstruct	(.../tags/lighttpd-1.4.18)	(revision 2015)
-+++ SConstruct	(.../branches/lighttpd-1.4.x)	(revision 2015)
-@@ -5,7 +5,7 @@
- from stat import *
- 
- package = 'lighttpd'
--version = '1.4.18'
-+version = '1.4.19'
- 
- def checkCHeaders(autoconf, hdrs):
- 	p = re.compile('[^A-Z0-9]')
 Index: NEWS
 ===================================================================
 --- NEWS	(.../tags/lighttpd-1.4.18)	(revision 2015)
