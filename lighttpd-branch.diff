@@ -570,22 +570,6 @@ Index: tests/core-response.t
  use strict;
 Index: tests/symlink.t
 ===================================================================
---- tests/symlink.t	(.../tags/lighttpd-1.4.18)	(revision 2043)
-+++ tests/symlink.t	(.../branches/lighttpd-1.4.x)	(revision 2043)
-@@ -1,9 +1,9 @@
- #!/usr/bin/env perl
- BEGIN {
--    # add current source dir to the include-path
--    # we need this for make distcheck
--    (my $srcdir = $0) =~ s#/[^/]+$#/#;
--    unshift @INC, $srcdir;
-+	# add current source dir to the include-path
-+	# we need this for make distcheck
-+	(my $srcdir = $0) =~ s,/[^/]+$,/,;
-+	unshift @INC, $srcdir;
- }
- 
- use strict;
 Index: tests/request.t
 ===================================================================
 --- tests/request.t	(.../tags/lighttpd-1.4.18)	(revision 2043)
