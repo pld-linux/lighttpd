@@ -37,7 +37,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		_rel 10
+%define		_rel 10.1
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -853,7 +853,7 @@ install %{SOURCE108} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_dirlisting.conf
 install %{SOURCE109} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evasive.conf
 install %{SOURCE110} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evhost.conf
 install %{SOURCE111} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_expire.conf
-install %{SOURCE135} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_extforward.conf
+install %{SOURCE135} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/91_mod_extforward.conf
 install %{SOURCE112} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_fastcgi.conf
 install %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
 install %{SOURCE136} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_h264_streaming.conf
@@ -1006,11 +1006,11 @@ fi
 %module_scripts php-spawned
 %module_scripts php-external
 
-%triggerpostun -- %{name} <= 1.3.6-2
-%banner %{name} -e <<EOF
-spawn-fcgi program is now available separately from spawn-fcgi package.
-
-EOF
+%triggerpostun -- %{name} < 1.4.18-10.1
+if [ -f /etc/lighttpd/conf.d/50_mod_extforward.conf.rpmsave ]; then
+	cp -f /etc/lighttpd/conf.d/91_mod_extforward.conf{,.rpmnew}
+	mv -f /etc/lighttpd/conf.d/{50_mod_extforward.conf.rpmsave,91_mod_extforward.conf}
+fi
 
 %files
 %defattr(644,root,root,755)
