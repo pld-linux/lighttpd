@@ -2,8 +2,8 @@ Index: configure.in
 ===================================================================
 Index: src/configfile-glue.c
 ===================================================================
---- src/configfile-glue.c	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ src/configfile-glue.c	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- src/configfile-glue.c	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ src/configfile-glue.c	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -341,6 +341,10 @@
  		}
  		break;
@@ -17,8 +17,8 @@ Index: src/configfile-glue.c
  		break;
 Index: src/base.h
 ===================================================================
---- src/base.h	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ src/base.h	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- src/base.h	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ src/base.h	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -515,6 +515,7 @@
  #ifdef USE_OPENSSL
  	SSL_CTX *ssl_ctx;
@@ -29,8 +29,8 @@ Index: src/base.h
  typedef struct {
 Index: src/array.h
 ===================================================================
---- src/array.h	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ src/array.h	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- src/array.h	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ src/array.h	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -90,6 +90,7 @@
  	COMP_HTTP_COOKIE,
  	COMP_HTTP_REMOTEIP,
@@ -41,8 +41,8 @@ Index: src/array.h
  } comp_key_t;
 Index: src/mod_staticfile.c
 ===================================================================
---- src/mod_staticfile.c	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ src/mod_staticfile.c	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- src/mod_staticfile.c	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ src/mod_staticfile.c	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -483,8 +483,24 @@
  			/* if the value is the same as our ETag, we do a Range-request,
  			 * otherwise a full 200 */
@@ -71,8 +71,8 @@ Index: src/mod_staticfile.c
  
 Index: src/mod_scgi.c
 ===================================================================
---- src/mod_scgi.c	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ src/mod_scgi.c	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- src/mod_scgi.c	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ src/mod_scgi.c	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -2694,8 +2694,9 @@
  		if (s_len < ct_len) continue;
  
@@ -87,8 +87,8 @@ Index: src/mod_scgi.c
  			break;
 Index: src/response.c
 ===================================================================
---- src/response.c	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ src/response.c	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- src/response.c	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ src/response.c	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -59,7 +59,8 @@
  		ds = (data_string *)con->response.headers->data[i];
  
@@ -109,8 +109,8 @@ Index: src/response.c
  		config_patch_connection(srv, con, COMP_HTTP_REFERER);   /* Referer:     */
 Index: src/mod_userdir.c
 ===================================================================
---- src/mod_userdir.c	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ src/mod_userdir.c	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- src/mod_userdir.c	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ src/mod_userdir.c	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -21,6 +21,7 @@
  	array *include_user;
  	buffer *path;
@@ -171,8 +171,8 @@ Index: src/mod_userdir.c
  	BUFFER_APPEND_SLASH(p->temp_path);
 Index: src/mod_proxy.c
 ===================================================================
---- src/mod_proxy.c	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ src/mod_proxy.c	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- src/mod_proxy.c	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ src/mod_proxy.c	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -1093,15 +1093,17 @@
  		if (s_len < ct_len) continue;
  
@@ -199,29 +199,209 @@ Index: src/mod_proxy.c
  			break;
 Index: src/mod_extforward.c
 ===================================================================
---- src/mod_extforward.c	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ src/mod_extforward.c	(.../branches/lighttpd-1.4.x)	(revision 2060)
-@@ -379,9 +379,15 @@
+--- src/mod_extforward.c	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ src/mod_extforward.c	(.../branches/lighttpd-1.4.x)	(revision 2061)
+@@ -20,6 +20,7 @@
+ /**
+  * mod_extforward.c for lighttpd, by comman.kang <at> gmail <dot> com
+  *                  extended, modified by Lionel Elie Mamane (LEM), lionel <at> mamane <dot> lu
++ *                  support chained proxies by glen@delfi.ee, #1528
+  *
+  * Config example:
+  *
+@@ -33,6 +34,10 @@
+  *       Note that "all" has precedence over specific entries,
+  *       so "all except" setups will not work.
+  *
++ *       In case you have chained proxies, you can add all their IP's to the
++ *       config. However "all" has effect only on connecting IP, as the
++ *       X-Forwarded-For header can not be trusted.
++ *
+  * Note: The effect of this module is variable on $HTTP["remotip"] directives and
+  *       other module's remote ip dependent actions.
+  *  Things done by modules before we change the remoteip or after we reset it will match on the proxy's IP.
+@@ -225,18 +230,16 @@
+ 		char *base, *curr;
+ 		/* state variable, 0 means not in string, 1 means in string */
+ 		int in_str = 0;
+-		for (base = pbuffer->ptr, curr = pbuffer->ptr; *curr; curr++)
+-		{
++		for (base = pbuffer->ptr, curr = pbuffer->ptr; *curr; curr++) {
+ 			if (in_str) {
+-				if ( (*curr > '9' || *curr < '0') && *curr != '.' && *curr != ':' ) {
++				if ((*curr > '9' || *curr < '0') && *curr != '.' && *curr != ':') {
+ 					/* found an separator , insert value into result array */
+-					put_string_into_array_len(result, base, curr-base);
++					put_string_into_array_len(result, base, curr - base);
+ 					/* change state to not in string */
+ 					in_str = 0;
+ 				}
+ 			} else {
+-				if (*curr >= '0' && *curr <= '9')
+-				{
++				if (*curr >= '0' && *curr <= '9') {
+ 					/* found leading char of an IP address, move base pointer and change state */
+ 					base = curr;
+ 					in_str = 1;
+@@ -244,9 +247,8 @@
+ 			}
+ 		}
+ 		/* if breaking out while in str, we got to the end of string, so add it */
+-		if (in_str)
+-		{
+-			put_string_into_array_len(result, base, curr-base);
++		if (in_str) {
++			put_string_into_array_len(result, base, curr - base);
+ 		}
+ 	}
+ 	return result;
+@@ -255,20 +257,42 @@
+ #define IP_TRUSTED 1
+ #define IP_UNTRUSTED 0
+ /*
+-   check whether ip is trusted, return 1 for trusted , 0 for untrusted
+-*/
++ * check whether ip is trusted, return 1 for trusted , 0 for untrusted
++ */
+ static int is_proxy_trusted(const char *ipstr, plugin_data *p)
+ {
+-	data_string* allds = (data_string *) array_get_element(p->conf.forwarder,"all");
++	data_string* allds = (data_string *)array_get_element(p->conf.forwarder, "all");
++
+ 	if (allds) {
+-		if (strcasecmp(allds->value->ptr,"trust") == 0)
++		if (strcasecmp(allds->value->ptr, "trust") == 0) {
+ 			return IP_TRUSTED;
+-		else
++		} else {
+ 			return IP_UNTRUSTED;
++		}
+ 	}
+-	return (data_string *)array_get_element(p->conf.forwarder,ipstr) ? IP_TRUSTED : IP_UNTRUSTED ;
++
++	return (data_string *)array_get_element(p->conf.forwarder, ipstr) ? IP_TRUSTED : IP_UNTRUSTED;
+ }
  
++/*
++ * Return char *ip of last address of proxy that is not trusted.
++ * Do not accept "all" keyword here.
++ */
++static const char *last_not_in_array(array *a, plugin_data *p)
++{
++	array *forwarder = p->conf.forwarder;
++
++	for (int i = a->used - 1; i >= 0; i--) {
++		data_string *ds = (data_string *)a->data[i];
++		const char *ip = ds->value->ptr;
++
++		if (!array_get_element(forwarder, ip)) {
++			return ip;
++		}
++	}
++	return NULL;
++}
++
+ struct addrinfo *ipstr_to_sockaddr(const char *host)
+ {
+    struct addrinfo hints, *res0;
+@@ -316,9 +340,8 @@
+ 	struct addrinfo *addrlist = NULL;
+ #endif
+ 	const char *dst_addr_str = NULL;
+-	int i;
+ 	array *forward_array = NULL;
+-	char *real_remote_addr = NULL;
++	const char *real_remote_addr = NULL;
+ #ifdef HAVE_IPV6
+ #endif
+ 
+@@ -342,7 +365,6 @@
+ 		return HANDLER_GO_ON;
+ 	}
+ 
+-	/* if the remote ip itself is not trusted , then do nothing */
+ #ifdef HAVE_IPV6
+ 	dst_addr_str = inet_ntop(con->dst_addr.plain.sa_family,
+ 		      con->dst_addr.plain.sa_family == AF_INET6 ?
+@@ -353,7 +375,9 @@
+ #else
+ 	dst_addr_str = inet_ntoa(con->dst_addr.ipv4.sin_addr);
+ #endif
+-	if (IP_UNTRUSTED == is_proxy_trusted (dst_addr_str, p) ) {
++
++	/* if the remote ip itself is not trusted, then do nothing */
++	if (IP_UNTRUSTED == is_proxy_trusted(dst_addr_str, p)) {
+ 		if (con->conf.log_request_handling) {
+ 			log_error_write(srv, __FILE__, __LINE__, "s",
+ 					"remote address is NOT a trusted proxy, skipping");
+@@ -362,40 +386,34 @@
+ 		return HANDLER_GO_ON;
+ 	}
+ 
++	/* build forward_array from forwarded data_string */
+ 	forward_array = extract_forward_array(forwarded->value);
++	real_remote_addr = last_not_in_array(forward_array, p);
+ 
+-	/* Testing shows that multiple headers and multiple values in one header
+-	   come in _reverse_ order. So the first one we get is the last one in the request. */
+-	for (i = forward_array->used - 1; i >= 0; i--) {
+-		data_string *ds = (data_string *) forward_array->data[i];
+-		if (ds) {
+-			real_remote_addr = ds->value->ptr;
+-			break;
+-		} else {
+-			/* bug ?  bailing out here */
+-			break;
+-		}
+-	}
+-
  	if (real_remote_addr != NULL) { /* parsed */
  		sock_addr sock;
 -
  		struct addrinfo *addrs_left;
 +		server_socket *srv_sock = con->srv_socket;
-+		data_string *forwarded_proto = (data_string *) array_get_element(con->request.headers,"X-Forwarded-Proto");
++		data_string *forwarded_proto = (data_string *)array_get_element(con->request.headers, "X-Forwarded-Proto");
  
-+		if (forwarded_proto && !strcmp(forwarded_proto->value->ptr, "https"))
++		if (forwarded_proto && !strcmp(forwarded_proto->value->ptr, "https")) {
 +			srv_sock->is_proxy_ssl = 1;
-+		else
++		} else {
 +			srv_sock->is_proxy_ssl = 0;
++		}
 +
  		if (con->conf.log_request_handling) {
-  			log_error_write(srv, __FILE__, __LINE__, "ss",
- 					"using address:", real_remote_addr);
+- 			log_error_write(srv, __FILE__, __LINE__, "ss",
+-					"using address:", real_remote_addr);
++ 			log_error_write(srv, __FILE__, __LINE__, "ss", "using address:", real_remote_addr);
+ 		}
+ #ifdef HAVE_IPV6
+ 		addrlist = ipstr_to_sockaddr(real_remote_addr);
+ 		sock.plain.sa_family = AF_UNSPEC;
+-		for (addrs_left = addrlist; addrs_left != NULL;
+-		     addrs_left = addrs_left -> ai_next) {
++		for (addrs_left = addrlist; addrs_left != NULL; addrs_left = addrs_left -> ai_next) {
+ 			sock.plain.sa_family = addrs_left->ai_family;
+-			if ( sock.plain.sa_family == AF_INET ) {
++			if (sock.plain.sa_family == AF_INET) {
+ 				sock.ipv4.sin_addr = ((struct sockaddr_in*)addrs_left->ai_addr)->sin_addr;
+ 				break;
+-			} else if ( sock.plain.sa_family == AF_INET6 ) {
++			} else if (sock.plain.sa_family == AF_INET6) {
+ 				sock.ipv6.sin6_addr = ((struct sockaddr_in6*)addrs_left->ai_addr)->sin6_addr;
+ 				break;
+ 			}
+@@ -430,7 +448,7 @@
+ 		if (addrlist != NULL ) freeaddrinfo(addrlist);
+ #endif
+ 	}
+-   	array_free(forward_array);
++	array_free(forward_array);
+ 
+ 	/* not found */
+ 	return HANDLER_GO_ON;
 Index: src/Makefile.am
 ===================================================================
---- src/Makefile.am	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ src/Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- src/Makefile.am	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ src/Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -281,4 +281,4 @@
  #ajp_SOURCES = ajp.c
  
@@ -230,8 +410,8 @@ Index: src/Makefile.am
 +EXTRA_DIST = mod_skeleton.c configparser.y mod_ssi_exprparser.y lempar.c SConscript
 Index: src/configparser.y
 ===================================================================
---- src/configparser.y	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ src/configparser.y	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- src/configparser.y	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ src/configparser.y	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -422,6 +422,7 @@
        { COMP_HTTP_COOKIE,        CONST_STR_LEN("HTTP[\"cookie\"]"     ) },
        { COMP_HTTP_REMOTEIP,      CONST_STR_LEN("HTTP[\"remoteip\"]"   ) },
@@ -242,8 +422,8 @@ Index: src/configparser.y
      size_t i;
 Index: src/mod_status.c
 ===================================================================
---- src/mod_status.c	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ src/mod_status.c	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- src/mod_status.c	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ src/mod_status.c	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -560,6 +560,8 @@
  	double avg;
  	time_t ts;
@@ -278,8 +458,8 @@ Index: src/mod_status.c
  	response_header_overwrite(srv, con, CONST_STR_LEN("Content-Type"), CONST_STR_LEN("text/plain"));
 Index: src/mod_ssi.c
 ===================================================================
---- src/mod_ssi.c	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ src/mod_ssi.c	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- src/mod_ssi.c	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ src/mod_ssi.c	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -36,6 +36,11 @@
  #include <sys/filio.h>
  #endif
@@ -347,8 +527,8 @@ Index: src/mod_ssi.c
  
 Index: src/spawn-fcgi.c
 ===================================================================
---- src/spawn-fcgi.c	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ src/spawn-fcgi.c	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- src/spawn-fcgi.c	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ src/spawn-fcgi.c	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -37,7 +37,7 @@
  #endif
  
@@ -482,8 +662,8 @@ Index: src/spawn-fcgi.c
  int main() {
 Index: src/mod_auth.c
 ===================================================================
---- src/mod_auth.c	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ src/mod_auth.c	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- src/mod_auth.c	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ src/mod_auth.c	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -238,13 +238,13 @@
  			int auth_type_len = auth_realm - http_authorization;
  
@@ -502,8 +682,8 @@ Index: src/mod_auth.c
  						con->http_status = 400;
 Index: src/mod_fastcgi.c
 ===================================================================
---- src/mod_fastcgi.c	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ src/mod_fastcgi.c	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- src/mod_fastcgi.c	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ src/mod_fastcgi.c	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -162,8 +162,8 @@
  	 * if host is one of the local IP adresses the
  	 * whole connection is local
@@ -665,8 +845,8 @@ Index: src/mod_fastcgi.c
  
 Index: src/server.c
 ===================================================================
---- src/server.c	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ src/server.c	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- src/server.c	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ src/server.c	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -759,6 +759,19 @@
  
  			return -1;
@@ -739,8 +919,8 @@ Index: src/server.c
  #ifdef HAVE_SIGACTION
 Index: tests/mod-access.t
 ===================================================================
---- tests/mod-access.t	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ tests/mod-access.t	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- tests/mod-access.t	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ tests/mod-access.t	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -1,9 +1,9 @@
  #!/usr/bin/env perl
  BEGIN {
@@ -757,8 +937,8 @@ Index: tests/mod-access.t
  use strict;
 Index: tests/mod-auth.t
 ===================================================================
---- tests/mod-auth.t	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ tests/mod-auth.t	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- tests/mod-auth.t	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ tests/mod-auth.t	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -1,14 +1,14 @@
  #!/usr/bin/env perl
  BEGIN {
@@ -800,8 +980,8 @@ Index: tests/mod-secdownload.t
 ===================================================================
 Index: tests/core-response.t
 ===================================================================
---- tests/core-response.t	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ tests/core-response.t	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- tests/core-response.t	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ tests/core-response.t	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -1,10 +1,9 @@
  #!/usr/bin/env perl
 -
@@ -820,11 +1000,11 @@ Index: tests/core-response.t
 Index: tests/mod-extforward.conf
 ===================================================================
 --- tests/mod-extforward.conf	(.../tags/lighttpd-1.4.18)	(revision 0)
-+++ tests/mod-extforward.conf	(.../branches/lighttpd-1.4.x)	(revision 2060)
-@@ -0,0 +1,30 @@
++++ tests/mod-extforward.conf	(.../branches/lighttpd-1.4.x)	(revision 2061)
+@@ -0,0 +1,31 @@
 +debug.log-request-handling   = "enable"
-+debug.log-response-header   = "enable"
-+debug.log-request-header   = "enable"
++debug.log-response-header   = "disable"
++debug.log-request-header   = "disable"
 +
 +server.document-root         = env.SRCDIR + "/tmp/lighttpd/servers/www.example.org/pages/"
 +server.pid-file              = env.SRCDIR + "/tmp/lighttpd/lighttpd.pid"
@@ -851,13 +1031,14 @@ Index: tests/mod-extforward.conf
 +
 +extforward.forwarder = (
 +	"127.0.0.1" => "trust",
++	"127.0.30.1" => "trust",
 +)
 Index: tests/symlink.t
 ===================================================================
 Index: tests/request.t
 ===================================================================
---- tests/request.t	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ tests/request.t	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- tests/request.t	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ tests/request.t	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -1,9 +1,9 @@
  #!/usr/bin/env perl
  BEGIN {
@@ -874,8 +1055,8 @@ Index: tests/request.t
  use strict;
 Index: tests/mod-userdir.t
 ===================================================================
---- tests/mod-userdir.t	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ tests/mod-userdir.t	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- tests/mod-userdir.t	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ tests/mod-userdir.t	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -1,9 +1,9 @@
  #!/usr/bin/env perl
  BEGIN {
@@ -892,8 +1073,8 @@ Index: tests/mod-userdir.t
  use strict;
 Index: tests/core-keepalive.t
 ===================================================================
---- tests/core-keepalive.t	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ tests/core-keepalive.t	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- tests/core-keepalive.t	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ tests/core-keepalive.t	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -1,10 +1,9 @@
  #!/usr/bin/env perl
 -
@@ -915,8 +1096,8 @@ Index: tests/env-variables.t
 ===================================================================
 Index: tests/core-var-include.t
 ===================================================================
---- tests/core-var-include.t	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ tests/core-var-include.t	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- tests/core-var-include.t	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ tests/core-var-include.t	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -1,9 +1,9 @@
  #!/usr/bin/env perl
  BEGIN {
@@ -934,8 +1115,8 @@ Index: tests/core-var-include.t
 Index: tests/mod-extforward.t
 ===================================================================
 --- tests/mod-extforward.t	(.../tags/lighttpd-1.4.18)	(revision 0)
-+++ tests/mod-extforward.t	(.../branches/lighttpd-1.4.x)	(revision 2060)
-@@ -0,0 +1,41 @@
++++ tests/mod-extforward.t	(.../branches/lighttpd-1.4.x)	(revision 2061)
+@@ -0,0 +1,48 @@
 +#!/usr/bin/env perl
 +BEGIN {
 +	# add current source dir to the include-path
@@ -946,7 +1127,7 @@ Index: tests/mod-extforward.t
 +
 +use strict;
 +use IO::Socket;
-+use Test::More tests => 2;
++use Test::More tests => 5;
 +use LightyTest;
 +
 +my $tf = LightyTest->new();
@@ -956,8 +1137,6 @@ Index: tests/mod-extforward.t
 +
 +ok($tf->start_proc == 0, "Starting lighttpd") or die();
 +
-+## check if If-Modified-Since, If-None-Match works
-+
 +$t->{REQUEST} = ( <<EOF
 +GET /ip.pl HTTP/1.0
 +Host: www.example.org
@@ -965,7 +1144,7 @@ Index: tests/mod-extforward.t
 +EOF
 +);
 +$t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 200, 'HTTP-Content' => '127.0.10.1' } ];
-+ok($tf->handle_http($t) == 0, 'expect 127.0.10.1');
++ok($tf->handle_http($t) == 0, 'expect 127.0.10.1, from single ip');
 +
 +$t->{REQUEST} = ( <<EOF
 +GET /ip.pl HTTP/1.0
@@ -974,7 +1153,16 @@ Index: tests/mod-extforward.t
 +EOF
 +);
 +$t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 200, 'HTTP-Content' => '127.0.20.1' } ];
-+ok($tf->handle_http($t) == 0, 'expect 127.0.20.1');
++ok($tf->handle_http($t) == 0, 'expect 127.0.20.1, from two ips');
++
++$t->{REQUEST} = ( <<EOF
++GET /ip.pl HTTP/1.0
++Host: www.example.org
++X-Forwarded-For: 127.0.10.1, 127.0.20.1, 127.0.30.1
++EOF
++);
++$t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 200, 'HTTP-Content' => '127.0.20.1' } ];
++ok($tf->handle_http($t) == 0, 'expect 127.0.20.1, from chained proxies');
 +
 +ok($tf->stop_proc == 0, "Stopping lighttpd");
 
@@ -985,8 +1173,8 @@ Name: svn:executable
 
 Index: tests/core-request.t
 ===================================================================
---- tests/core-request.t	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ tests/core-request.t	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- tests/core-request.t	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ tests/core-request.t	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -1,9 +1,9 @@
  #!/usr/bin/env perl
  BEGIN {
@@ -1003,8 +1191,8 @@ Index: tests/core-request.t
  use strict;
 Index: tests/mod-redirect.t
 ===================================================================
---- tests/mod-redirect.t	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ tests/mod-redirect.t	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- tests/mod-redirect.t	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ tests/mod-redirect.t	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -1,9 +1,9 @@
  #!/usr/bin/env perl
  BEGIN {
@@ -1021,8 +1209,8 @@ Index: tests/mod-redirect.t
  use strict;
 Index: tests/mod-cgi.t
 ===================================================================
---- tests/mod-cgi.t	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ tests/mod-cgi.t	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- tests/mod-cgi.t	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ tests/mod-cgi.t	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -1,9 +1,9 @@
  #!/usr/bin/env perl
  BEGIN {
@@ -1039,8 +1227,8 @@ Index: tests/mod-cgi.t
  use strict;
 Index: tests/mod-setenv.t
 ===================================================================
---- tests/mod-setenv.t	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ tests/mod-setenv.t	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- tests/mod-setenv.t	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ tests/mod-setenv.t	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -1,10 +1,9 @@
  #!/usr/bin/env perl
 -
@@ -1058,8 +1246,8 @@ Index: tests/mod-setenv.t
  use strict;
 Index: tests/cachable.t
 ===================================================================
---- tests/cachable.t	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ tests/cachable.t	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- tests/cachable.t	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ tests/cachable.t	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -1,9 +1,9 @@
  #!/usr/bin/env perl
  BEGIN {
@@ -1076,8 +1264,8 @@ Index: tests/cachable.t
  use strict;
 Index: tests/lowercase.t
 ===================================================================
---- tests/lowercase.t	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ tests/lowercase.t	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- tests/lowercase.t	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ tests/lowercase.t	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -1,9 +1,9 @@
  #!/usr/bin/env perl
  BEGIN {
@@ -1094,8 +1282,8 @@ Index: tests/lowercase.t
  use strict;
 Index: tests/core.t
 ===================================================================
---- tests/core.t	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ tests/core.t	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- tests/core.t	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ tests/core.t	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -1,10 +1,9 @@
  #!/usr/bin/env perl
 -
@@ -1113,8 +1301,8 @@ Index: tests/core.t
  use strict;
 Index: tests/mod-fastcgi.t
 ===================================================================
---- tests/mod-fastcgi.t	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ tests/mod-fastcgi.t	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- tests/mod-fastcgi.t	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ tests/mod-fastcgi.t	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -1,9 +1,9 @@
  #!/usr/bin/env perl
  BEGIN {
@@ -1131,8 +1319,8 @@ Index: tests/mod-fastcgi.t
  use strict;
 Index: tests/mod-rewrite.t
 ===================================================================
---- tests/mod-rewrite.t	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ tests/mod-rewrite.t	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- tests/mod-rewrite.t	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ tests/mod-rewrite.t	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -1,9 +1,9 @@
  #!/usr/bin/env perl
  BEGIN {
@@ -1150,11 +1338,19 @@ Index: tests/mod-rewrite.t
 Index: tests/docroot/www/ip.pl
 ===================================================================
 --- tests/docroot/www/ip.pl	(.../tags/lighttpd-1.4.18)	(revision 0)
-+++ tests/docroot/www/ip.pl	(.../branches/lighttpd-1.4.x)	(revision 2060)
-@@ -0,0 +1,5 @@
++++ tests/docroot/www/ip.pl	(.../branches/lighttpd-1.4.x)	(revision 2061)
+@@ -0,0 +1,13 @@
 +#!/usr/bin/perl
 +print "Content-Type: text/html\r\n\r\n";
 +print $ENV{'REMOTE_ADDR'};
++
++if ($ENV{'QUERY_STRING'} eq 'info') {
++	print "\nF:",$ENV{'HTTP_X_FORWARDED_FOR'},"\n";
++
++	while (my($key, $value) = each %ENV) {
++		printf "%s => %s\n", $key, $value;
++	}
++}
 +
 +0;
 
@@ -1165,8 +1361,8 @@ Name: svn:executable
 
 Index: tests/Makefile.am
 ===================================================================
---- tests/Makefile.am	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ tests/Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- tests/Makefile.am	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ tests/Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -31,14 +31,20 @@
        core-response.t \
        core-keepalive.t \
@@ -1205,8 +1401,8 @@ Index: tests/Makefile.am
  
 Index: tests/core-404-handler.t
 ===================================================================
---- tests/core-404-handler.t	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ tests/core-404-handler.t	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- tests/core-404-handler.t	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ tests/core-404-handler.t	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -10,10 +10,10 @@
  #   returning no status -> 200
  #
@@ -1224,8 +1420,8 @@ Index: tests/core-404-handler.t
  use strict;
 Index: tests/mod-compress.t
 ===================================================================
---- tests/mod-compress.t	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ tests/mod-compress.t	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- tests/mod-compress.t	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ tests/mod-compress.t	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -1,9 +1,9 @@
  #!/usr/bin/env perl
  BEGIN {
@@ -1242,8 +1438,8 @@ Index: tests/mod-compress.t
  use strict;
 Index: tests/mod-ssi.t
 ===================================================================
---- tests/mod-ssi.t	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ tests/mod-ssi.t	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- tests/mod-ssi.t	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ tests/mod-ssi.t	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -1,9 +1,9 @@
  #!/usr/bin/env perl
  BEGIN {
@@ -1260,8 +1456,8 @@ Index: tests/mod-ssi.t
  use strict;
 Index: tests/core-condition.t
 ===================================================================
---- tests/core-condition.t	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ tests/core-condition.t	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- tests/core-condition.t	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ tests/core-condition.t	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -1,9 +1,9 @@
  #!/usr/bin/env perl
  BEGIN {
@@ -1278,8 +1474,8 @@ Index: tests/core-condition.t
  use strict;
 Index: doc/configuration.txt
 ===================================================================
---- doc/configuration.txt	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ doc/configuration.txt	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- doc/configuration.txt	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ doc/configuration.txt	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -85,6 +85,8 @@
  
  $HTTP["cookie"]
@@ -1291,8 +1487,8 @@ Index: doc/configuration.txt
  $HTTP["useragent"]
 Index: doc/lighttpd.conf
 ===================================================================
---- doc/lighttpd.conf	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ doc/lighttpd.conf	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- doc/lighttpd.conf	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ doc/lighttpd.conf	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -72,6 +72,7 @@
    ".ogg"          =>      "application/ogg",
    ".wav"          =>      "audio/x-wav",
@@ -1305,8 +1501,8 @@ Index: SConstruct
 ===================================================================
 Index: Makefile.am
 ===================================================================
---- Makefile.am	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- Makefile.am	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -1,3 +1,3 @@
  SUBDIRS=src doc tests cygwin openwrt
  
@@ -1314,9 +1510,9 @@ Index: Makefile.am
 +EXTRA_DIST=lighttpd.spec autogen.sh SConstruct
 Index: NEWS
 ===================================================================
---- NEWS	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ NEWS	(.../branches/lighttpd-1.4.x)	(revision 2060)
-@@ -3,6 +3,24 @@
+--- NEWS	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ NEWS	(.../branches/lighttpd-1.4.x)	(revision 2061)
+@@ -3,6 +3,25 @@
  NEWS
  ====
  
@@ -1337,14 +1533,15 @@ Index: NEWS
 +  * HTTPS env var should be "on" when using mod_extforward and the X-Forwarded-Proto header is set. (#1499)
 +  * generate ETag and Last-Modified headers for mod_ssi based on newest modified include (#1491)
 +  * support letterhomes in mod_userdir (#1473)
++  * support chained proxies in mod_extforward (#1528)
 +
  - 1.4.18 - 2007-09-09
  
    * fixed compile error on IRIX 6.5.x on prctl() (#1333)
 Index: lighttpd.spec.in
 ===================================================================
---- lighttpd.spec.in	(.../tags/lighttpd-1.4.18)	(revision 2060)
-+++ lighttpd.spec.in	(.../branches/lighttpd-1.4.x)	(revision 2060)
+--- lighttpd.spec.in	(.../tags/lighttpd-1.4.18)	(revision 2061)
++++ lighttpd.spec.in	(.../branches/lighttpd-1.4.x)	(revision 2061)
 @@ -6,21 +6,19 @@
  Packager: Jan Kneschke <jan@kneschke.de>
  License: BSD
