@@ -6,6 +6,8 @@
 # - lighttpd writes early startup messages to stderr, and if started from
 #   rc-scripts the stderr is closed which causes lighttpd to abort():
 #   2006-07-20 21:05:52: (server.c.1233) WARNING: unknown config-key: url.rewrite-final (ignored)
+# - configfile-glue.c.169: (error) found deprecated key in 'fastcgi.server' = 'it is replaced by
+#   mod_proxy_core and mod_proxy_backend_fastcgi'
 #
 # NOTES:
 # - fcgi-devel is only used for the test-scripts
