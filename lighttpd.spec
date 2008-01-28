@@ -173,12 +173,12 @@ problems.
 %description -l pl.UTF-8
 lighttpd jest bezpiecznym, szybkim, przyjaznym i bardzo elastycznym
 serwerem WWW, który został zoptymalizowany pod kątem
-wysokowydajnościowych środowisk. Zajmuje bardzo małą ilość
-pamięci w porównaniu do innych serwerów WWW oraz dba o zajętość
-procesora. Szeroki zestaw opcji (FastCGI, CGI, uwierzytelnianie,
-kompresja wyjścia, przepisywanie URL-i i wiele innych) czynią z
-lighttpd doskonałe oprogramowanie web-serwerowe na każdy serwer
-cierpiący z powodu problemów z obciążeniem.
+wysokowydajnościowych środowisk. Zajmuje bardzo małą ilość pamięci w
+porównaniu do innych serwerów WWW oraz dba o zajętość procesora.
+Szeroki zestaw opcji (FastCGI, CGI, uwierzytelnianie, kompresja
+wyjścia, przepisywanie URL-i i wiele innych) czynią z lighttpd
+doskonałe oprogramowanie web-serwerowe na każdy serwer cierpiący z
+powodu problemów z obciążeniem.
 
 %package mod_access
 Summary:	lighttpd module for making access restrictions
@@ -269,9 +269,8 @@ side and building a page from its fragments on the other side using
 LUA.
 
 %description mod_cml -l pl.UTF-8
-CML to metajęzyk służący z jednej strony do opisu zależności
-strony i z drugiej strony do budowania strony z fragmentów przy
-użyciu LUA.
+CML to metajęzyk służący z jednej strony do opisu zależności strony i
+z drugiej strony do budowania strony z fragmentów przy użyciu LUA.
 
 %package mod_compress
 Summary:	lighttpd module for output compression
@@ -289,8 +288,8 @@ The server negotiates automatically which compression method is used.
 Supported are gzip, deflate, bzip.
 
 %description mod_compress -l pl.UTF-8
-Kompresja wyjścia zmniejsza obciążenie sieci i może poprawić
-całkowitą przepustowość serwera WWW.
+Kompresja wyjścia zmniejsza obciążenie sieci i może poprawić całkowitą
+przepustowość serwera WWW.
 
 Jak na razie obsługiwana jest tylko statyczna treść.
 
@@ -379,9 +378,9 @@ header which is added by Squid or other proxies. It might be useful
 for servers behind reverse proxy servers.
 
 %description mod_extforward -l pl.UTF-8
-Ten moduł wyciąga "prawdziwy" IP klienta z nagłówka
-X-Forwarded-For dodawanego przez Squida czy inne proxy. Może być
-przydatny dla serwerów stojących za odwrotnymi serwerami proxy.
+Ten moduł wyciąga "prawdziwy" IP klienta z nagłówka X-Forwarded-For
+dodawanego przez Squida czy inne proxy. Może być przydatny dla
+serwerów stojących za odwrotnymi serwerami proxy.
 
 %package mod_fastcgi
 Summary:	lighttpd module for FastCGI interface
@@ -447,8 +446,7 @@ Conflicts:	%{name}-mod_simple_vhost
 This module provides virtual hosts (vhosts) based on a MySQL table.
 
 %description mod_mysql_vhost -l pl.UTF-8
-Ten moduł udostępnia wirtualne hosty (vhosty) oparte na tabeli
-MySQL.
+Ten moduł udostępnia wirtualne hosty (vhosty) oparte na tabeli MySQL.
 
 %package mod_proxy
 Summary:	lighttpd module for proxying requests
@@ -461,8 +459,8 @@ The proxy module a simplest way to connect lighttpd to Java servers
 which have a HTTP-interface.
 
 %description mod_proxy -l pl.UTF-8
-Moduł proxy to najprostszy sposób łączenia lighttpd z serwerami
-Javy mającymi interfejs HTTP.
+Moduł proxy to najprostszy sposób łączenia lighttpd z serwerami Javy
+mającymi interfejs HTTP.
 
 %package mod_proxy_core
 Summary:	lighttpd module for proxying requests
@@ -478,8 +476,8 @@ which have a HTTP-interface.
 This is the new proxy code.
 
 %description mod_proxy_core -l pl.UTF-8
-Moduł proxy to najprostszy sposób łączenia lighttpd z serwerami
-Javy mającymi interfejs HTTP.
+Moduł proxy to najprostszy sposób łączenia lighttpd z serwerami Javy
+mającymi interfejs HTTP.
 
 Ten pakiet zawiera nowy moduł proxy.
 
@@ -539,8 +537,8 @@ This module allows you rewrite a set of URLs interally in the
 webserver BEFORE they are handled.
 
 %description mod_rewrite -l pl.UTF-8
-Ten moduł pozwala na przepisywanie zbioru URL-i wewnętrznie w
-serwerze WWW _przed_ ich obsługą.
+Ten moduł pozwala na przepisywanie zbioru URL-i wewnętrznie w serwerze
+WWW _przed_ ich obsługą.
 
 %package mod_rrdtool
 Summary:	lighttpd module for monitoring traffic and server load
@@ -557,12 +555,12 @@ With this module you can monitor the traffic and load on the
 webserver.
 
 %description mod_rrdtool -l pl.UTF-8
-RRD to system przechowywania i wyświetlania danych zależnych od
-czasu (np. obciążenia sieci, temperatury w serwerowni, średniego
-obciążenia serwera).
+RRD to system przechowywania i wyświetlania danych zależnych od czasu
+(np. obciążenia sieci, temperatury w serwerowni, średniego obciążenia
+serwera).
 
-Przy użyciu tego modułu można monitorować ruch i obciążenie
-serwera WWW.
+Przy użyciu tego modułu można monitorować ruch i obciążenie serwera
+WWW.
 
 %package mod_scgi
 Summary:	lighttpd module for SCGI interface
@@ -575,8 +573,8 @@ SCGI is a fast and simplified CGI interface. It is mostly used by
 Python + WSGI.
 
 %description mod_scgi -l pl.UTF-8
-SCGI to szybki i uproszczony interfejs CGI. Jest używany głównie
-przez Pythona z WSGI.
+SCGI to szybki i uproszczony interfejs CGI. Jest używany głównie przez
+Pythona z WSGI.
 
 %package mod_secdownload
 Summary:	lighttpd module for secure and fast downloading
@@ -589,9 +587,8 @@ With this module you can easily achieve authenticated file requests
 and a countermeasure against deep-linking.
 
 %description mod_secdownload -l pl.UTF-8
-Przy użyciu tego modułu można łatwo umożliwić ściąganie
-plików z uwierzytelnieniem i zapobiec używaniu bezpośrednich
-odnośników.
+Przy użyciu tego modułu można łatwo umożliwić ściąganie plików z
+uwierzytelnieniem i zapobiec używaniu bezpośrednich odnośników.
 
 %package mod_setenv
 Summary:	lighttpd module for setting conditional request headers
@@ -629,8 +626,8 @@ The module for server-side includes provides a compatability layer for
 NSCA/Apache SSI.
 
 %description mod_ssi -l pl.UTF-8
-Moduł server-side includes udostępnia warstwę kompatybilności z
-SSI znanym z NSCA/Apache'a.
+Moduł server-side includes udostępnia warstwę kompatybilności z SSI
+znanym z NSCA/Apache'a.
 
 %package mod_staticfile
 Summary:	lighttpd module for static file serving
@@ -734,7 +731,8 @@ zaimplementowane. Jak na razie są:
 - MKCOL
 - DELETE
 - PUT
-- LOCK (experimental) oraz zwykłe GET, POST, HEAD z HTTP/1.1.
+- LOCK (experimental)
+oraz zwykłe GET, POST, HEAD z HTTP/1.1.
 
 Jak na razie montowanie zasobu webdav pod Windows XP działa i
 podstawowe testy lakmusowe przechodzą.
