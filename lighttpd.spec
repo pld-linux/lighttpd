@@ -699,6 +699,7 @@ zaimplementowane. Jak na razie są:
 - DELETE
 - PUT
 - LOCK (experimental)
+
 oraz zwykłe GET, POST, HEAD z HTTP/1.1.
 
 Jak na razie montowanie zasobu webdav pod Windows XP działa i
