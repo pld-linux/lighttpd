@@ -39,7 +39,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		_rel 0.1
+%define		_rel 0.2
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -126,7 +126,7 @@ BuildRequires:	libuuid-devel
 %{?with_lua:BuildRequires:	lua51-devel}
 BuildRequires:	mailcap >= 2.1.14-4.4
 %{?with_mysql:BuildRequires:	mysql-devel}
-%{?with_ldap:BuildRequires:	openldap-devel}
+%{?with_ldap:BuildRequires:	openldap-devel >= 2.4.6}
 %{?with_ssl:BuildRequires:	openssl-devel}
 BuildRequires:	pcre-devel
 BuildRequires:	pkgconfig
@@ -153,6 +153,7 @@ Provides:	group(http)
 Provides:	group(lighttpd)
 Provides:	user(lighttpd)
 Provides:	webserver
+Conflicts:	logrotate < 3.7-4
 # for the posttrans scriptlet, conflicts because in vserver environment rpm package is not installed.
 Conflicts:	rpm < 4.4.2-0.2
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -793,6 +794,19 @@ lighttpd support for SSLv2 and SSLv3.
 %description ssl -l pl.UTF-8
 Obsługa SSLv2 i SSLv3 dla lighttpd.
 
+%package -n monit-rc-lighttpd
+Summary:	lighttpd support for monit
+Summary(pl.UTF-8):	Wsparcie lighttpd dla monit
+Group:		Applications/System
+Requires:	%{name} = %{version}-%{release}
+Requires:	monit
+
+%description -n monit-rc-lighttpd
+monitrc file for monitoring lighttpd web server.
+
+%description -n monit-rc-lighttpd -l pl.UTF-8
+Plik monitrc do monitorowania serwera www lighttpd.
+
 %prep
 %setup -q
 #%patch100 -p1
@@ -832,9 +846,10 @@ sh %{SOURCE6} /etc/mime.types
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d/init.d,sysconfig,monit}} \
 	$RPM_BUILD_ROOT%{_sysconfdir}/{conf,webapps}.d \
-	$RPM_BUILD_ROOT{/var/log/{%{name},archiv/%{name}},/var/run/%{name}} \
+	$RPM_BUILD_ROOT{/var/log/{%{name},archive/%{name}},/var/run/%{name}} \
 	$RPM_BUILD_ROOT%{_datadir}/lighttpd/errordocs \
-	$RPM_BUILD_ROOT/var/lib/lighttpd
+	$RPM_BUILD_ROOT/var/lib/lighttpd \
+	$RPM_BUILD_ROOT/var/cache/lighttpd/mod_compress
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
@@ -902,6 +917,8 @@ install %{SOURCE130} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/php-spawned.conf
 install %{SOURCE131} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/php-external.conf
 install %{SOURCE132} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/ssl.conf
 
+touch $RPM_BUILD_ROOT/var/lib/lighttpd/lighttpd.rrd
+
 %if %{without mysql}
 # avoid packaging dummy module
 rm -f $RPM_BUILD_ROOT%{_libdir}/mod_mysql_vhost.so
@@ -911,6 +928,8 @@ rm -f $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_mysql_vhost.conf
 %if %{without deflate}
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_deflate.conf
 %endif
+
+touch $RPM_BUILD_ROOT/var/log/%{name}/{access,error}.log
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -922,6 +941,13 @@ rm -rf $RPM_BUILD_ROOT
 %addusertogroup lighttpd http
 
 %post
+for a in access.log error.log; do
+	if [ ! -f /var/log/%{name}/$a ]; then
+		touch /var/log/%{name}/$a
+		chown lighttpd:lighttpd /var/log/%{name}/$a
+		chmod 644 /var/log/%{name}/$a
+	fi
+done
 /sbin/chkconfig --add %{name}
 
 %preun
@@ -991,7 +1017,18 @@ fi
 %module_scripts mod_proxy_core
 %module_scripts mod_redirect
 %module_scripts mod_rewrite
-%module_scripts mod_rrdtool
+
+%post mod_rrdtool
+if [ ! -f /var/lib/lighttpd/lighttpd.rrd ]; then
+	touch /var/lib/lighttpd/lighttpd.rrd
+	chown lighttpd:stats /var/lib/lighttpd/lighttpd.rrd
+	chmod 640 /var/lib/lighttpd/lighttpd.rrd
+fi
+%module_post
+
+%postun mod_rrdtool
+%module_postun
+
 %module_scripts mod_scgi
 %module_scripts mod_secdownload
 %module_scripts mod_setenv
@@ -1026,8 +1063,10 @@ EOF
 
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/%{name}
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/monit/%{name}.monitrc
-%attr(750,root,root) %dir /var/log/archiv/%{name}
-%dir %attr(770,root,lighttpd) /var/log/%{name}
+%attr(750,root,root) %dir /var/log/archive/%{name}
+%dir %attr(751,root,root) /var/log/%{name}
+%ghost %attr(644,lighttpd,lighttpd) /var/log/%{name}/access.log
+%ghost %attr(644,lighttpd,lighttpd) /var/log/%{name}/error.log
 %dir %attr(770,root,lighttpd) /var/run/%{name}
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
@@ -1045,6 +1084,9 @@ EOF
 
 # rrdtool database is stored there
 %dir %attr(771,root,lighttpd) /var/lib/lighttpd
+
+# mod_compress can put cached files there
+%dir /var/cache/lighttpd
 
 %files mod_access
 %defattr(644,root,root,755)
@@ -1115,12 +1157,12 @@ EOF
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_extforward.conf
 %attr(755,root,root) %{_libdir}/mod_extforward.so
+%endif
 
 %files mod_fastcgi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_fastcgi.conf
 %attr(755,root,root) %{_libdir}/mod_fastcgi.so
-%endif
 
 %files mod_flv_streaming
 %defattr(644,root,root,755)
@@ -1190,6 +1232,7 @@ EOF
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_rrdtool.conf
 %attr(755,root,root) %{_libdir}/mod_rrdtool.so
+%ghost %attr(640,lighttpd,stats) /var/lib/lighttpd/lighttpd.rrd
 
 %if 0
 %files mod_scgi
@@ -1269,3 +1312,7 @@ EOF
 %files ssl
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/ssl.conf
+
+%files -n monit-rc-lighttpd
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/monit/%{name}.monitrc
