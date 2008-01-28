@@ -118,6 +118,7 @@ BuildRequires:	bzip2-devel
 %{?with_gamin:BuildRequires:	gamin-devel}
 %{?with_gdbm:BuildRequires:	gdbm-devel}
 BuildRequires:	glib2-devel
+%{?with_linux_aio:BuildRequires:	libaio-devel}
 %{?with_memcache:BuildRequires:	libmemcache-devel}
 BuildRequires:	libtool
 BuildRequires:	libuuid-devel
@@ -133,7 +134,6 @@ BuildRequires:	rpmbuild(macros) >= 1.268
 %{?with_webdav_props:BuildRequires:	sqlite3-devel}
 %{?with_valgrind:BuildRequires:	valgrind}
 BuildRequires:	zlib-devel
-%{?with_linux_aio:BuildRequires:	libaio-devel}
 Requires(post,preun):	/sbin/chkconfig
 Requires(postun):	/usr/sbin/groupdel
 Requires(postun):	/usr/sbin/userdel
@@ -146,9 +146,9 @@ Requires(pre):	/usr/sbin/usermod
 Requires:	%{name}-mod_dirlisting
 Requires:	%{name}-mod_indexfile
 Requires:	%{name}-mod_staticfile
+Requires:	libaio
 Requires:	rc-scripts
 Requires:	webapps
-Requires:	libaio
 Provides:	group(http)
 Provides:	group(lighttpd)
 Provides:	user(lighttpd)
