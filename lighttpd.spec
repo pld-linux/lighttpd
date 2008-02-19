@@ -138,9 +138,9 @@ Requires(pre):	/usr/lib/rpm/user_group.sh
 Requires(pre):	/usr/sbin/groupadd
 Requires(pre):	/usr/sbin/useradd
 Requires(pre):	/usr/sbin/usermod
-Requires:	%{name}-mod_dirlisting
-Requires:	%{name}-mod_indexfile
-Requires:	%{name}-mod_staticfile
+Requires:	%{name}-mod_dirlisting = %{version}-%{release}
+Requires:	%{name}-mod_indexfile = %{version}-%{release}
+Requires:	%{name}-mod_staticfile = %{version}-%{release}
 Requires:	rc-scripts
 Requires:	webapps
 Provides:	group(http)
