@@ -1,0 +1,11 @@
+--- lighttpd-1.4.18/src/mod_fastcgi.c~	2008-03-07 12:34:01.000000000 +0200
++++ lighttpd-1.4.18/src/mod_fastcgi.c	2008-03-07 12:34:04.082702348 +0200
+@@ -2352,7 +2352,7 @@
+ 		/* no header */
+ 		buffer_free(packet->b);
+ 
+-		log_error_write(srv, __FILE__, __LINE__, "s", "FastCGI: header too small");
++		log_error_write(srv, __FILE__, __LINE__, "sdsds", "FastCGI: header too small (", packet->b->used, " bytes < ", sizeof(FCGI_Header), " bytes)");
+ 		return -1;
+ 	}
+ 

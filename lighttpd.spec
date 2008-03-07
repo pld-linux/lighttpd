@@ -105,6 +105,7 @@ Patch0:		%{name}-use_bin_sh.patch
 Patch1:		%{name}-mod_evasive-status_code.patch
 Patch2:		%{name}-mod_h264_streaming.patch
 Patch3:		%{name}-branding.patch
+Patch4:		%{name}-fcgi-verbose.patch
 #Patchx:	%{name}-mod_deflate.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
@@ -780,6 +781,7 @@ Plik monitrc do monitorowania serwera www lighttpd.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 
 # build mime.types.conf
 sh %{SOURCE6} /etc/mime.types
