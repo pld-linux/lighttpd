@@ -1,11 +1,11 @@
---- lighttpd-1.4.18/src/response.c~	2007-11-18 23:35:26.000000000 +0200
-+++ lighttpd-1.4.18/src/response.c	2007-11-18 23:41:29.442541855 +0200
-@@ -98,7 +98,7 @@
+--- lighttpd-1.4.19/src/response.c~	2008-04-10 21:33:53.255875588 +0300
++++ lighttpd-1.4.19/src/response.c	2008-04-10 21:34:21.149289502 +0300
+@@ -100,7 +100,7 @@
  
  	if (!have_server) {
  		if (buffer_is_empty(con->conf.server_tag)) {
 -			BUFFER_APPEND_STRING_CONST(b, "\r\nServer: " PACKAGE_NAME "/" PACKAGE_VERSION);
 +			BUFFER_APPEND_STRING_CONST(b, "\r\nServer: " PACKAGE_NAME "/" PACKAGE_VERSION " (PLD Linux)");
- 		} else {
+ 		} else if (con->conf.server_tag->used > 1) {
  			BUFFER_APPEND_STRING_CONST(b, "\r\nServer: ");
  			buffer_append_string_encoded(b, CONST_BUF_LEN(con->conf.server_tag), ENCODING_HTTP_HEADER);
