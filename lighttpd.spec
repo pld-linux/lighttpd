@@ -37,7 +37,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		rel 4
+%define		rel 5
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -239,6 +239,7 @@ Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-mod_alias = %{version}-%{release}
 Provides:	webserver(cgi)
+Provides:	webserver(php)
 
 %description mod_cgi
 The cgi module provides a CGI-conforming interface.
