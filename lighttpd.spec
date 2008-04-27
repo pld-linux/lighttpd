@@ -240,6 +240,7 @@ Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-mod_alias = %{version}-%{release}
 Provides:	webserver(cgi)
 Provides:	webserver(php)
+Suggests:	php-cgi
 
 %description mod_cgi
 The cgi module provides a CGI-conforming interface.
