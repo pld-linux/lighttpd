@@ -100,6 +100,7 @@ Source133:	%{name}-mod_mysql_vhost.conf
 Source134:	%{name}-mod_magnet.conf
 Source135:	%{name}-mod_extforward.conf
 Source136:	%{name}-mod_h264_streaming.conf
+Source137:	%{name}-mod_cgi_php.conf
 Patch100:	%{name}-branch.diff
 Patch0:		%{name}-use_bin_sh.patch
 Patch1:		%{name}-mod_evasive-status_code.patch
@@ -239,8 +240,6 @@ Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-mod_alias = %{version}-%{release}
 Provides:	webserver(cgi)
-Provides:	webserver(php)
-Suggests:	php-cgi
 
 %description mod_cgi
 The cgi module provides a CGI-conforming interface.
@@ -250,6 +249,26 @@ very straight and simple way.
 
 %description mod_cgi -l pl.UTF-8
 Moduł cgi udostępnia interfejs zgodny z CGI.
+
+Programy CGI pozwalają rozszerzać funkcjonalność serwera w bardzo
+prosty i naturalny sposób.
+
+%package mod_cgi_php
+Summary:	lighttpd module for CGI handling PHP scripts
+Summary(pl.UTF-8):	Moduł lighttpd do obsługi skryptów PHP przez CGI
+Group:		Networking/Daemons
+Requires:	%{name}-mod_cgi = %{version}-%{release}
+Provides:	webserver(php)
+Requires:	php-cgi
+
+%description mod_cgi_php
+The cgi module provides a CGI-conforming interface for PHP scripts.
+
+CGI programs allow you to enhance the functionality of the server in a
+very straight and simple way.
+
+%description mod_cgi_php -l pl.UTF-8
+Moduł cgi udostępnia interfejs zgodny z CGI do wywoływania skryptów PHP.
 
 Programy CGI pozwalają rozszerzać funkcjonalność serwera w bardzo
 prosty i naturalny sposób.
@@ -849,6 +868,7 @@ install %{SOURCE100} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_access.conf
 install %{SOURCE102} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_alias.conf
 install %{SOURCE103} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_auth.conf
 install %{SOURCE104} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_cgi.conf
+install %{SOURCE137} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_cgi_php.conf
 install %{SOURCE105} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_cml.conf
 install %{SOURCE106} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_compress.conf
 install %{SOURCE107} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_deflate.conf
@@ -1075,6 +1095,10 @@ fi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_cgi.conf
 %attr(755,root,root) %{_libdir}/mod_cgi.so
+
+%files mod_cgi_php
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_cgi_php.conf
 
 %files mod_cml
 %defattr(644,root,root,755)
