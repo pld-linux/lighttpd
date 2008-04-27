@@ -259,7 +259,7 @@ Summary(pl.UTF-8):	Moduł lighttpd do obsługi skryptów PHP przez CGI
 Group:		Networking/Daemons
 Requires:	%{name}-mod_cgi = %{version}-%{release}
 Provides:	webserver(php)
-Requires:	php-cgi
+Requires:	php(cgi)
 
 %description mod_cgi_php
 The cgi module provides a CGI-conforming interface for PHP scripts.
