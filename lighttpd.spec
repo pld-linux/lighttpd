@@ -1,5 +1,5 @@
 # TODO:
-# - test ldap and mysql (failed at this time)
+# - test mysql (failed at this time)
 # - mysql issue: http://www.freebsd.org/cgi/query-pr.cgi?pr=76866
 # - fam over gamin is possible, just configure doesn't check other than gamin
 # - feature stat-cache-fam (doesn't work)
@@ -17,7 +17,7 @@
 %bcond_without	largefile	# largefile support (see notes above)
 %bcond_without	ssl		# ssl support
 %bcond_without	mysql		# mysql support in mod_mysql_vhost
-%bcond_with	ldap		# ldap support in mod_auth
+%bcond_without	ldap		# ldap support in mod_auth
 %bcond_without	lua		# LUA support in mod_cml (needs LUA >= 5.1)
 %bcond_with	memcache	# memcached support in mod_cml / mod_trigger_b4_dl
 %bcond_with	gamin		# gamin for reducing number of stat() calls.
@@ -37,7 +37,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		rel 5
+%define		rel 6
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -122,7 +122,7 @@ BuildRequires:	libuuid-devel
 %{?with_lua:BuildRequires:	lua51-devel}
 BuildRequires:	mailcap >= 2.1.14-4.4
 %{?with_mysql:BuildRequires:	mysql-devel}
-%{?with_ldap:BuildRequires:	openldap-devel >= 2.4.6}
+%{?with_ldap:BuildRequires:	openldap-devel}
 %{?with_ssl:BuildRequires:	openssl-devel}
 BuildRequires:	pcre-devel
 BuildRequires:	pkgconfig
