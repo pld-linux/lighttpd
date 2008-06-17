@@ -37,7 +37,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		rel 6
+%define		rel 6.1
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -63,6 +63,7 @@ Source10:	http://gdl.hopto.org/~spider/pldstats/gfx/pld1.png
 # Source10-md5:	486ecec3f6f4fe7f9bf7cee757b864f4
 Source11:	%{name}-pld.html
 Source12:	%{name}.monitrc
+Source13:	%{name}-branch.sh
 Source100:	%{name}-mod_access.conf
 Source101:	%{name}-mod_accesslog.conf
 Source102:	%{name}-mod_alias.conf
@@ -106,6 +107,7 @@ Patch0:		%{name}-use_bin_sh.patch
 Patch1:		%{name}-mod_evasive-status_code.patch
 Patch2:		%{name}-mod_h264_streaming.patch
 Patch3:		%{name}-branding.patch
+Patch4:		%{name}-modinit-before-fork.patch
 #Patchx:	%{name}-mod_deflate.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
@@ -797,10 +799,13 @@ Plik monitrc do monitorowania serwera www lighttpd.
 %prep
 %setup -q
 %patch100 -p0
+%patch4 -p0
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+
+rm -f src/mod_ssi_exprparser.h # bad patching: should be removed by is emptied instead
 
 # build mime.types.conf
 sh %{SOURCE6} /etc/mime.types
@@ -827,7 +832,8 @@ sh %{SOURCE6} /etc/mime.types
 	%{?with_gamin:--with-gamin} \
 	%{?with_gdbm:--with-gdbm}
 
-%{__make}
+# -j1 as src/mod_ssi_exprparser.h regeneration deps are broken
+%{__make} -j1
 
 %install
 rm -rf $RPM_BUILD_ROOT
