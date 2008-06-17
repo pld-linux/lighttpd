@@ -1,9 +1,114 @@
+Index: lighttpd.spec.in
+===================================================================
+--- lighttpd.spec.in	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ lighttpd.spec.in	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -1,83 +0,0 @@
+-Summary: A fast webserver with minimal memory-footprint (lighttpd)
+-Name: lighttpd
+-Version: @VERSION@
+-Release: 1
+-Source: http://jan.kneschke.de/projects/lighttpd/download/lighttpd-%version.tar.gz
+-Packager: Jan Kneschke <jan@kneschke.de>
+-License: BSD
+-Group: Networking/Daemons
+-URL: http://www.lighttpd.net/
+-Requires: pcre >= 3.1 zlib
+-BuildRequires: libtool zlib-devel
+-BuildRoot: %{_tmppath}/%{name}-root
+-
+-%description
+-lighttpd is intented to be a frontend for ad-servers which have to deliver
+-small files concurrently to many connections.
+-
+-Available rpmbuild rebuild options:
+---with: ssl mysql lua memcache
+-
+-%prep
+-%setup -q
+-
+-%build
+-rm -rf %{buildroot}
+-%configure \
+-    %{?_with_mysql:       --with-mysql} \
+-    %{?_with_lua:         --with-lua} \
+-    %{?_with_memcache:    --with-memcache} \
+-    %{?_with_ssl:         --with-openssl}
+-make
+-
+-%install
+-%makeinstall
+-
+-mkdir -p %{buildroot}%{_sysconfdir}/{init.d,sysconfig}
+-if [ -f /etc/redhat-release -o -f /etc/fedora-release ]; then
+-	install -m 755 doc/rc.lighttpd.redhat %{buildroot}%{_sysconfdir}/init.d/lighttpd
+-else
+-	install -m 755 doc/rc.lighttpd %{buildroot}%{_sysconfdir}/init.d/lighttpd
+-fi
+-install -m 644 doc/sysconfig.lighttpd %{buildroot}%{_sysconfdir}/sysconfig/lighttpd
+-
+-%clean
+-rm -rf %{buildroot}
+-
+-%post
+-## read http://www.fedora.us/docs/spec.html next time :)
+-if [ "$1" = "1" ]; then
+-	# real install, not upgrade
+-	/sbin/chkconfig --add lighttpd
+-fi
+-
+-%preun
+-if [ "$1" = "0"]; then
+-	# real uninstall, not upgrade
+-	%{_sysconfdir}/init.d/lighttpd stop
+-	/sbin/chkconfig --del lighttpd
+-fi
+-
+-%files
+-%defattr(-,root,root)
+-%doc doc/lighttpd.conf doc/lighttpd.user README INSTALL ChangeLog COPYING AUTHORS
+-%doc doc/*.txt
+-%config(noreplace) %attr(0755,root,root) %{_sysconfdir}/init.d/lighttpd
+-%config(noreplace) %attr(0644,root,root) %{_sysconfdir}/sysconfig/lighttpd
+-%{_mandir}/*
+-%{_libdir}/*
+-%{_sbindir}/*
+-%{_bindir}/*
+-
+-%changelog
+-* Thu Sep 30 2004 12:41 <jan@kneschke.de> 1.3.1
+-- upgraded to 1.3.1
+-
+-* Tue Jun 29 2004 17:26 <jan@kneschke.de> 1.2.3
+-- rpmlint'ed the package
+-- added URL
+-- added (noreplace) to start-script
+-- change group to Networking/Daemon (like apache)
+-
+-* Sun Feb 23 2003 15:04 <jan@kneschke.de>
+-- initial version
 Index: configure.in
 ===================================================================
+Index: src/mod_ssi_exprparser.h
+===================================================================
+--- src/mod_ssi_exprparser.h	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/mod_ssi_exprparser.h	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -1,12 +0,0 @@
+-#define TK_AND                             1
+-#define TK_OR                              2
+-#define TK_EQ                              3
+-#define TK_NE                              4
+-#define TK_GT                              5
+-#define TK_GE                              6
+-#define TK_LT                              7
+-#define TK_LE                              8
+-#define TK_NOT                             9
+-#define TK_LPARAN                         10
+-#define TK_RPARAN                         11
+-#define TK_VALUE                          12
 Index: src/configfile-glue.c
 ===================================================================
---- src/configfile-glue.c	(.../tags/lighttpd-1.4.19)	(revision 2145)
-+++ src/configfile-glue.c	(.../branches/lighttpd-1.4.x)	(revision 2145)
+--- src/configfile-glue.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/configfile-glue.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
 @@ -529,7 +529,7 @@
  int config_append_cond_match_buffer(connection *con, data_config *dc, buffer *buf, int n)
  {
@@ -13,10 +118,138 @@ Index: src/configfile-glue.c
  		return 0;
  	}
  
+Index: src/mod_cgi.c
+===================================================================
+--- src/mod_cgi.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/mod_cgi.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -987,6 +987,8 @@
+ 			*c = '/';
+ 		}
+ 
++		openDevNull(STDERR_FILENO);
++
+ 		/* we don't need the client socket */
+ 		for (i = 3; i < 256; i++) {
+ 			if (i != srv->errorlog_fd) close(i);
+@@ -995,7 +997,7 @@
+ 		/* exec the cgi */
+ 		execve(args[0], args, env.ptr);
+ 
+-		log_error_write(srv, __FILE__, __LINE__, "sss", "CGI failed:", strerror(errno), args[0]);
++		/* log_error_write(srv, __FILE__, __LINE__, "sss", "CGI failed:", strerror(errno), args[0]); */
+ 
+ 		/* */
+ 		SEGFAULT();
+@@ -1058,8 +1060,9 @@
+ 						switch(errno) {
+ 						case ENOSPC:
+ 							con->http_status = 507;
+-
+ 							break;
++						case EINTR:
++							continue;
+ 						default:
+ 							con->http_status = 403;
+ 							break;
+@@ -1071,8 +1074,9 @@
+ 						switch(errno) {
+ 						case ENOSPC:
+ 							con->http_status = 507;
+-
+ 							break;
++						case EINTR:
++							continue;
+ 						default:
+ 							con->http_status = 403;
+ 							break;
+@@ -1087,6 +1091,8 @@
+ 					c->offset += r;
+ 					cq->bytes_out += r;
+ 				} else {
++					log_error_write(srv, __FILE__, __LINE__, "ss", "write() failed due to: ", strerror(errno)); 
++					con->http_status = 500;
+ 					break;
+ 				}
+ 				chunkqueue_remove_finished_chunks(cq);
+Index: src/mod_rewrite.c
+===================================================================
+--- src/mod_rewrite.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/mod_rewrite.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -385,8 +385,7 @@
+ 
+ 			start = 0; end = pattern_len;
+ 			for (k = 0; k < pattern_len; k++) {
+-				if ((pattern[k] == '$' || pattern[k] == '%') &&
+-				    isdigit((unsigned char)pattern[k + 1])) {
++				if (pattern[k] == '$' || pattern[k] == '%') {
+ 					/* got one */
+ 
+ 					size_t num = pattern[k + 1] - '0';
+@@ -395,7 +394,10 @@
+ 
+ 					buffer_append_string_len(con->request.uri, pattern + start, end - start);
+ 
+-					if (pattern[k] == '$') {
++					if (!isdigit((unsigned char)pattern[k + 1])) {
++						/* enable escape: "%%" => "%", "%a" => "%a", "$$" => "$" */
++						buffer_append_string_len(con->request.uri, pattern+k, pattern[k] == pattern[k+1] ? 1 : 2);
++					} else if (pattern[k] == '$') {
+ 						/* n is always > 0 */
+ 						if (num < (size_t)n) {
+ 							buffer_append_string(con->request.uri, list[num]);
+Index: src/lempar.c
+===================================================================
+--- src/lempar.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/lempar.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -210,7 +210,7 @@
+ */
+ const char *ParseTokenName(int tokenType){
+ #ifndef NDEBUG
+-  if( tokenType>0 && tokenType<(sizeof(yyTokenName)/sizeof(yyTokenName[0])) ){
++  if( tokenType>0 && (size_t)tokenType<(sizeof(yyTokenName)/sizeof(yyTokenName[0])) ){
+     return yyTokenName[tokenType];
+   }else{
+     return "Unknown";
+@@ -335,7 +335,7 @@
+     return YY_NO_ACTION;
+   }
+   i += iLookAhead;
+-  if( i<0 || i>=YY_SZ_ACTTAB || yy_lookahead[i]!=iLookAhead ){
++  if( i<0 || (size_t)i>=YY_SZ_ACTTAB || yy_lookahead[i]!=iLookAhead ){
+ #ifdef YYFALLBACK
+     int iFallback;            /* Fallback token */
+     if( iLookAhead<sizeof(yyFallback)/sizeof(yyFallback[0])
+@@ -378,7 +378,7 @@
+     return YY_NO_ACTION;
+   }
+   i += iLookAhead;
+-  if( i<0 || i>=YY_SZ_ACTTAB || yy_lookahead[i]!=iLookAhead ){
++  if( i<0 || (size_t)i>=YY_SZ_ACTTAB || yy_lookahead[i]!=iLookAhead ){
+     return yy_default[stateno];
+   }else{
+     return yy_action[i];
+@@ -456,7 +456,7 @@
+   yymsp = &yypParser->yystack[yypParser->yyidx];
+ #ifndef NDEBUG
+   if( yyTraceFILE && yyruleno>=0
+-        && yyruleno<sizeof(yyRuleName)/sizeof(yyRuleName[0]) ){
++        && (size_t)yyruleno<sizeof(yyRuleName)/sizeof(yyRuleName[0]) ){
+     fprintf(yyTraceFILE, "%sReduce [%s].\n", yyTracePrompt,
+       yyRuleName[yyruleno]);
+   }
+@@ -511,6 +511,8 @@
+   int yymajor,                   /* The major type of the error token */
+   YYMINORTYPE yyminor            /* The minor type of the error token */
+ ){
++  UNUSED(yymajor);
++  UNUSED(yyminor);
+   ParseARG_FETCH;
+ #define TOKEN (yyminor.yy0)
+ %%
 Index: src/connections.c
 ===================================================================
---- src/connections.c	(.../tags/lighttpd-1.4.19)	(revision 2145)
-+++ src/connections.c	(.../branches/lighttpd-1.4.x)	(revision 2145)
+--- src/connections.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/connections.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
 @@ -199,6 +199,7 @@
  
  	/* don't resize the buffer if we were in SSL_ERROR_WANT_* */
@@ -25,7 +258,111 @@ Index: src/connections.c
  	do {
  		if (!con->ssl_error_want_reuse_buffer) {
  			b = buffer_init();
-@@ -1668,21 +1669,51 @@
+@@ -299,6 +300,8 @@
+ 
+ 	return 0;
+ #else
++	UNUSED(srv);
++	UNUSED(con);
+ 	return -1;
+ #endif
+ }
+@@ -427,21 +430,22 @@
+ 	}
+ 
+ 	switch(con->http_status) {
+-	case 400: /* class: header + custom body */
+-	case 401:
+-	case 403:
+-	case 404:
+-	case 408:
+-	case 409:
+-	case 411:
+-	case 416:
+-	case 423:
+-	case 500:
+-	case 501:
+-	case 503:
+-	case 505:
++	case 204: /* class: header only */
++	case 205:
++	case 304:
++		/* disable chunked encoding again as we have no body */
++		con->response.transfer_encoding &= ~HTTP_TRANSFER_ENCODING_CHUNKED;
++		con->parsed_response &= ~HTTP_CONTENT_LENGTH;
++		chunkqueue_reset(con->write_queue);
++
++		con->file_finished = 1;
++		break;
++	default: /* class: header + body */
+ 		if (con->mode != DIRECT) break;
+ 
++		/* only custom body for 4xx and 5xx */
++		if (con->http_status < 400 || con->http_status >= 600) break;
++
+ 		con->file_finished = 0;
+ 
+ 		buffer_reset(con->physical.path);
+@@ -451,7 +455,8 @@
+ 			stat_cache_entry *sce = NULL;
+ 
+ 			buffer_copy_string_buffer(con->physical.path, con->conf.errorfile_prefix);
+-			buffer_append_string(con->physical.path, get_http_status_body_name(con->http_status));
++			buffer_append_long(con->physical.path, con->http_status);
++			buffer_append_string_len(con->physical.path, CONST_STR_LEN(".html"));
+ 
+ 			if (HANDLER_ERROR != stat_cache_get_entry(srv, con, con->physical.path, &sce)) {
+ 				con->file_finished = 1;
+@@ -497,30 +502,7 @@
+ 
+ 			response_header_overwrite(srv, con, CONST_STR_LEN("Content-Type"), CONST_STR_LEN("text/html"));
+ 		}
+-		/* fall through */
+-	case 207:
+-	case 200: /* class: header + body */
+-	case 201:
+-	case 300:
+-	case 301:
+-	case 302:
+-	case 303:
+-	case 307:
+ 		break;
+-
+-	case 206: /* write_queue is already prepared */
+-		break;
+-	case 204:
+-	case 205: /* class: header only */
+-	case 304:
+-	default:
+-		/* disable chunked encoding again as we have no body */
+-		con->response.transfer_encoding &= ~HTTP_TRANSFER_ENCODING_CHUNKED;
+-		con->parsed_response &= ~HTTP_CONTENT_LENGTH;
+-		chunkqueue_reset(con->write_queue);
+-
+-		con->file_finished = 1;
+-		break;
+ 	}
+ 
+ 	if (con->file_finished) {
+@@ -544,7 +526,7 @@
+ 				data_string *ds;
+ 				/* no Content-Body, no Content-Length */
+ 				if (NULL != (ds = (data_string*) array_get_element(con->response.headers, "Content-Length"))) {
+-					buffer_reset(ds->value); // Headers with empty values are ignored for output
++					buffer_reset(ds->value); /* Headers with empty values are ignored for output */
+ 				}
+ 			} else if (qlen > 0 || con->request.http_method != HTTP_METHOD_HEAD) {
+ 				/* qlen = 0 is important for Redirects (301, ...) as they MAY have
+@@ -846,7 +828,7 @@
+ 	}
+ 
+ 	/* The cond_cache gets reset in response.c */
+-//	config_cond_cache_reset(srv, con);
++	/* config_cond_cache_reset(srv, con); */
+ 
+ #ifdef USE_OPENSSL
+ 	if (con->ssl_error_want_reuse_buffer) {
+@@ -1668,21 +1650,51 @@
  			}
  #ifdef USE_OPENSSL
  			if (srv_sock->is_ssl) {
@@ -84,10 +421,510 @@ Index: src/connections.c
  #endif
  
  			switch(con->mode) {
+Index: src/configfile.c
+===================================================================
+--- src/configfile.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/configfile.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -7,6 +7,7 @@
+ #include <string.h>
+ #include <stdio.h>
+ #include <ctype.h>
++#include <limits.h>
+ #include <assert.h>
+ 
+ #include "server.h"
+@@ -305,9 +306,6 @@
+ 		data_config *dc = (data_config *)srv->config_context->data[i];
+ 		specific_config *s = srv->config_storage[i];
+ 
+-		/* not our stage */
+-		if (comp != dc->comp) continue;
+-
+ 		/* condition didn't match */
+ 		if (!config_check_cond(srv, con, dc)) continue;
+ 
+@@ -410,8 +408,8 @@
+ 
+ #if 0
+ static int tokenizer_open(server *srv, tokenizer_t *t, buffer *basedir, const char *fn) {
+-	if (buffer_is_empty(basedir) &&
+-			(fn[0] == '/' || fn[0] == '\\') &&
++	if (buffer_is_empty(basedir) ||
++			(fn[0] == '/' || fn[0] == '\\') ||
+ 			(fn[0] == '.' && (fn[1] == '/' || fn[1] == '\\'))) {
+ 		t->file = buffer_init_string(fn);
+ 	} else {
+@@ -884,8 +882,8 @@
+ 	int ret;
+ 	buffer *filename;
+ 
+-	if (buffer_is_empty(context->basedir) &&
+-			(fn[0] == '/' || fn[0] == '\\') &&
++	if (buffer_is_empty(context->basedir) ||
++			(fn[0] == '/' || fn[0] == '\\') ||
+ 			(fn[0] == '.' && (fn[1] == '/' || fn[1] == '\\'))) {
+ 		filename = buffer_init_string(fn);
+ 	} else {
+@@ -912,15 +910,39 @@
+ 	return ret;
+ }
+ 
++static char* getCWD() {
++	char *s, *s1;
++	size_t len;
++#ifdef PATH_MAX
++	len = PATH_MAX;
++#else
++	len = 4096;
++#endif
++
++	s = malloc(len);
++	if (!s) return NULL;
++	while (NULL == getcwd(s, len)) {
++		if (errno != ERANGE || SSIZE_MAX - len < len) return NULL;
++		len *= 2;
++		s1 = realloc(s, len);
++		if (!s1) {
++			free(s);
++			return NULL;
++		}
++		s = s1;
++	}
++	return s;
++}
++
+ int config_parse_cmd(server *srv, config_t *context, const char *cmd) {
+ 	proc_handler_t proc;
+ 	tokenizer_t t;
+ 	int ret;
+ 	buffer *source;
+ 	buffer *out;
+-	char oldpwd[PATH_MAX];
++	char *oldpwd;
+ 
+-	if (NULL == getcwd(oldpwd, sizeof(oldpwd))) {
++	if (NULL == (oldpwd = getCWD())) {
+ 		log_error_write(srv, __FILE__, __LINE__, "s",
+ 				"cannot get cwd", strerror(errno));
+ 		return -1;
+@@ -945,6 +967,7 @@
+ 	buffer_free(source);
+ 	buffer_free(out);
+ 	chdir(oldpwd);
++	free(oldpwd);
+ 	return ret;
+ }
+ 
+Index: src/lemon.c
+===================================================================
+--- src/lemon.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/lemon.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -12,6 +12,19 @@
+ #include <ctype.h>
+ #include <stdlib.h>
+ 
++#ifdef HAVE_CONFIG_H
++#include "config.h"
++#endif
++
++#ifdef HAVE_STDINT_H
++# include <stdint.h>
++#endif
++#ifdef HAVE_INTTYPES_H
++# include <inttypes.h>
++#endif
++
++#define UNUSED(x) ( (void)(x) )
++
+ extern void qsort();
+ extern double strtod();
+ extern long strtol();
+@@ -983,6 +996,7 @@
+ {
+   struct symbol *spx, *spy;
+   int errcnt = 0;
++  UNUSED(errsym);
+   assert( apx->sp==apy->sp );  /* Otherwise there would be no conflict */
+   if( apx->type==SHIFT && apy->type==REDUCE ){
+     spx = apx->sp;
+@@ -1347,6 +1361,7 @@
+   struct lemon lem;
+   char *def_tmpl_name = "lempar.c";
+ 
++  UNUSED(argc);
+   OptInit(argv,options,stderr);
+   if( version ){
+      printf("Lemon version 1.0\n");
+@@ -1651,7 +1666,7 @@
+   }else if( op[j].type==OPT_FLAG ){
+     *((int*)op[j].arg) = v;
+   }else if( op[j].type==OPT_FFLAG ){
+-    (*(void(*)())(op[j].arg))(v);
++    (*(void(*)())(intptr_t)(op[j].arg))(v);
+   }else{
+     if( err ){
+       fprintf(err,"%smissing argument on switch.\n",emsg);
+@@ -1733,19 +1748,19 @@
+         *(double*)(op[j].arg) = dv;
+         break;
+       case OPT_FDBL:
+-        (*(void(*)())(op[j].arg))(dv);
++        (*(void(*)())(intptr_t)(op[j].arg))(dv);
+         break;
+       case OPT_INT:
+         *(int*)(op[j].arg) = lv;
+         break;
+       case OPT_FINT:
+-        (*(void(*)())(op[j].arg))((int)lv);
++        (*(void(*)())(intptr_t)(op[j].arg))((int)lv);
+         break;
+       case OPT_STR:
+         *(char**)(op[j].arg) = sv;
+         break;
+       case OPT_FSTR:
+-        (*(void(*)())(op[j].arg))(sv);
++        (*(void(*)())(intptr_t)(op[j].arg))(sv);
+         break;
+     }
+   }
+@@ -2286,10 +2301,10 @@
+ ** token is passed to the function "parseonetoken" which builds all
+ ** the appropriate data structures in the global state vector "gp".
+ */
++struct pstate ps;
+ void Parse(gp)
+ struct lemon *gp;
+ {
+-  struct pstate ps;
+   FILE *fp;
+   char *filebuf;
+   size_t filesize;
+Index: src/mod_scgi.c
+===================================================================
+--- src/mod_scgi.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/mod_scgi.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -202,6 +202,15 @@
+ 	 *
+ 	 */
+ 
++	/*
++	 * workaround for program when prefix="/"
++	 *
++	 * rule to build PATH_INFO is hardcoded for when check_local is disabled
++	 * enable this option to use the workaround
++	 *
++	 */
++
++	unsigned short fix_root_path_name;
+ 	ssize_t load; /* replace by host->load */
+ 
+ 	size_t max_id; /* corresponds most of the time to
+@@ -233,6 +242,7 @@
+ typedef struct {
+ 	buffer *key; /* like .php */
+ 
++	int note_is_sent;
+ 	scgi_extension_host **hosts;
+ 
+ 	size_t used;
+@@ -968,6 +978,7 @@
+ 
+ 						{ "bin-environment",   NULL, T_CONFIG_ARRAY, T_CONFIG_SCOPE_CONNECTION },        /* 11 */
+ 						{ "bin-copy-environment", NULL, T_CONFIG_ARRAY, T_CONFIG_SCOPE_CONNECTION },     /* 12 */
++						{ "fix-root-scriptname",  NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION },   /* 13 */
+ 
+ 
+ 						{ NULL,                NULL, T_CONFIG_UNSET, T_CONFIG_SCOPE_UNSET }
+@@ -990,6 +1001,7 @@
+ 					df->max_load_per_proc = 1;
+ 					df->idle_timeout = 60;
+ 					df->disable_time = 60;
++					df->fix_root_path_name = 0;
+ 
+ 					fcv[0].destination = df->host;
+ 					fcv[1].destination = df->docroot;
+@@ -1006,6 +1018,7 @@
+ 
+ 					fcv[11].destination = df->bin_env;
+ 					fcv[12].destination = df->bin_env_copy;
++					fcv[13].destination = &(df->fix_root_path_name);
+ 
+ 
+ 					if (0 != config_insert_values_internal(srv, da_host->value, fcv)) {
+@@ -2668,10 +2681,10 @@
+ 	plugin_data *p = p_d;
+ 	size_t s_len;
+ 	int used = -1;
+-	int ndx;
+ 	size_t k;
+ 	buffer *fn;
+ 	scgi_extension *extension = NULL;
++	scgi_extension_host *host = NULL;
+ 
+ 	/* Possibly, we processed already this request */
+ 	if (con->file_started == 1) return HANDLER_GO_ON;
+@@ -2712,95 +2725,59 @@
+ 	}
+ 
+ 	/* get best server */
+-	for (k = 0, ndx = -1; k < extension->used; k++) {
+-		scgi_extension_host *host = extension->hosts[k];
++	for (k = 0; k < extension->used; k++) {
++		scgi_extension_host *h = extension->hosts[k];
+ 
+-		/* we should have at least one proc that can do somthing */
+-		if (host->active_procs == 0) continue;
++		/* we should have at least one proc that can do something */
++		if (h->active_procs == 0) {
++			continue;
++		}
+ 
+-		if (used == -1 || host->load < used) {
+-			used = host->load;
++		if (used == -1 || h->load < used) {
++			used = h->load;
+ 
+-			ndx = k;
++			host = h;
+ 		}
+ 	}
+ 
+-	/* found a server */
+-	if (ndx != -1) {
+-		scgi_extension_host *host = extension->hosts[ndx];
++	if (!host) {
++		/* sorry, we don't have a server alive for this ext */
++		buffer_reset(con->physical.path);
++		con->http_status = 500;
+ 
+-		/*
+-		 * if check-local is disabled, use the uri.path handler
+-		 *
+-		 */
++		/* only send the 'no handler' once */
++		if (!extension->note_is_sent) {
++			extension->note_is_sent = 1;
+ 
+-		/* init handler-context */
+-		if (uri_path_handler) {
+-			if (host->check_local == 0) {
+-				handler_ctx *hctx;
+-				char *pathinfo;
++			log_error_write(srv, __FILE__, __LINE__, "sbsbs",
++					"all handlers for ", con->uri.path,
++					"on", extension->key,
++					"are down.");
++		}
+ 
+-				hctx = handler_ctx_init();
++		return HANDLER_FINISHED;
++	}
+ 
+-				hctx->remote_conn      = con;
+-				hctx->plugin_data      = p;
+-				hctx->host             = host;
+-				hctx->proc	       = NULL;
++	/* a note about no handler is not sent yet */
++	extension->note_is_sent = 0;
+ 
+-				hctx->conf.exts        = p->conf.exts;
+-				hctx->conf.debug       = p->conf.debug;
++	/*
++	 * if check-local is disabled, use the uri.path handler
++	 *
++	 */
+ 
+-				con->plugin_ctx[p->id] = hctx;
++	/* init handler-context */
++	if (uri_path_handler) {
++		if (host->check_local == 0) {
++			handler_ctx *hctx;
++			char *pathinfo;
+ 
+-				host->load++;
+-
+-				con->mode = p->id;
+-
+-				if (con->conf.log_request_handling) {
+-					log_error_write(srv, __FILE__, __LINE__, "s", "handling it in mod_scgi");
+-				}
+-
+-				/* the prefix is the SCRIPT_NAME,
+-				 * everthing from start to the next slash
+-				 * this is important for check-local = "disable"
+-				 *
+-				 * if prefix = /admin.fcgi
+-				 *
+-				 * /admin.fcgi/foo/bar
+-				 *
+-				 * SCRIPT_NAME = /admin.fcgi
+-				 * PATH_INFO   = /foo/bar
+-				 *
+-				 * if prefix = /fcgi-bin/
+-				 *
+-				 * /fcgi-bin/foo/bar
+-				 *
+-				 * SCRIPT_NAME = /fcgi-bin/foo
+-				 * PATH_INFO   = /bar
+-				 *
+-				 */
+-
+-				/* the rewrite is only done for /prefix/? matches */
+-				if (extension->key->ptr[0] == '/' &&
+-				    con->uri.path->used > extension->key->used &&
+-				    NULL != (pathinfo = strchr(con->uri.path->ptr + extension->key->used - 1, '/'))) {
+-					/* rewrite uri.path and pathinfo */
+-
+-					buffer_copy_string(con->request.pathinfo, pathinfo);
+-
+-					con->uri.path->used -= con->request.pathinfo->used - 1;
+-					con->uri.path->ptr[con->uri.path->used - 1] = '\0';
+-				}
+-			}
+-			return HANDLER_GO_ON;
+-		} else {
+-			handler_ctx *hctx;
+ 			hctx = handler_ctx_init();
+ 
+ 			hctx->remote_conn      = con;
+ 			hctx->plugin_data      = p;
+ 			hctx->host             = host;
+-			hctx->proc             = NULL;
++			hctx->proc	       = NULL;
+ 
+ 			hctx->conf.exts        = p->conf.exts;
+ 			hctx->conf.debug       = p->conf.debug;
+@@ -2812,22 +2789,69 @@
+ 			con->mode = p->id;
+ 
+ 			if (con->conf.log_request_handling) {
+-				log_error_write(srv, __FILE__, __LINE__, "s", "handling it in mod_fastcgi");
++				log_error_write(srv, __FILE__, __LINE__, "s",
++				"handling it in mod_fastcgi");
+ 			}
+ 
+-			return HANDLER_GO_ON;
++			/* the prefix is the SCRIPT_NAME,
++			 * everything from start to the next slash
++			 * this is important for check-local = "disable"
++			 *
++			 * if prefix = /admin.fcgi
++			 *
++			 * /admin.fcgi/foo/bar
++			 *
++			 * SCRIPT_NAME = /admin.fcgi
++			 * PATH_INFO   = /foo/bar
++			 *
++			 * if prefix = /fcgi-bin/
++			 *
++			 * /fcgi-bin/foo/bar
++			 *
++			 * SCRIPT_NAME = /fcgi-bin/foo
++			 * PATH_INFO   = /bar
++			 *
++			 */
++
++			/* the rewrite is only done for /prefix/? matches */
++			if (extension->key->ptr[0] == '/' &&
++			    con->uri.path->used > extension->key->used &&
++			    NULL != (pathinfo = strchr(con->uri.path->ptr + extension->key->used - 1, '/'))) {
++				/* rewrite uri.path and pathinfo */
++
++				buffer_copy_string(con->request.pathinfo, pathinfo);
++
++				con->uri.path->used -= con->request.pathinfo->used - 1;
++				con->uri.path->ptr[con->uri.path->used - 1] = '\0';
++			} else if (host->fix_root_path_name && extension->key->ptr[0] == '/' && extension->key->ptr[1] == '\0') {
++				buffer_copy_string(con->request.pathinfo, con->uri.path->ptr);
++				con->uri.path->used = 1;
++				con->uri.path->ptr[con->uri.path->used - 1] = '\0';
++			}
+ 		}
+ 	} else {
+-		/* no handler found */
+-		buffer_reset(con->physical.path);
+-		con->http_status = 500;
++		handler_ctx *hctx;
++		hctx = handler_ctx_init();
+ 
+-		log_error_write(srv, __FILE__, __LINE__,  "sb",
+-				"no fcgi-handler found for:",
+-				fn);
++		hctx->remote_conn      = con;
++		hctx->plugin_data      = p;
++		hctx->host             = host;
++		hctx->proc             = NULL;
+ 
+-		return HANDLER_FINISHED;
++		hctx->conf.exts        = p->conf.exts;
++		hctx->conf.debug       = p->conf.debug;
++
++		con->plugin_ctx[p->id] = hctx;
++
++		host->load++;
++
++		con->mode = p->id;
++
++		if (con->conf.log_request_handling) {
++			log_error_write(srv, __FILE__, __LINE__, "s", "handling it in mod_fastcgi");
++		}
+ 	}
++
+ 	return HANDLER_GO_ON;
+ }
+ 
+Index: src/lighttpd-angel.c
+===================================================================
+--- src/lighttpd-angel.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/lighttpd-angel.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -28,9 +28,12 @@
+ static volatile sig_atomic_t graceful_restart = 0;
+ static volatile pid_t pid = -1;
+ 
++#define UNUSED(x) ( (void)(x) )
++
+ static void sigaction_handler(int sig, siginfo_t *si, void *context) {
+ 	int exitcode;
+ 
++	UNUSED(context);
+ 	switch (sig) {
+ 	case SIGINT: 
+ 	case SIGTERM:
+@@ -60,6 +63,8 @@
+ 	int is_shutdown = 0;
+ 	struct sigaction act;
+ 
++	UNUSED(argc);
++
+ 	/**
+ 	 * we are running as root BEWARE
+ 	 */
+Index: src/mod_rrdtool.c
+===================================================================
+--- src/mod_rrdtool.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/mod_rrdtool.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -148,6 +148,8 @@
+ 		args[i++] = dash;
+ 		args[i++] = NULL;
+ 
++		openDevNull(STDERR_FILENO);
++	
+ 		/* we don't need the client socket */
+ 		for (i = 3; i < 256; i++) {
+ 			close(i);
+@@ -156,7 +158,7 @@
+ 		/* exec the cgi */
+ 		execv(args[0], args);
+ 
+-		log_error_write(srv, __FILE__, __LINE__, "sss", "spawing rrdtool failed: ", strerror(errno), args[0]);
++		/* log_error_write(srv, __FILE__, __LINE__, "sss", "spawing rrdtool failed: ", strerror(errno), args[0]); */
+ 
+ 		/* */
+ 		SEGFAULT();
 Index: src/response.c
 ===================================================================
---- src/response.c	(.../tags/lighttpd-1.4.19)	(revision 2145)
-+++ src/response.c	(.../branches/lighttpd-1.4.x)	(revision 2145)
+--- src/response.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/response.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
 @@ -101,7 +101,7 @@
  	if (!have_server) {
  		if (buffer_is_empty(con->conf.server_tag)) {
@@ -97,10 +934,44 @@ Index: src/response.c
  			BUFFER_APPEND_STRING_CONST(b, "\r\nServer: ");
  			buffer_append_string_encoded(b, CONST_BUF_LEN(con->conf.server_tag), ENCODING_HTTP_HEADER);
  		}
+@@ -152,7 +152,7 @@
+ 		 *  */
+ 
+ 		config_cond_cache_reset(srv, con);
+-		config_setup_connection(srv, con); // Perhaps this could be removed at other places.
++		config_setup_connection(srv, con); /* Perhaps this could be removed at other places. */
+ 
+ 		if (con->conf.log_condition_handling) {
+ 			log_error_write(srv, __FILE__, __LINE__,  "s",  "run condition");
+Index: src/plugin.c
+===================================================================
+--- src/plugin.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/plugin.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -197,7 +197,7 @@
+ 
+ #else
+ #if 1
+-		init = (int (*)(plugin *))dlsym(p->lib, srv->tmp_buf->ptr);
++		init = (int (*)(plugin *))(intptr_t)dlsym(p->lib, srv->tmp_buf->ptr);
+ #else
+ 		*(void **)(&init) = dlsym(p->lib, srv->tmp_buf->ptr);
+ #endif
+Index: src/SConscript
+===================================================================
+--- src/SConscript	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/SConscript	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -43,6 +43,7 @@
+ 	'mod_cgi' : { 'src' : [ 'mod_cgi.c' ] },
+ 	'mod_fastcgi' : { 'src' : [ 'mod_fastcgi.c' ] },
+ 	'mod_scgi' : { 'src' : [ 'mod_scgi.c' ] },
++	'mod_extforward' : { 'src' : [ 'mod_extforward.c' ] },
+ 	'mod_staticfile' : { 'src' : [ 'mod_staticfile.c' ] },
+ 	'mod_dirlisting' : { 'src' : [ 'mod_dirlisting.c' ], 'lib' : [ env['LIBPCRE'] ] },
+ 	'mod_indexfile' : { 'src' : [ 'mod_indexfile.c' ] },
 Index: src/mod_extforward.c
 ===================================================================
---- src/mod_extforward.c	(.../tags/lighttpd-1.4.19)	(revision 2145)
-+++ src/mod_extforward.c	(.../branches/lighttpd-1.4.x)	(revision 2145)
+--- src/mod_extforward.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/mod_extforward.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
 @@ -281,8 +281,9 @@
  static const char *last_not_in_array(array *a, plugin_data *p)
  {
@@ -112,10 +983,39 @@ Index: src/mod_extforward.c
  		data_string *ds = (data_string *)a->data[i];
  		const char *ip = ds->value->ptr;
  
+Index: src/Makefile.am
+===================================================================
+--- src/Makefile.am	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -16,20 +16,17 @@
+ configparser.c configparser.h:
+ mod_ssi_exprparser.c mod_ssi_exprparser.h:
+ else
+-$(srcdir)/configparser.y: lemon
+-$(srcdir)/mod_ssi_exprparser.y: lemon
+-
+-configparser.c configparser.h: $(srcdir)/configparser.y
++configparser.c configparser.h: lemon $(srcdir)/configparser.y $(srcdir)/lempar.c
+ 	rm -f configparser.h
+ 	$(LEMON) -q $(srcdir)/configparser.y $(srcdir)/lempar.c
+ 
+-mod_ssi_exprparser.c mod_ssi_exprparser.h: $(srcdir)/mod_ssi_exprparser.y
++mod_ssi_exprparser.c mod_ssi_exprparser.h: lemon $(srcdir)/mod_ssi_exprparser.y $(srcdir)/lempar.c
+ 	rm -f mod_ssi_exprparser.h
+ 	$(LEMON) -q $(srcdir)/mod_ssi_exprparser.y $(srcdir)/lempar.c
+ endif
+ 
+-$(srcdir)/configfile.c: configparser.h
+-$(srcdir)/mod_ssi_expr.c: mod_ssi_exprparser.h
++configfile.o: configparser.h
++mod_ssi_expr.o: mod_ssi_exprparser.h
+ 
+ common_src=buffer.c log.c \
+       keyvalue.c chunk.c  \
 Index: src/network_openssl.c
 ===================================================================
---- src/network_openssl.c	(.../tags/lighttpd-1.4.19)	(revision 2145)
-+++ src/network_openssl.c	(.../branches/lighttpd-1.4.x)	(revision 2145)
+--- src/network_openssl.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/network_openssl.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
 @@ -85,6 +85,7 @@
  			 *
  			 */
@@ -132,10 +1032,162 @@ Index: src/network_openssl.c
  				if ((r = SSL_write(ssl, s, toSend)) <= 0) {
  					unsigned long err;
  
+Index: src/mod_redirect.c
+===================================================================
+--- src/mod_redirect.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/mod_redirect.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -215,8 +215,7 @@
+ 
+ 			start = 0; end = pattern_len;
+ 			for (k = 0; k < pattern_len; k++) {
+-				if ((pattern[k] == '$' || pattern[k] == '%') &&
+-				    isdigit((unsigned char)pattern[k + 1])) {
++				if (pattern[k] == '$' || pattern[k] == '%') {
+ 					/* got one */
+ 
+ 					size_t num = pattern[k + 1] - '0';
+@@ -225,7 +224,10 @@
+ 
+ 					buffer_append_string_len(p->location, pattern + start, end - start);
+ 
+-					if (pattern[k] == '$') {
++					if (!isdigit((unsigned char)pattern[k + 1])) {
++						/* enable escape: "%%" => "%", "%a" => "%a", "$$" => "$" */
++						buffer_append_string_len(p->location, pattern+k, pattern[k] == pattern[k+1] ? 1 : 2);
++					} else if (pattern[k] == '$') {
+ 						/* n is always > 0 */
+ 						if (num < (size_t)n) {
+ 							buffer_append_string(p->location, list[num]);
+Index: src/mod_webdav.c
+===================================================================
+--- src/mod_webdav.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/mod_webdav.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -570,6 +570,8 @@
+ 				/* */
+ 			}
+ 		}
++#else
++		UNUSED(p);
+ #endif
+ 	}
+ 
+@@ -730,6 +732,8 @@
+ 			}
+ 		}
+ 	}
++#else
++	UNUSED(p);
+ #endif
+ 	return status;
+ }
+@@ -1154,6 +1158,7 @@
+ 	int has_lock = 1;
+ 
+ #ifdef USE_LOCKS
++	UNUSED(srv);
+ 	data_string *ds;
+ 
+ 	/**
+@@ -1192,6 +1197,11 @@
+ 			has_lock = 0;
+ 		}
+ 	}
++#else
++	UNUSED(srv);
++	UNUSED(con);
++	UNUSED(p);
++	UNUSED(uri);
+ #endif
+ 
+ 	return has_lock;
+Index: src/md5.c
+===================================================================
+--- src/md5.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/md5.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -52,9 +52,9 @@
+ #define S43 15
+ #define S44 21
+ 
+-static void MD5Transform (UINT4 [4], unsigned char [64]);
++static void MD5Transform (UINT4 [4], const unsigned char [64]);
+ static void Encode (unsigned char *, UINT4 *, unsigned int);
+-static void Decode (UINT4 *, unsigned char *, unsigned int);
++static void Decode (UINT4 *, const unsigned char *, unsigned int);
+ 
+ #ifdef HAVE_MEMCPY
+ #define MD5_memcpy(output, input, len) memcpy((output), (input), (len))
+@@ -126,12 +126,13 @@
+   operation, processing another message block, and updating the
+   context.
+  */
+-void MD5_Update (context, input, inputLen)
++void MD5_Update (context, _input, inputLen)
+ MD5_CTX *context;                                        /* context */
+-unsigned char *input;                                /* input block */
++const void *_input;                                /* input block */
+ unsigned int inputLen;                     /* length of input block */
+ {
+   unsigned int i, ndx, partLen;
++  const unsigned char *input = (const unsigned char*) _input;
+ 
+   /* Compute number of bytes mod 64 */
+   ndx = (unsigned int)((context->count[0] >> 3) & 0x3F);
+@@ -200,7 +201,7 @@
+  */
+ static void MD5Transform (state, block)
+ UINT4 state[4];
+-unsigned char block[64];
++const unsigned char block[64];
+ {
+   UINT4 a = state[0], b = state[1], c = state[2], d = state[3], x[16];
+ 
+@@ -313,7 +314,7 @@
+  */
+ static void Decode (output, input, len)
+ UINT4 *output;
+-unsigned char *input;
++const unsigned char *input;
+ unsigned int len;
+ {
+   unsigned int i, j;
 Index: src/mod_compress.c
 ===================================================================
---- src/mod_compress.c	(.../tags/lighttpd-1.4.19)	(revision 2145)
-+++ src/mod_compress.c	(.../branches/lighttpd-1.4.x)	(revision 2145)
+--- src/mod_compress.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/mod_compress.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -102,7 +102,7 @@
+ 	return HANDLER_GO_ON;
+ }
+ 
+-// 0 on success, -1 for error
++/* 0 on success, -1 for error */
+ int mkdir_recursive(char *dir) {
+ 	char *p = dir;
+ 
+@@ -118,13 +118,13 @@
+ 		}
+ 
+ 		*p++ = '/';
+-		if (!*p) return 0; // Ignore trailing slash
++		if (!*p) return 0; /* Ignore trailing slash */
+ 	}
+ 
+ 	return (mkdir(dir, 0700) != 0) && (errno != EEXIST) ? -1 : 0;
+ }
+ 
+-// 0 on success, -1 for error
++/* 0 on success, -1 for error */
+ int mkdir_for_file(char *filename) {
+ 	char *p = filename;
+ 
+@@ -140,7 +140,7 @@
+ 		}
+ 
+ 		*p++ = '/';
+-		if (!*p) return -1; // Unexpected trailing slash in filename
++		if (!*p) return -1; /* Unexpected trailing slash in filename */
+ 	}
+ 
+ 	return 0;
 @@ -178,9 +178,9 @@
  		}
  
@@ -147,11 +1199,231 @@ Index: src/mod_compress.c
  			if (0 != stat(s->compress_cache_dir->ptr, &st)) {
  				log_error_write(srv, __FILE__, __LINE__, "sbs", "can't stat compress.cache-dir",
  						s->compress_cache_dir, strerror(errno));
+Index: src/md5.h
+===================================================================
+--- src/md5.h	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/md5.h	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -42,6 +42,6 @@
+ } MD5_CTX;
+ 
+ void MD5_Init (MD5_CTX *);
+-void MD5_Update (MD5_CTX *, unsigned char *, unsigned int);
++void MD5_Update (MD5_CTX *, const void *, unsigned int);
+ void MD5_Final (unsigned char [16], MD5_CTX *);
+ 
+Index: src/mod_auth.c
+===================================================================
+--- src/mod_auth.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/mod_auth.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -519,85 +519,86 @@
+ 
+ handler_t auth_ldap_init(server *srv, mod_auth_plugin_config *s) {
+ #ifdef USE_LDAP
+-			int ret;
++	int ret;
+ #if 0
+-			if (s->auth_ldap_basedn->used == 0) {
+-				log_error_write(srv, __FILE__, __LINE__, "s", "ldap: auth.backend.ldap.base-dn has to be set");
++	if (s->auth_ldap_basedn->used == 0) {
++		log_error_write(srv, __FILE__, __LINE__, "s", "ldap: auth.backend.ldap.base-dn has to be set");
+ 
+-				return HANDLER_ERROR;
+-			}
++		return HANDLER_ERROR;
++	}
+ #endif
+ 
+-			if (s->auth_ldap_filter->used) {
+-				char *dollar;
++	if (s->auth_ldap_filter->used) {
++		char *dollar;
+ 
+-				/* parse filter */
++		/* parse filter */
+ 
+-				if (NULL == (dollar = strchr(s->auth_ldap_filter->ptr, '$'))) {
+-					log_error_write(srv, __FILE__, __LINE__, "s", "ldap: auth.backend.ldap.filter is missing a replace-operator '$'");
++		if (NULL == (dollar = strchr(s->auth_ldap_filter->ptr, '$'))) {
++			log_error_write(srv, __FILE__, __LINE__, "s", "ldap: auth.backend.ldap.filter is missing a replace-operator '$'");
+ 
+-					return HANDLER_ERROR;
+-				}
++			return HANDLER_ERROR;
++		}
+ 
+-				buffer_copy_string_len(s->ldap_filter_pre, s->auth_ldap_filter->ptr, dollar - s->auth_ldap_filter->ptr);
+-				buffer_copy_string(s->ldap_filter_post, dollar+1);
+-			}
++		buffer_copy_string_len(s->ldap_filter_pre, s->auth_ldap_filter->ptr, dollar - s->auth_ldap_filter->ptr);
++		buffer_copy_string(s->ldap_filter_post, dollar+1);
++	}
+ 
+-			if (s->auth_ldap_hostname->used) {
+-				if (NULL == (s->ldap = ldap_init(s->auth_ldap_hostname->ptr, LDAP_PORT))) {
+-					log_error_write(srv, __FILE__, __LINE__, "ss", "ldap ...", strerror(errno));
++	if (s->auth_ldap_hostname->used) {
++		if (NULL == (s->ldap = ldap_init(s->auth_ldap_hostname->ptr, LDAP_PORT))) {
++			log_error_write(srv, __FILE__, __LINE__, "ss", "ldap ...", strerror(errno));
+ 
+-					return HANDLER_ERROR;
+-				}
++			return HANDLER_ERROR;
++		}
+ 
+-				ret = LDAP_VERSION3;
+-				if (LDAP_OPT_SUCCESS != (ret = ldap_set_option(s->ldap, LDAP_OPT_PROTOCOL_VERSION, &ret))) {
+-					log_error_write(srv, __FILE__, __LINE__, "ss", "ldap:", ldap_err2string(ret));
++		ret = LDAP_VERSION3;
++		if (LDAP_OPT_SUCCESS != (ret = ldap_set_option(s->ldap, LDAP_OPT_PROTOCOL_VERSION, &ret))) {
++			log_error_write(srv, __FILE__, __LINE__, "ss", "ldap:", ldap_err2string(ret));
+ 
++			return HANDLER_ERROR;
++		}
++
++		if (s->auth_ldap_starttls) {
++			/* if no CA file is given, it is ok, as we will use encryption
++				* if the server requires a CAfile it will tell us */
++			if (!buffer_is_empty(s->auth_ldap_cafile)) {
++				if (LDAP_OPT_SUCCESS != (ret = ldap_set_option(NULL, LDAP_OPT_X_TLS_CACERTFILE,
++								s->auth_ldap_cafile->ptr))) {
++					log_error_write(srv, __FILE__, __LINE__, "ss",
++							"Loading CA certificate failed:", ldap_err2string(ret));
++
+ 					return HANDLER_ERROR;
+ 				}
++			}
+ 
+-				if (s->auth_ldap_starttls) {
+-					/* if no CA file is given, it is ok, as we will use encryption
+-					 * if the server requires a CAfile it will tell us */
+-					if (!buffer_is_empty(s->auth_ldap_cafile)) {
+-						if (LDAP_OPT_SUCCESS != (ret = ldap_set_option(NULL, LDAP_OPT_X_TLS_CACERTFILE,
+-										s->auth_ldap_cafile->ptr))) {
+-							log_error_write(srv, __FILE__, __LINE__, "ss",
+-									"Loading CA certificate failed:", ldap_err2string(ret));
++			if (LDAP_OPT_SUCCESS != (ret = ldap_start_tls_s(s->ldap, NULL,  NULL))) {
++				log_error_write(srv, __FILE__, __LINE__, "ss", "ldap startTLS failed:", ldap_err2string(ret));
+ 
+-							return HANDLER_ERROR;
+-						}
+-					}
++				return HANDLER_ERROR;
++			}
++		}
+ 
+-					if (LDAP_OPT_SUCCESS != (ret = ldap_start_tls_s(s->ldap, NULL,  NULL))) {
+-						log_error_write(srv, __FILE__, __LINE__, "ss", "ldap startTLS failed:", ldap_err2string(ret));
+ 
+-						return HANDLER_ERROR;
+-					}
+-				}
++		/* 1. */
++		if (s->auth_ldap_binddn->used) {
++			if (LDAP_SUCCESS != (ret = ldap_simple_bind_s(s->ldap, s->auth_ldap_binddn->ptr, s->auth_ldap_bindpw->ptr))) {
++				log_error_write(srv, __FILE__, __LINE__, "ss", "ldap:", ldap_err2string(ret));
+ 
++				return HANDLER_ERROR;
++			}
++		} else {
++			if (LDAP_SUCCESS != (ret = ldap_simple_bind_s(s->ldap, NULL, NULL))) {
++				log_error_write(srv, __FILE__, __LINE__, "ss", "ldap:", ldap_err2string(ret));
+ 
+-				/* 1. */
+-				if (s->auth_ldap_binddn->used) {
+-					if (LDAP_SUCCESS != (ret = ldap_simple_bind_s(s->ldap, s->auth_ldap_binddn->ptr, s->auth_ldap_bindpw->ptr))) {
+-						log_error_write(srv, __FILE__, __LINE__, "ss", "ldap:", ldap_err2string(ret));
+-
+-						return HANDLER_ERROR;
+-					}
+-				} else {
+-					if (LDAP_SUCCESS != (ret = ldap_simple_bind_s(s->ldap, NULL, NULL))) {
+-						log_error_write(srv, __FILE__, __LINE__, "ss", "ldap:", ldap_err2string(ret));
+-
+-						return HANDLER_ERROR;
+-					}
+-				}
++				return HANDLER_ERROR;
+ 			}
++		}
++	}
++	return HANDLER_GO_ON;
+ #else
+-			log_error_write(srv, __FILE__, __LINE__, "s", "no ldap support available");
+-			return HANDLER_ERROR;
++	UNUSED(s);
++	log_error_write(srv, __FILE__, __LINE__, "s", "no ldap support available");
++	return HANDLER_ERROR;
+ #endif
+-		return HANDLER_GO_ON;
+ }
+ 
+ int mod_auth_plugin_init(plugin *p) {
 Index: src/mod_fastcgi.c
 ===================================================================
---- src/mod_fastcgi.c	(.../tags/lighttpd-1.4.19)	(revision 2145)
-+++ src/mod_fastcgi.c	(.../branches/lighttpd-1.4.x)	(revision 2145)
-@@ -2544,7 +2544,10 @@
+--- src/mod_fastcgi.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/mod_fastcgi.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -236,6 +236,16 @@
+ 	unsigned short break_scriptfilename_for_php;
+ 
+ 	/*
++	 * workaround for program when prefix="/"
++	 *
++	 * rule to build PATH_INFO is hardcoded for when check_local is disabled
++	 * enable this option to use the workaround
++	 *
++	 */
++
++	unsigned short fix_root_path_name;
++
++	/*
+ 	 * If the backend includes X-LIGHTTPD-send-file in the response
+ 	 * we use the value as filename and ignore the content.
+ 	 *
+@@ -937,6 +947,8 @@
+ 				close(fcgi_fd);
+ 			}
+ 
++			openDevNull(STDERR_FILENO);
++
+ 			/* we don't need the client socket */
+ 			for (i = 3; i < 256; i++) {
+ 				close(i);
+@@ -1000,8 +1012,8 @@
+ 			/* exec the cgi */
+ 			execve(arg.ptr[0], arg.ptr, env.ptr);
+ 
+-			log_error_write(srv, __FILE__, __LINE__, "sbs",
+-					"execve failed for:", host->bin_path, strerror(errno));
++			/* log_error_write(srv, __FILE__, __LINE__, "sbs",
++					"execve failed for:", host->bin_path, strerror(errno)); */
+ 
+ 			exit(errno);
+ 
+@@ -1193,6 +1205,7 @@
+ 						{ "allow-x-send-file",  NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION },      /* 15 */
+ 						{ "strip-request-uri",  NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },      /* 16 */
+ 						{ "kill-signal",        NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },      /* 17 */
++						{ "fix-root-scriptname",   NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION },  /* 18 */
+ 
+ 						{ NULL,                NULL, T_CONFIG_UNSET, T_CONFIG_SCOPE_UNSET }
+ 					};
+@@ -1220,6 +1233,7 @@
+ 					host->break_scriptfilename_for_php = 0;
+ 					host->allow_xsendfile = 0; /* handle X-LIGHTTPD-send-file */
+ 					host->kill_signal = SIGTERM;
++					host->fix_root_path_name = 0;
+ 
+ 					fcv[0].destination = host->host;
+ 					fcv[1].destination = host->docroot;
+@@ -1241,6 +1255,7 @@
+ 					fcv[15].destination = &(host->allow_xsendfile);
+ 					fcv[16].destination = host->strip_request_uri;
+ 					fcv[17].destination = &(host->kill_signal);
++					fcv[18].destination = &(host->fix_root_path_name);
+ 
+ 					if (0 != config_insert_values_internal(srv, da_host->value, fcv)) {
+ 						return HANDLER_ERROR;
+@@ -2544,7 +2559,10 @@
  					stat_cache_entry *sce;
  
  					if (HANDLER_ERROR != stat_cache_get_entry(srv, con, ds->value, &sce)) {
@@ -163,10 +1435,196 @@ Index: src/mod_fastcgi.c
  						/* found */
  						http_chunk_append_file(srv, con, ds->value, 0, sce->st.st_size);
  						hctx->send_content_body = 0; /* ignore the content */
+@@ -3074,7 +3092,7 @@
+ 
+ 		/* check if the next server has no load. */
+ 		ndx = hctx->ext->last_used_ndx + 1;
+-		if(ndx >= hctx->ext->used || ndx < 0) ndx = 0;
++		if(ndx >= (int) hctx->ext->used || ndx < 0) ndx = 0;
+ 		host = hctx->ext->hosts[ndx];
+ 		if (host->load > 0) {
+ 			/* get backend with the least load. */
+@@ -3480,13 +3498,12 @@
+ 
+ 			ct_len = extension->key->used - 1;
+ 
+-			if (s_len < ct_len) continue;
+-
+-			/* check extension in the form "/fcgi_pattern" */
+-			if (*(extension->key->ptr) == '/') {
+-				if (strncmp(fn->ptr, extension->key->ptr, ct_len) == 0)
++			/* check _url_ in the form "/fcgi_pattern" */
++			if (extension->key->ptr[0] == '/') {
++				if ((ct_len <= con->uri.path->used -1) &&
++				    (strncmp(con->uri.path->ptr, extension->key->ptr, ct_len) == 0))
+ 					break;
+-			} else if (0 == strncmp(fn->ptr + s_len - ct_len, extension->key->ptr, ct_len)) {
++			} else if ((ct_len <= s_len) && (0 == strncmp(fn->ptr + s_len - ct_len, extension->key->ptr, ct_len))) {
+ 				/* check extension in the form ".fcg" */
+ 				break;
+ 			}
+@@ -3499,16 +3516,15 @@
+ 
+ 	/* check if we have at least one server for this extension up and running */
+ 	for (k = 0; k < extension->used; k++) {
+-		host = extension->hosts[k];
++		fcgi_extension_host *h = extension->hosts[k];
+ 
+ 		/* we should have at least one proc that can do something */
+-		if (host->active_procs == 0) {
+-			host = NULL;
+-
++		if (h->active_procs == 0) {
+ 			continue;
+ 		}
+ 
+ 		/* we found one host that is alive */
++		host = h;
+ 		break;
+ 	}
+ 
+@@ -3582,6 +3598,13 @@
+ 			 * SCRIPT_NAME = /fcgi-bin/foo
+ 			 * PATH_INFO   = /bar
+ 			 *
++			 * if prefix = /, and fix-root-path-name is enable
++			 *
++			 * /fcgi-bin/foo/bar
++			 *
++			 * SCRIPT_NAME = /fcgi-bin/foo
++			 * PATH_INFO   = /bar
++			 *
+ 			 */
+ 
+ 			/* the rewrite is only done for /prefix/? matches */
+@@ -3594,6 +3617,10 @@
+ 
+ 				con->uri.path->used -= con->request.pathinfo->used - 1;
+ 				con->uri.path->ptr[con->uri.path->used - 1] = '\0';
++			} else if (host->fix_root_path_name && extension->key->ptr[0] == '/' && extension->key->ptr[1] == '\0') {
++				buffer_copy_string(con->request.pathinfo, con->uri.path->ptr);
++				con->uri.path->used = 1;
++				con->uri.path->ptr[con->uri.path->used - 1] = '\0';
+ 			}
+ 		}
+ 	} else {
+Index: src/mod_accesslog.c
+===================================================================
+--- src/mod_accesslog.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/mod_accesslog.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -473,7 +473,7 @@
+ 			continue;
+ 		}
+ 
+-		if (buffer_is_empty(s->access_logfile)) continue;
++		if (s->access_logfile->used < 2) continue;
+ 
+ 		if (s->access_logfile->ptr[0] == '|') {
+ #ifdef HAVE_FORK
+@@ -498,6 +498,8 @@
+ 				/* not needed */
+ 				close(to_log_fds[1]);
+ 
++				openDevNull(STDERR_FILENO);
++
+ 				/* we don't need the client socket */
+ 				for (i = 3; i < 256; i++) {
+ 					close(i);
+@@ -570,7 +572,7 @@
+ 		}
+ 
+ 		if (s->use_syslog == 0 &&
+-		    !buffer_is_empty(s->access_logfile) &&
++		    s->access_logfile->used > 1 &&
+ 		    s->access_logfile->ptr[0] != '|') {
+ 
+ 			close(s->log_access_fd);
+@@ -647,6 +649,9 @@
+ 
+ 	mod_accesslog_patch_connection(srv, con, p);
+ 
++	/* No output device, nothing to do */
++	if (!p->conf.use_syslog && p->conf.log_access_fd == -1) return HANDLER_GO_ON;
++
+ 	b = p->conf.access_logbuffer;
+ 	if (b->used == 0) {
+ 		buffer_copy_string(b, "");
+@@ -806,7 +811,14 @@
+ 				buffer_append_string(b, "%");
+ 				break;
+ 			case FORMAT_SERVER_PORT:
+-				buffer_append_long(b, srv->srvconf.port);
++				{
++					char *colon = strchr(((server_socket*)(con->srv_socket))->srv_token->ptr, ':');
++					if (colon) {
++						buffer_append_string(b, colon+1);
++					} else {
++						buffer_append_long(b, srv->srvconf.port);
++					}
++				}
+ 				break;
+ 			case FORMAT_QUERY_STRING:
+ 				buffer_append_string_buffer(b, con->uri.query);
+Index: src/server.c
+===================================================================
+--- src/server.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/server.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -573,20 +573,9 @@
+ 	}
+ 
+ 	/* close stdin and stdout, as they are not needed */
+-	/* move stdin to /dev/null */
+-	if (-1 != (fd = open("/dev/null", O_RDONLY))) {
+-		close(STDIN_FILENO);
+-		dup2(fd, STDIN_FILENO);
+-		close(fd);
+-	}
++	openDevNull(STDIN_FILENO);
++	openDevNull(STDOUT_FILENO);
+ 
+-	/* move stdout to /dev/null */
+-	if (-1 != (fd = open("/dev/null", O_WRONLY))) {
+-		close(STDOUT_FILENO);
+-		dup2(fd, STDOUT_FILENO);
+-		close(fd);
+-	}
+-
+ 	if (0 != config_set_defaults(srv)) {
+ 		log_error_write(srv, __FILE__, __LINE__, "s",
+ 				"setting default values failed");
+@@ -893,8 +882,8 @@
+ 		pid_fd = -1;
+ 	}
+ 
+-	// Close stderr ASAP in the child process to make sure that nothing
+-	// is being written to that fd which may not be valid anymore.
++	/* Close stderr ASAP in the child process to make sure that nothing
++	 * is being written to that fd which may not be valid anymore. */
+ 	if (-1 == log_error_open(srv)) {
+ 		log_error_write(srv, __FILE__, __LINE__, "s", "Opening errorlog failed. Going down.");
+ 
+Index: src/mod_dirlisting.c
+===================================================================
+--- src/mod_dirlisting.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/mod_dirlisting.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -841,11 +841,11 @@
+ 
+ 	/* Insert possible charset to Content-Type */
+ 	if (buffer_is_empty(p->conf.encoding)) {
+-		response_header_insert(srv, con, CONST_STR_LEN("Content-Type"), CONST_STR_LEN("text/html"));
++		response_header_overwrite(srv, con, CONST_STR_LEN("Content-Type"), CONST_STR_LEN("text/html"));
+ 	} else {
+ 		buffer_copy_string(p->content_charset, "text/html; charset=");
+ 		buffer_append_string_buffer(p->content_charset, p->conf.encoding);
+-		response_header_insert(srv, con, CONST_STR_LEN("Content-Type"), CONST_BUF_LEN(p->content_charset));
++		response_header_overwrite(srv, con, CONST_STR_LEN("Content-Type"), CONST_BUF_LEN(p->content_charset));
+ 	}
+ 
+ 	con->file_finished = 1;
 Index: src/mod_magnet.c
 ===================================================================
---- src/mod_magnet.c	(.../tags/lighttpd-1.4.19)	(revision 2145)
-+++ src/mod_magnet.c	(.../branches/lighttpd-1.4.x)	(revision 2145)
+--- src/mod_magnet.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/mod_magnet.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
 @@ -414,10 +414,16 @@
  	case MAGNET_ENV_URI_AUTHORITY: dest = con->uri.authority; break;
  	case MAGNET_ENV_URI_QUERY: dest = con->uri.query; break;
@@ -186,10 +1644,161 @@ Index: src/mod_magnet.c
  
  	case MAGNET_ENV_UNSET: break;
  	}
+@@ -761,11 +767,13 @@
+ 
+ 	if (lua_return_value > 99) {
+ 		con->http_status = lua_return_value;
+-		con->file_finished = 1;
+ 
+ 		/* try { ...*/
+ 		if (0 == setjmp(exceptionjmp)) {
+ 			magnet_attach_content(srv, con, p, L);
++			if (!chunkqueue_is_empty(con->write_queue)) {
++				con->mode = p->id;
++			}
+ 		} else {
+ 			/* } catch () { */
+ 			con->http_status = 500;
+Index: src/log.c
+===================================================================
+--- src/log.c	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/log.c	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -31,6 +31,29 @@
+ # define O_LARGEFILE 0
+ #endif
+ 
++/* Close fd and _try_ to get a /dev/null for it instead.
++ * close() alone may trigger some bugs when a
++ * process opens another file and gets fd = STDOUT_FILENO or STDERR_FILENO
++ * and later tries to just print on stdout/stderr
++ *
++ * Returns 0 on success and -1 on failure (fd gets closed in all cases)
++ */
++int openDevNull(int fd) {
++	int tmpfd;
++	close(fd);
++#if defined(__WIN32)
++	/* Cygwin should work with /dev/null */
++	tmpfd = open("nul", O_RDWR);
++#else
++	tmpfd = open("/dev/null", O_RDWR);
++#endif
++	if (tmpfd != -1 && tmpfd != fd) {
++		dup2(tmpfd, fd);
++		close(tmpfd);
++	}
++	return (tmpfd != -1) ? 0 : -1;
++}
++
+ /**
+  * open the errorlog
+  *
+@@ -44,7 +67,6 @@
+  */
+ 
+ int log_error_open(server *srv) {
+-	int fd;
+ 	int close_stderr = 1;
+ 
+ #ifdef HAVE_SYSLOG_H
+@@ -78,15 +100,16 @@
+ 	/* don't close stderr for debugging purposes if run in valgrind */
+ 	if (RUNNING_ON_VALGRIND) close_stderr = 0;
+ #endif
+-	if (srv->errorlog_mode == ERRORLOG_STDERR) close_stderr = 0;
+ 
++	if (srv->errorlog_mode == ERRORLOG_STDERR && srv->srvconf.dont_daemonize) {
++		/* We can only log to stderr in dont-daemonize mode;
++		 * if we do daemonize and no errorlog file is specified, we log into /dev/null
++		 */
++		close_stderr = 0;
++	}
++
+ 	/* move stderr to /dev/null */
+-	if (close_stderr &&
+-	    -1 != (fd = open("/dev/null", O_WRONLY))) {
+-		close(STDERR_FILENO);
+-		dup2(fd, STDERR_FILENO);
+-		close(fd);
+-	}
++	if (close_stderr) openDevNull(STDERR_FILENO);
+ 	return 0;
+ }
+ 
+Index: src/log.h
+===================================================================
+--- src/log.h	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ src/log.h	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -3,6 +3,11 @@
+ 
+ #include "server.h"
+ 
++/* Close fd and _try_ to get a /dev/null for it instead.
++ * Returns 0 on success and -1 on failure (fd gets closed in all cases)
++ */
++int openDevNull(int fd);
++
+ #define WP() log_error_write(srv, __FILE__, __LINE__, "");
+ 
+ int log_error_open(server *srv);
+
+Property changes on: tests/symlink.t
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Index: tests/request.t
+===================================================================
+--- tests/request.t	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ tests/request.t	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -101,7 +101,7 @@
+ Expect: 100-continue
+ EOF
+  );
+-$t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.1', 'HTTP-Status' => 417, '-HTTP-Content' => ''} ];
++$t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.1', 'HTTP-Status' => 417 } ];
+ ok($tf->handle_http($t) == 0, 'Continue, Expect');
+ 
+ ## ranges
+
+Property changes on: tests/env-variables.t
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Index: tests/mod-fastcgi.t
+===================================================================
+--- tests/mod-fastcgi.t	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ tests/mod-fastcgi.t	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -65,7 +65,7 @@
+ EOF
+  );
+ 	$t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 200, 'HTTP-Content' => '/get-server-env.php' } ];
+-	ok($tf->handle_http($t) == 0, '$_SERVER["PHP_SELF"]');
++	ok($tf->handle_http($t) == 0, '$_SERVER["SCRIPT_NAME"]');
+ 
+ 	$t->{REQUEST}  = ( <<EOF
+ GET /get-server-env.php/foo?env=PATH_INFO HTTP/1.0
+Index: tests/docroot/www/get-env.php
+===================================================================
+--- tests/docroot/www/get-env.php	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ tests/docroot/www/get-env.php	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -1,3 +1,4 @@
+ <?php
+-	print $_ENV[$_GET["env"]];
++	$env = $_GET["env"];
++	print isset($_ENV[$env]) ? $_ENV[$env] : '';
+ ?>
+
+Property changes on: tests/core-404-handler.t
+___________________________________________________________________
+Name: svn:executable
+   + *
+
 Index: doc/userdir.txt
 ===================================================================
---- doc/userdir.txt	(.../tags/lighttpd-1.4.19)	(revision 2145)
-+++ doc/userdir.txt	(.../branches/lighttpd-1.4.x)	(revision 2145)
+--- doc/userdir.txt	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ doc/userdir.txt	(.../branches/lighttpd-1.4.x)	(revision 2190)
 @@ -46,10 +46,10 @@
  Options
  =======
@@ -205,8 +1814,8 @@ Index: doc/userdir.txt
      userdir.path = "public_html"
 Index: SConstruct
 ===================================================================
---- SConstruct	(.../tags/lighttpd-1.4.19)	(revision 2145)
-+++ SConstruct	(.../branches/lighttpd-1.4.x)	(revision 2145)
+--- SConstruct	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ SConstruct	(.../branches/lighttpd-1.4.x)	(revision 2190)
 @@ -5,7 +5,7 @@
  from stat import *
  
@@ -216,11 +1825,20 @@ Index: SConstruct
  
  def checkCHeaders(autoconf, hdrs):
  	p = re.compile('[^A-Z0-9]')
+Index: Makefile.am
+===================================================================
+--- Makefile.am	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -1,3 +1,3 @@
+ SUBDIRS=src doc tests cygwin openwrt
+ 
+-EXTRA_DIST=lighttpd.spec autogen.sh SConstruct
++EXTRA_DIST=autogen.sh SConstruct
 Index: NEWS
 ===================================================================
---- NEWS	(.../tags/lighttpd-1.4.19)	(revision 2145)
-+++ NEWS	(.../branches/lighttpd-1.4.x)	(revision 2145)
-@@ -3,8 +3,19 @@
+--- NEWS	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ NEWS	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -3,8 +3,31 @@
  NEWS
  ====
  
@@ -235,12 +1853,36 @@ Index: NEWS
 +  * Fix segfault for appending matched parts if there was no regex matching (just give empty strings) (#1601)
 +  * Use data_response_init in mod_fastcgi x-sendfile handling for response.headers, fix a small "memleak" (#1628)
 +  * Don't send empty Server headers (#1620)
++  * Fix conditional interpretation of core options
++  * Enable escaping of % and $ in redirect/rewrite; only two cases changed their behaviour: "%%" => "%", "$$" => "$"
++  * Fix accesslog port (should be port from the connection, not the "server.port") (#1618)
++  * Fix mod_fastcgi prefix matching: match the prefix always against url, not the absolute filepath (regardless of check-local)
++  * Overwrite Content-Type header in mod_dirlisting instead of inserting (#1614), patch by Henrik Holst
++  * Handle EINTR in mod_cgi during write() (#1640)
++  * Allow all http status codes by default; disable body only for 204,205 and 304; generate error pages for 4xx and 5xx (#1639)
++  * Fix mod_magnet to set con->mode = p->id if it generates content, so returning 4xx/5xx doesn't append an error page
++  * Remove lighttpd.spec* from source, fixing all problems with it ;-)
++  * Do not rely on PATH_MAX (POSIX does not require it) (#580)
++  * Disable logging to access.log if filename is an empty string
++  * Implement a clean way to open /dev/null and use it to close stdin/out/err in the needed places (#624)
 +
 +- 1.4.19 - 2008-03-10
 +
    * added support for If-Range: <date> (#1346)
    * added support for matching $HTTP["scheme"] in configs
    * fixed initgroups() called after chroot (#1384)
+Index: .cvsignore
+===================================================================
+--- .cvsignore	(.../tags/lighttpd-1.4.19)	(revision 2190)
++++ .cvsignore	(.../branches/lighttpd-1.4.x)	(revision 2190)
+@@ -3,7 +3,6 @@
+ configure
+ depcomp
+ config.*
+-lighttpd.spec
+ mkinstalldirs
+ distribute.sh
+ autom4te.cache
 
 Property changes on: .
 ___________________________________________________________________
@@ -260,5 +1902,5 @@ ebd0e9cf-3e47-4385-9dd4-f0e25e97baa2:/local/lighttpd/branches/lighttpd-1.4.x:216
 152afb58-edef-0310-8abb-c4023f1b3aa9:/tags/release-1.3.13:105
 152afb58-edef-0310-8abb-c4023f1b3aa9:/trunk:104
 a98e19e4-a712-0410-8832-6551a15ffc53:/local/branches/lighttpd-1.4.x:1557
-ebd0e9cf-3e47-4385-9dd4-f0e25e97baa2:/local/lighttpd/branches/lighttpd-1.4.x:2209
+ebd0e9cf-3e47-4385-9dd4-f0e25e97baa2:/local/lighttpd/branches/lighttpd-1.4.x:2250
 
