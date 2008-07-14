@@ -2270,16 +2270,6 @@ Index: NEWS
    * fixed initgroups() called after chroot (#1384)
 Index: .cvsignore
 ===================================================================
---- .cvsignore	(.../tags/lighttpd-1.4.19)	(revision 2199)
-+++ .cvsignore	(.../branches/lighttpd-1.4.x)	(revision 2199)
-@@ -3,7 +3,6 @@
- configure
- depcomp
- config.*
--lighttpd.spec
- mkinstalldirs
- distribute.sh
- autom4te.cache
 
 Property changes on: .
 ___________________________________________________________________
