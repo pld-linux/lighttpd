@@ -1,58 +1,60 @@
-diff -Naur lighttpd-1.4.10.orig/src/Makefile.am lighttpd-1.4.10/src/Makefile.am
---- lighttpd-1.4.10.orig/src/Makefile.am	2006-01-04 06:08:03.000000000 -0800
-+++ lighttpd-1.4.10/src/Makefile.am	2006-02-16 22:25:16.504347041 -0800
-@@ -28,7 +28,7 @@
- mod_ssi_expr.c: mod_ssi_exprparser.h
+diff -Naur lighttpd-1.4.19/configure.in lighttpd-1.4.19.mod_deflate.jz/configure.in
+--- lighttpd-1.4.19/configure.in
++++ lighttpd-1.4.19.mod_deflate.jz/configure.in
+@@ -558,7 +558,7 @@
+ AC_OUTPUT
  
- common_src=buffer.c log.c \
--      keyvalue.c chunk.c  \
-+      keyvalue.c chunk.c chunk_encode.c \
-       http_chunk.c stream.c fdevent.c \
-       stat_cache.c plugin.c joblist.c etag.c array.c \
-       data_string.c data_count.c data_array.c \
-@@ -222,9 +222,14 @@
- mod_accesslog_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
- mod_accesslog_la_LIBADD = $(common_libadd)
  
-+lib_LTLIBRARIES += mod_deflate.la
-+mod_deflate_la_SOURCES = mod_deflate.c 
-+mod_deflate_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
-+mod_deflate_la_LIBADD = $(Z_LIB) $(BZ_LIB) $(common_libadd)
-+
+-do_build="mod_cgi mod_fastcgi mod_extforward mod_proxy mod_evhost mod_simple_vhost mod_access mod_alias mod_setenv mod_usertrack mod_auth mod_status mod_accesslog mod_rrdtool mod_secdownload mod_expire mod_compress mod_dirlisting mod_indexfiles mod_userdir mod_webdav mod_staticfile mod_scgi mod_flv_streaming"
++do_build="mod_cgi mod_fastcgi mod_extforward mod_proxy mod_evhost mod_simple_vhost mod_access mod_alias mod_setenv mod_usertrack mod_auth mod_status mod_accesslog mod_rrdtool mod_secdownload mod_expire mod_compress mod_dirlisting mod_indexfiles mod_userdir mod_webdav mod_staticfile mod_scgi mod_flv_streaming mod_deflate"
  
- hdr = server.h buffer.h network.h log.h keyvalue.h \
--      response.h request.h fastcgi.h chunk.h \
-+      response.h request.h fastcgi.h chunk.h chunk_encode.h \
-       settings.h http_chunk.h http_auth_digest.h \
-       md5.h http_auth.h stream.h \
-       fdevent.h connections.h base.h stat_cache.h \
-diff -Naur lighttpd-1.4.10.orig/src/base.h lighttpd-1.4.10/src/base.h
---- lighttpd-1.4.10.orig/src/base.h	2006-01-11 06:51:04.000000000 -0800
-+++ lighttpd-1.4.10/src/base.h	2006-02-16 22:25:16.504347041 -0800
-@@ -345,8 +345,10 @@
- 	
+ plugins="mod_rewrite mod_redirect mod_ssi mod_trigger_b4_dl"
+ features="regex-conditionals"
+diff -Naur lighttpd-1.4.19/src/base.h lighttpd-1.4.19.mod_deflate.jz/src/base.h
+--- lighttpd-1.4.19/src/base.h
++++ lighttpd-1.4.19.mod_deflate.jz/src/base.h
+@@ -149,6 +149,7 @@
+ 
+ 	http_method_t  http_method;
+ 	http_version_t http_version;
++	int true_http_10_client;
+ 
+ 	buffer *request_line;
+ 
+@@ -360,8 +361,10 @@
+ 
  	int file_started;
  	int file_finished;
 +	int end_chunk; /* used for chunked transfer encoding. */
- 	
+ 
 -	chunkqueue *write_queue;      /* a large queue for low-level write ( HTTP response ) [ file, mem ] */
 +	chunkqueue *write_queue;  /* a large queue for HTTP response content [ file, mem ] */
 +	chunkqueue *output_queue; /* a large queue for low-level write ( HTTP response ) [ file, mem ] */
  	chunkqueue *read_queue;       /* a small queue for low-level read ( HTTP request ) [ mem ] */
  	chunkqueue *request_content_queue; /* takes request-content into tempfile if necessary [ tempfile, mem ]*/
- 	
-@@ -570,6 +572,7 @@
- 	
+ 
+@@ -596,6 +599,7 @@
+ 
  	connections *conns;
  	connections *joblist;
 +	connections *joblist_prev;
  	connections *fdwaitqueue;
- 	
+ 
  	stat_cache  *stat_cache;
-diff -Naur lighttpd-1.4.10.orig/src/chunk.c lighttpd-1.4.10/src/chunk.c
---- lighttpd-1.4.10.orig/src/chunk.c	2005-11-18 05:18:19.000000000 -0800
-+++ lighttpd-1.4.10/src/chunk.c	2006-02-16 22:25:16.505346873 -0800
-@@ -224,6 +224,16 @@
+diff -Naur lighttpd-1.4.19/src/chunk.c lighttpd-1.4.19.mod_deflate.jz/src/chunk.c
+--- lighttpd-1.4.19/src/chunk.c
++++ lighttpd-1.4.19.mod_deflate.jz/src/chunk.c
+@@ -16,7 +16,9 @@
+ #include <errno.h>
+ #include <string.h>
+ 
++#include "server.h"
+ #include "chunk.h"
++#include "log.h"
+ 
+ chunkqueue *chunkqueue_init(void) {
+ 	chunkqueue *cq;
+@@ -241,6 +243,16 @@
  	return 0;
  }
  
@@ -68,43 +70,17 @@ diff -Naur lighttpd-1.4.10.orig/src/chunk.c lighttpd-1.4.10/src/chunk.c
 +
  buffer * chunkqueue_get_prepend_buffer(chunkqueue *cq) {
  	chunk *c;
- 	
-diff -Naur lighttpd-1.4.10.orig/src/chunk.h lighttpd-1.4.10/src/chunk.h
---- lighttpd-1.4.10.orig/src/chunk.h	2005-10-31 23:32:21.000000000 -0800
-+++ lighttpd-1.4.10/src/chunk.h	2006-02-16 22:25:16.505346873 -0800
-@@ -51,6 +51,7 @@
- int chunkqueue_append_file(chunkqueue *c, buffer *fn, off_t offset, off_t len);
- int chunkqueue_append_mem(chunkqueue *c, const char *mem, size_t len);
- int chunkqueue_append_buffer(chunkqueue *c, buffer *mem);
-+int chunkqueue_append_chunkqueue(chunkqueue *cq, chunkqueue *src);
- int chunkqueue_prepend_buffer(chunkqueue *c, buffer *mem);
  
- buffer * chunkqueue_get_append_buffer(chunkqueue *c);
-diff -Naur lighttpd-1.4.10.orig/src/chunk_encode.c lighttpd-1.4.10/src/chunk_encode.c
---- lighttpd-1.4.10.orig/src/chunk_encode.c	1969-12-31 16:00:00.000000000 -0800
-+++ lighttpd-1.4.10/src/chunk_encode.c	2006-02-16 22:25:16.505346873 -0800
-@@ -0,0 +1,117 @@
+@@ -400,3 +412,105 @@
+ 
+ 	return 0;
+ }
++
 +/**
 + * the HTTP chunk-API
 + * 
 + * 
 + */
-+
-+#include <sys/types.h>
-+#include <sys/stat.h>
-+
-+#include <stdlib.h>
-+#include <fcntl.h>
-+#include <unistd.h>
-+
-+#include <stdio.h>
-+#include <errno.h>
-+#include <string.h>
-+
-+#include "server.h"
-+#include "chunk.h"
-+#include "chunk_encode.h"
-+#include "log.h"
 +
 +static int chunk_encode_append_len(chunkqueue *cq, size_t len) {
 +	size_t i, olen = len, j;
@@ -201,31 +177,36 @@ diff -Naur lighttpd-1.4.10.orig/src/chunk_encode.c lighttpd-1.4.10/src/chunk_enc
 +	return 0;
 +}
 +
-diff -Naur lighttpd-1.4.10.orig/src/chunk_encode.h lighttpd-1.4.10/src/chunk_encode.h
---- lighttpd-1.4.10.orig/src/chunk_encode.h	1969-12-31 16:00:00.000000000 -0800
-+++ lighttpd-1.4.10/src/chunk_encode.h	2006-02-16 22:25:16.506346704 -0800
-@@ -0,0 +1,13 @@
-+#ifndef _CHUNK_ENCODE_H_
-+#define _CHUNK_ENCODE_H_
-+
-+#include "server.h"
-+#include <sys/types.h>
-+
+diff -Naur lighttpd-1.4.19/src/chunk.h lighttpd-1.4.19.mod_deflate.jz/src/chunk.h
+--- lighttpd-1.4.19/src/chunk.h
++++ lighttpd-1.4.19.mod_deflate.jz/src/chunk.h
+@@ -52,6 +52,7 @@
+ int chunkqueue_append_mem(chunkqueue *c, const char *mem, size_t len);
+ int chunkqueue_append_buffer(chunkqueue *c, buffer *mem);
+ int chunkqueue_append_buffer_weak(chunkqueue *c, buffer *mem);
++int chunkqueue_append_chunkqueue(chunkqueue *cq, chunkqueue *src);
+ int chunkqueue_prepend_buffer(chunkqueue *c, buffer *mem);
+ 
+ buffer * chunkqueue_get_append_buffer(chunkqueue *c);
+@@ -67,4 +68,10 @@
+ 
+ int chunkqueue_is_empty(chunkqueue *c);
+ 
 +int chunk_encode_append_mem(chunkqueue *cq, const char * mem, size_t len);
 +int chunk_encode_append_buffer(chunkqueue *cq, buffer *mem);
 +int chunk_encode_append_file(chunkqueue *cq, buffer *fn, off_t offset, off_t len);
 +int chunk_encode_append_queue(chunkqueue *cq, chunkqueue *src);
 +int chunk_encode_end(chunkqueue *cq);
 +
-+#endif
-diff -Naur lighttpd-1.4.10.orig/src/connections.c lighttpd-1.4.10/src/connections.c
---- lighttpd-1.4.10.orig/src/connections.c	2006-02-08 04:27:20.000000000 -0800
-+++ lighttpd-1.4.10/src/connections.c	2006-02-16 22:25:16.507346536 -0800
+ #endif
+diff -Naur lighttpd-1.4.19/src/connections.c lighttpd-1.4.19.mod_deflate.jz/src/connections.c
+--- lighttpd-1.4.19/src/connections.c
++++ lighttpd-1.4.19.mod_deflate.jz/src/connections.c
 @@ -18,6 +18,7 @@
  #include "response.h"
  #include "network.h"
  #include "http_chunk.h"
-+#include "chunk_encode.h"
++#include "chunk.h"
  #include "stat_cache.h"
  #include "joblist.h"
  
@@ -242,7 +223,7 @@ diff -Naur lighttpd-1.4.10.orig/src/connections.c lighttpd-1.4.10/src/connection
  #if 0
  static void dump_packet(const unsigned char *data, size_t len) {
  	size_t i, j;
-@@ -365,6 +372,7 @@
+@@ -405,6 +412,7 @@
  				con->file_finished = 1;
  
  				chunkqueue_reset(con->write_queue);
@@ -250,16 +231,16 @@ diff -Naur lighttpd-1.4.10.orig/src/connections.c lighttpd-1.4.10/src/connection
  			}
  			break;
  		default:
-@@ -472,12 +480,27 @@
+@@ -517,12 +525,27 @@
  		/* disable chunked encoding again as we have no body */
  		con->response.transfer_encoding &= ~HTTP_TRANSFER_ENCODING_CHUNKED;
+ 		con->parsed_response &= ~HTTP_CONTENT_LENGTH;
  		chunkqueue_reset(con->write_queue);
 +		chunkqueue_reset(con->output_queue);
- 		
+ 
  		con->file_finished = 1;
  		break;
  	}
- 	
  
 +	/* Allow filter plugins to change response headers before they are written. */
 +	switch(plugins_call_handle_response_start(srv, con)) {
@@ -276,17 +257,19 @@ diff -Naur lighttpd-1.4.10.orig/src/connections.c lighttpd-1.4.10/src/connection
 +	}
 +
  	if (con->file_finished) {
- 		/* we have all the content and chunked encoding is not used, set a content-length */ 
- 		
-@@ -517,6 +540,7 @@
- 	
- 	if (con->request.http_method == HTTP_METHOD_HEAD) {
+ 		/* we have all the content and chunked encoding is not used, set a content-length */
+ 
+@@ -592,8 +615,9 @@
+ 		 * without the content
+ 		 */
+ 		con->file_finished = 1;
+ 
  		chunkqueue_reset(con->write_queue);
 +		chunkqueue_reset(con->output_queue);
+ 		con->response.transfer_encoding &= ~HTTP_TRANSFER_ENCODING_CHUNKED;
  	}
  
- 	http_response_write_header(srv, con);
-@@ -525,11 +549,57 @@
+@@ -603,11 +627,57 @@
  }
  
  static int connection_handle_write(server *srv, connection *con) {
@@ -346,49 +329,52 @@ diff -Naur lighttpd-1.4.10.orig/src/connections.c lighttpd-1.4.10/src/connection
  		}
  		break;
  	case -1: /* error on our side */
-@@ -599,6 +669,7 @@
- 	
+@@ -678,6 +747,7 @@
+ 
  #undef CLEAN
  	con->write_queue = chunkqueue_init();
 +	con->output_queue = chunkqueue_init();
  	con->read_queue = chunkqueue_init();
  	con->request_content_queue = chunkqueue_init();
  	chunkqueue_set_tempdirs(con->request_content_queue, srv->srvconf.upload_tempdirs);
-@@ -627,6 +698,7 @@
+@@ -705,6 +776,7 @@
  		connection_reset(srv, con);
- 		
+ 
  		chunkqueue_free(con->write_queue);
 +		chunkqueue_free(con->output_queue);
  		chunkqueue_free(con->read_queue);
  		chunkqueue_free(con->request_content_queue);
  		array_free(con->request.headers);
-@@ -681,6 +753,7 @@
+@@ -759,7 +831,10 @@
  	con->http_status = 0;
  	con->file_finished = 0;
  	con->file_started = 0;
 +	con->end_chunk = 0;
  	con->got_response = 0;
- 	
++//	con->use_cache_file = 0;
++//	con->write_cache_file = 0;
+ 
  	con->parsed_response = 0;
-@@ -751,6 +824,7 @@
+ 
+@@ -829,6 +904,7 @@
  	array_reset(con->environment);
- 	
+ 
  	chunkqueue_reset(con->write_queue);
 +	chunkqueue_reset(con->output_queue);
  	chunkqueue_reset(con->request_content_queue);
  
- 	/* the plugins should cleanup themself */	
-@@ -1178,7 +1252,6 @@
+ 	/* the plugins should cleanup themself */
+@@ -1223,7 +1299,6 @@
  	}
- 	
+ 
  	if (con->state == CON_STATE_WRITE &&
 -	    !chunkqueue_is_empty(con->write_queue) &&
  	    con->is_writable) {
- 		
+ 
  		if (-1 == connection_handle_write(srv, con)) {
-@@ -1573,15 +1646,15 @@
+@@ -1640,15 +1715,15 @@
  			}
- 			
+ 
  			/* only try to write if we have something in the queue */
 -			if (!chunkqueue_is_empty(con->write_queue)) {
  #if 0
@@ -406,11 +392,11 @@ diff -Naur lighttpd-1.4.10.orig/src/connections.c lighttpd-1.4.10/src/connection
  				if (-1 == connection_handle_write(srv, con)) {
  					log_error_write(srv, __FILE__, __LINE__, "ds",
  							con->fd,
-@@ -1691,9 +1764,9 @@
+@@ -1758,9 +1833,9 @@
  		 * - if we have data to write
- 		 * - if the socket is not writable yet 
+ 		 * - if the socket is not writable yet
  		 */
--		if (!chunkqueue_is_empty(con->write_queue) && 
+-		if (!chunkqueue_is_empty(con->write_queue) &&
 -		    (con->is_writable == 0) &&
 -		    (con->traffic_limit_reached == 0)) {
 +		if ((con->is_writable == 0) &&
@@ -419,86 +405,173 @@ diff -Naur lighttpd-1.4.10.orig/src/connections.c lighttpd-1.4.10/src/connection
  			fdevent_event_add(srv->ev, &(con->fde_ndx), con->fd, FDEVENT_OUT);
  		} else {
  			fdevent_event_del(srv->ev, &(con->fde_ndx), con->fd);
-diff -Naur lighttpd-1.4.10.orig/src/http_chunk.c lighttpd-1.4.10/src/http_chunk.c
---- lighttpd-1.4.10.orig/src/http_chunk.c	2005-08-10 15:26:50.000000000 -0700
-+++ lighttpd-1.4.10/src/http_chunk.c	2006-02-16 22:25:16.508346367 -0800
+diff -Naur lighttpd-1.4.19/src/http_chunk.c lighttpd-1.4.19.mod_deflate.jz/src/http_chunk.c
+--- lighttpd-1.4.19/src/http_chunk.c
++++ lighttpd-1.4.19.mod_deflate.jz/src/http_chunk.c
 @@ -58,16 +58,9 @@
- 	
+ 
  	cq = con->write_queue;
- 	
+ 
 -	if (con->response.transfer_encoding & HTTP_TRANSFER_ENCODING_CHUNKED) {
 -		http_chunk_append_len(srv, con, len);
 -	}
--	
-+
+ 
  	chunkqueue_append_file(cq, fn, offset, len);
- 	
+ 
 -	if (con->response.transfer_encoding & HTTP_TRANSFER_ENCODING_CHUNKED && len > 0) {
 -		chunkqueue_append_mem(cq, "\r\n", 2 + 1);
 -	}
--	
+-
  	return 0;
  }
  
 @@ -78,16 +71,9 @@
- 	
+ 
  	cq = con->write_queue;
- 	
+ 
 -	if (con->response.transfer_encoding & HTTP_TRANSFER_ENCODING_CHUNKED) {
 -		http_chunk_append_len(srv, con, mem->used - 1);
 -	}
--	
-+
+ 
  	chunkqueue_append_buffer(cq, mem);
- 	
+ 
 -	if (con->response.transfer_encoding & HTTP_TRANSFER_ENCODING_CHUNKED && mem->used > 0) {
 -		chunkqueue_append_mem(cq, "\r\n", 2 + 1);
 -	}
--	
+-
  	return 0;
  }
  
-@@ -99,25 +85,11 @@
+@@ -99,24 +85,11 @@
  	cq = con->write_queue;
- 	
+ 
  	if (len == 0) {
 -		if (con->response.transfer_encoding & HTTP_TRANSFER_ENCODING_CHUNKED) {
--			http_chunk_append_len(srv, con, 0);
--			chunkqueue_append_mem(cq, "\r\n", 2 + 1);
+-			chunkqueue_append_mem(cq, "0\r\n\r\n", 5 + 1);
 -		} else {
 -			chunkqueue_append_mem(cq, "", 1);
 -		}
  		return 0;
  	}
- 	
+ 
 -	if (con->response.transfer_encoding & HTTP_TRANSFER_ENCODING_CHUNKED) {
 -		http_chunk_append_len(srv, con, len - 1);
 -	}
--	
+-
  	chunkqueue_append_mem(cq, mem, len);
- 	
+ 
 -	if (con->response.transfer_encoding & HTTP_TRANSFER_ENCODING_CHUNKED) {
 -		chunkqueue_append_mem(cq, "\r\n", 2 + 1);
 -	}
--	
+-
  	return 0;
  }
  
-diff -Naur lighttpd-1.4.10.orig/src/joblist.c lighttpd-1.4.10/src/joblist.c
---- lighttpd-1.4.10.orig/src/joblist.c	2005-08-10 15:26:41.000000000 -0700
-+++ lighttpd-1.4.10/src/joblist.c	2006-02-16 22:25:16.508346367 -0800
+diff -Naur lighttpd-1.4.19/src/joblist.c lighttpd-1.4.19.mod_deflate.jz/src/joblist.c
+--- lighttpd-1.4.19/src/joblist.c
++++ lighttpd-1.4.19.mod_deflate.jz/src/joblist.c
 @@ -7,6 +7,7 @@
  
  int joblist_append(server *srv, connection *con) {
  	if (con->in_joblist) return 0;
 +	con->in_joblist = 1;
- 	
+ 
  	if (srv->joblist->size == 0) {
  		srv->joblist->size  = 16;
-diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflate.c
---- lighttpd-1.4.10.orig/src/mod_deflate.c	1969-12-31 16:00:00.000000000 -0800
-+++ lighttpd-1.4.10/src/mod_deflate.c	2006-02-17 23:26:45.885437687 -0800
-@@ -0,0 +1,1291 @@
+diff -Naur lighttpd-1.4.19/src/Makefile.am lighttpd-1.4.19.mod_deflate.jz/src/Makefile.am
+--- lighttpd-1.4.19/src/Makefile.am
++++ lighttpd-1.4.19.mod_deflate.jz/src/Makefile.am
+@@ -241,6 +241,11 @@
+ mod_accesslog_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
+ mod_accesslog_la_LIBADD = $(common_libadd)
+ 
++lib_LTLIBRARIES += mod_deflate.la
++mod_deflate_la_SOURCES = mod_deflate.c 
++mod_deflate_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
++mod_deflate_la_LIBADD = $(Z_LIB) $(BZ_LIB) $(common_libadd)
++
+ 
+ hdr = server.h buffer.h network.h log.h keyvalue.h \
+       response.h request.h fastcgi.h chunk.h \
+diff -Naur lighttpd-1.4.19/src/Makefile.in lighttpd-1.4.19.mod_deflate.jz/src/Makefile.in
+--- lighttpd-1.4.19/src/Makefile.in
++++ lighttpd-1.4.19.mod_deflate.jz/src/Makefile.in
+@@ -158,8 +158,15 @@
+ am_mod_compress_la_OBJECTS = mod_compress.lo
+ mod_compress_la_OBJECTS = $(am_mod_compress_la_OBJECTS)
+ mod_compress_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+ 	$(mod_compress_la_LDFLAGS) $(LDFLAGS) -o $@
++mod_deflate_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
++	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
++am_mod_deflate_la_OBJECTS = mod_deflate.lo
++mod_deflate_la_OBJECTS = $(am_mod_deflate_la_OBJECTS)
++mod_deflate_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
++	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
++	$(mod_deflate_la_LDFLAGS) $(LDFLAGS) -o $@
+ mod_dirlisting_la_DEPENDENCIES = $(am__DEPENDENCIES_2) \
+ 	$(am__DEPENDENCIES_1)
+ am_mod_dirlisting_la_OBJECTS = mod_dirlisting.lo
+@@ -399,6 +404,7 @@
+ 	$(mod_accesslog_la_SOURCES) $(mod_alias_la_SOURCES) \
+ 	$(mod_auth_la_SOURCES) $(mod_cgi_la_SOURCES) \
+ 	$(mod_cml_la_SOURCES) $(mod_compress_la_SOURCES) \
++	$(mod_deflate_la_SOURCES) \
+ 	$(mod_dirlisting_la_SOURCES) $(mod_evasive_la_SOURCES) \
+ 	$(mod_evhost_la_SOURCES) $(mod_expire_la_SOURCES) \
+ 	$(mod_fastcgi_la_SOURCES) $(mod_flv_streaming_la_SOURCES) \
+@@ -614,7 +619,7 @@
+ 	mod_ssi.la mod_secdownload.la mod_expire.la mod_evhost.la \
+ 	mod_simple_vhost.la mod_fastcgi.la mod_extforward.la \
+ 	mod_access.la mod_compress.la mod_auth.la mod_rewrite.la \
+-	mod_redirect.la mod_status.la mod_accesslog.la
++	mod_redirect.la mod_status.la mod_accesslog.la mod_deflate.la
+ @NO_RDYNAMIC_TRUE@liblightcomp_la_SOURCES = $(common_src)
+ @NO_RDYNAMIC_TRUE@liblightcomp_la_CFLAGS = $(AM_CFLAGS)
+ @NO_RDYNAMIC_TRUE@liblightcomp_la_LDFLAGS = -avoid-version -no-undefined
+@@ -721,6 +726,9 @@
+ mod_accesslog_la_SOURCES = mod_accesslog.c
+ mod_accesslog_la_LDFLAGS = -module -export-dynamic -avoid-version -no-undefined
+ mod_accesslog_la_LIBADD = $(common_libadd)
++mod_deflate_la_SOURCES = mod_deflate.c 
++mod_deflate_la_LDFLAGS = -module -export-dynamic -no-undefined
++mod_deflate_la_LIBADD = $(Z_LIB) $(BZ_LIB) $(common_libadd)
+ hdr = server.h buffer.h network.h log.h keyvalue.h \
+       response.h request.h fastcgi.h chunk.h \
+       settings.h http_chunk.h http_auth_digest.h \
+@@ -832,6 +840,8 @@
+	$(mod_cml_la_LINK) -rpath $(libdir) $(mod_cml_la_OBJECTS) $(mod_cml_la_LIBADD) $(LIBS)
+ mod_compress.la: $(mod_compress_la_OBJECTS) $(mod_compress_la_DEPENDENCIES) 
+	$(mod_compress_la_LINK) -rpath $(libdir) $(mod_compress_la_OBJECTS) $(mod_compress_la_LIBADD) $(LIBS)
++mod_deflate.la: $(mod_deflate_la_OBJECTS) $(mod_deflate_la_DEPENDENCIES) 
++	$(mod_deflate_la_LINK) -rpath $(libdir) $(mod_deflate_la_LDFLAGS) $(mod_deflate_la_OBJECTS) $(mod_deflate_la_LIBADD) $(LIBS)
+ mod_dirlisting.la: $(mod_dirlisting_la_OBJECTS) $(mod_dirlisting_la_DEPENDENCIES) 
+	$(mod_dirlisting_la_LINK) -rpath $(libdir) $(mod_dirlisting_la_OBJECTS) $(mod_dirlisting_la_LIBADD) $(LIBS)
+ mod_evasive.la: $(mod_evasive_la_OBJECTS) $(mod_evasive_la_DEPENDENCIES) 
+@@ -1050,6 +1060,7 @@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mod_cml_la-mod_cml_funcs.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mod_cml_la-mod_cml_lua.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mod_compress.Plo@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mod_deflate.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mod_dirlisting.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mod_evasive.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mod_evhost.Plo@am__quote@
+diff -Naur lighttpd-1.4.19/src/mod_deflate.c lighttpd-1.4.19.mod_deflate.jz/src/mod_deflate.c
+--- lighttpd-1.4.19/src/mod_deflate.c
++++ lighttpd-1.4.19.mod_deflate.jz/src/mod_deflate.c
+@@ -0,0 +1,1420 @@
++/* bug fix on Robert Jakabosky from alphatrade.com's lighttp 1.4.10 mod_deflate path
++ *
++ * new module option:
++ * deflate.nocompress-url = "^/nocompressurl/" # pcre regex which don't compress
++ *
++ * Bug fix and new features:
++ * 1) fix loop bug when content-length is bigger than work-block-size*k
++ * 2) prevent compress on buggy http 1.0 client with Accept Encoding: gzip, deflate
++ * 3) fix bug with chunk transfer encoding (under mod_fastcgi+php environment)
++ * 
++ * deflate.sync-flush = "enable" is buggy on chunk encoding transfer. Use it carefully,
++ */
 +#include <sys/types.h>
 +#include <sys/stat.h>
 +
@@ -511,6 +584,10 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +#include <time.h>
 +#include <assert.h>
 +
++#if defined(HAVE_PCRE_H)
++#include <pcre.h>
++#endif
++
 +#include "base.h"
 +#include "log.h"
 +#include "buffer.h"
@@ -522,6 +599,7 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +
 +#include "crc32.h"
 +#include "etag.h"
++#include "inet_ntop_cache.h"
 +
 +#if defined HAVE_ZLIB_H && defined HAVE_LIBZ
 +# define USE_ZLIB
@@ -562,6 +640,10 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +	short		compression_level;
 +	short		window_size;
 +	array		*mimetypes;
++	buffer 		*nocompress_url;
++#if defined(HAVE_PCRE_H)
++	pcre	*nocompress_regex;
++#endif
 +} plugin_config;
 +
 +typedef struct {
@@ -630,7 +712,10 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +			if (!s) continue;
 +			
 +			array_free(s->mimetypes);
-+			
++			buffer_free(s->nocompress_url);
++#if defined(HAVE_PCRE_H)
++		       	if (s->nocompress_regex) pcre_free(s->nocompress_regex);
++#endif
 +			free(s);
 +		}
 +		free(p->config_storage);
@@ -659,6 +744,7 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +		{ "deflate.debug",                 NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION },
 +		{ "deflate.bzip2",                 NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION },
 +		{ "deflate.sync-flush",            NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION },
++		{ "deflate.nocompress-url",        NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },
 +		{ NULL,                            NULL, T_CONFIG_UNSET, T_CONFIG_SCOPE_UNSET }
 +	};
 +	
@@ -666,6 +752,10 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +	
 +	for (i = 0; i < srv->config_context->used; i++) {
 +		plugin_config *s;
++#if defined(HAVE_PCRE_H)
++		const char *errptr;
++		int erroff;
++#endif
 +		
 +		s = calloc(1, sizeof(plugin_config));
 +		s->enabled = 1;
@@ -679,6 +769,10 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +		s->work_block_size = 2048;
 +		s->compression_level = Z_DEFAULT_COMPRESSION;
 +		s->mimetypes = array_init();
++		s->nocompress_url = buffer_init();
++#if defined(HAVE_PCRE_H)
++		s->nocompress_regex = NULL;
++#endif
 +
 +		cv[0].destination = &(s->output_buffer_size);
 +		cv[1].destination = s->mimetypes;
@@ -691,6 +785,7 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +		cv[8].destination = &(s->debug);
 +		cv[9].destination = &(s->bzip2);
 +		cv[10].destination = &(s->sync_flush);
++		cv[11].destination = s->nocompress_url;
 +		
 +		p->config_storage[i] = s;
 +	
@@ -698,6 +793,18 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +			return HANDLER_ERROR;
 +		}
 +
++#if defined(HAVE_PCRE_H)		
++		if (!buffer_is_empty(s->nocompress_url)) {
++			if (NULL == (s->nocompress_regex = pcre_compile(s->nocompress_url->ptr,
++								      0, &errptr, &erroff, NULL))) {
++				
++				log_error_write(srv, __FILE__, __LINE__, "sbss", 
++						"compiling regex for nocompress-url failed:", 
++						s->nocompress_url, "pos:", erroff);
++				return HANDLER_ERROR;
++			}
++		}
++#endif
 +		if((s->compression_level < 1 || s->compression_level > 9) &&
 +				s->compression_level != Z_DEFAULT_COMPRESSION) {
 +			log_error_write(srv, __FILE__, __LINE__, "sd", 
@@ -836,6 +943,7 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +			z->avail_out = hctx->output->size;
 +		}
 +	} while (z->avail_in > 0);
++
 +	if(p->conf.debug) {
 +		log_error_write(srv, __FILE__, __LINE__, "sdsd",
 +				"compress: in=", in, ", out=", out);
@@ -899,6 +1007,8 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +			z->avail_out = hctx->output->size;
 +		}
 +	} while (z->avail_in != 0 || !done);
++
++
 +	if(p->conf.debug) {
 +		log_error_write(srv, __FILE__, __LINE__, "sdsd",
 +				"flush: in=", in, ", out=", out);
@@ -922,7 +1032,7 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +	hctx->stream_open = 0;
 +
 +	if(hctx->compression_type == HTTP_ACCEPT_ENCODING_GZIP && hctx->bytes_out > 0 &&
-+			hctx->bytes_out >= sizeof(gzip_header)) {
++			(unsigned int )hctx->bytes_out >= sizeof(gzip_header)) {
 +		/* write gzip footer */
 +		unsigned char c[8];
 +
@@ -1361,6 +1471,12 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +	if(rc < 0) {
 +		log_error_write(srv, __FILE__, __LINE__, "s", "error closing stream");
 +	}
++
++	if (hctx->bytes_in < hctx->bytes_out) {
++		log_error_write(srv, __FILE__, __LINE__, "sbsdsd",
++				"uri ", con->uri.path_raw, " in=", hctx->bytes_in, " smaller than out=", hctx->bytes_out);
++	}
++
 +	if(p->conf.debug) {
 +		log_error_write(srv, __FILE__, __LINE__, "sdsd",
 +				" in:", hctx->bytes_in,
@@ -1377,16 +1493,14 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +	return 0;
 +}
 +
-+static handler_t deflate_compress_response(server *srv, connection *con, handler_ctx *hctx, int end) {
++static handler_t deflate_compress_response(server *srv, connection *con, handler_ctx *hctx, int end) { 
 +	plugin_data *p = hctx->plugin_data;
 +	chunk *c;
 +	size_t chunks_written = 0;
 +	int chunk_finished = 0;
-+	int len = 0;
 +	int rc=-1;
-+	int close_stream = 0;
-+	int out = 0;
-+	int max = 0;
++	int close_stream = 0, len = 0;
++	unsigned int out = 0, max = 0;
 +	
 +	/* move all chunk from write_queue into our in_queue */
 +	chunkqueue_append_chunkqueue(hctx->in_queue, con->write_queue);
@@ -1495,6 +1609,9 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +	PATCH(debug);
 +	PATCH(bzip2);
 +	PATCH(sync_flush);
++#if defined(HAVE_PCRE_H)
++	PATCH(nocompress_regex);
++#endif	
 +	
 +	/* skip the first, the global context */
 +	for (i = 1; i < srv->config_context->used; i++) {
@@ -1530,6 +1647,10 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +				PATCH(bzip2);
 +			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("deflate.sync-flush"))) {
 +				PATCH(sync_flush);
++			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("deflate.nocompress-url"))) {
++#if defined(HAVE_PCRE_H)
++				PATCH(nocompress_regex);
++#endif
 +			}
 +		}
 +	}
@@ -1552,7 +1673,13 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +	const char *compression_name = NULL;
 +	int file_len=0;
 +	int rc=-2;
++	int end = 0;
 +	size_t m;
++#if defined(HAVE_PCRE_H)
++	int n;
++# define N 10
++	int ovec[N * 3];
++#endif
 +	
 +	/* disable compression for some http status types. */
 +	switch(con->http_status) {
@@ -1576,18 +1703,23 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +		}
 +		return HANDLER_GO_ON;
 +	}
-+	
-+	/* the response might change according to Accept-Encoding */
-+	if (NULL != (ds = (data_string *)array_get_element(con->response.headers, "Vary"))) {
-+		/* append Accept-Encoding to Vary header */
-+		if (NULL == strstr(ds->value->ptr, "Accept-Encoding")) {
-+			buffer_append_string(ds->value, ",Accept-Encoding");
-+		}
-+	} else {
-+		response_header_insert(srv, con, CONST_STR_LEN("Vary"),
-+				CONST_STR_LEN("Accept-Encoding"));
-+	}
 +
++#if defined(HAVE_PCRE_H)
++	if(p->conf.nocompress_regex) { /*check no compress regex now */
++		if ((n = pcre_exec(p->conf.nocompress_regex, NULL, con->uri.path->ptr, con->uri.path->used - 1, 0, 0, ovec, 3 * N)) < 0) {
++			if (n != PCRE_ERROR_NOMATCH) {
++			       	log_error_write(srv, __FILE__, __LINE__, "sd",
++					"execution error while matching:", n);
++			       	return HANDLER_ERROR;
++		       	}
++	       	} else {
++			if(p->conf.debug) {
++			       	log_error_write(srv, __FILE__, __LINE__, "sb", "no compress for url:", con->uri.path);
++		       	}
++		       	return HANDLER_GO_ON;
++	       	}
++	}
++#endif
 +	/* Check if response has a Content-Encoding. */
 +	if (NULL != (ds = (data_string *)array_get_element(con->response.headers, "Content-Encoding"))) {
 +		return HANDLER_GO_ON;
@@ -1629,6 +1761,16 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +		return HANDLER_GO_ON;
 +	}
 +
++	if (con->request.true_http_10_client) { 
++		/*disable gzip/bzip2 when we meet HTTP 1.0 client with Accept-Encoding
++		 * maybe old buggy proxy server
++		 */
++		/* most of buggy clients are Yahoo Slurp;) */
++		if (p->conf.debug) log_error_write(srv, __FILE__, __LINE__, "ss",
++				"Buggy HTTP 1.0 client sending Accept Encoding: gzip, deflate", 
++				(char *) inet_ntop_cache_get_ip(srv, &(con->dst_addr)));
++		return HANDLER_GO_ON;
++	}
 +	/* check if size of response is below min-compress-size */
 +	if(con->file_finished && con->request.http_method != HTTP_METHOD_HEAD) {
 +		file_len = chunkqueue_length(con->write_queue);
@@ -1636,6 +1778,7 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +	} else {
 +		file_len = 0;
 +	}
++
 +	if(file_len > 0 && p->conf.min_compress_size > 0 && file_len < p->conf.min_compress_size) {
 +		if(p->conf.debug) {
 +			log_error_write(srv, __FILE__, __LINE__, "sd",
@@ -1658,7 +1801,8 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +				log_error_write(srv, __FILE__, __LINE__, "sb",
 +						"mime-type:", mimetype->value);
 +			}
-+			if (buffer_is_equal(mimetype->value, ds->value)) {
++			if (strncmp(mimetype->value->ptr, ds->value->ptr, mimetype->value->used-1) == 0) {
++/*			if (buffer_is_equal(mimetype->value, ds->value)) { */
 +				/* mimetype found */
 +				found = 1;
 +				break;
@@ -1671,12 +1815,40 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +			}
 +			return HANDLER_GO_ON;
 +		}
++#if 0
++		if(strncasecmp(ds->value->ptr, "application/x-javascript", 24) == 0) {
++			/*reset compress type to deflate for javascript
++			 * prevent buggy IE6 SP1 doesn't work for js in IFrame
++			 */
++			matched_encodings = HTTP_ACCEPT_ENCODING_DEFLATE;
++		}
++#endif
 +	}
 +	
 +	if(p->conf.debug) {
-+		log_error_write(srv, __FILE__, __LINE__, "s",
-+				"enable compression.");
++		log_error_write(srv, __FILE__, __LINE__, "sb",
++				"enable compression for ", con->uri.path);
 +	}
++
++	/* the response might change according to Accept-Encoding */
++	if (NULL != (ds = (data_string *)array_get_element(con->response.headers, "Vary"))) {
++		/* append Accept-Encoding to Vary header */
++		if (NULL == strstr(ds->value->ptr, "Accept-Encoding")) {
++			buffer_append_string(ds->value, ",Accept-Encoding");
++			if (p->conf.debug) {
++				log_error_write(srv, __FILE__, __LINE__, "sb",
++						"appending ,Accept-Encoding for ", con->uri.path);
++			}
++		}
++	} else {
++		if (p->conf.debug) {
++			log_error_write(srv, __FILE__, __LINE__, "sb",
++					"add Vary: Accept-Encoding for ", con->uri.path);
++		}
++		response_header_insert(srv, con, CONST_STR_LEN("Vary"),
++				CONST_STR_LEN("Accept-Encoding"));
++	}
++
 +	/* enable compression */
 +	hctx = handler_ctx_init();
 +	hctx->plugin_data = p;
@@ -1699,6 +1871,7 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +		log_error_write(srv, __FILE__, __LINE__, "s",
 +				"Failed to initialize compression.");
 +	}
++
 +	if(rc < 0) {
 +		handler_ctx_free(hctx);
 +		return HANDLER_GO_ON;
@@ -1717,33 +1890,50 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +	/* set Content-Encoding to show selected compression type. */
 +	response_header_overwrite(srv, con, CONST_STR_LEN("Content-Encoding"), compression_name, strlen(compression_name));
 +
-+	/* if file finished and size less then work-block-size, then compress the content now. */
-+	if(con->file_finished && (p->conf.work_block_size == 0 || file_len < (p->conf.work_block_size * 1024)) &&
-+			con->request.http_method != HTTP_METHOD_HEAD) {
-+		/* We don't have to use chunked encoding. */
-+		con->response.transfer_encoding = 0;
-+		con->parsed_response &= ~(HTTP_CONTENT_LENGTH);
-+		/* Compress all response content. */
++	if (con->file_finished)	end = 1;
++
++	con->parsed_response &= ~(HTTP_CONTENT_LENGTH); 
++#if 0
++	/* debug */
++	if (con->parsed_response & HTTP_TRANSFER_ENCODING_CHUNKED)
++		log_error_write(srv, __FILE__, __LINE__, "s",
++			"deflate: response with chunked encoding");
++	if (con->response.transfer_encoding & HTTP_TRANSFER_ENCODING_CHUNKED)
++		log_error_write(srv, __FILE__, __LINE__, "s",
++			"deflate: transfer encoding with chunked encoding");
++#endif
++
++	if (con->file_finished && (p->conf.work_block_size == 0 || file_len < (p->conf.work_block_size * 1024))
++		       	&& con->request.http_method != HTTP_METHOD_HEAD) {
++		/* disable chunk transfer */
++		con->response.transfer_encoding = 0; 
++		con->parsed_response &= ~(HTTP_TRANSFER_ENCODING_CHUNKED);
 +		if(p->conf.debug) {
 +			log_error_write(srv, __FILE__, __LINE__, "sd",
 +					"Compress all content and use Content-Length header: uncompress len=", file_len);
 +		}
-+		return deflate_compress_response(srv, con, hctx, 1);
++		return deflate_compress_response(srv, con, hctx, end); 
 +	} else {
-+		/* Remove Content-Length header.  We don't know the length. */
-+		con->parsed_response &= ~(HTTP_CONTENT_LENGTH);
 +		if (con->request.http_version == HTTP_VERSION_1_1) {
++			if (p->conf.debug) 
++				log_error_write(srv, __FILE__, __LINE__, "sb",
++					"chunk transfer encoding for uri", con->uri.path);
 +			/* Make sure to use chunked encoding. */
-+			con->response.transfer_encoding = HTTP_TRANSFER_ENCODING_CHUNKED;
-+			/* Remove Content-Length header.  We don't know the length. */
-+			con->parsed_response &= ~(HTTP_CONTENT_LENGTH);
++			con->response.transfer_encoding = HTTP_TRANSFER_ENCODING_CHUNKED; 
 +		} else {
-+			/* HTTP/1.0 doesn't support chunked transfer encoding. */
++			if (p->conf.debug) 
++				log_error_write(srv, __FILE__, __LINE__, "sb",
++					"http 1.0 encoding for uri", con->uri.path);
++			/* We don't have to use chunked encoding because HTTP 1.0 don't support it. */
 +			con->response.transfer_encoding = 0;
-+			return deflate_compress_response(srv, con, hctx, 1);
++			con->parsed_response &= ~(HTTP_TRANSFER_ENCODING_CHUNKED);
 +		}
 +	}
 +
++	if (p->conf.debug) 
++		log_error_write(srv, __FILE__, __LINE__, "sdsb", "end =", end, "for uri", con->uri.path);
++
++	deflate_compress_response(srv, con, hctx, end);
 +	return HANDLER_GO_ON;
 +}
 +
@@ -1755,7 +1945,7 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +	if(!hctx->stream_open) return HANDLER_GO_ON;
 +	if(con->request.http_method == HTTP_METHOD_HEAD) return HANDLER_GO_ON;
 +
-+	return deflate_compress_response(srv, con, hctx, 0);
++	return deflate_compress_response(srv, con, hctx, 0); 
 +}
 +
 +handler_t mod_deflate_cleanup(server *srv, connection *con, void *p_d) {
@@ -1778,21 +1968,21 @@ diff -Naur lighttpd-1.4.10.orig/src/mod_deflate.c lighttpd-1.4.10/src/mod_deflat
 +	p->version     = LIGHTTPD_VERSION_ID;
 +	p->name        = buffer_init_string("deflate");
 +	
-+	p->init					= mod_deflate_init;
-+	p->cleanup			= mod_deflate_free;
++	p->init		= mod_deflate_init;
++	p->cleanup	= mod_deflate_free;
 +	p->set_defaults	= mod_deflate_setdefaults;
-+	p->connection_reset					= mod_deflate_cleanup;
++	p->connection_reset	= mod_deflate_cleanup;
 +	p->handle_connection_close	= mod_deflate_cleanup;
-+	p->handle_response_start		= mod_deflate_handle_response_start;
-+	p->handle_response_filter		= mod_deflate_handle_response_filter;
++	p->handle_response_start	= mod_deflate_handle_response_start;
++	p->handle_response_filter	= mod_deflate_handle_response_filter;
 +	
 +	p->data        = NULL;
 +	
 +	return 0;
 +}
-diff -Naur lighttpd-1.4.10.orig/src/plugin.c lighttpd-1.4.10/src/plugin.c
---- lighttpd-1.4.10.orig/src/plugin.c	2006-02-08 04:00:54.000000000 -0800
-+++ lighttpd-1.4.10/src/plugin.c	2006-02-16 22:25:16.514345356 -0800
+diff -Naur lighttpd-1.4.19/src/plugin.c lighttpd-1.4.19.mod_deflate.jz/src/plugin.c
+--- lighttpd-1.4.19/src/plugin.c
++++ lighttpd-1.4.19.mod_deflate.jz/src/plugin.c
 @@ -40,6 +40,8 @@
  		PLUGIN_FUNC_HANDLE_SIGHUP,
  		PLUGIN_FUNC_HANDLE_SUBREQUEST,
@@ -1820,9 +2010,9 @@ diff -Naur lighttpd-1.4.10.orig/src/plugin.c lighttpd-1.4.10/src/plugin.c
  		PLUGIN_TO_SLOT(PLUGIN_FUNC_HANDLE_JOBLIST, handle_joblist);
  		PLUGIN_TO_SLOT(PLUGIN_FUNC_HANDLE_DOCROOT, handle_docroot);
  		PLUGIN_TO_SLOT(PLUGIN_FUNC_HANDLE_PHYSICAL, handle_physical);
-diff -Naur lighttpd-1.4.10.orig/src/plugin.h lighttpd-1.4.10/src/plugin.h
---- lighttpd-1.4.10.orig/src/plugin.h	2005-08-15 02:28:56.000000000 -0700
-+++ lighttpd-1.4.10/src/plugin.h	2006-02-16 22:25:16.514345356 -0800
+diff -Naur lighttpd-1.4.19/src/plugin.h lighttpd-1.4.19.mod_deflate.jz/src/plugin.h
+--- lighttpd-1.4.19/src/plugin.h
++++ lighttpd-1.4.19.mod_deflate.jz/src/plugin.h
 @@ -54,6 +54,8 @@
  											    * has to be found
  											    */
@@ -1831,7 +2021,7 @@ diff -Naur lighttpd-1.4.10.orig/src/plugin.h lighttpd-1.4.10/src/plugin.h
 +	handler_t (* handle_response_filter) (server *srv, connection *con, void *p_d);    /* response content filter */
  	handler_t (* connection_reset)       (server *srv, connection *con, void *p_d);    /* */
  	void *data;
- 	
+ 
 @@ -68,6 +70,8 @@
  handler_t plugins_call_handle_uri_clean(server *srv, connection *con);
  handler_t plugins_call_handle_subrequest_start(server *srv, connection *con);
@@ -1841,48 +2031,97 @@ diff -Naur lighttpd-1.4.10.orig/src/plugin.h lighttpd-1.4.10/src/plugin.h
  handler_t plugins_call_handle_request_done(server *srv, connection *con);
  handler_t plugins_call_handle_docroot(server *srv, connection *con);
  handler_t plugins_call_handle_physical(server *srv, connection *con);
-diff -Naur lighttpd-1.4.10.orig/src/response.c lighttpd-1.4.10/src/response.c
---- lighttpd-1.4.10.orig/src/response.c	2006-02-08 04:01:01.000000000 -0800
-+++ lighttpd-1.4.10/src/response.c	2006-02-16 22:25:16.515345187 -0800
-@@ -31,7 +31,7 @@
+diff -Naur lighttpd-1.4.19/src/request.c lighttpd-1.4.19.mod_deflate.jz/src/request.c
+--- lighttpd-1.4.19/src/request.c
++++ lighttpd-1.4.19.mod_deflate.jz/src/request.c
+@@ -415,8 +415,10 @@
+ 
+ 					if (major_num == 1 && minor_num == 1) {
+ 						con->request.http_version = con->conf.allow_http11 ? HTTP_VERSION_1_1 : HTTP_VERSION_1_0;
++						con->request.true_http_10_client = 0;
+ 					} else if (major_num == 1 && minor_num == 0) {
+ 						con->request.http_version = HTTP_VERSION_1_0;
++						con->request.true_http_10_client = 1;
+ 					} else {
+ 						con->http_status = 505;
+ 
+diff -Naur lighttpd-1.4.19/src/response.c lighttpd-1.4.19.mod_deflate.jz/src/response.c
+--- lighttpd-1.4.19/src/response.c
++++ lighttpd-1.4.19.mod_deflate.jz/src/response.c
+@@ -32,7 +32,7 @@
  	int have_date = 0;
  	int have_server = 0;
- 	
+ 
 -	b = chunkqueue_get_prepend_buffer(con->write_queue);
 +	b = chunkqueue_get_prepend_buffer(con->output_queue);
- 	
+ 
  	if (con->request.http_version == HTTP_VERSION_1_1) {
  		BUFFER_COPY_STRING_CONST(b, "HTTP/1.1 ");
-diff -Naur lighttpd-1.4.10.orig/src/server.c lighttpd-1.4.10/src/server.c
---- lighttpd-1.4.10.orig/src/server.c	2006-02-01 03:50:02.000000000 -0800
-+++ lighttpd-1.4.10/src/server.c	2006-02-16 22:25:16.516345019 -0800
-@@ -173,6 +173,9 @@
+@@ -49,6 +49,8 @@
+ 	}
+ 
+ 	if (con->response.transfer_encoding & HTTP_TRANSFER_ENCODING_CHUNKED) {
++/*	if (!(con->parsed_response & HTTP_TRANSFER_ENCODING_CHUNKED) &&
++	     (con->response.transfer_encoding & HTTP_TRANSFER_ENCODING_CHUNKED)) { */
+ 		BUFFER_APPEND_STRING_CONST(b, "\r\nTransfer-Encoding: chunked");
+ 	}
+ 
+@@ -65,6 +67,16 @@
+ 			if (buffer_is_equal_string(ds->key, CONST_STR_LEN("Date"))) have_date = 1;
+ 			if (buffer_is_equal_string(ds->key, CONST_STR_LEN("Server"))) have_server = 1;
+ 
++			/* remove Transfer-Encoding: chunked header when HTTP 1.0
++			 * or transfer_encoding & HTTP_TRANSFER_ENCODING_CHUNKED == 0
++			 */
++			if ( (con->request.http_version == HTTP_VERSION_1_0 || 
++			     !(con->response.transfer_encoding & HTTP_TRANSFER_ENCODING_CHUNKED)) &&
++			     0 == strncasecmp(ds->value->ptr, "chunked", sizeof("chunked")-1) &&
++			     0 == strncasecmp(ds->key->ptr, "Transfer-Encoding", sizeof("Transfer-Encoding") - 1)) {
++				continue ;
++			}
++
+ 			BUFFER_APPEND_STRING_CONST(b, "\r\n");
+ 			buffer_append_string_buffer(b, ds->key);
+ 			BUFFER_APPEND_STRING_CONST(b, ": ");
+@@ -576,7 +588,7 @@
+ 				}
+ 
+ 				if (slash) pathinfo = slash;
+-			} while ((found == 0) && (slash != NULL) && ((size_t)(slash - srv->tmp_buf->ptr) > (con->physical.basedir->used - 2)));
++			} while ((found == 0) && (slash != NULL) && ((size_t)(slash - srv->tmp_buf->ptr) > con->physical.basedir->used - 2));
+ 
+ 			if (found == 0) {
+ 				/* no it really doesn't exists */
+diff -Naur lighttpd-1.4.19/src/server.c lighttpd-1.4.19.mod_deflate.jz/src/server.c
+--- lighttpd-1.4.19/src/server.c
++++ lighttpd-1.4.19.mod_deflate.jz/src/server.c
+@@ -203,6 +203,9 @@
  	srv->joblist = calloc(1, sizeof(*srv->joblist));
  	assert(srv->joblist);
- 	
+ 
 +	srv->joblist_prev = calloc(1, sizeof(*srv->joblist));
 +	assert(srv->joblist_prev);
 +
  	srv->fdwaitqueue = calloc(1, sizeof(*srv->fdwaitqueue));
  	assert(srv->fdwaitqueue);
- 	
-@@ -259,6 +262,7 @@
+ 
+@@ -294,6 +297,7 @@
  #undef CLEAN
- 	
+ 
  	joblist_free(srv, srv->joblist);
 +	joblist_free(srv, srv->joblist_prev);
  	fdwaitqueue_free(srv, srv->fdwaitqueue);
- 	
+ 
  	if (srv->stat_cache) {
-@@ -1016,6 +1020,7 @@
+@@ -1137,6 +1141,7 @@
  	/* main-loop */
  	while (!srv_shutdown) {
  		int n;
 +		int timeout;
  		size_t ndx;
  		time_t min_ts;
- 		
-@@ -1243,7 +1248,12 @@
+ 
+@@ -1388,7 +1393,12 @@
  			}
  		}
  
@@ -1896,23 +2135,12 @@ diff -Naur lighttpd-1.4.10.orig/src/server.c lighttpd-1.4.10/src/server.c
  			/* n is the number of events */
  			int revents;
  			int fd_ndx;
-@@ -1291,25 +1301,29 @@
+@@ -1436,10 +1446,16 @@
  					strerror(errno));
  		}
- 		
+ 
 -		for (ndx = 0; ndx < srv->joblist->used; ndx++) {
 -			connection *con = srv->joblist->ptr[ndx];
--			handler_t r;
--			
--			connection_state_machine(srv, con);
--			
--			switch(r = plugins_call_handle_joblist(srv, con)) {
--			case HANDLER_FINISHED:
--			case HANDLER_GO_ON:
--				break;
--			default:
--				log_error_write(srv, __FILE__, __LINE__, "d", r);
--				break;
 +		if(srv->joblist->used > 0) {
 +			connections *joblist = srv->joblist;
 +			/* switch joblist queues. */
@@ -1920,26 +2148,23 @@ diff -Naur lighttpd-1.4.10.orig/src/server.c lighttpd-1.4.10/src/server.c
 +			srv->joblist_prev = joblist;
 +			for (ndx = 0; ndx < joblist->used; ndx++) {
 +				connection *con = joblist->ptr[ndx];
-+				handler_t r;
-+
+ 			handler_t r;
+ 
 +				con->in_joblist = 0;
-+				connection_state_machine(srv, con);
-+
-+				switch(r = plugins_call_handle_joblist(srv, con)) {
-+				case HANDLER_FINISHED:
-+				case HANDLER_GO_ON:
-+					break;
-+				default:
-+					log_error_write(srv, __FILE__, __LINE__, "d", r);
-+					break;
-+				}
+ 			connection_state_machine(srv, con);
+ 
+ 			switch(r = plugins_call_handle_joblist(srv, con)) {
+@@ -1450,11 +1466,9 @@
+ 				log_error_write(srv, __FILE__, __LINE__, "d", r);
+ 				break;
  			}
--			
+-
 -			con->in_joblist = 0;
-+			joblist->used = 0;
  		}
--		
+-
 -		srv->joblist->used = 0;
++			joblist->used = 0;
++		}
  	}
- 	
+ 
  	if (srv->srvconf.pid_file->used &&
