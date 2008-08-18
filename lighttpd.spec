@@ -37,7 +37,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		rel 9
+%define		rel 10
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -260,8 +260,8 @@ Summary:	lighttpd module for CGI handling PHP scripts
 Summary(pl.UTF-8):	Moduł lighttpd do obsługi skryptów PHP przez CGI
 Group:		Networking/Daemons
 Requires:	%{name}-mod_cgi = %{version}-%{release}
-Provides:	webserver(php)
 Requires:	php(cgi)
+Provides:	webserver(php)
 
 %description mod_cgi_php
 The cgi module provides a CGI-conforming interface for PHP scripts.
@@ -270,7 +270,8 @@ CGI programs allow you to enhance the functionality of the server in a
 very straight and simple way.
 
 %description mod_cgi_php -l pl.UTF-8
-Moduł cgi udostępnia interfejs zgodny z CGI do wywoływania skryptów PHP.
+Moduł cgi udostępnia interfejs zgodny z CGI do wywoływania skryptów
+PHP.
 
 Programy CGI pozwalają rozszerzać funkcjonalność serwera w bardzo
 prosty i naturalny sposób.
@@ -593,6 +594,7 @@ Summary:	lighttpd module for setting conditional request headers
 Summary(pl.UTF-8):	Moduł lighttpd do ustawiania warunkowych nagłówków żądań
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
+Provides:	webserver(setenv)
 
 %description mod_setenv
 mod_setenv is used to add request headers.
