@@ -37,7 +37,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		rel 10
+%define		rel 11
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -378,6 +378,7 @@ Summary:	lighttpd module for controlling the expiration of content in caches
 Summary(pl.UTF-8):	Moduł lighttpd sterujący wygasaniem treści w cache'ach
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
+Provides:	webserver(expires)
 
 %description mod_expire
 mod_expire controls the setting of the the Expire response header.
