@@ -931,7 +931,7 @@ rm -rf $RPM_BUILD_ROOT
 %pre
 %groupadd -g 109 lighttpd
 %groupadd -g 51 http
-%useradd -u 116 -d %{_lighttpddir} -c "LigHTTPd User" -g lighttpd lighttpd
+%useradd -u 116 -d %{_lighttpddir} -c "Lighttpd User" -g lighttpd lighttpd
 %addusertogroup lighttpd http
 
 %post
@@ -966,7 +966,7 @@ fi
 #
 # the strict internal deps between lighttpd modules and
 # main package are very important for all this to work.
-%service %{name} restart "LigHTTPd webserver"
+%service %{name} restart "Lighttpd webserver"
 exit 0
 
 # macro called at module post scriptlet
