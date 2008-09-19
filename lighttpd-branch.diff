@@ -4776,51 +4776,6 @@ Index: src/mod_indexfile.c
  
 Index: src/mod_uploadprogress.c
 ===================================================================
---- src/mod_uploadprogress.c	(.../tags/lighttpd-1.4.19)	(revision 2303)
-+++ src/mod_uploadprogress.c	(.../branches/lighttpd-1.4.x)	(revision 2303)
-@@ -355,6 +355,7 @@
- 		con->file_finished = 1;
- 
- 		con->http_status = 200;
-+		con->mode = DIRECT;
- 
- 		/* get the connection */
- 		if (NULL == (post_con = connection_map_get_connection(p->con_map, b))) {
-@@ -363,7 +364,7 @@
- 
- 			b = chunkqueue_get_append_buffer(con->write_queue);
- 
--			BUFFER_APPEND_STRING_CONST(b, "starting");
-+			buffer_append_string_len(b, CONST_STR_LEN("starting"));
- 
- 			return HANDLER_FINISHED;
- 		}
-@@ -378,15 +379,18 @@
- 		b = chunkqueue_get_append_buffer(con->write_queue);
- 
- 		/* prepare XML */
--		BUFFER_COPY_STRING_CONST(b, "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>");
--		BUFFER_APPEND_STRING_CONST(b, "<upload>");
--		BUFFER_APPEND_STRING_CONST(b, "<size>");
-+		buffer_copy_string_len(b, CONST_STR_LEN(
-+			"<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>"
-+			"<upload>"
-+			"<size>"));
- 		buffer_append_off_t(b, post_con->request.content_length);
--		BUFFER_APPEND_STRING_CONST(b, "</size>");
--		BUFFER_APPEND_STRING_CONST(b, "<received>");
-+		buffer_append_string_len(b, CONST_STR_LEN(
-+			"</size>"
-+			"<received>"));
- 		buffer_append_off_t(b, post_con->request_content_queue->bytes_in);
--		BUFFER_APPEND_STRING_CONST(b, "</received>");
--		BUFFER_APPEND_STRING_CONST(b, "</upload>");
-+		buffer_append_string_len(b, CONST_STR_LEN(
-+			"</received>"
-+			"</upload>"));
- 
- 		log_error_write(srv, __FILE__, __LINE__, "sb", "...", b);
- 
 Index: src/mod_fastcgi.c
 ===================================================================
 --- src/mod_fastcgi.c	(.../tags/lighttpd-1.4.19)	(revision 2303)
@@ -6208,16 +6163,6 @@ Index: tests/bug-06.conf
  server.port                 = 2048
 Index: tests/mod-extforward.conf
 ===================================================================
---- tests/mod-extforward.conf	(.../tags/lighttpd-1.4.19)	(revision 2303)
-+++ tests/mod-extforward.conf	(.../branches/lighttpd-1.4.x)	(revision 2303)
-@@ -3,7 +3,6 @@
- debug.log-request-header   = "disable"
- 
- server.document-root         = env.SRCDIR + "/tmp/lighttpd/servers/www.example.org/pages/"
--server.pid-file              = env.SRCDIR + "/tmp/lighttpd/lighttpd.pid"
- 
- ## bind to port (default: 80)
- server.port                 = 2048
 
 Property changes on: tests/symlink.t
 ___________________________________________________________________
