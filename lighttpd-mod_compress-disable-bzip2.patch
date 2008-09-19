@@ -1,0 +1,81 @@
+--- lighttpd-1.4.19/src/mod_compress.c~	2008-09-19 13:00:02.000000000 +0300
++++ lighttpd-1.4.19/src/mod_compress.c	2008-09-19 13:24:30.921429633 +0300
+@@ -46,6 +46,7 @@
+ #endif
+ 
+ typedef struct {
++	unsigned short	bzip2;
+ 	buffer *compress_cache_dir;
+ 	array  *compress;
+ 	off_t   compress_max_filesize; /** max filesize in kb */
+@@ -154,6 +155,7 @@
+ 		{ "compress.cache-dir",             NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },
+ 		{ "compress.filetype",              NULL, T_CONFIG_ARRAY, T_CONFIG_SCOPE_CONNECTION },
+ 		{ "compress.max-filesize",          NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },
++		{ "compress.bzip2",                 NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION },
+ 		{ NULL,                             NULL, T_CONFIG_UNSET, T_CONFIG_SCOPE_UNSET }
+ 	};
+ 
+@@ -166,10 +168,12 @@
+ 		s->compress_cache_dir = buffer_init();
+ 		s->compress = array_init();
+ 		s->compress_max_filesize = 0;
++		s->bzip2 = 1;
+ 
+ 		cv[0].destination = s->compress_cache_dir;
+ 		cv[1].destination = s->compress;
+ 		cv[2].destination = &(s->compress_max_filesize);
++		cv[3].destination = &(s->bzip2);
+ 
+ 		p->config_storage[i] = s;
+ 
+@@ -587,6 +591,7 @@
+ 	PATCH(compress_cache_dir);
+ 	PATCH(compress);
+ 	PATCH(compress_max_filesize);
++	PATCH(bzip2);
+ 
+ 	/* skip the first, the global context */
+ 	for (i = 1; i < srv->config_context->used; i++) {
+@@ -606,6 +611,8 @@
+ 				PATCH(compress);
+ 			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("compress.max-filesize"))) {
+ 				PATCH(compress_max_filesize);
++			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("compress.bzip2"))) {
++				PATCH(bzip2);
+ 			}
+ 		}
+ 	}
+@@ -675,12 +682,18 @@
+ 				if (NULL != strstr(value, "gzip")) accept_encoding |= HTTP_ACCEPT_ENCODING_GZIP;
+ 				if (NULL != strstr(value, "deflate")) accept_encoding |= HTTP_ACCEPT_ENCODING_DEFLATE;
+ 				if (NULL != strstr(value, "compress")) accept_encoding |= HTTP_ACCEPT_ENCODING_COMPRESS;
+-				if (NULL != strstr(value, "bzip2")) accept_encoding |= HTTP_ACCEPT_ENCODING_BZIP2;
++#ifdef USE_BZ2LIB
++				if (p->conf.bzip2) {
++					if (NULL != strstr(value, "bzip2")) accept_encoding |= HTTP_ACCEPT_ENCODING_BZIP2;
++				}
++#endif
+ 				if (NULL != strstr(value, "identity")) accept_encoding |= HTTP_ACCEPT_ENCODING_IDENTITY;
+ 
+ 				/* get server side supported ones */
+ #ifdef USE_BZ2LIB
+-				srv_encodings |= HTTP_ACCEPT_ENCODING_BZIP2;
++				if (p->conf.bzip2) {
++					srv_encodings |= HTTP_ACCEPT_ENCODING_BZIP2;
++				}
+ #endif
+ #ifdef USE_ZLIB
+ 				srv_encodings |= HTTP_ACCEPT_ENCODING_GZIP;
+--- lighttpd-1.4.19/doc/compress.txt~	2006-10-04 16:26:23.000000000 +0300
++++ lighttpd-1.4.19/doc/compress.txt	2008-09-19 13:27:27.571638906 +0300
+@@ -32,6 +32,9 @@
+ Options
+ =======
+ 
++compress.bzip2
++  enable/disable bzip2 support.
++
+ compress.cache-dir
+   name of the directory where compressed content will be cached
+ 
