@@ -60,7 +60,7 @@
 +			}
 +		} else {
 +			/* default encodings */
-+			s->allowed_encodings = HTTP_ACCEPT_ENCODING_GZIP | HTTP_ACCEPT_ENCODING_DEFLATE | HTTP_ACCEPT_ENCODING_COMPRESS | HTTP_ACCEPT_ENCODING_BZIP2;
++			s->allowed_encodings = HTTP_ACCEPT_ENCODING_GZIP | HTTP_ACCEPT_ENCODING_DEFLATE | HTTP_ACCEPT_ENCODING_BZIP2;
 +		}
 +
 +		array_free(encodings_arr);
