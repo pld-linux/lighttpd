@@ -1,5 +1,5 @@
---- lighttpd-1.4.19/src/mod_compress.c~	2008-09-19 13:00:02.000000000 +0300
-+++ lighttpd-1.4.19/src/mod_compress.c	2008-09-19 13:24:30.921429633 +0300
+--- lighttpd-1.4.19/src/mod_compress.c	2008-09-19 13:24:30.921429633 +0300
++++ lighttpd-1.4.19/src/mod_compress.c	2008-09-19 14:16:06.292324544 +0300
 @@ -46,6 +46,7 @@
  #endif
  
@@ -67,14 +67,53 @@
  #endif
  #ifdef USE_ZLIB
  				srv_encodings |= HTTP_ACCEPT_ENCODING_GZIP;
---- lighttpd-1.4.19/doc/compress.txt~	2006-10-04 16:26:23.000000000 +0300
-+++ lighttpd-1.4.19/doc/compress.txt	2008-09-19 13:27:27.571638906 +0300
-@@ -32,6 +32,9 @@
+@@ -689,7 +702,6 @@
+ 			if (NULL != (ds = (data_string *)array_get_element(con->request.headers, "Accept-Encoding"))) {
+ 				int accept_encoding = 0;
+ 				char *value = ds->value->ptr;
+-				int srv_encodings = 0;
+ 				int matched_encodings = 0;
+ 
+ 				/* get client side support encodings */
+@@ -697,25 +709,12 @@
+ 				if (NULL != strstr(value, "deflate")) accept_encoding |= HTTP_ACCEPT_ENCODING_DEFLATE;
+ 				if (NULL != strstr(value, "compress")) accept_encoding |= HTTP_ACCEPT_ENCODING_COMPRESS;
+ #ifdef USE_BZ2LIB
+-				if (p->conf.bzip2) {
+-					if (NULL != strstr(value, "bzip2")) accept_encoding |= HTTP_ACCEPT_ENCODING_BZIP2;
+-				}
++				if (NULL != strstr(value, "bzip2")) accept_encoding |= HTTP_ACCEPT_ENCODING_BZIP2;
+ #endif
+ 				if (NULL != strstr(value, "identity")) accept_encoding |= HTTP_ACCEPT_ENCODING_IDENTITY;
+ 
+-				/* get server side supported ones */
+-#ifdef USE_BZ2LIB
+-				if (p->conf.bzip2) {
+-					srv_encodings |= HTTP_ACCEPT_ENCODING_BZIP2;
+-				}
+-#endif
+-#ifdef USE_ZLIB
+-				srv_encodings |= HTTP_ACCEPT_ENCODING_GZIP;
+-				srv_encodings |= HTTP_ACCEPT_ENCODING_DEFLATE;
+-#endif
+-
+ 				/* find matching entries */
+-				matched_encodings = accept_encoding & srv_encodings;
++				matched_encodings = accept_encoding & p->conf.allowed_encodings;
+ 
+ 				if (matched_encodings) {
+ 					const char *dflt_gzip = "gzip";
+--- lighttpd-1.4.19/doc/compress.txt	2008-09-19 13:27:27.571638906 +0300
++++ lighttpd-1.4.19/doc/compress.txt	2008-09-19 14:24:12.308407368 +0300
+@@ -32,6 +32,12 @@
  Options
  =======
  
-+compress.bzip2
-+  enable/disable bzip2 support.
++compress.allowed_encodings
++  override default set of allowed encodings
++
++  e.g.: ::
++    compress.allowed_encodings = ("bzip2", "gzip", "deflate")
 +
  compress.cache-dir
    name of the directory where compressed content will be cached
