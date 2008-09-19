@@ -1,6 +1,6 @@
 --- lighttpd-1.4.19/src/mod_compress.c	2008-09-19 14:16:06.292324544 +0300
-+++ lighttpd-1.4.19/src/mod_compress.c	2008-09-19 14:16:06.292324544 +0300
-@@ -49,12 +49,14 @@
++++ lighttpd-1.4.19/src/mod_compress.c	2008-09-19 17:08:15.821157844 +0300
+@@ -49,6 +49,7 @@
  	buffer *compress_cache_dir;
  	array  *compress;
  	off_t   compress_max_filesize; /** max filesize in kb */
@@ -8,22 +8,7 @@
  } plugin_config;
  
  typedef struct {
- 	PLUGIN_DATA;
- 	buffer *ofn;
- 	buffer *b;
-+	array  *encodings_arr;
- 
- 	plugin_config **config_storage;
- 	plugin_config conf;
-@@ -67,6 +69,7 @@
- 
- 	p->ofn = buffer_init();
- 	p->b = buffer_init();
-+	p->encodings_arr = array_init();
- 
- 	return p;
- }
-@@ -154,6 +157,7 @@
+@@ -154,6 +155,7 @@
  		{ "compress.cache-dir",             NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },
  		{ "compress.filetype",              NULL, T_CONFIG_ARRAY, T_CONFIG_SCOPE_CONNECTION },
  		{ "compress.max-filesize",          NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },
@@ -31,7 +16,13 @@
  		{ NULL,                             NULL, T_CONFIG_UNSET, T_CONFIG_SCOPE_UNSET }
  	};
  
-@@ -166,10 +170,12 @@
+@@ -161,15 +163,18 @@
+ 
+ 	for (i = 0; i < srv->config_context->used; i++) {
+ 		plugin_config *s;
++		array  *encodings_arr = array_init();
+ 
+ 		s = calloc(1, sizeof(plugin_config));
  		s->compress_cache_dir = buffer_init();
  		s->compress = array_init();
  		s->compress_max_filesize = 0;
@@ -40,18 +31,18 @@
  		cv[0].destination = s->compress_cache_dir;
  		cv[1].destination = s->compress;
  		cv[2].destination = &(s->compress_max_filesize);
-+		cv[3].destination = p->encodings_arr; /* temp array for allowed encodings list */
++		cv[3].destination = encodings_arr; /* temp array for allowed encodings list */
  
  		p->config_storage[i] = s;
  
-@@ -177,6 +183,32 @@
+@@ -177,6 +182,33 @@
  			return HANDLER_ERROR;
  		}
  
-+		if (p->encodings_arr->used) {
++		if (encodings_arr->used) {
 +			size_t j = 0;
-+			for (j = 0; j < p->encodings_arr->used; j++) {
-+				data_string *ds = (data_string *)p->encodings_arr->data[j];
++			for (j = 0; j < encodings_arr->used; j++) {
++				data_string *ds = (data_string *)encodings_arr->data[j];
 +#ifdef USE_ZLIB
 +				if (NULL != strstr(ds->value->ptr, "gzip"))
 +					s->allowed_encodings |= HTTP_ACCEPT_ENCODING_GZIP;
@@ -73,6 +64,7 @@
 +				HTTP_ACCEPT_ENCODING_DEFLATE | HTTP_ACCEPT_ENCODING_COMPRESS | HTTP_ACCEPT_ENCODING_BZIP2;
 +		}
 +
++		array_free(encodings_arr);
 +
  		if (!buffer_is_empty(s->compress_cache_dir)) {
  			struct stat st;
