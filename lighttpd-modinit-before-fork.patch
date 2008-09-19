@@ -1,7 +1,5 @@
-Index: src/server.c
-===================================================================
---- src/server.c	(revision 2188)
-+++ src/server.c	(working copy)
+--- ./src/server.c	(working copy)
++++ lighttpd-1.4.19/src/server.c	2008-09-19 17:43:33.695522751 +0300
 @@ -865,34 +865,9 @@
  		return -1;
  	}
@@ -17,7 +15,7 @@ Index: src/server.c
 -	/* write pid file */
 -	if (pid_fd != -1) {
 -		buffer_copy_long(srv->tmp_buf, getpid());
--		buffer_append_string(srv->tmp_buf, "\n");
+-		buffer_append_string_len(srv->tmp_buf, CONST_STR_LEN("\n"));
 -		write(pid_fd, srv->tmp_buf->ptr, srv->tmp_buf->used - 1);
 -		close(pid_fd);
 -		pid_fd = -1;
@@ -37,7 +35,7 @@ Index: src/server.c
  	if (HANDLER_GO_ON != plugins_call_set_defaults(srv)) {
  		log_error_write(srv, __FILE__, __LINE__, "s", "Configuration of plugins failed. Going down.");
  
-@@ -943,9 +918,88 @@
+@@ -918,7 +893,86 @@
  		return -1;
  	}
  
@@ -55,17 +53,17 @@ Index: src/server.c
 +		plugins_free(srv);
 +		network_close(srv);
 +		server_free(srv);
- 
++
 +		return -1;
 +	}
- 
++
 +	/* might fail if user is using fam (not gamin) and famd isn't running */
 +	if (NULL == (srv->stat_cache = stat_cache_init())) {
 +		log_error_write(srv, __FILE__, __LINE__, "s",
 +			"stat-cache could not be setup, dieing.");
 +		return -1;
 +	}
- 
++
 +#ifdef HAVE_FAM_H
 +	/* setup FAM */
 +	if (srv->srvconf.stat_cache_engine == STAT_CACHE_ENGINE_FAM) {
@@ -112,21 +110,19 @@ Index: src/server.c
 +	/* network is up, let's deamonize ourself */
 +	if (srv->srvconf.dont_daemonize == 0) daemonize();
 +#endif
-+
+ 
 +	/* write pid file */
 +	if (pid_fd != -1) {
 +		buffer_copy_long(srv->tmp_buf, getpid());
-+		buffer_append_string(srv->tmp_buf, "\n");
++		buffer_append_string_len(srv->tmp_buf, CONST_STR_LEN("\n"));
 +		write(pid_fd, srv->tmp_buf->ptr, srv->tmp_buf->used - 1);
 +		close(pid_fd);
 +		pid_fd = -1;
 +	}
-+
-+
+ 
+ 
  #ifdef HAVE_SIGACTION
- 	memset(&act, 0, sizeof(act));
- 	act.sa_handler = SIG_IGN;
-@@ -1067,62 +1121,6 @@
+@@ -1042,62 +1096,6 @@
  	}
  #endif
  
