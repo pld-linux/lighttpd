@@ -1,5 +1,5 @@
---- lighttpd-1.4.19/src/mod_compress.c	2008-09-19 14:16:06.292324544 +0300
-+++ lighttpd-1.4.19/src/mod_compress.c	2008-09-19 17:08:15.821157844 +0300
+--- lighttpd-1.4.19/src/mod_compress.c	2008-09-19 17:08:15.821157844 +0300
++++ lighttpd-1.4.19/src/mod_compress.c	2008-09-19 17:24:45.542342957 +0300
 @@ -49,6 +49,7 @@
  	buffer *compress_cache_dir;
  	array  *compress;
@@ -35,7 +35,7 @@
  
  		p->config_storage[i] = s;
  
-@@ -177,6 +182,33 @@
+@@ -177,6 +182,32 @@
  			return HANDLER_ERROR;
  		}
  
@@ -48,11 +48,11 @@
 +					s->allowed_encodings |= HTTP_ACCEPT_ENCODING_GZIP;
 +				if (NULL != strstr(ds->value->ptr, "deflate"))
 +					s->allowed_encodings |= HTTP_ACCEPT_ENCODING_DEFLATE;
-+#endif
 +				/*
 +				if (NULL != strstr(ds->value->ptr, "compress"))
 +					s->allowed_encodings |= HTTP_ACCEPT_ENCODING_COMPRESS;
 +				*/
++#endif
 +#ifdef USE_BZ2LIB
 +				if (NULL != strstr(ds->value->ptr, "bzip2"))
 +					s->allowed_encodings |= HTTP_ACCEPT_ENCODING_BZIP2;
@@ -60,8 +60,7 @@
 +			}
 +		} else {
 +			/* default encodings */
-+			s->allowed_encodings = HTTP_ACCEPT_ENCODING_IDENTITY | HTTP_ACCEPT_ENCODING_GZIP |
-+				HTTP_ACCEPT_ENCODING_DEFLATE | HTTP_ACCEPT_ENCODING_COMPRESS | HTTP_ACCEPT_ENCODING_BZIP2;
++			s->allowed_encodings = HTTP_ACCEPT_ENCODING_GZIP | HTTP_ACCEPT_ENCODING_DEFLATE | HTTP_ACCEPT_ENCODING_COMPRESS | HTTP_ACCEPT_ENCODING_BZIP2;
 +		}
 +
 +		array_free(encodings_arr);
@@ -69,7 +68,7 @@
  		if (!buffer_is_empty(s->compress_cache_dir)) {
  			struct stat st;
  			mkdir_recursive(s->compress_cache_dir->ptr);
-@@ -587,6 +619,7 @@
+@@ -587,6 +618,7 @@
  	PATCH(compress_cache_dir);
  	PATCH(compress);
  	PATCH(compress_max_filesize);
@@ -77,7 +76,7 @@
  
  	/* skip the first, the global context */
  	for (i = 1; i < srv->config_context->used; i++) {
-@@ -606,6 +639,8 @@
+@@ -606,6 +638,8 @@
  				PATCH(compress);
  			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("compress.max-filesize"))) {
  				PATCH(compress_max_filesize);
@@ -86,7 +85,7 @@
  			}
  		}
  	}
-@@ -668,27 +703,19 @@
+@@ -668,27 +702,21 @@
  			if (NULL != (ds = (data_string *)array_get_element(con->request.headers, "Accept-Encoding"))) {
  				int accept_encoding = 0;
  				char *value = ds->value->ptr;
@@ -94,6 +93,7 @@
  				int matched_encodings = 0;
  
  				/* get client side support encodings */
++#ifdef USE_ZLIB
  				if (NULL != strstr(value, "gzip")) accept_encoding |= HTTP_ACCEPT_ENCODING_GZIP;
  				if (NULL != strstr(value, "deflate")) accept_encoding |= HTTP_ACCEPT_ENCODING_DEFLATE;
  				if (NULL != strstr(value, "compress")) accept_encoding |= HTTP_ACCEPT_ENCODING_COMPRESS;
@@ -101,12 +101,13 @@
 -				if (NULL != strstr(value, "identity")) accept_encoding |= HTTP_ACCEPT_ENCODING_IDENTITY;
 -
 -				/* get server side supported ones */
- #ifdef USE_BZ2LIB
+-#ifdef USE_BZ2LIB
 -				srv_encodings |= HTTP_ACCEPT_ENCODING_BZIP2;
--#endif
+ #endif
 -#ifdef USE_ZLIB
 -				srv_encodings |= HTTP_ACCEPT_ENCODING_GZIP;
 -				srv_encodings |= HTTP_ACCEPT_ENCODING_DEFLATE;
++#ifdef USE_BZ2LIB
 +				if (NULL != strstr(value, "bzip2")) accept_encoding |= HTTP_ACCEPT_ENCODING_BZIP2;
  #endif
 +				if (NULL != strstr(value, "identity")) accept_encoding |= HTTP_ACCEPT_ENCODING_IDENTITY;
