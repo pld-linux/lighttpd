@@ -67,6 +67,8 @@
  #endif
  #ifdef USE_ZLIB
  				srv_encodings |= HTTP_ACCEPT_ENCODING_GZIP;
+--- lighttpd-1.4.19/src/mod_compress.c~	2008-09-19 14:25:16.000000000 +0300
++++ lighttpd-1.4.19/src/mod_compress.c	2008-09-19 14:27:32.251960154 +0300
 @@ -675,7 +675,6 @@
  			if (NULL != (ds = (data_string *)array_get_element(con->request.headers, "Accept-Encoding"))) {
  				int accept_encoding = 0;
