@@ -1,5 +1,5 @@
---- lighttpd-1.4.13/src/mod_evasive.c~	2006-10-10 03:02:12.749561697 +0300
-+++ lighttpd-1.4.13/src/mod_evasive.c	2006-10-10 03:14:39.056335465 +0300
+--- lighttpd-1.4.19/src/mod_evasive.c~	2008-09-19 17:46:59.000000000 +0300
++++ lighttpd-1.4.19/src/mod_evasive.c	2008-09-19 17:50:24.307245276 +0300
 @@ -27,11 +27,15 @@
  
  typedef struct {
@@ -80,15 +80,15 @@
  			}
  		}
  	}
-@@ -153,7 +175,10 @@
- 					inet_ntop_cache_get_ip(srv, &(con->dst_addr)),
- 					"turned away. Too many connections.");
+@@ -198,8 +198,10 @@
+ 				inet_ntop_cache_get_ip(srv, &(con->dst_addr)),
+ 				"turned away. Too many connections.");
  
--				con->http_status = 403;
-+				buffer_copy_long(p->evasive_rftmp, p->conf.retry_after);
-+
-+				con->http_status = p->conf.http_status_code;
-+				response_header_overwrite(srv, con, CONST_STR_LEN("Retry-After"), CONST_BUF_LEN(p->evasive_rftmp));
- 				return HANDLER_FINISHED;
- 			}
+-			con->http_status = 403;
+ 			con->mode = DIRECT;
++			con->http_status = p->conf.http_status_code;
++			buffer_copy_long(p->evasive_rftmp, p->conf.retry_after);
++			response_header_overwrite(srv, con, CONST_STR_LEN("Retry-After"), CONST_BUF_LEN(p->evasive_rftmp));
+ 			return HANDLER_FINISHED;
  		}
+ 	}
