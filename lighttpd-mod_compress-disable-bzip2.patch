@@ -67,7 +67,7 @@
  #endif
  #ifdef USE_ZLIB
  				srv_encodings |= HTTP_ACCEPT_ENCODING_GZIP;
-@@ -689,7 +702,6 @@
+@@ -675,7 +675,6 @@
  			if (NULL != (ds = (data_string *)array_get_element(con->request.headers, "Accept-Encoding"))) {
  				int accept_encoding = 0;
  				char *value = ds->value->ptr;
@@ -75,7 +75,7 @@
  				int matched_encodings = 0;
  
  				/* get client side support encodings */
-@@ -697,25 +709,12 @@
+@@ -683,25 +682,12 @@
  				if (NULL != strstr(value, "deflate")) accept_encoding |= HTTP_ACCEPT_ENCODING_DEFLATE;
  				if (NULL != strstr(value, "compress")) accept_encoding |= HTTP_ACCEPT_ENCODING_COMPRESS;
  #ifdef USE_BZ2LIB
