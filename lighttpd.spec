@@ -37,7 +37,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		rel 11
+%define		rel 11.1
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -108,7 +108,8 @@ Patch1:		%{name}-mod_evasive-status_code.patch
 Patch2:		%{name}-mod_h264_streaming.patch
 Patch3:		%{name}-branding.patch
 Patch4:		%{name}-modinit-before-fork.patch
-#Patchx:	%{name}-mod_deflate.patch
+Patch5:		%{name}-mod_deflate.patch
+Patch6:		%{name}-mod_compress-disable-bzip2.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -807,6 +808,8 @@ Plik monitrc do monitorowania serwera www lighttpd.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%{?with_deflate:%patch5 -p1}
+%patch6 -p1
 
 rm -f src/mod_ssi_exprparser.h # bad patching: should be removed by is emptied instead
 
@@ -914,12 +917,12 @@ install %{SOURCE132} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/ssl.conf
 
 touch $RPM_BUILD_ROOT/var/lib/lighttpd/lighttpd.rrd
 
-%if !%{with mysql}
+%if %{without mysql}
 # avoid packaging dummy module
 rm -f $RPM_BUILD_ROOT%{_libdir}/mod_mysql_vhost.so
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_mysql_vhost.conf
 %endif
-%if !%{with deflate}
+%if %{without deflate}
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_deflate.conf
 %endif
 
