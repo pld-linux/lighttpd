@@ -37,7 +37,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		rel 11.2
+%define		rel 12
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
