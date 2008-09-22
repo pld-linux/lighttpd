@@ -1,5 +1,5 @@
---- lighttpd-1.4.19/src/mod_compress.c	2008-09-19 17:08:15.821157844 +0300
-+++ lighttpd-1.4.19/src/mod_compress.c	2008-09-19 17:24:45.542342957 +0300
+--- lighttpd-1.4.19/src/mod_compress.c	2008-09-19 17:24:45.542342957 +0300
++++ lighttpd-1.4.19/src/mod_compress.c	2008-09-22 14:24:00.738911820 +0300
 @@ -49,6 +49,7 @@
  	buffer *compress_cache_dir;
  	array  *compress;
@@ -35,7 +35,7 @@
  
  		p->config_storage[i] = s;
  
-@@ -177,6 +182,32 @@
+@@ -177,6 +182,39 @@
  			return HANDLER_ERROR;
  		}
  
@@ -60,7 +60,14 @@
 +			}
 +		} else {
 +			/* default encodings */
-+			s->allowed_encodings = HTTP_ACCEPT_ENCODING_GZIP | HTTP_ACCEPT_ENCODING_DEFLATE | HTTP_ACCEPT_ENCODING_BZIP2;
++			s->allowed_encodings = 0
++#ifdef USE_ZLIB
++				| HTTP_ACCEPT_ENCODING_GZIP | HTTP_ACCEPT_ENCODING_DEFLATE
++#endif
++#ifdef USE_BZ2LIB
++				| HTTP_ACCEPT_ENCODING_BZIP2
++#endif
++				;
 +		}
 +
 +		array_free(encodings_arr);
@@ -68,7 +75,7 @@
  		if (!buffer_is_empty(s->compress_cache_dir)) {
  			struct stat st;
  			mkdir_recursive(s->compress_cache_dir->ptr);
-@@ -587,6 +618,7 @@
+@@ -587,6 +625,7 @@
  	PATCH(compress_cache_dir);
  	PATCH(compress);
  	PATCH(compress_max_filesize);
@@ -76,7 +83,7 @@
  
  	/* skip the first, the global context */
  	for (i = 1; i < srv->config_context->used; i++) {
-@@ -606,6 +638,8 @@
+@@ -606,6 +645,8 @@
  				PATCH(compress);
  			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("compress.max-filesize"))) {
  				PATCH(compress_max_filesize);
@@ -85,7 +92,7 @@
  			}
  		}
  	}
-@@ -668,27 +702,21 @@
+@@ -668,27 +709,21 @@
  			if (NULL != (ds = (data_string *)array_get_element(con->request.headers, "Accept-Encoding"))) {
  				int accept_encoding = 0;
  				char *value = ds->value->ptr;
