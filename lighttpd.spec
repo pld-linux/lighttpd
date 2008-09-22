@@ -37,7 +37,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		rel 9
+%define		rel 13
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -108,7 +108,8 @@ Patch1:		%{name}-mod_evasive-status_code.patch
 Patch2:		%{name}-mod_h264_streaming.patch
 Patch3:		%{name}-branding.patch
 Patch4:		%{name}-modinit-before-fork.patch
-#Patchx:	%{name}-mod_deflate.patch
+Patch5:		%{name}-mod_deflate.patch
+Patch6:		%{name}-mod_compress-disable-bzip2.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -260,8 +261,8 @@ Summary:	lighttpd module for CGI handling PHP scripts
 Summary(pl.UTF-8):	Moduł lighttpd do obsługi skryptów PHP przez CGI
 Group:		Networking/Daemons
 Requires:	%{name}-mod_cgi = %{version}-%{release}
-Provides:	webserver(php)
 Requires:	php(cgi)
+Provides:	webserver(php)
 
 %description mod_cgi_php
 The cgi module provides a CGI-conforming interface for PHP scripts.
@@ -270,7 +271,8 @@ CGI programs allow you to enhance the functionality of the server in a
 very straight and simple way.
 
 %description mod_cgi_php -l pl.UTF-8
-Moduł cgi udostępnia interfejs zgodny z CGI do wywoływania skryptów PHP.
+Moduł cgi udostępnia interfejs zgodny z CGI do wywoływania skryptów
+PHP.
 
 Programy CGI pozwalają rozszerzać funkcjonalność serwera w bardzo
 prosty i naturalny sposób.
@@ -377,6 +379,7 @@ Summary:	lighttpd module for controlling the expiration of content in caches
 Summary(pl.UTF-8):	Moduł lighttpd sterujący wygasaniem treści w cache'ach
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
+Provides:	webserver(expires)
 
 %description mod_expire
 mod_expire controls the setting of the the Expire response header.
@@ -593,6 +596,7 @@ Summary:	lighttpd module for setting conditional request headers
 Summary(pl.UTF-8):	Moduł lighttpd do ustawiania warunkowych nagłówków żądań
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
+Provides:	webserver(setenv)
 
 %description mod_setenv
 mod_setenv is used to add request headers.
@@ -804,6 +808,8 @@ Plik monitrc do monitorowania serwera www lighttpd.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%{?with_deflate:%patch5 -p1}
+%patch6 -p1
 
 rm -f src/mod_ssi_exprparser.h # bad patching: should be removed by is emptied instead
 
@@ -818,6 +824,7 @@ sh %{SOURCE6} /etc/mime.types
 
 %configure \
 	--enable-maintainer-mode \
+	--with-distribution="PLD Linux" \
 	%{!?with_ipv6:--disable-ipv6} \
 	%{!?with_largefile:--disable-lfs} \
 	%{?with_valgrind:--with-valgrind} \
@@ -911,12 +918,12 @@ install %{SOURCE132} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/ssl.conf
 
 touch $RPM_BUILD_ROOT/var/lib/lighttpd/lighttpd.rrd
 
-%if !%{with mysql}
+%if %{without mysql}
 # avoid packaging dummy module
 rm -f $RPM_BUILD_ROOT%{_libdir}/mod_mysql_vhost.so
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_mysql_vhost.conf
 %endif
-%if !%{with deflate}
+%if %{without deflate}
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_deflate.conf
 %endif
 
@@ -928,7 +935,7 @@ rm -rf $RPM_BUILD_ROOT
 %pre
 %groupadd -g 109 lighttpd
 %groupadd -g 51 http
-%useradd -u 116 -d %{_lighttpddir} -c "LigHTTPd User" -g lighttpd lighttpd
+%useradd -u 116 -d %{_lighttpddir} -c "Lighttpd User" -g lighttpd lighttpd
 %addusertogroup lighttpd http
 
 %post
@@ -963,7 +970,7 @@ fi
 #
 # the strict internal deps between lighttpd modules and
 # main package are very important for all this to work.
-%service %{name} restart "LigHTTPd webserver"
+%service %{name} restart "Lighttpd webserver"
 exit 0
 
 # macro called at module post scriptlet
