@@ -4,7 +4,7 @@
  	buffer *compress_cache_dir;
  	array  *compress;
  	off_t   compress_max_filesize; /** max filesize in kb */
-+	int		allowed_encodings;
++	int     allowed_encodings;
  } plugin_config;
  
  typedef struct {
