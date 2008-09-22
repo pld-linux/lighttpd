@@ -37,7 +37,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		rel 12
+%define		rel 13
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -824,6 +824,7 @@ sh %{SOURCE6} /etc/mime.types
 
 %configure \
 	--enable-maintainer-mode \
+	--with-distribution="PLD Linux" \
 	%{!?with_ipv6:--disable-ipv6} \
 	%{!?with_largefile:--disable-lfs} \
 	%{?with_valgrind:--with-valgrind} \
