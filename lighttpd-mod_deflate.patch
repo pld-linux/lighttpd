@@ -560,7 +560,7 @@ diff -Naur lighttpd-1.4.19/src/mod_deflate.c lighttpd-1.4.19.mod_deflate.jz/src/
 --- lighttpd-1.4.19/src/mod_deflate.c
 +++ lighttpd-1.4.19.mod_deflate.jz/src/mod_deflate.c
 @@ -0,0 +1,1420 @@
-+/* bug fix on Robert Jakabosky from alphatrade.com's lighttp 1.4.10 mod_deflate path
++/* bug fix on Robert Jakabosky from alphatrade.com's lighttp 1.4.10 mod_deflate patch
 + *
 + * new module option:
 + * deflate.nocompress-url = "^/nocompressurl/" # pcre regex which don't compress
