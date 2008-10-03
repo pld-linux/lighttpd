@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 svn=svn://svn.lighttpd.net/lighttpd
-tag=lighttpd-1.4.19
+tag=lighttpd-1.4.20
 branch=lighttpd-1.4.x
 
 old=$svn/tags/$tag
@@ -10,5 +10,5 @@ echo "Running diff: $old -> $new"
 LC_ALL=C svn diff --old=$old --new=$new > lighttpd-branch.diff
 
 echo "Excluding files which change version or were not in dist tarball"
-filterdiff -x 'configure.in' -x .cvsignore -x tests/mod-extforward.conf -x src/mod_uploadprogress.c lighttpd-branch.diff > lighttpd-branch.diff.tmp
+filterdiff -x 'configure.in' lighttpd-branch.diff > lighttpd-branch.diff.tmp
 mv -f lighttpd-branch.diff.tmp lighttpd-branch.diff
