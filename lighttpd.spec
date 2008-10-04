@@ -37,7 +37,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		rel 1
+%define		rel 2
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -1051,7 +1051,7 @@ fi
 %files
 %defattr(644,root,root,755)
 %doc NEWS README ChangeLog doc/lighttpd.conf doc/*.txt doc/rrdtool-graph.sh
-%dir %attr(750,root,lighttpd) %{_sysconfdir}
+%dir %attr(751,root,lighttpd) %{_sysconfdir}
 %dir %attr(750,root,root) %{_sysconfdir}/webapps.d
 %dir %attr(750,root,root) %{_sysconfdir}/conf.d
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}.conf
