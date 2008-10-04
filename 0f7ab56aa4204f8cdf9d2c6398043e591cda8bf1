@@ -1,0 +1,2 @@
+- up to 1.4.20, fixes CVE-2008-1531, CVE-2008-4360, CVE-2008-4298, CVE-2008-4359
+- svn up to r2324 (already contains crucial fixes)
