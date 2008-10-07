@@ -37,7 +37,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		rel 3
+%define		rel 4
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -109,7 +109,7 @@ Patch2:		%{name}-mod_h264_streaming.patch
 Patch3:		%{name}-branding.patch
 Patch4:		%{name}-modinit-before-fork.patch
 Patch5:		%{name}-mod_deflate.patch
-Patch6:		%{name}-mod_compress-disable-bzip2.patch
+Patch6:		%{name}-mod_rrdtool-emptyfile.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
