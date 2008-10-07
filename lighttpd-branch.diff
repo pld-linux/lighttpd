@@ -2,8 +2,8 @@ Index: configure.in
 ===================================================================
 Index: src/configfile-glue.c
 ===================================================================
---- src/configfile-glue.c	(.../tags/lighttpd-1.4.20)	(revision 2324)
-+++ src/configfile-glue.c	(.../branches/lighttpd-1.4.x)	(revision 2324)
+--- src/configfile-glue.c	(.../tags/lighttpd-1.4.20)	(revision 2336)
++++ src/configfile-glue.c	(.../branches/lighttpd-1.4.x)	(revision 2336)
 @@ -1,4 +1,5 @@
  #include <string.h>
 +#include <stdlib.h>
@@ -35,8 +35,8 @@ Index: src/configfile-glue.c
  				return -1;
 Index: src/mod_cgi.c
 ===================================================================
---- src/mod_cgi.c	(.../tags/lighttpd-1.4.20)	(revision 2324)
-+++ src/mod_cgi.c	(.../branches/lighttpd-1.4.x)	(revision 2324)
+--- src/mod_cgi.c	(.../tags/lighttpd-1.4.20)	(revision 2336)
++++ src/mod_cgi.c	(.../branches/lighttpd-1.4.x)	(revision 2336)
 @@ -822,15 +822,27 @@
  			);
  		cgi_env_add(&env, CONST_STR_LEN("SERVER_PORT"), buf, strlen(buf));
@@ -107,8 +107,8 @@ Index: src/mod_cgi.c
  		LI_ltostr(buf,
 Index: src/connections.c
 ===================================================================
---- src/connections.c	(.../tags/lighttpd-1.4.20)	(revision 2324)
-+++ src/connections.c	(.../branches/lighttpd-1.4.x)	(revision 2324)
+--- src/connections.c	(.../tags/lighttpd-1.4.20)	(revision 2336)
++++ src/connections.c	(.../branches/lighttpd-1.4.x)	(revision 2336)
 @@ -330,15 +330,13 @@
  	buffer_prepare_copy(b, 4 * 1024);
  	len = recv(con->fd, b->ptr, b->size - 1, 0);
@@ -133,8 +133,8 @@ Index: src/connections.c
  
 Index: src/configfile.c
 ===================================================================
---- src/configfile.c	(.../tags/lighttpd-1.4.20)	(revision 2324)
-+++ src/configfile.c	(.../branches/lighttpd-1.4.x)	(revision 2324)
+--- src/configfile.c	(.../tags/lighttpd-1.4.20)	(revision 2336)
++++ src/configfile.c	(.../branches/lighttpd-1.4.x)	(revision 2336)
 @@ -940,7 +940,6 @@
  }
  
@@ -152,10 +152,34 @@ Index: src/configfile.c
  		log_error_write(srv, __FILE__, __LINE__, "sbss",
  				"opening", source, "failed:", strerror(errno));
  		ret = -1;
+Index: src/response.c
+===================================================================
+--- src/response.c	(.../tags/lighttpd-1.4.20)	(revision 2336)
++++ src/response.c	(.../branches/lighttpd-1.4.x)	(revision 2336)
+@@ -44,16 +44,15 @@
+ 	buffer_append_string(b, get_http_status_name(con->http_status));
+ 
+ 	if (con->request.http_version != HTTP_VERSION_1_1 || con->keep_alive == 0) {
+-		buffer_append_string_len(b, CONST_STR_LEN("\r\nConnection: "));
+ 		if (con->keep_alive) {
+-			buffer_append_string_len(b, CONST_STR_LEN("keep-alive"));
++			response_header_overwrite(srv, con, CONST_STR_LEN("Connection"), CONST_STR_LEN("keep-alive"));
+ 		} else {
+-			buffer_append_string_len(b, CONST_STR_LEN("close"));
++			response_header_overwrite(srv, con, CONST_STR_LEN("Connection"), CONST_STR_LEN("close"));
+ 		}
+ 	}
+ 
+ 	if (con->response.transfer_encoding & HTTP_TRANSFER_ENCODING_CHUNKED) {
+-		buffer_append_string_len(b, CONST_STR_LEN("\r\nTransfer-Encoding: chunked"));
++		response_header_overwrite(srv, con, CONST_STR_LEN("Transfer-Encoding"), CONST_STR_LEN("chunked"));
+ 	}
+ 
+ 
 Index: src/mod_simple_vhost.c
 ===================================================================
---- src/mod_simple_vhost.c	(.../tags/lighttpd-1.4.20)	(revision 2324)
-+++ src/mod_simple_vhost.c	(.../branches/lighttpd-1.4.x)	(revision 2324)
+--- src/mod_simple_vhost.c	(.../tags/lighttpd-1.4.20)	(revision 2336)
++++ src/mod_simple_vhost.c	(.../branches/lighttpd-1.4.x)	(revision 2336)
 @@ -249,6 +249,8 @@
  				return HANDLER_GO_ON;
  			} else {
@@ -165,10 +189,24 @@ Index: src/mod_simple_vhost.c
  			}
  		} else {
  			buffer_copy_string_buffer(con->server_name, con->uri.authority);
+Index: src/mod_proxy.c
+===================================================================
+--- src/mod_proxy.c	(.../tags/lighttpd-1.4.20)	(revision 2336)
++++ src/mod_proxy.c	(.../branches/lighttpd-1.4.x)	(revision 2336)
+@@ -1198,7 +1198,8 @@
+ 		host = (data_proxy *)extension->value->data[0];
+ 
+ 		/* Use last_used_ndx from first host in list */
+-		k = ndx = host->last_used_ndx;
++		k = host->last_used_ndx;
++		ndx = k + 1; /* use next host after the last one */
+ 		if (ndx < 0) ndx = 0;
+ 
+ 		/* Search first active host after last_used_ndx */
 Index: src/http_auth.c
 ===================================================================
---- src/http_auth.c	(.../tags/lighttpd-1.4.20)	(revision 2324)
-+++ src/http_auth.c	(.../branches/lighttpd-1.4.x)	(revision 2324)
+--- src/http_auth.c	(.../tags/lighttpd-1.4.20)	(revision 2336)
++++ src/http_auth.c	(.../branches/lighttpd-1.4.x)	(revision 2336)
 @@ -57,22 +57,25 @@
  
  static const char base64_pad = '=';
@@ -293,8 +331,8 @@ Index: src/http_auth.c
  		if (NULL == (ldap = ldap_init(p->conf.auth_ldap_hostname->ptr, LDAP_PORT))) {
 Index: src/http_auth.h
 ===================================================================
---- src/http_auth.h	(.../tags/lighttpd-1.4.20)	(revision 2324)
-+++ src/http_auth.h	(.../branches/lighttpd-1.4.x)	(revision 2324)
+--- src/http_auth.h	(.../tags/lighttpd-1.4.20)	(revision 2336)
++++ src/http_auth.h	(.../branches/lighttpd-1.4.x)	(revision 2336)
 @@ -63,7 +63,7 @@
  
  	mod_auth_plugin_config **config_storage;
@@ -304,10 +342,139 @@ Index: src/http_auth.h
  } mod_auth_plugin_data;
  
  int http_auth_basic_check(server *srv, connection *con, mod_auth_plugin_data *p, array *req, buffer *url, const char *realm_str);
+Index: src/mod_compress.c
+===================================================================
+--- src/mod_compress.c	(.../tags/lighttpd-1.4.20)	(revision 2336)
++++ src/mod_compress.c	(.../branches/lighttpd-1.4.x)	(revision 2336)
+@@ -49,6 +49,7 @@
+ 	buffer *compress_cache_dir;
+ 	array  *compress;
+ 	off_t   compress_max_filesize; /** max filesize in kb */
++	int     allowed_encodings;
+ } plugin_config;
+ 
+ typedef struct {
+@@ -154,6 +155,7 @@
+ 		{ "compress.cache-dir",             NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },
+ 		{ "compress.filetype",              NULL, T_CONFIG_ARRAY, T_CONFIG_SCOPE_CONNECTION },
+ 		{ "compress.max-filesize",          NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },
++		{ "compress.allowed-encodings",     NULL, T_CONFIG_ARRAY, T_CONFIG_SCOPE_CONNECTION },
+ 		{ NULL,                             NULL, T_CONFIG_UNSET, T_CONFIG_SCOPE_UNSET }
+ 	};
+ 
+@@ -161,15 +163,18 @@
+ 
+ 	for (i = 0; i < srv->config_context->used; i++) {
+ 		plugin_config *s;
++		array  *encodings_arr = array_init();
+ 
+ 		s = calloc(1, sizeof(plugin_config));
+ 		s->compress_cache_dir = buffer_init();
+ 		s->compress = array_init();
+ 		s->compress_max_filesize = 0;
++		s->allowed_encodings = 0;
+ 
+ 		cv[0].destination = s->compress_cache_dir;
+ 		cv[1].destination = s->compress;
+ 		cv[2].destination = &(s->compress_max_filesize);
++		cv[3].destination = encodings_arr; /* temp array for allowed encodings list */
+ 
+ 		p->config_storage[i] = s;
+ 
+@@ -177,6 +182,39 @@
+ 			return HANDLER_ERROR;
+ 		}
+ 
++		if (encodings_arr->used) {
++			size_t j = 0;
++			for (j = 0; j < encodings_arr->used; j++) {
++				data_string *ds = (data_string *)encodings_arr->data[j];
++#ifdef USE_ZLIB
++				if (NULL != strstr(ds->value->ptr, "gzip"))
++					s->allowed_encodings |= HTTP_ACCEPT_ENCODING_GZIP;
++				if (NULL != strstr(ds->value->ptr, "deflate"))
++					s->allowed_encodings |= HTTP_ACCEPT_ENCODING_DEFLATE;
++				/*
++				if (NULL != strstr(ds->value->ptr, "compress"))
++					s->allowed_encodings |= HTTP_ACCEPT_ENCODING_COMPRESS;
++				*/
++#endif
++#ifdef USE_BZ2LIB
++				if (NULL != strstr(ds->value->ptr, "bzip2"))
++					s->allowed_encodings |= HTTP_ACCEPT_ENCODING_BZIP2;
++#endif
++			}
++		} else {
++			/* default encodings */
++			s->allowed_encodings = 0
++#ifdef USE_ZLIB
++				| HTTP_ACCEPT_ENCODING_GZIP | HTTP_ACCEPT_ENCODING_DEFLATE
++#endif
++#ifdef USE_BZ2LIB
++				| HTTP_ACCEPT_ENCODING_BZIP2
++#endif
++				;
++		}
++
++		array_free(encodings_arr);
++
+ 		if (!buffer_is_empty(s->compress_cache_dir)) {
+ 			struct stat st;
+ 			mkdir_recursive(s->compress_cache_dir->ptr);
+@@ -587,6 +625,7 @@
+ 	PATCH(compress_cache_dir);
+ 	PATCH(compress);
+ 	PATCH(compress_max_filesize);
++	PATCH(allowed_encodings);
+ 
+ 	/* skip the first, the global context */
+ 	for (i = 1; i < srv->config_context->used; i++) {
+@@ -606,6 +645,8 @@
+ 				PATCH(compress);
+ 			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("compress.max-filesize"))) {
+ 				PATCH(compress_max_filesize);
++			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("compress.allowed-encodings"))) {
++				PATCH(allowed_encodings);
+ 			}
+ 		}
+ 	}
+@@ -668,27 +709,21 @@
+ 			if (NULL != (ds = (data_string *)array_get_element(con->request.headers, "Accept-Encoding"))) {
+ 				int accept_encoding = 0;
+ 				char *value = ds->value->ptr;
+-				int srv_encodings = 0;
+ 				int matched_encodings = 0;
+ 
+ 				/* get client side support encodings */
++#ifdef USE_ZLIB
+ 				if (NULL != strstr(value, "gzip")) accept_encoding |= HTTP_ACCEPT_ENCODING_GZIP;
+ 				if (NULL != strstr(value, "deflate")) accept_encoding |= HTTP_ACCEPT_ENCODING_DEFLATE;
+ 				if (NULL != strstr(value, "compress")) accept_encoding |= HTTP_ACCEPT_ENCODING_COMPRESS;
++#endif
++#ifdef USE_BZ2LIB
+ 				if (NULL != strstr(value, "bzip2")) accept_encoding |= HTTP_ACCEPT_ENCODING_BZIP2;
++#endif
+ 				if (NULL != strstr(value, "identity")) accept_encoding |= HTTP_ACCEPT_ENCODING_IDENTITY;
+ 
+-				/* get server side supported ones */
+-#ifdef USE_BZ2LIB
+-				srv_encodings |= HTTP_ACCEPT_ENCODING_BZIP2;
+-#endif
+-#ifdef USE_ZLIB
+-				srv_encodings |= HTTP_ACCEPT_ENCODING_GZIP;
+-				srv_encodings |= HTTP_ACCEPT_ENCODING_DEFLATE;
+-#endif
+-
+ 				/* find matching entries */
+-				matched_encodings = accept_encoding & srv_encodings;
++				matched_encodings = accept_encoding & p->conf.allowed_encodings;
+ 
+ 				if (matched_encodings) {
+ 					const char *dflt_gzip = "gzip";
 Index: src/mod_auth.c
 ===================================================================
---- src/mod_auth.c	(.../tags/lighttpd-1.4.20)	(revision 2324)
-+++ src/mod_auth.c	(.../branches/lighttpd-1.4.x)	(revision 2324)
+--- src/mod_auth.c	(.../tags/lighttpd-1.4.20)	(revision 2336)
++++ src/mod_auth.c	(.../branches/lighttpd-1.4.x)	(revision 2336)
 @@ -115,7 +115,7 @@
  	PATCH(auth_ldap_starttls);
  	PATCH(auth_ldap_allow_empty_pw);
@@ -347,8 +514,8 @@ Index: src/mod_auth.c
  
 Index: src/mod_fastcgi.c
 ===================================================================
---- src/mod_fastcgi.c	(.../tags/lighttpd-1.4.20)	(revision 2324)
-+++ src/mod_fastcgi.c	(.../branches/lighttpd-1.4.x)	(revision 2324)
+--- src/mod_fastcgi.c	(.../tags/lighttpd-1.4.20)	(revision 2336)
++++ src/mod_fastcgi.c	(.../branches/lighttpd-1.4.x)	(revision 2336)
 @@ -3608,47 +3608,50 @@
  				"handling it in mod_fastcgi");
  			}
@@ -440,8 +607,8 @@ Index: src/mod_fastcgi.c
  	} else {
 Index: src/proc_open.c
 ===================================================================
---- src/proc_open.c	(.../tags/lighttpd-1.4.20)	(revision 2324)
-+++ src/proc_open.c	(.../branches/lighttpd-1.4.x)	(revision 2324)
+--- src/proc_open.c	(.../tags/lighttpd-1.4.20)	(revision 2336)
++++ src/proc_open.c	(.../branches/lighttpd-1.4.x)	(revision 2336)
 @@ -287,32 +287,33 @@
  }
  /* }}} */
@@ -506,18 +673,55 @@ Index: src/proc_open.c
  		fprintf(stdout, "result: ->%s<-\n\n", out->ptr); fflush(stdout);
 Index: src/proc_open.h
 ===================================================================
---- src/proc_open.h	(.../tags/lighttpd-1.4.20)	(revision 2324)
-+++ src/proc_open.h	(.../branches/lighttpd-1.4.x)	(revision 2324)
+--- src/proc_open.h	(.../tags/lighttpd-1.4.20)	(revision 2336)
++++ src/proc_open.h	(.../branches/lighttpd-1.4.x)	(revision 2336)
 @@ -22,4 +22,4 @@
  
  int proc_close(proc_handler_t *ht);
  int proc_open(proc_handler_t *ht, const char *command);
 -int proc_open_buffer(proc_handler_t *ht, const char *command, buffer *in, buffer *out, buffer *err);
 +int proc_open_buffer(const char *command, buffer *in, buffer *out, buffer *err);
+Index: tests/mod-compress.conf
+===================================================================
+--- tests/mod-compress.conf	(.../tags/lighttpd-1.4.20)	(revision 0)
++++ tests/mod-compress.conf	(.../branches/lighttpd-1.4.x)	(revision 2336)
+@@ -0,0 +1,32 @@
++debug.log-request-handling   = "enable"
++debug.log-response-header   = "disable"
++debug.log-request-header   = "disable"
++
++server.document-root         = env.SRCDIR + "/tmp/lighttpd/servers/www.example.org/pages/"
++server.pid-file              = env.SRCDIR + "/tmp/lighttpd/lighttpd.pid"
++
++## bind to port (default: 80)
++server.port                 = 2048
++
++## bind to localhost (default: all interfaces)
++server.bind                = "localhost"
++server.errorlog            = env.SRCDIR + "/tmp/lighttpd/logs/lighttpd.error.log"
++server.name                = "www.example.org"
++
++server.modules = (
++	"mod_compress"
++)
++
++######################## MODULE CONFIG ############################
++
++mimetype.assign = (
++	".html" => "text/html",
++	".txt"  => "text/plain",
++)
++
++$HTTP["host"] == "cache.example.org" {
++	compress.cache-dir = env.SRCDIR + "/tmp/lighttpd/cache/compress/"
++}
++compress.filetype = ("text/plain", "text/html")
++
++compress.allowed-encodings = ( "gzip", "deflate" )
 Index: tests/mod-fastcgi.t
 ===================================================================
---- tests/mod-fastcgi.t	(.../tags/lighttpd-1.4.20)	(revision 2324)
-+++ tests/mod-fastcgi.t	(.../branches/lighttpd-1.4.x)	(revision 2324)
+--- tests/mod-fastcgi.t	(.../tags/lighttpd-1.4.20)	(revision 2336)
++++ tests/mod-fastcgi.t	(.../branches/lighttpd-1.4.x)	(revision 2336)
 @@ -7,7 +7,7 @@
  }
  
@@ -553,8 +757,8 @@ Index: tests/mod-fastcgi.t
  
 Index: tests/fastcgi-auth.conf
 ===================================================================
---- tests/fastcgi-auth.conf	(.../tags/lighttpd-1.4.20)	(revision 2324)
-+++ tests/fastcgi-auth.conf	(.../branches/lighttpd-1.4.x)	(revision 2324)
+--- tests/fastcgi-auth.conf	(.../tags/lighttpd-1.4.20)	(revision 2336)
++++ tests/fastcgi-auth.conf	(.../branches/lighttpd-1.4.x)	(revision 2336)
 @@ -89,6 +89,7 @@
  				    "bin-path" => env.SRCDIR + "/fcgi-auth",
                                      "mode" => "authorizer",
@@ -563,10 +767,238 @@ Index: tests/fastcgi-auth.conf
  
  				  )
  				)
+Index: tests/mod-compress.t
+===================================================================
+--- tests/mod-compress.t	(.../tags/lighttpd-1.4.20)	(revision 2336)
++++ tests/mod-compress.t	(.../branches/lighttpd-1.4.x)	(revision 2336)
+@@ -8,12 +8,14 @@
+ 
+ use strict;
+ use IO::Socket;
+-use Test::More tests => 10;
++use Test::More tests => 11;
+ use LightyTest;
+ 
+ my $tf = LightyTest->new();
+ my $t;
+ 
++$tf->{CONFIGFILE} = 'mod-compress.conf';
++
+ ok($tf->start_proc == 0, "Starting lighttpd") or die();
+ 
+ $t->{REQUEST}  = ( <<EOF
+@@ -88,5 +90,14 @@
+ $t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 200, '+Vary' => '', 'Content-Type' => "text/plain" } ];
+ ok($tf->handle_http($t) == 0, 'Empty Accept-Encoding');
+ 
++$t->{REQUEST}  = ( <<EOF
++GET /index.txt HTTP/1.0
++Accept-Encoding: bzip2, gzip, deflate
++Host: cache.example.org
++EOF
++ );
++$t->{RESPONSE} = [ { 'HTTP-Protocol' => 'HTTP/1.0', 'HTTP-Status' => 200, '+Vary' => '', 'Content-Encoding' => 'gzip', 'Content-Type' => "text/plain" } ];
++ok($tf->handle_http($t) == 0, 'bzip2 requested but disabled');
+ 
++
+ ok($tf->stop_proc == 0, "Stopping lighttpd");
+Index: doc/compress.txt
+===================================================================
+--- doc/compress.txt	(.../tags/lighttpd-1.4.20)	(revision 2336)
++++ doc/compress.txt	(.../branches/lighttpd-1.4.x)	(revision 2336)
+@@ -6,13 +6,7 @@
+ Module: mod_compress
+ --------------------
+ 
+-:Author: Jan Kneschke
+-:Date: $Date$
+-:Revision: $Revision$
+ 
+-:abstract:
+-  a nice, short abstrace about the module
+-
+ .. meta::
+   :keywords: lighttpd, compress
+ 
+@@ -22,16 +16,57 @@
+ ===========
+ 
+ Output compression reduces the network load and can improve the overall
+-throughput of the webserver.
++throughput of the webserver. All major http-clients support compression by
++announcing it in the Accept-Encoding header. This is used to negotiate the
++most suitable compression method. We support deflate, gzip and bzip2.
+ 
+-Only static content is supported up to now.
++deflate (RFC1950, RFC1951) and gzip (RFC1952) depend on zlib while bzip2
++depends on libbzip2. bzip2 is only supported by lynx and some other console
++text-browsers.
+ 
+-The server negotiates automaticly which compression method is used.
+-Supported are gzip, deflate, bzip.
++We currently limit to compression support to static files.
+ 
++Caching
++-------
++
++mod_compress can store compressed files on disk to optimize the compression
++on a second request away. As soon as compress.cache-dir is set the files are
++compressed.
++
++(You will need to create the cache directory if it doesn't already exist. The web server will not do this for you.  The directory will also need the proper ownership.  For Debian/Ubuntu the user and group ids should both be www-data.)
++
++The names of the cache files are made of the filename, the compression method
++and the etag associated to the file.
++
++Cleaning the cache is left to the user. A cron job deleting files older than
++10 days could do it: ::
++
++  find /var/www/cache -type f -mtime +10 | xargs -r rm
++
++Limitations
++-----------
++
++The module limits the compression of files to files smaller than 128 MByte and
++larger than 128 Byte.
++
++The lower limit is set as small files tend to become larger by compressing due
++to the compression headers, the upper limit is set to work sensibly with
++memory and cpu-time.
++
++Directories containing a tilde ('~') are not created automatically (See ticket
++#113). To enable compression for user dirs you have to create the directories
++by hand in the cache directory.
++
+ Options
+ =======
+ 
++compress.allowed-encodings
++  override default set of allowed encodings
++
++  e.g.: ::
++
++    compress.allowed-encodings = ("bzip2", "gzip", "deflate")
++
+ compress.cache-dir
+   name of the directory where compressed content will be cached
+ 
+@@ -47,20 +82,111 @@
+   Default: not set, compress the file for every request
+ 
+ compress.filetype
+-  mimetypes where might get compressed
++  mimetypes which might get compressed
+ 
+   e.g.: ::
+ 
+     compress.filetype           = ("text/plain", "text/html")
+ 
++  Keep in mind that compressed JavaScript and CSS files are broken in some
++  browsers. Not setting any filetypes will result in no files being compressed.
++
++  NOTE: You have to specify the full mime-type! If you also define a charset, for example, you have to use "text/plain; charset=utf-8" instead of just "text/plain".
++
+   Default: not set
+ 
++compress.max-filesize
++  maximum size of the original file to be compressed kBytes.
+ 
++  This is meant to protect the server against DoSing as compressing large
++  (let's say 1Gbyte) takes a lot of time and would delay the whole operation
++  of the server.
++
++  There is a hard upper limit of 128Mbyte.
++
++  Default: unlimited (== hard-limit of 128MByte)
++
++Display compressed files
++========================
++
++If you enable mod_compress, and you want to force clients to uncompress and display compressed text files, please force mimetype to nothing.
++Exemple :
++If you want to add headers for uncompress and display diff.gz files , add this section in your conf : ::
++
++  $HTTP["url"] =~ "\.diff\.gz" {
++    setenv.add-response-header = ( "Content-Encoding" => "gzip" )
++    mimetype.assign = ()
++  }
++
++
+ Compressing Dynamic Content
+ ===========================
+ 
++PHP
++---
++
+ To compress dynamic content with PHP please enable ::
+ 
+   zlib.output_compression = 1
++  zlib.output_handler = On
+ 
+ in the php.ini as PHP provides compression support by itself.
++
++mod_compress of lighttpd 1.5 r1992 may not set correct Content-Encoding with php-fcgi. A solution to that problem would be:
++
++1.disable mod_compress when request a php file::
++
++    $HTTP["url"] !~ "\.php$" {
++    	compress.filetype = ("text/plain", "text/html", "text/javascript", "text/css", "text/xml")
++    }
++
++2.enable mod_setenv of your lighttpd::
++
++    server.modules  += ( "mod_setenv" )
++
++3.manually set Content-Encoding::
++
++    $HTTP["url"] =~ "\.php$" {
++  	setenv.add-response-header  = ( "Content-Encoding" => "gzip")
++    }
++
++
++TurboGears
++----------
++
++To compress dynamic content with TurboGears please enable ::
++
++  [/]
++  gzip_filter.on = True
++  gzip_filter.mime_types = ["application/x-javascript", "text/javascript", "text/html", "text/css", "text/plain"]
++
++in the config/app.cfg file in your TurboGears application.  The above lines should already be in the file.  You just need to remove the comment symbol in front of the lines to make them active.
++
++Django
++------
++
++To compress dynamic content with Django please enable the GZipMiddleware ::
++
++  MIDDLEWARE_CLASSES = (
++      'django.middleware.gzip.GZipMiddleware',
++      ...
++  )
++
++in the settings.py file in your Django project.
++
++Catalyst
++--------
++
++To compress dynamic content with Perl/Catalyst, simply use the Catalyst::Plugin::Compress::Gzip module available on CPAN ::
++
++  use Catalyst qw(
++      Compress::Gzip
++      ...
++  );
++
++in your main package (MyApp.pm). Further configuration is not required.
++
++}}}
++
++
++
 Index: SConstruct
 ===================================================================
---- SConstruct	(.../tags/lighttpd-1.4.20)	(revision 2324)
-+++ SConstruct	(.../branches/lighttpd-1.4.x)	(revision 2324)
+--- SConstruct	(.../tags/lighttpd-1.4.20)	(revision 2336)
++++ SConstruct	(.../branches/lighttpd-1.4.x)	(revision 2336)
 @@ -5,7 +5,7 @@
  from stat import *
  
@@ -578,8 +1010,8 @@ Index: SConstruct
  	p = re.compile('[^A-Z0-9]')
 Index: Makefile.am
 ===================================================================
---- Makefile.am	(.../tags/lighttpd-1.4.20)	(revision 2324)
-+++ Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 2324)
+--- Makefile.am	(.../tags/lighttpd-1.4.20)	(revision 2336)
++++ Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 2336)
 @@ -1,4 +1,4 @@
 -SUBDIRS=src doc tests cygwin openwrt
 +SUBDIRS=src doc tests
@@ -588,9 +1020,9 @@ Index: Makefile.am
  
 Index: NEWS
 ===================================================================
---- NEWS	(.../tags/lighttpd-1.4.20)	(revision 2324)
-+++ NEWS	(.../branches/lighttpd-1.4.x)	(revision 2324)
-@@ -3,8 +3,21 @@
+--- NEWS	(.../tags/lighttpd-1.4.20)	(revision 2336)
++++ NEWS	(.../branches/lighttpd-1.4.x)	(revision 2336)
+@@ -3,8 +3,24 @@
  NEWS
  ====
  
@@ -607,12 +1039,36 @@ Index: NEWS
 +  * Do not cache default vhost in mod_simple_vhost (#709)
 +  * Trust pcre-config, do not check for pcre manually (#1769)
 +  * Fix fastcgi authorization in subdirectories with check-local=disabled; don't split pathinfo for authorizer. (#963)
++  * Add possibility to disable methods in mod_compress (#1773)
++  * Fix duplicate connection keep-alive/transfer-encoding headers (#960)
++  * Fixed fix for round-robin in mod_proxy (forgot to increment the index) (#1715)
 +
 +- 1.4.20 - 2008-09-30
 +
    * Fix mod_compress to compile with old gcc version (#1592)
    * Fix mod_extforward to compile with old gcc version (#1591)
    * Update documentation for #1587
+@@ -52,7 +68,7 @@
+   * decode url before matching in mod_rewrite (#1720)
+   * fixed conditional patching of ldap filter (#1564)
+   * Match headers case insensitive in response (removing of X-{Sendfile,LIGHTTPD-*}, catching Date/Server)
+-  * fixed bug with case-insensitive filenames in mod_userdir (#1589), spotted by "anders1"
++  * fixed bug with case-insensitive filenames in mod_userdir (#1589), spotted by "anders1" (CVE-2008-4360)
+   * fixed format string bugs in mod_accesslog for SYSLOG
+   * replaced fprintf with log_error_write in fastcgi debug
+   * fixed mem leak in ssi expression parser (#1753), thx Take5k
+@@ -62,9 +78,9 @@
+   * fix splitting of auth-ldap filter
+   * workaround ldap connection leak if a ldap connection failed (restarting ldap)
+   * fix auth.backend.ldap.bind-dn/pw problems (only read from global context for temporary ldap reconnects, thx ruskie)
+-  * fix memleak in request header parsing (#1774, thx qhy)
++  * fix memleak in request header parsing (#1774, thx qhy) (CVE-2008-4298)
+   * fix mod_rewrite memleak/endless loop detection (#1775, thx phy - again!)
+-  * use decoded url for matching in mod_redirect (#1720)
++  * use decoded url for matching in mod_redirect (#1720) (CVE-2008-4359)
+ 
+ - 1.4.19 - 2008-03-10
+ 
 
 Property changes on: .
 ___________________________________________________________________
@@ -622,10 +1078,11 @@ committer: Stefan Bühler <stbuehler@web.de>
 properties: 
 	branch-nick: lighttpd-1.4.x
 
-   + timestamp: 2008-10-01 22:08:02.178999901 +0200
+   + timestamp: 2008-10-06 00:44:46.096999884 +0200
 committer: Stefan Bühler <stbuehler@web.de>
 properties: 
 	branch-nick: lighttpd-1.4.x
+	rebase-of: stbuehler@web.de-20081005224446-yvb2zjumu0opxywc
 
 Modified: bzr:revision-id:v3-trunk0
    - 1127 stbuehler@web.de-20080728081644-j4cxnhduw8kbt8um
@@ -738,5 +1195,8 @@ Modified: bzr:revision-id:v3-trunk0
 1184 stbuehler@web.de-20081001155102-qf0mmu2kkpgr7xf0
 1185 stbuehler@web.de-20081001160009-n67ss0vzlac2y60k
 1186 stbuehler@web.de-20081001200802-l5og517etnneitk0
+1188 stbuehler@web.de-20081004160711-ygaohrecmutiqlla
+1189 stbuehler@web.de-20081004211932-vq16u26mthbeed7d
+1191 stbuehler@web.de-20081005224446-1bztt6zqrjh8w8fd
 
 
