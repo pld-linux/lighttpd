@@ -19,7 +19,7 @@
 # Check that networking is up.
 if is_yes "${NETWORKING}"; then
 	if [ ! -f /var/lock/subsys/network -a "$1" != stop -a "$1" != status ]; then
-		msg_network_down lighttpd
+		msg_network_down "Lighttpd Web Server"
 		exit 1
 	fi
 else
@@ -27,7 +27,7 @@ else
 fi
 
 configtest() {
-	out=`env SHELL=/bin/sh lighttpd -t -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS 2>&1`
+	out=$(env SHELL=/bin/sh lighttpd -t -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS 2>&1)
 	rc=$?
 	if [ "$rc" = 0 ]; then
 		return
@@ -67,20 +67,20 @@ case "$1" in
   start)
 	# Check if the service is already running?
 	if [ ! -f /var/lock/subsys/lighttpd ]; then
-		msg_starting lighttpd
+		msg_starting "Lighttpd Web Server"
 		configtest || exit 1
 		start
 	else
-		msg_already_running lighttpd
+		msg_already_running "Lighttpd Web Server"
 	fi
 	;;
   stop)
 	# Stop daemons.
 	if [ -f /var/lock/subsys/lighttpd ]; then
-		msg_stopping lighttpd
+		msg_stopping "Lighttpd Web Server"
 		stop
 	else
-		msg_not_running lighttpd
+		msg_not_running "Lighttpd Web Server"
 	fi
 	;;
   status)
@@ -94,29 +94,29 @@ case "$1" in
 		# short circuit to safe reload if pid exists and is alive
 		pid=$(pidofproc lighttpd lighttpd.pid)
 		if [ "$pid" ] && checkpid $pid; then
-			msg_reloading lighttpd
+			msg_reloading "Lighttpd Web Server"
 			reload
 		else
-			msg_stopping lighttpd
+			msg_stopping "Lighttpd Web Server"
 			stop
-			msg_starting lighttpd
+			msg_starting "Lighttpd Web Server"
 			start
 		fi
 		RETVAL=$?
 	else
-		msg_not_running lighttpd
-		msg_starting lighttpd
+		msg_not_running "Lighttpd Web Server"
+		msg_starting "Lighttpd Web Server"
 		start
 	fi
 	;;
   reload|graceful|force-reload)
 	if [ -f /var/lock/subsys/lighttpd ]; then
-		msg_reloading lighttpd
+		msg_reloading "Lighttpd Web Server"
 		configtest || exit 1
 		reload
 		RETVAL=$?
 	else
-		msg_not_running lighttpd
+		msg_not_running "Lighttpd Web Server"
 		RETVAL=7
 	fi
 	;;
@@ -132,7 +132,7 @@ case "$1" in
 		killproc --pidfile /var/run/lighttpd.pid lighttpd -HUP
 		RETVAL=$?
 	else
-		msg_not_running lighttpd
+		msg_not_running "Lighttpd Web Server"
 		RETVAL=7
 	fi
 	;;
