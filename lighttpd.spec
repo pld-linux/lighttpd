@@ -47,14 +47,14 @@
 %define		webdav_progs	1
 %endif
 
-%define		rel 0.5
+%define		rel 0.6
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.5.0
 Release:	%{rel}%{?snap:.%(echo %{snap}|tr - _)}%{?svn:.%{svn}}
 License:	BSD
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Source0:	%{name}-%{version}.tar.gz
 # Source0-md5:	e9396859e2b2f9be7291b5636ae4195a
 Source1:	%{name}.init
@@ -73,6 +73,7 @@ Source10:	http://gdl.hopto.org/~spider/pldstats/gfx/pld1.png
 # Source10-md5:	486ecec3f6f4fe7f9bf7cee757b864f4
 Source11:	%{name}-pld.html
 Source12:	%{name}.monitrc
+Source13:	%{name}-branch.sh
 Source100:	%{name}-mod_access.conf
 Source101:	%{name}-mod_accesslog.conf
 Source102:	%{name}-mod_alias.conf
@@ -150,11 +151,12 @@ Requires(pre):	/usr/lib/rpm/user_group.sh
 Requires(pre):	/usr/sbin/groupadd
 Requires(pre):	/usr/sbin/useradd
 Requires(pre):	/usr/sbin/usermod
-Requires:	%{name}-mod_dirlisting
-Requires:	%{name}-mod_indexfile
-Requires:	%{name}-mod_staticfile
+Requires:	%{name}-mod_dirlisting = %{version}-%{release}
+Requires:	%{name}-mod_indexfile = %{version}-%{release}
+Requires:	%{name}-mod_staticfile = %{version}-%{release}
 Requires:	libaio
 Requires:	rc-scripts
+Requires:	rpm-whiteout >= 1.5
 Requires:	webapps
 Provides:	group(http)
 Provides:	group(lighttpd)
@@ -191,7 +193,7 @@ powodu problemów z obciążeniem.
 %package mod_access
 Summary:	lighttpd module for making access restrictions
 Summary(pl.UTF-8):	Moduł lighttpd ograniczający dostęp
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(access)
 
@@ -206,7 +208,7 @@ Moduł access służy do ograniczania dostępu do plików o podanych
 %package mod_accesslog
 Summary:	lighttpd module to record access logs
 Summary(pl.UTF-8):	Moduł lighttpd do zapisu logów dostępu
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_accesslog
@@ -218,7 +220,7 @@ Domyślnie podobny do CLF, elastyczny jak Apache.
 %package mod_alias
 Summary:	lighttpd module for making URL aliasing
 Summary(pl.UTF-8):	Moduł lighttpd odpowiadający za aliasy URL-i
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(alias)
 
@@ -233,7 +235,7 @@ dla podanego podzbioru URL-i.
 %package mod_auth
 Summary:	lighttpd module for authentication support
 Summary(pl.UTF-8):	Moduł lighttpd do obsługi uwierzytelniania
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(auth)
 
@@ -248,7 +250,7 @@ basic i digest.
 %package mod_cgi
 Summary:	lighttpd module for CGI handling
 Summary(pl.UTF-8):	Moduł lighttpd do obsługi CGI
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-mod_alias = %{version}-%{release}
 Provides:	webserver(cgi)
@@ -268,7 +270,7 @@ prosty i naturalny sposób.
 %package mod_cml
 Summary:	lighttpd module for Cache Meta Language
 Summary(pl.UTF-8):	Moduł Cache Meta Language
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_cml
@@ -283,7 +285,7 @@ z drugiej strony do budowania strony z fragmentów przy użyciu LUA.
 %package mod_compress
 Summary:	lighttpd module for output compression
 Summary(pl.UTF-8):	Moduł lighttpd do kompresji wyjścia
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_compress
@@ -307,7 +309,7 @@ Obsługiwane są gzip, deflate i bzip.
 %package mod_deflate
 Summary:	lighttpd module for output compression using deflate method
 Summary(pl.UTF-8):	Moduł lighttpd do kompresji wyjścia metodą deflate
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 URL:		http://trac.lighttpd.net/trac/wiki/Mod_Deflate
 Requires:	%{name} = %{version}-%{release}
 
@@ -323,7 +325,7 @@ mod_compress.
 %package mod_dirlisting
 Summary:	lighttpd module for directory listings
 Summary(pl.UTF-8):	Moduł lighttpd do tworzenia listingów katalogów
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_dirlisting
@@ -337,7 +339,7 @@ kontrolą CSS.
 %package mod_evasive
 Summary:	lighttpd evasive module
 Summary(pl.UTF-8):	Moduł evasive dla lighttpd
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_evasive
@@ -349,7 +351,7 @@ Moduł evasive dla lighttpd.
 %package mod_evhost
 Summary:	lighttpd module for enhanced virtual-hosting
 Summary(pl.UTF-8):	Moduł lighttpd rozszerzający obsługę hostów wirtualnych
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_evhost
@@ -365,7 +367,7 @@ nazwy hosta.
 %package mod_expire
 Summary:	lighttpd module for controlling the expiration of content in caches
 Summary(pl.UTF-8):	Moduł lighttpd sterujący wygasaniem treści w cache'ach
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_expire
@@ -377,7 +379,7 @@ mod_expire steruje ustawianiem nagłówka odpowiedzi Expire.
 %package mod_extforward
 Summary:	lighttpd module to extract the client's "real" IP from X-Forwarded-For header
 Summary(pl.UTF-8):	Moduł lighttpd wyciągający "prawdziwy" IP klienta z nagłówka X-Forwarded-For
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_extforward
@@ -393,7 +395,7 @@ serwerów stojących za odwrotnymi serwerami proxy.
 %package mod_flv_streaming
 Summary:	lighttpd module for flv streaming
 Summary(pl.UTF-8):	Moduł lighttpd do streamingu flv
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_flv_streaming
@@ -405,7 +407,7 @@ Moduł lighttpd do streamingu flv.
 %package mod_indexfile
 Summary:	lighttpd indexfile module
 Summary(pl.UTF-8):	Moduł indexfile dla lighttpd
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(indexfile)
 
@@ -418,7 +420,7 @@ Moduł indexfile.
 %package mod_magnet
 Summary:	lighttpd powermagnet module
 Summary(pl.UTF-8):	Moduł powermagnet dla lighttpd
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_magnet
@@ -430,7 +432,7 @@ mod_magnet to moduł sterujący obsługą żądań w lighty.
 %package mod_mysql_vhost
 Summary:	lighttpd module for MySQL based vhosting
 Summary(pl.UTF-8):	Moduł lighttpd obsługujący vhosty oparte na MySQL-u
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 Conflicts:	%{name}-mod_simple_vhost
 
@@ -443,7 +445,7 @@ Ten moduł udostępnia wirtualne hosty (vhosty) oparte na tabeli MySQL.
 %package mod_proxy
 Summary:	lighttpd module for proxying requests
 Summary(pl.UTF-8):	Moduł lighttpd do przekazywania żądań
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name}-mod_proxy_core = %{version}-%{release}
 
 %description mod_proxy
@@ -452,7 +454,7 @@ Virtual package supporting upgrade from Lighttpd 1.4.x -> 1.5.0.
 %package mod_proxy_core
 Summary:	lighttpd module for proxying requests
 Summary(pl.UTF-8):	Moduł lighttpd do przekazywania żądań
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 URL:		http://trac.lighttpd.net/trac/wiki/Docs:ModProxyCore
 Requires:	%{name} = %{version}-%{release}
 
@@ -470,7 +472,7 @@ Ten pakiet zawiera nowy moduł proxy.
 
 %package mod_proxy_backend_ajp13
 Summary:	lighttpd proxy backend for ajp13 protocol
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name}-mod_proxy_core = %{version}-%{release}
 
 %description mod_proxy_backend_ajp13
@@ -478,7 +480,7 @@ lighttpd proxy backend for Apache JServ Protocol version 1.3
 
 %package mod_proxy_backend_fastcgi
 Summary:	lighttpd proxy backend for FastCGI protocol
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name}-mod_proxy_core = %{version}-%{release}
 Obsoletes:	lighttpd-mod_fastcgi < 1.5.0
 
@@ -498,7 +500,7 @@ jak Perl, PHP czy własne aplikacje.
 
 %package mod_proxy_backend_http
 Summary:	lighttpd proxy backend for HTTP protocol
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name}-mod_proxy_core = %{version}-%{release}
 
 %description mod_proxy_backend_http
@@ -506,7 +508,7 @@ lighttpd proxy backend for HTTP protocol
 
 %package mod_proxy_backend_scgi
 Summary:	lighttpd proxy backend for SCGI protocol
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name}-mod_proxy_core = %{version}-%{release}
 Obsoletes:	lighttpd-mod_scgi < 1.5.0
 
@@ -525,7 +527,7 @@ Pythona z WSGI.
 %package mod_redirect
 Summary:	lighttpd module for URL redirects
 Summary(pl.UTF-8):	Moduł lighttpd do przekierowań URL-i
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_redirect
@@ -538,7 +540,7 @@ zewnątrz.
 %package mod_rewrite
 Summary:	lighttpd module for internal redirects, URL rewrite
 Summary(pl.UTF-8):	Moduł lighttpd do wewnętrznych przekierowań i przepisywania URL-i
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_rewrite
@@ -552,7 +554,7 @@ WWW _przed_ ich obsługą.
 %package mod_rrdtool
 Summary:	lighttpd module for monitoring traffic and server load
 Summary(pl.UTF-8):	Moduł lighttpd do monitorowania ruchu i obciążenia serwera
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 Requires:	rrdtool
 
@@ -574,7 +576,7 @@ WWW.
 %package mod_secdownload
 Summary:	lighttpd module for secure and fast downloading
 Summary(pl.UTF-8):	Moduł lighttpd do bezpiecznego i szybkiego ściągania danych
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_secdownload
@@ -588,7 +590,7 @@ uwierzytelnieniem i zapobiec używaniu bezpośrednich odnośników.
 %package mod_setenv
 Summary:	lighttpd module for setting conditional request headers
 Summary(pl.UTF-8):	Moduł lighttpd do ustawiania warunkowych nagłówków żądań
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_setenv
@@ -600,7 +602,7 @@ mod_setenv służy do dodawania nagłówków żądań.
 %package mod_simple_vhost
 Summary:	lighttpd module for simple virtual-hosting
 Summary(pl.UTF-8):	Moduł lighttpd do prostych hostów wirtualnych
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 Conflicts:	%{name}-mod_mysql_vhost
 
@@ -613,7 +615,7 @@ Moduł lighttpd do prostych hostów wirtualnych.
 %package mod_ssi
 Summary:	lighttpd module for server-side includes
 Summary(pl.UTF-8):	Moduł lighttpd do SSI (server-side includes)
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_ssi
@@ -627,7 +629,7 @@ znanym z NSCA/Apache'a.
 %package mod_staticfile
 Summary:	lighttpd module for static file serving
 Summary(pl.UTF-8):	Moduł lighttpd do serwowania statycznych plików
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_staticfile
@@ -639,7 +641,7 @@ Moduł lighttpd do serwowania statycznych plików.
 %package mod_status
 Summary:	lighttpd module for displaying server status
 Summary(pl.UTF-8):	Moduł lighttpd do wyświetlania stanu serwera
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_status
@@ -651,7 +653,7 @@ mod_status wyświetla stan i konfigurację serwera.
 %package mod_trigger_b4_dl
 Summary:	Trigger before Download
 Summary(pl.UTF-8):	Wyzwalacz przed ściąganiem
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_trigger_b4_dl
@@ -662,7 +664,7 @@ Jeszcze jeden moduł blokujący bezpośrednie linkowanie.
 
 %package mod_uploadprogress
 Summary:	lighttpd module for upload progress
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_uploadprogress
@@ -671,7 +673,7 @@ Upload progress module.
 %package mod_userdir
 Summary:	lighttpd module for user homedirs
 Summary(pl.UTF-8):	Moduł lighttpd obsługujący katalogi domowe użytkowników
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_userdir
@@ -685,7 +687,7 @@ użytkowników do globalnej przestrzeni nazw serwera WWW.
 %package mod_usertrack
 Summary:	lighttpd usertrack module
 Summary(pl.UTF-8):	Moduł usertrack dla lighttpd
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_usertrack
@@ -697,7 +699,7 @@ Moduł usertrack dla lighttpd.
 %package mod_webdav
 Summary:	WebDAV module for lighttpd
 Summary(pl.UTF-8):	Moduł WebDAV dla libghttpd
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_webdav
@@ -749,7 +751,7 @@ pomocy serwera WWW ani samego programu.
 %package php-spawned
 Summary:	PHP support via FastCGI, spawned by lighttpd
 Summary(pl.UTF-8):	Obsługa PHP przez FastCGI, uruchamiane przez lighttpd
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-mod_proxy_backend_fastcgi = %{version}-%{release}
 Requires:	php-fcgi
@@ -764,7 +766,7 @@ Obsługa PHP przez FastCGI, uruchamiane przez lighttpd.
 %package php-external
 Summary:	PHP support via FastCGI, spawning controlled externally
 Summary(pl.UTF-8):	Obsługa PHP przez FastCGI, uruchamianie sterowane zewnętrznie
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-mod_proxy_backend_fastcgi = %{version}-%{release}
 Requires:	php-fcgi-init
@@ -779,7 +781,7 @@ Obsługa PHP przez FastCGI, uruchamianie sterowane zewnętrznie.
 %package ssl
 Summary:	lighttpd support for SSLv2 and SSLv3
 Summary(pl.UTF-8):	Obsługa SSLv2 i SSLv3 dla lighttpd
-Group:		Networking/Daemons
+Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description ssl
@@ -1055,7 +1057,6 @@ EOF
 %attr(640,root,lighttpd) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.user
 
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/%{name}
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/monit/%{name}.monitrc
 %attr(750,root,root) %dir /var/log/archive/%{name}
 %dir %attr(751,root,root) /var/log/%{name}
 %ghost %attr(644,lighttpd,lighttpd) /var/log/%{name}/access.log
@@ -1063,7 +1064,7 @@ EOF
 %dir %attr(770,root,lighttpd) /var/run/%{name}
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
-%attr(755,root,root) %{_sbindir}/*
+%attr(755,root,root) %{_sbindir}/lighttpd
 %dir %{_libdir}
 %attr(755,root,root) %{_libdir}/mod_chunked.so
 %{_mandir}/man?/*
@@ -1194,6 +1195,7 @@ EOF
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy_backend_fastcgi.conf
 %attr(755,root,root) %{_libdir}/mod_proxy_backend_fastcgi.so
+%attr(755,root,root) %{_sbindir}/fcgi-stat-accel
 
 %files mod_proxy_backend_http
 %defattr(644,root,root,755)
