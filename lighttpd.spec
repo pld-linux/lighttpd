@@ -8,6 +8,14 @@
 #   2006-07-20 21:05:52: (server.c.1233) WARNING: unknown config-key: url.rewrite-final (ignored)
 # - configfile-glue.c.169: (error) found deprecated key in 'fastcgi.server' = 'it is replaced by
 #   mod_proxy_core and mod_proxy_backend_fastcgi'
+# - unpackaged:
+#   /etc/lighttpd/conf.d/50_mod_cml.conf
+#   /etc/lighttpd/conf.d/50_mod_extforward.conf
+#   /etc/lighttpd/conf.d/50_mod_magnet.conf
+#   /etc/lighttpd/conf.d/50_mod_proxy.conf
+#   /usr/lib64/lighttpd/mod_deflate.so
+#   /usr/lib64/lighttpd/mod_magnet.so
+#   /usr/lib64/lighttpd/mod_postgresql_vhost.so
 #
 # NOTES:
 # - fcgi-devel is only used for the test-scripts
@@ -77,14 +85,13 @@ Source108:	%{name}-mod_dirlisting.conf
 Source109:	%{name}-mod_evasive.conf
 Source110:	%{name}-mod_evhost.conf
 Source111:	%{name}-mod_expire.conf
-Source112:	%{name}-mod_fastcgi.conf
 Source113:	%{name}-mod_flv_streaming.conf
 Source114:	%{name}-mod_indexfile.conf
 Source115:	%{name}-mod_proxy.conf
 Source116:	%{name}-mod_redirect.conf
 Source117:	%{name}-mod_rewrite.conf
 Source118:	%{name}-mod_rrdtool.conf
-Source119:	%{name}-mod_scgi.conf
+Source119:	%{name}-mod_proxy_backend_scgi.conf
 Source120:	%{name}-mod_secdownload.conf
 Source121:	%{name}-mod_setenv.conf
 Source122:	%{name}-mod_simple_vhost.conf
@@ -382,22 +389,6 @@ Ten moduł wyciąga "prawdziwy" IP klienta z nagłówka X-Forwarded-For
 dodawanego przez Squida czy inne proxy. Może być przydatny dla
 serwerów stojących za odwrotnymi serwerami proxy.
 
-%package mod_fastcgi
-Summary:	lighttpd module for FastCGI interface
-Summary(pl.UTF-8):	Moduł lighttpd do interfejsu FastCGI
-Group:		Networking/Daemons
-Requires:	%{name} = %{version}-%{release}
-
-%description mod_fastcgi
-The FastCGI interface is the fastest and most secure way to interface
-external process-handlers like Perl, PHP and your self-written
-applications.
-
-%description mod_fastcgi -l pl.UTF-8
-Interfejs FastCGI to najszybszy i najbezpieczniejszy sposób
-komunikacji z zewnętrznymi programami obsługującymi procesy, takimi
-jak Perl, PHP czy własne aplikacje.
-
 %package mod_flv_streaming
 Summary:	lighttpd module for flv streaming
 Summary(pl.UTF-8):	Moduł lighttpd do streamingu flv
@@ -493,9 +484,21 @@ lighttpd proxy backend for Apache JServ Protocol version 1.3
 Summary:	lighttpd proxy backend for FastCGI protocol
 Group:		Networking/Daemons
 Requires:	%{name}-mod_proxy_core = %{version}-%{release}
+Obsoletes:	lighttpd-mod_fastcgi < 1.5.0
 
 %description mod_proxy_backend_fastcgi
-lighttpd proxy backend for FastCGI protocol
+lighttpd proxy backend for FastCGI protocol.
+
+The FastCGI interface is the fastest and most secure way to interface
+external process-handlers like Perl, PHP and your self-written
+applications.
+
+%description mod_proxy_backend_fastcgi -l pl.UTF-8
+lighttpd proxy backend for FastCGI protocol.
+
+Interfejs FastCGI to najszybszy i najbezpieczniejszy sposób
+komunikacji z zewnętrznymi programami obsługującymi procesy, takimi
+jak Perl, PHP czy własne aplikacje.
 
 %package mod_proxy_backend_http
 Summary:	lighttpd proxy backend for HTTP protocol
@@ -509,9 +512,19 @@ lighttpd proxy backend for HTTP protocol
 Summary:	lighttpd proxy backend for SCGI protocol
 Group:		Networking/Daemons
 Requires:	%{name}-mod_proxy_core = %{version}-%{release}
+Obsoletes:	lighttpd-mod_scgi < 1.5.0
 
 %description mod_proxy_backend_scgi
 lighttpd proxy backend for SCGI protocol
+
+SCGI is a fast and simplified CGI interface. It is mostly used by
+Python + WSGI.
+
+%description mod_proxy_backend_scgi -l pl.UTF-8
+lighttpd proxy backend for SCGI protocol
+
+SCGI to szybki i uproszczony interfejs CGI. Jest używany głównie przez
+Pythona z WSGI.
 
 %package mod_redirect
 Summary:	lighttpd module for URL redirects
@@ -561,20 +574,6 @@ serwera).
 
 Przy użyciu tego modułu można monitorować ruch i obciążenie serwera
 WWW.
-
-%package mod_scgi
-Summary:	lighttpd module for SCGI interface
-Summary(pl.UTF-8):	Moduł lighttpd do interfejsu SCGI
-Group:		Networking/Daemons
-Requires:	%{name} = %{version}-%{release}
-
-%description mod_scgi
-SCGI is a fast and simplified CGI interface. It is mostly used by
-Python + WSGI.
-
-%description mod_scgi -l pl.UTF-8
-SCGI to szybki i uproszczony interfejs CGI. Jest używany głównie przez
-Pythona z WSGI.
 
 %package mod_secdownload
 Summary:	lighttpd module for secure and fast downloading
@@ -756,7 +755,7 @@ Summary:	PHP support via FastCGI, spawned by lighttpd
 Summary(pl.UTF-8):	Obsługa PHP przez FastCGI, uruchamiane przez lighttpd
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
-Requires:	%{name}-mod_fastcgi = %{version}-%{release}
+Requires:	%{name}-mod_proxy_backend_fastcgi = %{version}-%{release}
 Requires:	php-fcgi
 Obsoletes:	lighttpd-php-external
 
@@ -771,7 +770,7 @@ Summary:	PHP support via FastCGI, spawning controlled externally
 Summary(pl.UTF-8):	Obsługa PHP przez FastCGI, uruchamianie sterowane zewnętrznie
 Group:		Networking/Daemons
 Requires:	%{name} = %{version}-%{release}
-Requires:	%{name}-mod_fastcgi = %{version}-%{release}
+Requires:	%{name}-mod_proxy_backend_fastcgi = %{version}-%{release}
 Requires:	php-fcgi-init
 Obsoletes:	lighttpd-php-spawned
 
@@ -888,7 +887,6 @@ install %{SOURCE109} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evasive.conf
 install %{SOURCE110} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evhost.conf
 install %{SOURCE111} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_expire.conf
 install %{SOURCE135} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_extforward.conf
-install %{SOURCE112} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_fastcgi.conf
 install %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
 install %{SOURCE114} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_indexfile.conf
 install %{SOURCE134} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_magnet.conf
@@ -896,7 +894,7 @@ install %{SOURCE115} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy.conf
 install %{SOURCE137} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_core.conf
 install %{SOURCE138} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_backend_fastcgi.conf
 install %{SOURCE118} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_rrdtool.conf
-install %{SOURCE119} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_scgi.conf
+install %{SOURCE119} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_backend_scgi.conf
 install %{SOURCE120} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_secdownload.conf
 install %{SOURCE121} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_setenv.conf
 install %{SOURCE122} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_simple_vhost.conf
@@ -1007,13 +1005,14 @@ fi
 %module_scripts mod_evhost
 %module_scripts mod_expire
 %module_scripts mod_extforward
-%module_scripts mod_fastcgi
 %module_scripts mod_flv_streaming
 %module_scripts mod_indexfile
 %module_scripts mod_magnet
 %module_scripts mod_mysql_vhost
 %module_scripts mod_proxy
 %module_scripts mod_proxy_core
+%module_scripts mod_proxy_backend_fastcgi
+%module_scripts mod_proxy_backend_scgi
 %module_scripts mod_redirect
 %module_scripts mod_rewrite
 
@@ -1028,7 +1027,6 @@ fi
 %postun mod_rrdtool
 %module_postun
 
-%module_scripts mod_scgi
 %module_scripts mod_secdownload
 %module_scripts mod_setenv
 %module_scripts mod_simple_vhost
@@ -1158,11 +1156,6 @@ EOF
 %attr(755,root,root) %{_libdir}/mod_extforward.so
 %endif
 
-%files mod_fastcgi
-%defattr(644,root,root,755)
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_fastcgi.conf
-%attr(755,root,root) %{_libdir}/mod_fastcgi.so
-
 %files mod_flv_streaming
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_flv_streaming.conf
@@ -1215,6 +1208,7 @@ EOF
 
 %files mod_proxy_backend_scgi
 %defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy_backend_scgi.conf
 %attr(755,root,root) %{_libdir}/mod_proxy_backend_scgi.so
 
 %files mod_redirect
@@ -1232,13 +1226,6 @@ EOF
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_rrdtool.conf
 %attr(755,root,root) %{_libdir}/mod_rrdtool.so
 %ghost %attr(640,lighttpd,stats) /var/lib/lighttpd/lighttpd.rrd
-
-%if 0
-%files mod_scgi
-%defattr(644,root,root,755)
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_scgi.conf
-%attr(755,root,root) %{_libdir}/mod_scgi.so
-%endif
 
 %files mod_secdownload
 %defattr(644,root,root,755)
