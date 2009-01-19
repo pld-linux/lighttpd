@@ -16,6 +16,8 @@
 #   /usr/lib64/lighttpd/mod_deflate.so
 #   /usr/lib64/lighttpd/mod_magnet.so
 #   /usr/lib64/lighttpd/mod_postgresql_vhost.so
+# - pkg for fcgi-stat-local:
+#   http://redmine.lighttpd.net/wiki/lighttpd/HowtoSpeedUpStatWithFastcgi
 #
 # NOTES:
 # - fcgi-devel is only used for the test-scripts
