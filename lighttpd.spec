@@ -47,7 +47,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		rel 0.3
+%define		rel 0.5
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -87,7 +87,6 @@ Source110:	%{name}-mod_evhost.conf
 Source111:	%{name}-mod_expire.conf
 Source113:	%{name}-mod_flv_streaming.conf
 Source114:	%{name}-mod_indexfile.conf
-Source115:	%{name}-mod_proxy.conf
 Source116:	%{name}-mod_redirect.conf
 Source117:	%{name}-mod_rewrite.conf
 Source118:	%{name}-mod_rrdtool.conf
@@ -111,6 +110,8 @@ Source135:	%{name}-mod_extforward.conf
 Source136:	%{name}-mod_uploadprogress.conf
 Source137:	%{name}-mod_proxy_core.conf
 Source138:	%{name}-mod_proxy_backend_fastcgi.conf
+Source139:	%{name}-mod_proxy_backend_ajp13.conf
+Source140:	%{name}-mod_proxy_backend_http.conf
 #Patch100: %{name}-branch.diff
 Patch0:		%{name}-use_bin_sh.patch
 #Patch1: %{name}-mod_evasive-status_code.patch
@@ -443,15 +444,10 @@ Ten moduł udostępnia wirtualne hosty (vhosty) oparte na tabeli MySQL.
 Summary:	lighttpd module for proxying requests
 Summary(pl.UTF-8):	Moduł lighttpd do przekazywania żądań
 Group:		Networking/Daemons
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}-mod_proxy_core = %{version}-%{release}
 
 %description mod_proxy
-The proxy module a simplest way to connect lighttpd to Java servers
-which have a HTTP-interface.
-
-%description mod_proxy -l pl.UTF-8
-Moduł proxy to najprostszy sposób łączenia lighttpd z serwerami Javy
-mającymi interfejs HTTP.
+Virtual package supporting upgrade from Lighttpd 1.4.x -> 1.5.0.
 
 %package mod_proxy_core
 Summary:	lighttpd module for proxying requests
@@ -890,9 +886,10 @@ install %{SOURCE135} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_extforward.conf
 install %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
 install %{SOURCE114} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_indexfile.conf
 install %{SOURCE134} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_magnet.conf
-install %{SOURCE115} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy.conf
 install %{SOURCE137} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_core.conf
 install %{SOURCE138} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_backend_fastcgi.conf
+install %{SOURCE139} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_backend_ajp13.conf
+install %{SOURCE140} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_backend_http.conf
 install %{SOURCE118} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_rrdtool.conf
 install %{SOURCE119} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_backend_scgi.conf
 install %{SOURCE120} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_secdownload.conf
@@ -1009,7 +1006,6 @@ fi
 %module_scripts mod_indexfile
 %module_scripts mod_magnet
 %module_scripts mod_mysql_vhost
-%module_scripts mod_proxy
 %module_scripts mod_proxy_core
 %module_scripts mod_proxy_backend_fastcgi
 %module_scripts mod_proxy_backend_scgi
@@ -1181,12 +1177,8 @@ EOF
 %attr(755,root,root) %{_libdir}/mod_sql_vhost_core.so
 %endif
 
-%if 0
 %files mod_proxy
 %defattr(644,root,root,755)
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy.conf
-%attr(755,root,root) %{_libdir}/mod_proxy.so
-%endif
 
 %files mod_proxy_core
 %defattr(644,root,root,755)
@@ -1195,6 +1187,7 @@ EOF
 
 %files mod_proxy_backend_ajp13
 %defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy_backend_ajp13.conf
 %attr(755,root,root) %{_libdir}/mod_proxy_backend_ajp13.so
 
 %files mod_proxy_backend_fastcgi
@@ -1204,6 +1197,7 @@ EOF
 
 %files mod_proxy_backend_http
 %defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy_backend_http.conf
 %attr(755,root,root) %{_libdir}/mod_proxy_backend_http.so
 
 %files mod_proxy_backend_scgi
