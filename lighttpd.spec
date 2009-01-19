@@ -47,7 +47,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		rel 0.6
+%define		rel 0.8
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -446,6 +446,7 @@ Ten moduł udostępnia wirtualne hosty (vhosty) oparte na tabeli MySQL.
 Summary:	lighttpd module for proxying requests
 Summary(pl.UTF-8):	Moduł lighttpd do przekazywania żądań
 Group:		Networking/Daemons/HTTP
+Requires:	%{name}-mod_proxy_backend_http = %{version}-%{release}
 Requires:	%{name}-mod_proxy_core = %{version}-%{release}
 
 %description mod_proxy
@@ -812,6 +813,15 @@ Plik monitrc do monitorowania serwera www lighttpd.
 
 # build mime.types.conf
 sh %{SOURCE6} /etc/mime.types
+cat <<'EOF' > doc/convert-1.5.sh
+#!/bin/sh
+# converts 1.4 directives to 1.5 format, the ones that are simple
+sed -i -e '
+	s/proxy\.balance\s*=\s*fair/proxy-core.balancer = sqf/
+	s/proxy\.balance\s*=\s*hash/proxy-core.balancer = carp/
+	s/proxy\.balance\s*=\s*/proxy-core.balancer = /
+' "$@"
+EOF
 
 %build
 %{__libtoolize}
@@ -888,12 +898,12 @@ install %{SOURCE135} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_extforward.conf
 install %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
 install %{SOURCE114} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_indexfile.conf
 install %{SOURCE134} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_magnet.conf
-install %{SOURCE137} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_core.conf
-install %{SOURCE138} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_backend_fastcgi.conf
-install %{SOURCE139} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_backend_ajp13.conf
-install %{SOURCE140} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_backend_http.conf
 install %{SOURCE118} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_rrdtool.conf
-install %{SOURCE119} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_backend_scgi.conf
+install %{SOURCE137} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_core.conf
+install %{SOURCE138} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_proxy_backend_fastcgi.conf
+install %{SOURCE139} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_proxy_backend_ajp13.conf
+install %{SOURCE140} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_proxy_backend_http.conf
+install %{SOURCE119} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_proxy_backend_scgi.conf
 install %{SOURCE120} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_secdownload.conf
 install %{SOURCE121} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_setenv.conf
 install %{SOURCE122} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_simple_vhost.conf
@@ -1048,7 +1058,7 @@ EOF
 
 %files
 %defattr(644,root,root,755)
-%doc NEWS README ChangeLog doc/lighttpd.conf doc/*.txt doc/rrdtool-graph.sh
+%doc NEWS README ChangeLog doc/lighttpd.conf doc/*.txt doc/rrdtool-graph.sh doc/convert-1.5.sh
 %dir %attr(750,root,lighttpd) %{_sysconfdir}
 %dir %attr(750,root,root) %{_sysconfdir}/webapps.d
 %dir %attr(750,root,root) %{_sysconfdir}/conf.d
