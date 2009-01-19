@@ -33,24 +33,21 @@
 %bcond_with	linux_aio	# Async IO support for Linux via libaio
 
 # SVN snapshot
-#define		_svn	1277
-# Prerelease
-%define _snap r1992
+%define		svn	2371
 
 %if %{with webdav_locks}
 %define		webdav_progs	1
 %endif
 
-%define		_rel 0.2
+%define		rel 0.3
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.5.0
-Release:	%{_rel}%{?_snap:.%(echo %{_snap}|tr - _)}%{?_svn:.%{_svn}}
+Release:	%{rel}%{?snap:.%(echo %{snap}|tr - _)}%{?svn:.%{svn}}
 License:	BSD
 Group:		Networking/Daemons
-#Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.gz
-Source0:	http://www.lighttpd.net/download/%{name}-%{version}-%{_snap}.tar.gz
+Source0:	%{name}-%{version}.tar.gz
 # Source0-md5:	b62e2442ee0f3395844b54385b14397a
 Source1:	%{name}.init
 Source2:	%{name}.conf
