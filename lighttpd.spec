@@ -48,7 +48,7 @@ Release:	%{rel}%{?snap:.%(echo %{snap}|tr - _)}%{?svn:.%{svn}}
 License:	BSD
 Group:		Networking/Daemons
 Source0:	%{name}-%{version}.tar.gz
-# Source0-md5:	b62e2442ee0f3395844b54385b14397a
+# Source0-md5:	e9396859e2b2f9be7291b5636ae4195a
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
