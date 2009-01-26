@@ -37,7 +37,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		rel 6
+%define		rel 7
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -435,15 +435,13 @@ Moduł lighttpd do streamingu flv.
 
 %package mod_h264_streaming
 Summary:	lighttpd module for h264 streaming
-License:	GPL v3+
+License:	CC 3.0 BY-NC-SA
 Group:		Networking/Daemons/HTTP
-URL:		http://h264.code-shop.com/
+URL:		http://h264.code-shop.com/trac/wiki/Mod-H264-Streaming-Lighttpd-Version2
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_h264_streaming
-lighttpd module for h264 streaming.
-
-Please note that this module is experimental and work-in-progress.
+A lighttpd plugin for pseudo-streaming Quicktime/MPEG4 files.
 
 %package mod_indexfile
 Summary:	lighttpd indexfile module
