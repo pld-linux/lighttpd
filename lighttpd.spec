@@ -435,13 +435,17 @@ Moduł lighttpd do streamingu flv.
 
 %package mod_h264_streaming
 Summary:	lighttpd module for h264 streaming
+Summary(pl.UTF-8):	Moduł lighttpd do emisji strumieni h264
 License:	CC 3.0 BY-NC-SA
 Group:		Networking/Daemons/HTTP
 URL:		http://h264.code-shop.com/trac/wiki/Mod-H264-Streaming-Lighttpd-Version2
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_h264_streaming
-A lighttpd plugin for pseudo-streaming Quicktime/MPEG4 files.
+A lighttpd plugin for pseudo-streaming QuickTime/MPEG-4 files.
+
+%description mod_h264_streaming -l pl.UTF-8
+Moduł lighttpd do pseudostreamingu plików QuickTime/MPEG-4.
 
 %package mod_indexfile
 Summary:	lighttpd indexfile module
