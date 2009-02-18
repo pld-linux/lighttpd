@@ -33,17 +33,6 @@ Index: src/mod_cml_lua.c
  	/* load lua program */
 Index: SConstruct
 ===================================================================
---- SConstruct	(.../tags/lighttpd-1.4.21)	(revision 2399)
-+++ SConstruct	(.../branches/lighttpd-1.4.x)	(revision 2399)
-@@ -5,7 +5,7 @@
- from stat import *
- 
- package = 'lighttpd'
--version = '1.4.21'
-+version = '1.4.22'
- 
- def checkCHeaders(autoconf, hdrs):
- 	p = re.compile('[^A-Z0-9]')
 Index: NEWS
 ===================================================================
 --- NEWS	(.../tags/lighttpd-1.4.21)	(revision 2399)
@@ -64,17 +53,6 @@ Index: NEWS
    * Do not rely on ioctl FIONREAD (#673)
 Index: CMakeLists.txt
 ===================================================================
---- CMakeLists.txt	(.../tags/lighttpd-1.4.21)	(revision 2399)
-+++ CMakeLists.txt	(.../branches/lighttpd-1.4.x)	(revision 2399)
-@@ -10,7 +10,7 @@
- 
- SET(CPACK_PACKAGE_VERSION_MAJOR 1)
- SET(CPACK_PACKAGE_VERSION_MINOR 4)
--SET(CPACK_PACKAGE_VERSION_PATCH 21)
-+SET(CPACK_PACKAGE_VERSION_PATCH 22)
- SET(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
- 
- SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/COPYING")
 
 Property changes on: .
 ___________________________________________________________________
