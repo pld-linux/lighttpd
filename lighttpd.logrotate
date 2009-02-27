@@ -1,7 +1,7 @@
 /var/log/lighttpd/*.log {
 	olddir /var/log/archive/lighttpd
 
-	create 644 lighttpd lighttpd
+	create 640 lighttpd logs
 
 	sharedscripts
 	postrotate
