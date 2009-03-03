@@ -37,7 +37,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		rel 2
+%define		rel 3
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -1072,7 +1072,7 @@ fi
 %attr(755,root,root) %{_sbindir}/lighttpd
 %attr(755,root,root) %{_sbindir}/lighttpd-angel
 %dir %{_libdir}
-%{_mandir}/man?/*
+%{_mandir}/man1/lighttpd.1*
 %dir %{_lighttpddir}
 %dir %{_lighttpddir}/cgi-bin
 %dir %{_lighttpddir}/html
@@ -1271,6 +1271,7 @@ fi
 %defattr(644,root,root,755)
 %doc doc/spawn-php.sh
 %attr(755,root,root) %{_sbindir}/spawn-fcgi
+%{_mandir}/man1/spawn-fcgi.1*
 
 %files php-spawned
 %defattr(644,root,root,755)
