@@ -1,71 +1,1223 @@
 Index: configure.in
 ===================================================================
+Index: src/configfile-glue.c
+===================================================================
+--- src/configfile-glue.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/configfile-glue.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -181,7 +181,7 @@
+ 	return config_insert_values_internal(srv, ca, cv);
+ }
+ 
+-unsigned short sock_addr_get_port(sock_addr *addr) {
++static unsigned short sock_addr_get_port(sock_addr *addr) {
+ #ifdef HAVE_IPV6
+ 	return ntohs(addr->plain.sa_family ? addr->ipv6.sin6_port : addr->ipv4.sin_port);
+ #else
+Index: src/mod_cgi.c
+===================================================================
+--- src/mod_cgi.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_cgi.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -1369,6 +1369,7 @@
+ }
+ 
+ 
++int mod_cgi_plugin_init(plugin *p);
+ int mod_cgi_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("cgi");
+Index: src/mod_cml.c
+===================================================================
+--- src/mod_cml.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_cml.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -178,7 +178,7 @@
+ }
+ #undef PATCH
+ 
+-int cache_call_lua(server *srv, connection *con, plugin_data *p, buffer *cml_file) {
++static int cache_call_lua(server *srv, connection *con, plugin_data *p, buffer *cml_file) {
+ 	buffer *b;
+ 	char *c;
+ 
+@@ -305,6 +305,7 @@
+ 	}
+ }
+ 
++int mod_cml_plugin_init(plugin *p);
+ int mod_cml_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("cache");
+Index: src/mod_secure_download.c
+===================================================================
+--- src/mod_secure_download.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_secure_download.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -138,7 +138,7 @@
+  * @return if the supplied string is a valid MD5 string 1 is returned otherwise 0
+  */
+ 
+-int is_hex_len(const char *str, size_t len) {
++static int is_hex_len(const char *str, size_t len) {
+ 	size_t i;
+ 
+ 	if (NULL == str) return 0;
+@@ -293,6 +293,7 @@
+ 
+ /* this function is called at dlopen() time and inits the callbacks */
+ 
++int mod_secdownload_plugin_init(plugin *p);
+ int mod_secdownload_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("secdownload");
+Index: src/mod_rewrite.c
+===================================================================
+--- src/mod_rewrite.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_rewrite.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -63,7 +63,7 @@
+ 	free(hctx);
+ }
+ 
+-rewrite_rule_buffer *rewrite_rule_buffer_init(void) {
++static rewrite_rule_buffer *rewrite_rule_buffer_init(void) {
+ 	rewrite_rule_buffer *kvb;
+ 
+ 	kvb = calloc(1, sizeof(*kvb));
+@@ -71,7 +71,7 @@
+ 	return kvb;
+ }
+ 
+-int rewrite_rule_buffer_append(rewrite_rule_buffer *kvb, buffer *key, buffer *value, int once) {
++static int rewrite_rule_buffer_append(rewrite_rule_buffer *kvb, buffer *key, buffer *value, int once) {
+ #ifdef HAVE_PCRE_H
+ 	size_t i;
+ 	const char *errptr;
+@@ -121,7 +121,7 @@
+ #endif
+ }
+ 
+-void rewrite_rule_buffer_free(rewrite_rule_buffer *kvb) {
++static void rewrite_rule_buffer_free(rewrite_rule_buffer *kvb) {
+ #ifdef HAVE_PCRE_H
+ 	size_t i;
+ 
+@@ -444,6 +444,7 @@
+ 	return HANDLER_GO_ON;
+ }
+ 
++int mod_rewrite_plugin_init(plugin *p);
+ int mod_rewrite_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("rewrite");
+Index: src/connections.c
+===================================================================
+--- src/connections.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/connections.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -858,7 +858,7 @@
+  *
+  * we get called by the state-engine and by the fdevent-handler
+  */
+-int connection_handle_read_state(server *srv, connection *con)  {
++static int connection_handle_read_state(server *srv, connection *con)  {
+ 	connection_state_t ostate = con->state;
+ 	chunk *c, *last_chunk;
+ 	off_t last_offset;
+@@ -1156,7 +1156,7 @@
+ 	return 0;
+ }
+ 
+-handler_t connection_handle_fdevent(void *s, void *context, int revents) {
++static handler_t connection_handle_fdevent(void *s, void *context, int revents) {
+ 	server     *srv = (server *)s;
+ 	connection *con = context;
+ 
+Index: src/mod_staticfile.c
+===================================================================
+--- src/mod_staticfile.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_staticfile.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -532,6 +532,7 @@
+ 
+ /* this function is called at dlopen() time and inits the callbacks */
+ 
++int mod_staticfile_plugin_init(plugin *p);
+ int mod_staticfile_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("staticfile");
+Index: src/mod_alias.c
+===================================================================
+--- src/mod_alias.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_alias.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -187,6 +187,7 @@
+ 
+ /* this function is called at dlopen() time and inits the callbacks */
+ 
++int mod_alias_plugin_init(plugin *p);
+ int mod_alias_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("alias");
+Index: src/network.c
+===================================================================
+--- src/network.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/network.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -26,7 +26,7 @@
+ # include <openssl/rand.h>
+ #endif
+ 
+-handler_t network_server_handle_fdevent(void *s, void *context, int revents) {
++static handler_t network_server_handle_fdevent(void *s, void *context, int revents) {
+ 	server     *srv = (server *)s;
+ 	server_socket *srv_socket = (server_socket *)context;
+ 	connection *con;
+@@ -62,7 +62,7 @@
+ 	return HANDLER_GO_ON;
+ }
+ 
+-int network_server_init(server *srv, buffer *host_token, specific_config *s) {
++static int network_server_init(server *srv, buffer *host_token, specific_config *s) {
+ 	int val;
+ 	socklen_t addr_len;
+ 	server_socket *srv_socket;
+Index: src/mod_trigger_b4_dl.c
+===================================================================
+--- src/mod_trigger_b4_dl.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_trigger_b4_dl.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -576,6 +576,7 @@
+ 
+ /* this function is called at dlopen() time and inits the callbacks */
+ 
++int mod_trigger_b4_dl_plugin_init(plugin *p);
+ int mod_trigger_b4_dl_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("trigger_b4_dl");
+Index: src/mod_evhost.c
+===================================================================
+--- src/mod_evhost.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_evhost.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -318,6 +318,7 @@
+ 	return HANDLER_GO_ON;
+ }
+ 
++int mod_evhost_plugin_init(plugin *p);
+ int mod_evhost_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name                    = buffer_init_string("evhost");
+Index: src/splaytree.c
+===================================================================
+--- src/splaytree.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/splaytree.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -187,7 +187,8 @@
+     }
+ }
+ 
+-splay_tree *find_rank(int r, splay_tree *t) {
++#if 0
++static splay_tree *find_rank(int r, splay_tree *t) {
+ /* Returns a pointer to the node in the tree with the given rank.  */
+ /* Returns NULL if there is no such node.                          */
+ /* Does not change the tree.  To guarantee logarithmic behavior,   */
+@@ -206,5 +207,4 @@
+ 	}
+     }
+ }
+-
+-
++#endif
+Index: src/mod_scgi.c
+===================================================================
+--- src/mod_scgi.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_scgi.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -372,7 +372,7 @@
+ 	free(hctx);
+ }
+ 
+-scgi_proc *scgi_process_init() {
++static scgi_proc *scgi_process_init() {
+ 	scgi_proc *f;
+ 
+ 	f = calloc(1, sizeof(*f));
+@@ -384,7 +384,7 @@
+ 	return f;
+ }
+ 
+-void scgi_process_free(scgi_proc *f) {
++static void scgi_process_free(scgi_proc *f) {
+ 	if (!f) return;
+ 
+ 	scgi_process_free(f->next);
+@@ -394,7 +394,7 @@
+ 	free(f);
+ }
+ 
+-scgi_extension_host *scgi_host_init() {
++static scgi_extension_host *scgi_host_init() {
+ 	scgi_extension_host *f;
+ 
+ 	f = calloc(1, sizeof(*f));
+@@ -409,7 +409,7 @@
+ 	return f;
+ }
+ 
+-void scgi_host_free(scgi_extension_host *h) {
++static void scgi_host_free(scgi_extension_host *h) {
+ 	if (!h) return;
+ 
+ 	buffer_free(h->host);
+@@ -426,7 +426,7 @@
+ 
+ }
+ 
+-scgi_exts *scgi_extensions_init() {
++static scgi_exts *scgi_extensions_init() {
+ 	scgi_exts *f;
+ 
+ 	f = calloc(1, sizeof(*f));
+@@ -434,7 +434,7 @@
+ 	return f;
+ }
+ 
+-void scgi_extensions_free(scgi_exts *f) {
++static void scgi_extensions_free(scgi_exts *f) {
+ 	size_t i;
+ 
+ 	if (!f) return;
+@@ -464,7 +464,7 @@
+ 	free(f);
+ }
+ 
+-int scgi_extension_insert(scgi_exts *ext, buffer *key, scgi_extension_host *fh) {
++static int scgi_extension_insert(scgi_exts *ext, buffer *key, scgi_extension_host *fh) {
+ 	scgi_extension *fe;
+ 	size_t i;
+ 
+@@ -1178,7 +1178,7 @@
+ }
+ 
+ 
+-void scgi_connection_cleanup(server *srv, handler_ctx *hctx) {
++static void scgi_connection_cleanup(server *srv, handler_ctx *hctx) {
+ 	plugin_data *p;
+ 	connection  *con;
+ 
+@@ -1915,7 +1915,7 @@
+ }
+ 
+ 
+-int scgi_proclist_sort_up(server *srv, scgi_extension_host *host, scgi_proc *proc) {
++static int scgi_proclist_sort_up(server *srv, scgi_extension_host *host, scgi_proc *proc) {
+ 	scgi_proc *p;
+ 
+ 	UNUSED(srv);
+@@ -3105,6 +3105,7 @@
+ }
+ 
+ 
++int mod_scgi_plugin_init(plugin *p);
+ int mod_scgi_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name         = buffer_init_string("scgi");
+Index: src/mod_mysql_vhost.c
+===================================================================
+--- src/mod_mysql_vhost.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_mysql_vhost.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -422,6 +422,7 @@
+ }
+ 
+ /* this function is called at dlopen() time and inits the callbacks */
++int mod_mysql_vhost_plugin_init(plugin *p);
+ int mod_mysql_vhost_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        			= buffer_init_string("mysql_vhost");
+@@ -437,6 +438,7 @@
+ }
+ #else
+ /* we don't have mysql support, this plugin does nothing */
++int mod_mysql_vhost_plugin_init(plugin *p);
+ int mod_mysql_vhost_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        			= buffer_init_string("mysql_vhost");
+Index: src/request.c
+===================================================================
+--- src/request.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/request.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -200,7 +200,7 @@
+ #define DUMP_HEADER
+ #endif
+ 
+-int http_request_split_value(array *vals, buffer *b) {
++static int http_request_split_value(array *vals, buffer *b) {
+ 	char *s;
+ 	size_t i;
+ 	int state = 0;
+@@ -262,7 +262,7 @@
+ 	return 0;
+ }
+ 
+-int request_uri_is_valid_char(unsigned char c) {
++static int request_uri_is_valid_char(unsigned char c) {
+ 	if (c <= 32) return 0;
+ 	if (c == 127) return 0;
+ 	if (c == 255) return 0;
+Index: src/mod_magnet_cache.c
+===================================================================
+--- src/mod_magnet_cache.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_magnet_cache.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -9,7 +9,7 @@
+ #include <lualib.h>
+ #include <lauxlib.h>
+ 
+-script *script_init() {
++static script *script_init() {
+ 	script *sc;
+ 
+ 	sc = calloc(1, sizeof(*sc));
+@@ -19,7 +19,7 @@
+ 	return sc;
+ }
+ 
+-void script_free(script *sc) {
++static void script_free(script *sc) {
+ 	if (!sc) return;
+ 
+ 	lua_pop(sc->L, 1); /* the function copy */
+Index: src/mod_flv_streaming.c
+===================================================================
+--- src/mod_flv_streaming.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_flv_streaming.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -265,6 +265,7 @@
+ 
+ /* this function is called at dlopen() time and inits the callbacks */
+ 
++int mod_flv_streaming_plugin_init(plugin *p);
+ int mod_flv_streaming_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("flv_streaming");
+Index: src/mod_rrdtool.c
+===================================================================
+--- src/mod_rrdtool.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_rrdtool.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -91,7 +91,7 @@
+ 	return HANDLER_GO_ON;
+ }
+ 
+-int mod_rrd_create_pipe(server *srv, plugin_data *p) {
++static int mod_rrd_create_pipe(server *srv, plugin_data *p) {
+ #ifdef HAVE_FORK
+ 	pid_t pid;
+ 
+@@ -477,6 +477,7 @@
+ 	return HANDLER_GO_ON;
+ }
+ 
++int mod_rrdtool_plugin_init(plugin *p);
+ int mod_rrdtool_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("rrd");
+Index: src/mod_cml_funcs.c
+===================================================================
+--- src/mod_cml_funcs.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_cml_funcs.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -93,7 +93,7 @@
+ 	return 1;
+ }
+ 
+-int f_dir_files_iter(lua_State *L) {
++static int f_dir_files_iter(lua_State *L) {
+ 	DIR *d;
+ 	struct dirent *de;
+ 
+@@ -211,7 +211,7 @@
+ 	}
+ 
+ 	if (NULL == (r = mc_aget(mc,
+-				 lua_tostring(L, 1), lua_strlen(L, 1)))) {
++				 (char*) lua_tostring(L, 1), lua_strlen(L, 1)))) {
+ 
+ 		lua_pushboolean(L, 0);
+ 		return 1;
+@@ -248,7 +248,7 @@
+ 	}
+ 
+ 	if (NULL == (r = mc_aget(mc,
+-				 lua_tostring(L, 1), lua_strlen(L, 1)))) {
++				 (char*) lua_tostring(L, 1), lua_strlen(L, 1)))) {
+ 		lua_pushnil(L);
+ 		return 1;
+ 	}
+@@ -285,7 +285,7 @@
+ 	}
+ 
+ 	if (NULL == (r = mc_aget(mc,
+-				 lua_tostring(L, 1), lua_strlen(L, 1)))) {
++				 (char*) lua_tostring(L, 1), lua_strlen(L, 1)))) {
+ 		lua_pushnil(L);
+ 		return 1;
+ 	}
 Index: src/mod_simple_vhost.c
 ===================================================================
---- src/mod_simple_vhost.c	(.../tags/lighttpd-1.4.21)	(revision 2399)
-+++ src/mod_simple_vhost.c	(.../branches/lighttpd-1.4.x)	(revision 2399)
-@@ -249,6 +249,8 @@
- 				return HANDLER_GO_ON;
- 			} else {
- 				buffer_copy_string_buffer(con->server_name, p->conf.default_host);
-+				buffer_copy_string_buffer(con->physical.doc_root, p->doc_root);
-+
- 				/* do not cache default host */
- 				return HANDLER_GO_ON;
- 			}
+--- src/mod_simple_vhost.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_simple_vhost.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -270,6 +270,7 @@
+ }
+ 
+ 
++int mod_simple_vhost_plugin_init(plugin *p);
+ int mod_simple_vhost_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("simple_vhost");
+Index: src/mod_userdir.c
+===================================================================
+--- src/mod_userdir.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_userdir.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -314,6 +314,7 @@
+ 
+ /* this function is called at dlopen() time and inits the callbacks */
+ 
++int mod_userdir_plugin_init(plugin *p);
+ int mod_userdir_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("userdir");
+Index: src/mod_proxy.c
+===================================================================
+--- src/mod_proxy.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_proxy.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -332,7 +332,7 @@
+ 	return HANDLER_GO_ON;
+ }
+ 
+-void proxy_connection_close(server *srv, handler_ctx *hctx) {
++static void proxy_connection_close(server *srv, handler_ctx *hctx) {
+ 	plugin_data *p;
+ 	connection *con;
+ 
+@@ -395,7 +395,7 @@
+ 	return 0;
+ }
+ 
+-void proxy_set_header(connection *con, const char *key, const char *value) {
++static void proxy_set_header(connection *con, const char *key, const char *value) {
+     data_string *ds_dst;
+ 
+     if (NULL == (ds_dst = (data_string *)array_get_unused_element(con->request.headers, TYPE_STRING))) {
+@@ -407,7 +407,7 @@
+     array_insert_unique(con->request.headers, (data_unset *)ds_dst);
+ }
+ 
+-void proxy_append_header(connection *con, const char *key, const char *value) {
++static void proxy_append_header(connection *con, const char *key, const char *value) {
+     data_string *ds_dst;
+ 
+     if (NULL == (ds_dst = (data_string *)array_get_unused_element(con->request.headers, TYPE_STRING))) {
+@@ -1321,6 +1321,7 @@
+ }
+ 
+ 
++int mod_proxy_plugin_init(plugin *p);
+ int mod_proxy_plugin_init(plugin *p) {
+ 	p->version      = LIGHTTPD_VERSION_ID;
+ 	p->name         = buffer_init_string("proxy");
+Index: src/mod_extforward.c
+===================================================================
+--- src/mod_extforward.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_extforward.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -294,7 +294,7 @@
+ 	return NULL;
+ }
+ 
+-struct addrinfo *ipstr_to_sockaddr(const char *host)
++static struct addrinfo *ipstr_to_sockaddr(const char *host)
+ {
+    struct addrinfo hints, *res0;
+    int result;
+@@ -479,6 +479,7 @@
+ 
+ /* this function is called at dlopen() time and inits the callbacks */
+ 
++int mod_extforward_plugin_init(plugin *p);
+ int mod_extforward_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("extforward");
+Index: src/mod_expire.c
+===================================================================
+--- src/mod_expire.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_expire.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -354,6 +354,7 @@
+ 
+ /* this function is called at dlopen() time and inits the callbacks */
+ 
++int mod_expire_plugin_init(plugin *p);
+ int mod_expire_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("expire");
+Index: src/mod_redirect.c
+===================================================================
+--- src/mod_redirect.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_redirect.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -271,6 +271,7 @@
+ }
+ 
+ 
++int mod_redirect_plugin_init(plugin *p);
+ int mod_redirect_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("redirect");
+Index: src/mod_usertrack.c
+===================================================================
+--- src/mod_usertrack.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_usertrack.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -255,6 +255,7 @@
+ 
+ /* this function is called at dlopen() time and inits the callbacks */
+ 
++int mod_usertrack_plugin_init(plugin *p);
+ int mod_usertrack_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("usertrack");
+Index: src/mod_webdav.c
+===================================================================
+--- src/mod_webdav.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_webdav.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -1096,7 +1096,7 @@
+ }
+ #endif
+ 
+-int webdav_lockdiscovery(server *srv, connection *con,
++static int webdav_lockdiscovery(server *srv, connection *con,
+ 		buffer *locktoken, const char *lockscope, const char *locktype, int depth) {
+ 
+ 	buffer *b;
+@@ -1156,7 +1156,7 @@
+  *
+  *
+  */
+-int webdav_has_lock(server *srv, connection *con, plugin_data *p, buffer *uri) {
++static int webdav_has_lock(server *srv, connection *con, plugin_data *p, buffer *uri) {
+ 	int has_lock = 1;
+ 
+ #ifdef USE_LOCKS
+@@ -2474,6 +2474,7 @@
+ 
+ /* this function is called at dlopen() time and inits the callbacks */
+ 
++int mod_webdav_plugin_init(plugin *p);
+ int mod_webdav_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("webdav");
+Index: src/mod_status.c
+===================================================================
+--- src/mod_status.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_status.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -853,6 +853,7 @@
+ 	return HANDLER_GO_ON;
+ }
+ 
++int mod_status_plugin_init(plugin *p);
+ int mod_status_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("status");
+Index: src/mod_compress.c
+===================================================================
+--- src/mod_compress.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_compress.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -104,7 +104,7 @@
+ }
+ 
+ /* 0 on success, -1 for error */
+-int mkdir_recursive(char *dir) {
++static int mkdir_recursive(char *dir) {
+ 	char *p = dir;
+ 
+ 	if (!dir || !dir[0])
+@@ -126,7 +126,7 @@
+ }
+ 
+ /* 0 on success, -1 for error */
+-int mkdir_for_file(char *filename) {
++static int mkdir_for_file(char *filename) {
+ 	char *p = filename;
+ 
+ 	if (!filename || !filename[0])
+@@ -815,6 +815,7 @@
+ 	return HANDLER_GO_ON;
+ }
+ 
++int mod_compress_plugin_init(plugin *p);
+ int mod_compress_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("compress");
+Index: src/mod_ssi.c
+===================================================================
+--- src/mod_ssi.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_ssi.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -139,7 +139,7 @@
+ 	return HANDLER_GO_ON;
+ }
+ 
+-int ssi_env_add(array *env, const char *key, const char *val) {
++static int ssi_env_add(array *env, const char *key, const char *val) {
+ 	data_string *ds;
+ 
+ 	if (NULL == (ds = (data_string *)array_get_unused_element(env, TYPE_STRING))) {
+@@ -1125,6 +1125,7 @@
+ 
+ /* this function is called at dlopen() time and inits the callbacks */
+ 
++int mod_ssi_plugin_init(plugin *p);
+ int mod_ssi_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("ssi");
+Index: src/spawn-fcgi.c
+===================================================================
+--- src/spawn-fcgi.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/spawn-fcgi.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -37,7 +37,7 @@
+ #endif
+ 
+ #ifdef HAVE_SYS_UN_H
+-int fcgi_spawn_connection(char *appPath, char **appArgv, char *addr, unsigned short port, const char *unixsocket, int fork_count, int child_count, int pid_fd, int nofork) {
++static int fcgi_spawn_connection(char *appPath, char **appArgv, char *addr, unsigned short port, const char *unixsocket, int fork_count, int child_count, int pid_fd, int nofork) {
+ 	int fcgi_fd;
+ 	int socket_type, status, rc = 0;
+ 	struct timeval tv = { 0, 100 * 1000 };
+@@ -259,14 +259,14 @@
+ }
+ 
+ 
+-void show_version () {
++static void show_version () {
+ 	char *b = "spawn-fcgi" "-" PACKAGE_VERSION \
+ " - spawns fastcgi processes\n"
+ ;
+ 	write(1, b, strlen(b));
+ }
+ 
+-void show_help () {
++static void show_help () {
+ 	char *b = \
+ "Usage: spawn-fcgi [options] -- <fcgiapp> [fcgi app arguments]\n" \
+ "\n" \
+Index: src/mod_auth.c
+===================================================================
+--- src/mod_auth.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_auth.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -614,6 +614,7 @@
+ #endif
+ }
+ 
++int mod_auth_plugin_init(plugin *p);
+ int mod_auth_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("auth");
 Index: src/mod_cml_lua.c
 ===================================================================
---- src/mod_cml_lua.c	(.../tags/lighttpd-1.4.21)	(revision 2399)
-+++ src/mod_cml_lua.c	(.../branches/lighttpd-1.4.x)	(revision 2399)
-@@ -282,11 +282,11 @@
+--- src/mod_cml_lua.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_cml_lua.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -105,7 +105,7 @@
+ }
  
- 	/* 2 default constants */
- 	lua_pushliteral(L, "CACHE_HIT");
--	lua_pushboolean(L, 0);
-+	lua_pushnumber(L, 0);
- 	lua_settable(L, LUA_GLOBALSINDEX);
  
- 	lua_pushliteral(L, "CACHE_MISS");
--	lua_pushboolean(L, 1);
-+	lua_pushnumber(L, 1);
- 	lua_settable(L, LUA_GLOBALSINDEX);
+-int cache_export_get_params(lua_State *L, int tbl, buffer *qrystr) {
++static int cache_export_get_params(lua_State *L, int tbl, buffer *qrystr) {
+ 	size_t is_key = 1;
+ 	size_t i;
+ 	char *key = NULL, *val = NULL;
+Index: src/mod_evasive.c
+===================================================================
+--- src/mod_evasive.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_evasive.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -186,6 +186,7 @@
+ }
  
- 	/* load lua program */
+ 
++int mod_evasive_plugin_init(plugin *p);
+ int mod_evasive_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("evasive");
+Index: src/mod_setenv.c
+===================================================================
+--- src/mod_setenv.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_setenv.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -230,6 +230,7 @@
+ 
+ /* this function is called at dlopen() time and inits the callbacks */
+ 
++int mod_setenv_plugin_init(plugin *p);
+ int mod_setenv_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("setenv");
+Index: src/mod_indexfile.c
+===================================================================
+--- src/mod_indexfile.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_indexfile.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -206,6 +206,7 @@
+ 
+ /* this function is called at dlopen() time and inits the callbacks */
+ 
++int mod_indexfile_plugin_init(plugin *p);
+ int mod_indexfile_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("indexfile");
+Index: src/mod_uploadprogress.c
+===================================================================
+--- src/mod_uploadprogress.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_uploadprogress.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -51,7 +51,7 @@
+  */
+ 
+ /* init the plugin data */
+-connection_map *connection_map_init() {
++static connection_map *connection_map_init() {
+ 	connection_map *cm;
+ 
+ 	cm = calloc(1, sizeof(*cm));
+@@ -59,7 +59,7 @@
+ 	return cm;
+ }
+ 
+-void connection_map_free(connection_map *cm) {
++static void connection_map_free(connection_map *cm) {
+ 	size_t i;
+ 	for (i = 0; i < cm->size; i++) {
+ 		connection_map_entry *cme = cm->ptr[i];
+@@ -75,7 +75,7 @@
+ 	free(cm);
+ }
+ 
+-int connection_map_insert(connection_map *cm, connection *con, buffer *con_id) {
++static int connection_map_insert(connection_map *cm, connection *con, buffer *con_id) {
+ 	connection_map_entry *cme;
+ 	size_t i;
+ 
+@@ -108,7 +108,7 @@
+ 	return 0;
+ }
+ 
+-connection *connection_map_get_connection(connection_map *cm, buffer *con_id) {
++static connection *connection_map_get_connection(connection_map *cm, buffer *con_id) {
+ 	size_t i;
+ 
+ 	for (i = 0; i < cm->used; i++) {
+@@ -123,7 +123,7 @@
+ 	return NULL;
+ }
+ 
+-int connection_map_remove_connection(connection_map *cm, connection *con) {
++static int connection_map_remove_connection(connection_map *cm, connection *con) {
+ 	size_t i;
+ 
+ 	for (i = 0; i < cm->used; i++) {
+@@ -418,6 +418,7 @@
+ 
+ /* this function is called at dlopen() time and inits the callbacks */
+ 
++int mod_uploadprogress_plugin_init(plugin *p);
+ int mod_uploadprogress_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("uploadprogress");
+Index: src/mod_fastcgi.c
+===================================================================
+--- src/mod_fastcgi.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_fastcgi.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -389,7 +389,7 @@
+ /* ok, we need a prototype */
+ static handler_t fcgi_handle_fdevent(void *s, void *ctx, int revents);
+ 
+-int fastcgi_status_copy_procname(buffer *b, fcgi_extension_host *host, fcgi_proc *proc) {
++static int fastcgi_status_copy_procname(buffer *b, fcgi_extension_host *host, fcgi_proc *proc) {
+ 	buffer_copy_string_len(b, CONST_STR_LEN("fastcgi.backend."));
+ 	buffer_append_string_buffer(b, host->id);
+ 	if (proc) {
+@@ -400,7 +400,7 @@
+ 	return 0;
+ }
+ 
+-int fastcgi_status_init(server *srv, buffer *b, fcgi_extension_host *host, fcgi_proc *proc) {
++static int fastcgi_status_init(server *srv, buffer *b, fcgi_extension_host *host, fcgi_proc *proc) {
+ #define CLEAN(x) \
+ 	fastcgi_status_copy_procname(b, host, proc); \
+ 	buffer_append_string_len(b, CONST_STR_LEN(x)); \
+@@ -465,7 +465,7 @@
+ 	free(hctx);
+ }
+ 
+-fcgi_proc *fastcgi_process_init() {
++static fcgi_proc *fastcgi_process_init() {
+ 	fcgi_proc *f;
+ 
+ 	f = calloc(1, sizeof(*f));
+@@ -478,7 +478,7 @@
+ 	return f;
+ }
+ 
+-void fastcgi_process_free(fcgi_proc *f) {
++static void fastcgi_process_free(fcgi_proc *f) {
+ 	if (!f) return;
+ 
+ 	fastcgi_process_free(f->next);
+@@ -489,7 +489,7 @@
+ 	free(f);
+ }
+ 
+-fcgi_extension_host *fastcgi_host_init() {
++static fcgi_extension_host *fastcgi_host_init() {
+ 	fcgi_extension_host *f;
+ 
+ 	f = calloc(1, sizeof(*f));
+@@ -506,7 +506,7 @@
+ 	return f;
+ }
+ 
+-void fastcgi_host_free(fcgi_extension_host *h) {
++static void fastcgi_host_free(fcgi_extension_host *h) {
+ 	if (!h) return;
+ 
+ 	buffer_free(h->id);
+@@ -525,7 +525,7 @@
+ 
+ }
+ 
+-fcgi_exts *fastcgi_extensions_init() {
++static fcgi_exts *fastcgi_extensions_init() {
+ 	fcgi_exts *f;
+ 
+ 	f = calloc(1, sizeof(*f));
+@@ -533,7 +533,7 @@
+ 	return f;
+ }
+ 
+-void fastcgi_extensions_free(fcgi_exts *f) {
++static void fastcgi_extensions_free(fcgi_exts *f) {
+ 	size_t i;
+ 
+ 	if (!f) return;
+@@ -563,7 +563,7 @@
+ 	free(f);
+ }
+ 
+-int fastcgi_extension_insert(fcgi_exts *ext, buffer *key, fcgi_extension_host *fh) {
++static int fastcgi_extension_insert(fcgi_exts *ext, buffer *key, fcgi_extension_host *fh) {
+ 	fcgi_extension *fe;
+ 	size_t i;
+ 
+@@ -1479,7 +1479,7 @@
+ 
+ 	return 0;
+ }
+-void fcgi_connection_close(server *srv, handler_ctx *hctx) {
++static void fcgi_connection_close(server *srv, handler_ctx *hctx) {
+ 	plugin_data *p;
+ 	connection  *con;
+ 
+@@ -3916,6 +3916,7 @@
+ }
+ 
+ 
++int mod_fastcgi_plugin_init(plugin *p);
+ int mod_fastcgi_plugin_init(plugin *p) {
+ 	p->version      = LIGHTTPD_VERSION_ID;
+ 	p->name         = buffer_init_string("fastcgi");
+Index: src/CMakeLists.txt
+===================================================================
+--- src/CMakeLists.txt	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/CMakeLists.txt	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -29,6 +29,18 @@
+ OPTION(WITH_GDBM "gdbm storage for mod_trigger_b4_dl [default: off]")
+ OPTION(WITH_MEMCACHE "memcached storage for mod_trigger_b4_dl [default: off]")
+ 
++IF(CMAKE_COMPILER_IS_GNUCC)
++	OPTION(BUILD_EXTRA_WARNINGS "extra warnings")
++
++	IF(BUILD_EXTRA_WARNINGS)
++		SET(WARN_FLAGS "-g -O2 -g2 -Wall -Wmissing-declarations -Wdeclaration-after-statement -Wno-pointer-sign -Wcast-align -Winline -Wsign-compare -Wnested-externs -Wpointer-arith -Wformat-security")
++		# -Wl,--as-needed
++		# -Werror -Wbad-function-cast -Wmissing-prototypes
++	ELSE(BUILD_EXTRA_WARNINGS)
++		SET(WARN_FLAGS "")
++	ENDIF(BUILD_EXTRA_WARNINGS)
++ENDIF(CMAKE_COMPILER_IS_GNUCC)
++
+ OPTION(BUILD_STATIC "build a static lighttpd with all modules added")
+ 
+ IF(BUILD_STATIC)
+@@ -424,6 +436,10 @@
+ ADD_EXECUTABLE(spawn-fcgi spawn-fcgi.c)
+ SET(L_INSTALL_TARGETS ${L_INSTALL_TARGETS} spawn-fcgi)
+ 
++ADD_EXECUTABLE(lighttpd-angel lighttpd-angel.c)
++SET(L_INSTALL_TARGETS ${L_INSTALL_TARGETS} lighttpd-angel)
++ADD_TARGET_PROPERTIES(lighttpd-angel COMPILE_FLAGS "-DSBIN_DIR=\\\\\"${CMAKE_INSTALL_PREFIX}/${SBINDIR}\\\\\"")
++
+ ADD_EXECUTABLE(lighttpd
+ 	server.c
+ 	response.c
+@@ -545,7 +561,7 @@
+ ENDIF(HAVE_MEMCACHE_H)
+ 
+ IF(CMAKE_COMPILER_IS_GNUCC)
+-  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -g -Wshadow -W -pedantic")
++  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -g -Wshadow -W -pedantic ${WARN_FLAGS}")
+   SET(CMAKE_C_FLAGS_RELEASE        "${CMAKE_C_FLAGS_RELEASE}     -O2")
+   SET(CMAKE_C_FLAGS_DEBUG          "${CMAKE_C_FLAGS_DEBUG}       -O0")
+   SET(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_WITHDEBINFO} -O2")
+Index: src/mod_access.c
+===================================================================
+--- src/mod_access.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_access.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -175,6 +175,7 @@
+ }
+ 
+ 
++int mod_access_plugin_init(plugin *p);
+ int mod_access_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("access");
+Index: src/mod_accesslog.c
+===================================================================
+--- src/mod_accesslog.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_accesslog.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -156,7 +156,7 @@
+ 	return p;
+ }
+ 
+-int accesslog_parse_format(server *srv, format_fields *fields, buffer *format) {
++static int accesslog_parse_format(server *srv, format_fields *fields, buffer *format) {
+ 	size_t i, j, k = 0, start = 0;
+ 
+ 	if (format->used == 0) return -1;
+@@ -876,6 +876,7 @@
+ }
+ 
+ 
++int mod_accesslog_plugin_init(plugin *p);
+ int mod_accesslog_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("accesslog");
+Index: src/mod_dirlisting.c
+===================================================================
+--- src/mod_dirlisting.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_dirlisting.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -73,7 +73,7 @@
+ 	plugin_config conf;
+ } plugin_data;
+ 
+-excludes_buffer *excludes_buffer_init(void) {
++static excludes_buffer *excludes_buffer_init(void) {
+ 	excludes_buffer *exb;
+ 
+ 	exb = calloc(1, sizeof(*exb));
+@@ -81,7 +81,7 @@
+ 	return exb;
+ }
+ 
+-int excludes_buffer_append(excludes_buffer *exb, buffer *string) {
++static int excludes_buffer_append(excludes_buffer *exb, buffer *string) {
+ #ifdef HAVE_PCRE_H
+ 	size_t i;
+ 	const char *errptr;
+@@ -128,7 +128,7 @@
+ #endif
+ }
+ 
+-void excludes_buffer_free(excludes_buffer *exb) {
++static void excludes_buffer_free(excludes_buffer *exb) {
+ #ifdef HAVE_PCRE_H
+ 	size_t i;
+ 
+@@ -904,6 +904,7 @@
+ 
+ /* this function is called at dlopen() time and inits the callbacks */
+ 
++int mod_dirlisting_plugin_init(plugin *p);
+ int mod_dirlisting_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("dirlisting");
+Index: src/mod_magnet.c
+===================================================================
+--- src/mod_magnet.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/mod_magnet.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -840,6 +840,7 @@
+ 
+ /* this function is called at dlopen() time and inits the callbacks */
+ 
++int mod_magnet_plugin_init(plugin *p);
+ int mod_magnet_plugin_init(plugin *p) {
+ 	p->version     = LIGHTTPD_VERSION_ID;
+ 	p->name        = buffer_init_string("magnet");
+@@ -856,6 +857,7 @@
+ }
+ 
+ #else
++int mod_magnet_plugin_init(plugin *p);
+ int mod_magnet_plugin_init(plugin *p) {
+ 	UNUSED(p);
+ 	return -1;
+Index: src/fdevent.c
+===================================================================
+--- src/fdevent.c	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ src/fdevent.c	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -92,7 +92,7 @@
+ 	return 0;
+ }
+ 
+-fdnode *fdnode_init() {
++static fdnode *fdnode_init() {
+ 	fdnode *fdn;
+ 
+ 	fdn = calloc(1, sizeof(*fdn));
+@@ -100,7 +100,7 @@
+ 	return fdn;
+ }
+ 
+-void fdnode_free(fdnode *fdn) {
++static void fdnode_free(fdnode *fdn) {
+ 	free(fdn);
+ }
+ 
+Index: doc/lighttpd.1
+===================================================================
+--- doc/lighttpd.1	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ doc/lighttpd.1	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -1,18 +0,0 @@
+-.TH LIGHTTPD 1 2003-12-21
+-.SH NAME
+-lighttpd - a fast, secure and flexible webserver
+-.SH SYNOPSIS
+-lighttpd -D -f <configfile>
+-.SH DESCRIPTION
+-.SH FILES
+-/etc/lighttpd/lighttpd.conf
+-.SH CONFORMING TO
+-HTTP/1.0
+-HTTP/1.0
+-HTTP-Authentification - Basic, Digest
+-FastCGI
+-CGI/1.1
+-.SH SEE ALSO
+-spawn-fcgi(1)
+-.SH AUTHOR
+-jan@kneschke.de
+Index: doc/lighttpd.8
+===================================================================
+--- doc/lighttpd.8	(.../tags/lighttpd-1.4.22)	(revision 0)
++++ doc/lighttpd.8	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -0,0 +1,70 @@
++.TH LIGHTTPD "8" "2009-03-07" "" ""
++.
++.SH NAME
++lighttpd \- a fast, secure and flexible web server
++.
++.SH SYNOPSIS
++\fBlighttpd\fP [\fB\-ptDvVh\fP] \fB\-f\fP \fIconfigfile\fP [\fB\-m\fP \fImoduledir\fP]
++.
++.SH DESCRIPTION
++\fBlighttpd\fP (pronounced 'lighty') is an advanced HTTP daemon that aims
++to be secure, fast, compliant and very flexible.  It has been optimized for
++high performance.  Its feature set includes, but is not limited to, FastCGI,
++CGI, basic and digest HTTP authentication, output compression, URL rewriting.
++.PP
++This manual page only lists the command line arguments.  For details
++on how to configure \fBlighttpd\fP and its modules see the files in the
++doc-directory.
++.
++.SH OPTIONS
++The following options are supported:
++.TP 8
++\fB\-f\ \fP \fIconfigfile\fP
++Load configuration file \fIconfigfile\fP.
++.TP 8
++\fB\-m\ \fP \fImoduledir\fP
++Use
++\fImoduledir\fP
++as the directory that contains modules, instead of the default.
++.TP 8
++\fB\-p\fP
++Print the parsed configuration file in its internal form and exit.
++.TP 8
++\fB\-t\fP
++Test the configuration file for syntax errors and exit.
++.TP 8
++\fB\-D\fP
++Do not daemonize (go into background). The default is to daemonize.
++.TP 8
++\fB\-v\fP
++Show version and exit.
++.TP 8
++\fB\-V\fP
++Show compile-time features and exit.
++.TP 8
++\fB\-h\fP
++Show a brief help message and exit.
++.
++.SH FILES
++.TP 8
++/etc/lighttpd/lighttpd.conf
++The standard location for the configuration file.
++.TP 8
++/var/run/lighttpd.pid
++The standard location for the PID of the running \fBlighttpd\fP process.
++.
++.SH SEE ALSO
++Online Documentation: http://wiki.lighttpd.net/
++.PP
++spawn-fcgi(1)
++.PP
++\fIHypertext Transfer Protocol -- HTTP/1.1\fP, RFC 2616.
++.PP
++\fIHTTP Authentication: Basic and Digest Access Authentication\fP, RFC 2617.
++.PP
++\fIThe Common Gateway Interface Version 1.1\fP, RFC 3875.
++.PP
++\fIThe FastCGI specification\fP.
++.
++.SH AUTHOR
++Jan Kneschke <jan@kneschke.de>
+Index: doc/Makefile.am
+===================================================================
+--- doc/Makefile.am	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ doc/Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -1,6 +1,6 @@
+-dist_man1_MANS=lighttpd.1 spawn-fcgi.1
++dist_man1_MANS=spawn-fcgi.1
++dist_man8_MANS=lighttpd.8
+ 
+-
+ DOCS=accesslog.txt \
+ authentication.txt \
+ cgi.txt \
 Index: SConstruct
 ===================================================================
 Index: NEWS
 ===================================================================
---- NEWS	(.../tags/lighttpd-1.4.21)	(revision 2399)
-+++ NEWS	(.../branches/lighttpd-1.4.x)	(revision 2399)
-@@ -3,8 +3,12 @@
+--- NEWS	(.../tags/lighttpd-1.4.22)	(revision 2417)
++++ NEWS	(.../branches/lighttpd-1.4.x)	(revision 2417)
+@@ -3,7 +3,11 @@
  NEWS
  ====
  
--- 1.4.21 -
-+- 1.4.22 -
-+  * Fix wrong lua type for CACHE_MISS/CACHE_HIT in mod_cml (fixes #533)
-+  * Fix default vhost in mod_simple_vhost (fixes #1905)
- 
-+- 1.4.21 - 2009-02-16
+-- 1.4.22 -
++- 1.4.23 -
++  * Added some extra warning options in cmake and fix the resulting warnings (unused/static functions)
++  * New lighttpd man page (moved it to section 8) (fixes #1875)
 +
-   * Fix base64 decoding in mod_auth (#1757, thx guido)
-   * Fix mod_cgi segfault when bound to unix domain socket (#653)
-   * Do not rely on ioctl FIONREAD (#673)
++- 1.4.22 - 2009-03-07
+   * Fix wrong lua type for CACHE_MISS/CACHE_HIT in mod_cml (fixes #533)
+   * Fix default vhost in mod_simple_vhost (fixes #1905)
+   * Handle EINTR in mod_rrdtool (fixes #604)
 Index: CMakeLists.txt
 ===================================================================
 
 Property changes on: .
 ___________________________________________________________________
 Modified: bzr:revision-info
-   - timestamp: 2009-02-16 14:42:07.753999949 +0100
+   - timestamp: 2009-03-07 14:58:05.338000059 +0100
 committer: Stefan Bühler <stbuehler@web.de>
 properties: 
 	branch-nick: lighttpd-1.4.x
 
-   + timestamp: 2009-02-17 23:44:47.233000040 +0100
+   + timestamp: 2009-03-07 22:04:32.213999987 +0100
 committer: Stefan Bühler <stbuehler@web.de>
 properties: 
 	branch-nick: lighttpd-1.4.x
+
+Modified: bzr:file-ids
+   - 
+   + doc/lighttpd.8	lighttpd.8-20090307205615-mc312p5ocjwthwte-1
 
 Modified: bzr:revision-id:v3-trunk0
    - 1127 stbuehler@web.de-20080728081644-j4cxnhduw8kbt8um
@@ -161,6 +1313,19 @@ Modified: bzr:revision-id:v3-trunk0
 1221 stbuehler@web.de-20090205222705-8179v6jkv2x38l70
 1222 stbuehler@web.de-20090210194631-6epujtpen9xfxx5j
 1223 stbuehler@web.de-20090216134207-fg99ikt1ds21hx25
+1224 stbuehler@web.de-20090217085833-9g5c7j7zdylvezl5
+1225 stbuehler@web.de-20090217133414-y80hydn9raqgkgto
+1226 stbuehler@web.de-20090217224447-ve7ns45c9otbgz9h
+1227 stbuehler@web.de-20090219130703-117t93t4hr4j0e8d
+1228 stbuehler@web.de-20090219130728-m8nui64vin0w95b2
+1229 stbuehler@web.de-20090219131550-exi19tbqyd8fpa0d
+1230 stbuehler@web.de-20090224133046-toewpee0ybw5tuay
+1231 stbuehler@web.de-20090228205351-yqjhutdqf30jr66o
+1232 stbuehler@web.de-20090228213824-gnwuf6by8705g6zk
+1233 stbuehler@web.de-20090303100525-kamra70ocxpji0l5
+1234 stbuehler@web.de-20090303100929-p4w2995k61yhxws2
+1235 stbuehler@web.de-20090307135056-02q8f6l1e5jehu9y
+1236 stbuehler@web.de-20090307135805-z488kad68sgcjtzz
 
    + 1127 stbuehler@web.de-20080728081644-j4cxnhduw8kbt8um
 1128 stbuehler@web.de-20080728084246-axvxdtjsrratxixs
@@ -258,5 +1423,20 @@ Modified: bzr:revision-id:v3-trunk0
 1224 stbuehler@web.de-20090217085833-9g5c7j7zdylvezl5
 1225 stbuehler@web.de-20090217133414-y80hydn9raqgkgto
 1226 stbuehler@web.de-20090217224447-ve7ns45c9otbgz9h
+1227 stbuehler@web.de-20090219130703-117t93t4hr4j0e8d
+1228 stbuehler@web.de-20090219130728-m8nui64vin0w95b2
+1229 stbuehler@web.de-20090219131550-exi19tbqyd8fpa0d
+1230 stbuehler@web.de-20090224133046-toewpee0ybw5tuay
+1231 stbuehler@web.de-20090228205351-yqjhutdqf30jr66o
+1232 stbuehler@web.de-20090228213824-gnwuf6by8705g6zk
+1233 stbuehler@web.de-20090303100525-kamra70ocxpji0l5
+1234 stbuehler@web.de-20090303100929-p4w2995k61yhxws2
+1235 stbuehler@web.de-20090307135056-02q8f6l1e5jehu9y
+1236 stbuehler@web.de-20090307135805-z488kad68sgcjtzz
+1237 stbuehler@web.de-20090307154555-xybvl7sxrha6vhds
+1238 stbuehler@web.de-20090307204326-10m0681831yvhi3k
+1239 stbuehler@web.de-20090307204846-seq3cmzn6dy9927i
+1240 stbuehler@web.de-20090307205519-ha3s58fcum106yl0
+1241 stbuehler@web.de-20090307210432-jdlv5pp9m519vyv2
 
 
