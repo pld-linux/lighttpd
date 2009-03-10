@@ -33,7 +33,7 @@
 +		return HANDLER_GO_ON;
 +	}
  
--		if (-1 == (r = write(p->write_fd, p->cmd->ptr, p->cmd->used - 1))) {
+-		if (-1 == (r = safe_write(p->write_fd, p->cmd->ptr, p->cmd->used - 1))) {
 -			log_error_write(srv, __FILE__, __LINE__, "ss",
 -				"rrdtool-write: failed", strerror(errno));
 +	int r;
@@ -58,7 +58,7 @@
 +		"RRA:MIN:0.5:24:775 "
 +		"RRA:MIN:0.5:288:797\n"));
 +
-+	if (-1 == (r = write(p->write_fd, p->cmd->ptr, p->cmd->used - 1))) {
++	if (-1 == (r = safe_write(p->write_fd, p->cmd->ptr, p->cmd->used - 1))) {
 +		log_error_write(srv, __FILE__, __LINE__, "ss",
 +			"rrdtool-write: failed", strerror(errno));
  
@@ -68,11 +68,11 @@
 +	}
  
 -		buffer_prepare_copy(p->resp, 4096);
--		if (-1 == (r = read(p->read_fd, p->resp->ptr, p->resp->size))) {
+-		if (-1 == (r = safe_read(p->read_fd, p->resp->ptr, p->resp->size))) {
 -			log_error_write(srv, __FILE__, __LINE__, "ss",
 -				"rrdtool-read: failed", strerror(errno));
 +	buffer_prepare_copy(p->resp, 4096);
-+	if (-1 == (r = read(p->read_fd, p->resp->ptr, p->resp->size))) {
++	if (-1 == (r = safe_read(p->read_fd, p->resp->ptr, p->resp->size))) {
 +		log_error_write(srv, __FILE__, __LINE__, "ss",
 +			"rrdtool-read: failed", strerror(errno));
  
