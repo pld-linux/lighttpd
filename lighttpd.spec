@@ -28,25 +28,19 @@
 %bcond_with	valgrind	# compile code with valgrind support.
 %bcond_with	deflate		# build deflate module (needs patch update with current svn)
 
-# SVN snapshot
-#define		_svn	1277
-# Prerelease
-#define _snap r1332
-
 %if %{with webdav_locks}
 %define		webdav_progs	1
 %endif
 
-%define		rel 3
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.21
-Release:	%{rel}%{?_snap:.%(echo %{_snap}|tr - _)}%{?_svn:.%{_svn}}
+Version:	1.4.22
+Release:	1
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.bz2
-# Source0-md5:	49eeba63c931fa82120711adc7182731
+# Source0-md5:	ed4ca3897eadf419c893b03fee53c982
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -102,7 +96,7 @@ Source134:	%{name}-mod_magnet.conf
 Source135:	%{name}-mod_extforward.conf
 Source136:	%{name}-mod_h264_streaming.conf
 Source137:	%{name}-mod_cgi_php.conf
-Patch100:	%{name}-branch.diff
+#Patch100:	%{name}-branch.diff
 Patch0:		%{name}-use_bin_sh.patch
 Patch1:		%{name}-mod_evasive-status_code.patch
 Patch2:		%{name}-mod_h264_streaming.patch
@@ -804,7 +798,7 @@ Plik monitrc do monitorowania serwera www lighttpd.
 
 %prep
 %setup -q
-%patch100 -p0
+#%patch100 -p0
 %patch4 -p0
 %patch0 -p1
 %patch1 -p1
