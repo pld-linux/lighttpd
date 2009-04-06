@@ -777,6 +777,7 @@ Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-mod_fastcgi = %{version}-%{release}
 Requires:	php-fcgi
 Obsoletes:	lighttpd-php-external
+Provides:	webserver(php)
 
 %description php-spawned
 PHP support via FastCGI, spawned by lighttpd.
