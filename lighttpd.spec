@@ -36,7 +36,7 @@ Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.4.22
-Release:	2
+Release:	3
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.bz2
@@ -545,6 +545,7 @@ Summary(pl.UTF-8):	Moduł lighttpd do wewnętrznych przekierowań i przepisywani
 Group:		Networking/Daemons/HTTP
 URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModRewrite
 Requires:	%{name} = %{version}-%{release}
+Provides:	webserver(rewrite)
 
 %description mod_rewrite
 This module allows you rewrite a set of URLs interally in the
@@ -776,8 +777,8 @@ Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-mod_fastcgi = %{version}-%{release}
 Requires:	php-fcgi
-Obsoletes:	lighttpd-php-external
 Provides:	webserver(php)
+Obsoletes:	lighttpd-php-external
 
 %description php-spawned
 PHP support via FastCGI, spawned by lighttpd.
