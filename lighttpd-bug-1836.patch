@@ -1,0 +1,22 @@
+Index: mod_cgi.c
+===================================================================
+--- mod_cgi.c	(revision 2162)
++++ mod_cgi.c	(revision 2163)
+@@ -987,6 +987,8 @@
+ 			*c = '/';
+ 		}
+ 
++		openDevNull(STDERR_FILENO);
++
+ 		/* we don't need the client socket */
+ 		for (i = 3; i < 256; i++) {
+ 			if (i != srv->errorlog_fd) close(i);
+@@ -995,7 +997,7 @@
+ 		/* exec the cgi */
+ 		execve(args[0], args, env.ptr);
+ 
+-		log_error_write(srv, __FILE__, __LINE__, "sss", "CGI failed:", strerror(errno), args[0]);
++		/* log_error_write(srv, __FILE__, __LINE__, "sss", "CGI failed:", strerror(errno), args[0]); */
+ 
+ 		/* */
+ 		SEGFAULT();
