@@ -21,7 +21,7 @@
 %bcond_without	lua		# LUA support in mod_cml (needs LUA >= 5.1)
 %bcond_with	memcache	# memcached support in mod_cml / mod_trigger_b4_dl
 %bcond_with	gamin		# gamin for reducing number of stat() calls.
-				# NOTE: must be enabled in config: server.stat-cache-engine = "fam"
+				# NOTE:	must be enabled in config: server.stat-cache-engine = "fam"
 %bcond_with	gdbm		# gdbm in mod_trigger_b4_dl
 %bcond_with	webdav_props	# properties in mod_webdav (includes extra sqlite3/libxml deps)
 %bcond_with	webdav_locks	# webdav locks with extra efsprogs deps
@@ -36,7 +36,7 @@ Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.4.22
-Release:	5
+Release:	6
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.bz2
@@ -105,6 +105,7 @@ Patch4:		%{name}-modinit-before-fork.patch
 Patch5:		%{name}-mod_deflate.patch
 Patch6:		%{name}-mod_rrdtool-emptyfile.patch
 Patch7:		%{name}-bug-1836.patch
+#Patch8:		%{name}-errorlog-before-fork.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf
@@ -730,12 +731,12 @@ The WebDAV module is a very minimalistic implementation of RFC 2518.
 Minimalistic means that not all operations are implementated yet.
 
 So far we have
-- PROPFIND
-- OPTIONS
-- MKCOL
-- DELETE
-- PUT
-- LOCK (experimental)
+                                                                                                  - PROPFIND
+                                                                                  - OPTIONS
+                                                                  - MKCOL
+                                                                                  - DELETE
+                                                  - PUT
+                                                                                                                                                                                  - LOCK (experimental)
 
 and the usual GET, POST, HEAD from HTTP/1.1.
 
@@ -746,12 +747,12 @@ litmus tests are passed.
 Moduł WebDAV to bardzo minimalistyczna implementacja RFC 2518.
 Minimalistyczna oznacza, że jeszcze nie wszystkie operacje są
 zaimplementowane. Jak na razie są:
-- PROPFIND
-- OPTIONS
-- MKCOL
-- DELETE
-- PUT
-- LOCK (experimental)
+                                                                                                  - PROPFIND
+                                                                                  - OPTIONS
+                                                                  - MKCOL
+                                                                                  - DELETE
+                                                  - PUT
+                                                                                                                                                                                  - LOCK (experimental)
 
 oraz zwykłe GET, POST, HEAD z HTTP/1.1.
 
