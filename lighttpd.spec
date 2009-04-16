@@ -36,7 +36,7 @@ Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.4.22
-Release:	6
+Release:	7
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.bz2
@@ -96,15 +96,14 @@ Source134:	%{name}-mod_magnet.conf
 Source135:	%{name}-mod_extforward.conf
 Source136:	%{name}-mod_h264_streaming.conf
 Source137:	%{name}-mod_cgi_php.conf
-#Patch100:	%{name}-branch.diff
+Patch100:	%{name}-branch.diff
 Patch0:		%{name}-use_bin_sh.patch
 Patch1:		%{name}-mod_evasive-status_code.patch
 Patch2:		%{name}-mod_h264_streaming.patch
 Patch3:		%{name}-branding.patch
 Patch4:		%{name}-modinit-before-fork.patch
 Patch5:		%{name}-mod_deflate.patch
-Patch6:		%{name}-mod_rrdtool-emptyfile.patch
-Patch7:		%{name}-bug-1836.patch
+Patch6:		%{name}-bug-1836.patch
 #Patch8:		%{name}-errorlog-before-fork.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
@@ -731,12 +730,12 @@ The WebDAV module is a very minimalistic implementation of RFC 2518.
 Minimalistic means that not all operations are implementated yet.
 
 So far we have
-                                                                                                  - PROPFIND
-                                                                                  - OPTIONS
-                                                                  - MKCOL
-                                                                                  - DELETE
-                                                  - PUT
-                                                                                                                                                                                  - LOCK (experimental)
+- PROPFIND
+- OPTIONS
+- MKCOL
+- DELETE
+- PUT
+- LOCK (experimental)
 
 and the usual GET, POST, HEAD from HTTP/1.1.
 
@@ -747,30 +746,17 @@ litmus tests are passed.
 Moduł WebDAV to bardzo minimalistyczna implementacja RFC 2518.
 Minimalistyczna oznacza, że jeszcze nie wszystkie operacje są
 zaimplementowane. Jak na razie są:
-                                                                                                  - PROPFIND
-                                                                                  - OPTIONS
-                                                                  - MKCOL
-                                                                                  - DELETE
-                                                  - PUT
-                                                                                                                                                                                  - LOCK (experimental)
+- PROPFIND
+- OPTIONS
+- MKCOL
+- DELETE
+- PUT
+- LOCK (experimental)
 
 oraz zwykłe GET, POST, HEAD z HTTP/1.1.
 
 Jak na razie montowanie zasobu webdav pod Windows XP działa i
 podstawowe testy lakmusowe przechodzą.
-
-%package -n spawn-fcgi
-Summary:	Spawn fcgi-process directly
-Summary(pl.UTF-8):	Bezpośrednie uruchamianie procesów fcgi
-Group:		Applications
-
-%description -n spawn-fcgi
-spawn-fcgi is used to spawn fcgi-process directly without the help of
-a webserver or the programm itself.
-
-%description -n spawn-fcgi -l pl.UTF-8
-spawn-fcgi służy do uruchamiania procesów fcgi bezpośrednio, bez
-pomocy serwera WWW ani samego programu.
 
 %package php-spawned
 Summary:	PHP support via FastCGI, spawned by lighttpd
@@ -830,16 +816,15 @@ Plik monitrc do monitorowania serwera www lighttpd.
 
 %prep
 %setup -q
-#%patch100 -p0
+%patch100 -p0
 %patch4 -p0
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %{?with_deflate:%patch5 -p1}
-%patch6 -p1
 cd src
-%patch7 -p0 -R
+%patch6 -p0 -R
 cd ..
 
 rm -f src/mod_ssi_exprparser.h # bad patching: should be removed by is emptied instead
@@ -892,9 +877,6 @@ install %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 install %{SOURCE12} $RPM_BUILD_ROOT/etc/monit/%{name}.monitrc
 
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
-
-# could use automake patch, but automake generation fails...
-mv $RPM_BUILD_ROOT%{_bindir}/spawn-fcgi $RPM_BUILD_ROOT%{_sbindir}/spawn-fcgi
 
 # Install lighttpd images
 install %{SOURCE7} %{SOURCE8} %{SOURCE9} $RPM_BUILD_ROOT%{_lighttpddir}/html
@@ -1101,7 +1083,7 @@ fi
 %attr(755,root,root) %{_sbindir}/lighttpd
 %attr(755,root,root) %{_sbindir}/lighttpd-angel
 %dir %{_libdir}
-%{_mandir}/man1/lighttpd.1*
+%{_mandir}/man8/lighttpd.8*
 %dir %{_lighttpddir}
 %dir %{_lighttpddir}/cgi-bin
 %dir %{_lighttpddir}/html
@@ -1295,12 +1277,6 @@ fi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_webdav.conf
 %attr(755,root,root) %{_libdir}/mod_webdav.so
-
-%files -n spawn-fcgi
-%defattr(644,root,root,755)
-%doc doc/spawn-php.sh
-%attr(755,root,root) %{_sbindir}/spawn-fcgi
-%{_mandir}/man1/spawn-fcgi.1*
 
 %files php-spawned
 %defattr(644,root,root,755)
