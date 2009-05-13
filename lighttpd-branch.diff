@@ -2,8 +2,8 @@ Index: configure.in
 ===================================================================
 Index: src/spawn-fcgi.c
 ===================================================================
---- src/spawn-fcgi.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/spawn-fcgi.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/spawn-fcgi.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/spawn-fcgi.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -1,481 +0,0 @@
 -#include <sys/types.h>
 -#include <sys/time.h>
@@ -488,8 +488,8 @@ Index: src/spawn-fcgi.c
 -#endif
 Index: src/configfile-glue.c
 ===================================================================
---- src/configfile-glue.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/configfile-glue.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/configfile-glue.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/configfile-glue.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -49,7 +49,7 @@
  						buffer_copy_string_buffer(ds->value, ((data_string *)(da->value->data[j]))->value);
  						if (!da->is_index_key) {
@@ -510,8 +510,8 @@ Index: src/configfile-glue.c
  #else
 Index: src/mod_cgi.c
 ===================================================================
---- src/mod_cgi.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_cgi.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_cgi.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_cgi.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -24,6 +24,7 @@
  #include <fcntl.h>
  
@@ -627,8 +627,8 @@ Index: src/mod_cgi.c
  	p->name        = buffer_init_string("cgi");
 Index: src/mod_cml.c
 ===================================================================
---- src/mod_cml.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_cml.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_cml.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_cml.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -178,7 +178,7 @@
  }
  #undef PATCH
@@ -648,8 +648,8 @@ Index: src/mod_cml.c
  	p->name        = buffer_init_string("cache");
 Index: src/mod_secure_download.c
 ===================================================================
---- src/mod_secure_download.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_secure_download.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_secure_download.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_secure_download.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -138,7 +138,7 @@
   * @return if the supplied string is a valid MD5 string 1 is returned otherwise 0
   */
@@ -669,8 +669,8 @@ Index: src/mod_secure_download.c
  	p->name        = buffer_init_string("secdownload");
 Index: src/base.h
 ===================================================================
---- src/base.h	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/base.h	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/base.h	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/base.h	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -183,11 +183,15 @@
  } response;
  
@@ -709,8 +709,8 @@ Index: src/base.h
  	fdevents *ev, *ev_ins;
 Index: src/mod_rewrite.c
 ===================================================================
---- src/mod_rewrite.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_rewrite.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_rewrite.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_rewrite.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -63,7 +63,7 @@
  	free(hctx);
  }
@@ -748,8 +748,8 @@ Index: src/mod_rewrite.c
  	p->name        = buffer_init_string("rewrite");
 Index: src/connections.c
 ===================================================================
---- src/connections.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/connections.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/connections.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/connections.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -192,7 +192,7 @@
  
  static int connection_handle_read_ssl(server *srv, connection *con) {
@@ -800,8 +800,8 @@ Index: src/connections.c
  
 Index: src/mod_staticfile.c
 ===================================================================
---- src/mod_staticfile.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_staticfile.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_staticfile.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_staticfile.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -532,6 +532,7 @@
  
  /* this function is called at dlopen() time and inits the callbacks */
@@ -812,8 +812,8 @@ Index: src/mod_staticfile.c
  	p->name        = buffer_init_string("staticfile");
 Index: src/mod_alias.c
 ===================================================================
---- src/mod_alias.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_alias.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_alias.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_alias.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -187,6 +187,7 @@
  
  /* this function is called at dlopen() time and inits the callbacks */
@@ -824,8 +824,8 @@ Index: src/mod_alias.c
  	p->name        = buffer_init_string("alias");
 Index: src/network.c
 ===================================================================
---- src/network.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/network.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/network.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/network.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -26,7 +26,7 @@
  # include <openssl/rand.h>
  #endif
@@ -879,8 +879,8 @@ Index: src/network.c
  		if (setsockopt(srv_socket->fd, SOL_SOCKET, SO_ACCEPTFILTER, &afa, sizeof(afa)) < 0) {
 Index: src/configfile.c
 ===================================================================
---- src/configfile.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/configfile.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/configfile.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/configfile.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -96,6 +96,7 @@
  		{ "etag.use-size",               NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_SERVER }, /* 51 */
  		{ "server.reject-expect-100-with-417",  NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_SERVER }, /* 52 */
@@ -907,8 +907,8 @@ Index: src/configfile.c
  		/* 13 max-worker */
 Index: src/mod_trigger_b4_dl.c
 ===================================================================
---- src/mod_trigger_b4_dl.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_trigger_b4_dl.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_trigger_b4_dl.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_trigger_b4_dl.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -576,6 +576,7 @@
  
  /* this function is called at dlopen() time and inits the callbacks */
@@ -919,8 +919,8 @@ Index: src/mod_trigger_b4_dl.c
  	p->name        = buffer_init_string("trigger_b4_dl");
 Index: src/mod_evhost.c
 ===================================================================
---- src/mod_evhost.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_evhost.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_evhost.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_evhost.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -115,6 +115,7 @@
  	 * # %2 => domain name without tld
  	 * # %3 => subdomain 1 name
@@ -973,8 +973,8 @@ Index: src/mod_evhost.c
  	p->name                    = buffer_init_string("evhost");
 Index: src/splaytree.c
 ===================================================================
---- src/splaytree.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/splaytree.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/splaytree.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/splaytree.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -187,7 +187,8 @@
      }
  }
@@ -994,8 +994,8 @@ Index: src/splaytree.c
 +#endif
 Index: src/lemon.c
 ===================================================================
---- src/lemon.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/lemon.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/lemon.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/lemon.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -31,6 +31,7 @@
  extern void free();
  extern int access();
@@ -1155,8 +1155,8 @@ Index: src/lemon.c
    for(i=0; i<global_size; i++) s[i] = 0;
 Index: src/chunk.h
 ===================================================================
---- src/chunk.h	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/chunk.h	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/chunk.h	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/chunk.h	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -3,6 +3,7 @@
  
  #include "buffer.h"
@@ -1167,8 +1167,8 @@ Index: src/chunk.h
  	enum { UNUSED_CHUNK, MEM_CHUNK, FILE_CHUNK } type;
 Index: src/etag.c
 ===================================================================
---- src/etag.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/etag.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/etag.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/etag.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -44,7 +44,7 @@
  	size_t i;
  	uint32_t h;
@@ -1180,8 +1180,8 @@ Index: src/etag.c
  	buffer_copy_string_len(mut, CONST_STR_LEN("\""));
 Index: src/mod_scgi.c
 ===================================================================
---- src/mod_scgi.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_scgi.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_scgi.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_scgi.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -38,6 +38,8 @@
  #include <sys/wait.h>
  #endif
@@ -1342,8 +1342,8 @@ Index: src/mod_scgi.c
  	p->name         = buffer_init_string("scgi");
 Index: src/mod_mysql_vhost.c
 ===================================================================
---- src/mod_mysql_vhost.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_mysql_vhost.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_mysql_vhost.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_mysql_vhost.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -422,6 +422,7 @@
  }
  
@@ -1362,8 +1362,8 @@ Index: src/mod_mysql_vhost.c
  	p->name        			= buffer_init_string("mysql_vhost");
 Index: src/request.c
 ===================================================================
---- src/request.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/request.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/request.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/request.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -86,10 +86,18 @@
  	if (host_len == 0) return -1;
  
@@ -1405,8 +1405,8 @@ Index: src/request.c
  	if (c == 255) return 0;
 Index: src/mod_magnet_cache.c
 ===================================================================
---- src/mod_magnet_cache.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_magnet_cache.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_magnet_cache.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_magnet_cache.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -9,7 +9,7 @@
  #include <lualib.h>
  #include <lauxlib.h>
@@ -1427,8 +1427,8 @@ Index: src/mod_magnet_cache.c
  	lua_pop(sc->L, 1); /* the function copy */
 Index: src/mod_flv_streaming.c
 ===================================================================
---- src/mod_flv_streaming.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_flv_streaming.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_flv_streaming.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_flv_streaming.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -265,6 +265,7 @@
  
  /* this function is called at dlopen() time and inits the callbacks */
@@ -1439,8 +1439,8 @@ Index: src/mod_flv_streaming.c
  	p->name        = buffer_init_string("flv_streaming");
 Index: src/mod_rrdtool.c
 ===================================================================
---- src/mod_rrdtool.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_rrdtool.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_rrdtool.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_rrdtool.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -91,7 +91,7 @@
  	return HANDLER_GO_ON;
  }
@@ -1566,8 +1566,8 @@ Index: src/mod_rrdtool.c
  	p->name        = buffer_init_string("rrd");
 Index: src/stat_cache.c
 ===================================================================
---- src/stat_cache.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/stat_cache.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/stat_cache.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/stat_cache.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -595,29 +595,31 @@
  	if (S_ISREG(st.st_mode)) {
  		/* determine mimetype */
@@ -1619,8 +1619,8 @@ Index: src/stat_cache.c
  #ifdef HAVE_FAM_H
 Index: src/response.c
 ===================================================================
---- src/response.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/response.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/response.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/response.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -25,6 +25,7 @@
  #include "plugin.h"
  
@@ -1640,8 +1640,8 @@ Index: src/response.c
  			buffer_append_string_encoded(b, CONST_BUF_LEN(con->conf.server_tag), ENCODING_HTTP_HEADER);
 Index: src/SConscript
 ===================================================================
---- src/SConscript	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/SConscript	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/SConscript	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/SConscript	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -70,7 +70,7 @@
  	'mod_cml' : {
  		'src' : [ 'mod_cml_lua.c', 'mod_cml.c', 'mod_cml_funcs.c' ],
@@ -1672,8 +1672,8 @@ Index: src/SConscript
  	inst += env.Install('${sbindir}', instbin[0])
 Index: src/mod_cml_funcs.c
 ===================================================================
---- src/mod_cml_funcs.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_cml_funcs.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_cml_funcs.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_cml_funcs.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -93,7 +93,7 @@
  	return 1;
  }
@@ -1712,8 +1712,8 @@ Index: src/mod_cml_funcs.c
  	}
 Index: src/mod_simple_vhost.c
 ===================================================================
---- src/mod_simple_vhost.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_simple_vhost.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_simple_vhost.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_simple_vhost.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -270,6 +270,7 @@
  }
  
@@ -1724,8 +1724,8 @@ Index: src/mod_simple_vhost.c
  	p->name        = buffer_init_string("simple_vhost");
 Index: src/mod_userdir.c
 ===================================================================
---- src/mod_userdir.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_userdir.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_userdir.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_userdir.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -314,6 +314,7 @@
  
  /* this function is called at dlopen() time and inits the callbacks */
@@ -1736,8 +1736,8 @@ Index: src/mod_userdir.c
  	p->name        = buffer_init_string("userdir");
 Index: src/mod_proxy.c
 ===================================================================
---- src/mod_proxy.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_proxy.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_proxy.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_proxy.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -332,7 +332,7 @@
  	return HANDLER_GO_ON;
  }
@@ -1844,8 +1844,8 @@ Index: src/mod_proxy.c
  	p->name         = buffer_init_string("proxy");
 Index: src/mod_extforward.c
 ===================================================================
---- src/mod_extforward.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_extforward.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_extforward.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_extforward.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -80,6 +80,7 @@
  
  typedef struct {
@@ -2039,8 +2039,8 @@ Index: src/mod_extforward.c
  	p->name        = buffer_init_string("extforward");
 Index: src/Makefile.am
 ===================================================================
---- src/Makefile.am	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/Makefile.am	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -2,21 +2,37 @@
  
  noinst_PROGRAMS=proc_open lemon # simple-fcgi #graphic evalo bench ajp ssl error_test adserver gen-license
@@ -2128,8 +2128,8 @@ Index: src/config.h.cmake
 ===================================================================
 Index: src/mod_expire.c
 ===================================================================
---- src/mod_expire.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_expire.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_expire.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_expire.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -75,10 +75,10 @@
  	return HANDLER_GO_ON;
  }
@@ -2203,8 +2203,8 @@ Index: src/mod_expire.c
  	p->name        = buffer_init_string("expire");
 Index: src/http_auth.c
 ===================================================================
---- src/http_auth.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/http_auth.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/http_auth.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/http_auth.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -865,7 +865,11 @@
  		buffer_free(username);
  		buffer_free(password);
@@ -2220,8 +2220,8 @@ Index: src/http_auth.c
  	}
 Index: src/mod_redirect.c
 ===================================================================
---- src/mod_redirect.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_redirect.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_redirect.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_redirect.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -271,6 +271,7 @@
  }
  
@@ -2232,8 +2232,8 @@ Index: src/mod_redirect.c
  	p->name        = buffer_init_string("redirect");
 Index: src/mod_usertrack.c
 ===================================================================
---- src/mod_usertrack.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_usertrack.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_usertrack.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_usertrack.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -255,6 +255,7 @@
  
  /* this function is called at dlopen() time and inits the callbacks */
@@ -2244,8 +2244,8 @@ Index: src/mod_usertrack.c
  	p->name        = buffer_init_string("usertrack");
 Index: src/mod_webdav.c
 ===================================================================
---- src/mod_webdav.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_webdav.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_webdav.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_webdav.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -1096,7 +1096,7 @@
  }
  #endif
@@ -2274,8 +2274,8 @@ Index: src/mod_webdav.c
  	p->name        = buffer_init_string("webdav");
 Index: src/mod_status.c
 ===================================================================
---- src/mod_status.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_status.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_status.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_status.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -18,6 +18,7 @@
  #include "plugin.h"
  
@@ -2303,8 +2303,8 @@ Index: src/mod_status.c
  	p->name        = buffer_init_string("status");
 Index: src/mod_compress.c
 ===================================================================
---- src/mod_compress.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_compress.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_compress.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_compress.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -104,7 +104,7 @@
  }
  
@@ -2333,8 +2333,8 @@ Index: src/mod_compress.c
  	p->name        = buffer_init_string("compress");
 Index: src/mod_ssi.c
 ===================================================================
---- src/mod_ssi.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_ssi.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_ssi.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_ssi.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -37,6 +37,7 @@
  #endif
  
@@ -2434,8 +2434,8 @@ Index: src/mod_ssi.c
  	p->name        = buffer_init_string("ssi");
 Index: src/mod_auth.c
 ===================================================================
---- src/mod_auth.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_auth.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_auth.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_auth.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -313,20 +313,20 @@
  
  	config_values_t cv[] = {
@@ -2480,8 +2480,8 @@ Index: src/mod_auth.c
  	p->name        = buffer_init_string("auth");
 Index: src/settings.h
 ===================================================================
---- src/settings.h	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/settings.h	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/settings.h	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/settings.h	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -13,6 +13,7 @@
   * 64kB (no real reason, just a guess)
   */
@@ -2492,8 +2492,8 @@ Index: src/settings.h
   * max size of the HTTP request header
 Index: src/mod_cml_lua.c
 ===================================================================
---- src/mod_cml_lua.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_cml_lua.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_cml_lua.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_cml_lua.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -105,7 +105,7 @@
  }
  
@@ -2506,7 +2506,7 @@ Index: src/mod_cml_lua.c
 Index: src/version.h
 ===================================================================
 --- src/version.h	(.../tags/lighttpd-1.4.22)	(revision 0)
-+++ src/version.h	(.../branches/lighttpd-1.4.x)	(revision 2504)
++++ src/version.h	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -0,0 +1,12 @@
 +#ifndef _VERSION_H_
 +#define _VERSION_H_
@@ -2522,8 +2522,8 @@ Index: src/version.h
 +#endif
 Index: src/mod_evasive.c
 ===================================================================
---- src/mod_evasive.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_evasive.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_evasive.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_evasive.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -27,6 +27,7 @@
  
  typedef struct {
@@ -2537,20 +2537,23 @@ Index: src/mod_evasive.c
  
  	config_values_t cv[] = {
 -		{ "evasive.max-conns-per-ip",    NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },
-+		{ "evasive.max-conns-per-ip",    NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },   /* 1 */
-+		{ "evasive.silent",              NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION }, /* 2 */
++		{ "evasive.max-conns-per-ip",    NULL, T_CONFIG_SHORT, T_CONFIG_SCOPE_CONNECTION },   /* 0 */
++		{ "evasive.silent",              NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION }, /* 1 */
  		{ NULL,                          NULL, T_CONFIG_UNSET, T_CONFIG_SCOPE_UNSET }
  	};
  
-@@ -83,6 +85,7 @@
+@@ -83,8 +85,10 @@
  
  		s = calloc(1, sizeof(plugin_config));
  		s->max_conns       = 0;
 +		s->silent          = 0;
  
  		cv[0].destination = &(s->max_conns);
++		cv[1].destination = &(s->silent);
  
-@@ -103,6 +106,7 @@
+ 		p->config_storage[i] = s;
+ 
+@@ -103,6 +107,7 @@
  	plugin_config *s = p->config_storage[0];
  
  	PATCH(max_conns);
@@ -2558,7 +2561,7 @@ Index: src/mod_evasive.c
  
  	/* skip the first, the global context */
  	for (i = 1; i < srv->config_context->used; i++) {
-@@ -118,6 +122,8 @@
+@@ -118,6 +123,8 @@
  
  			if (buffer_is_equal_string(du->key, CONST_STR_LEN("evasive.max-conns-per-ip"))) {
  				PATCH(max_conns);
@@ -2567,7 +2570,7 @@ Index: src/mod_evasive.c
  			}
  		}
  	}
-@@ -172,9 +178,11 @@
+@@ -172,9 +179,11 @@
  		conns_by_ip++;
  
  		if (conns_by_ip > p->conf.max_conns) {
@@ -2582,7 +2585,7 @@ Index: src/mod_evasive.c
  
  			con->http_status = 403;
  			con->mode = DIRECT;
-@@ -186,6 +194,7 @@
+@@ -186,6 +195,7 @@
  }
  
  
@@ -2592,8 +2595,8 @@ Index: src/mod_evasive.c
  	p->name        = buffer_init_string("evasive");
 Index: src/mod_setenv.c
 ===================================================================
---- src/mod_setenv.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_setenv.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_setenv.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_setenv.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -230,6 +230,7 @@
  
  /* this function is called at dlopen() time and inits the callbacks */
@@ -2604,8 +2607,8 @@ Index: src/mod_setenv.c
  	p->name        = buffer_init_string("setenv");
 Index: src/mod_indexfile.c
 ===================================================================
---- src/mod_indexfile.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_indexfile.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_indexfile.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_indexfile.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -206,6 +206,7 @@
  
  /* this function is called at dlopen() time and inits the callbacks */
@@ -2618,8 +2621,8 @@ Index: src/mod_uploadprogress.c
 ===================================================================
 Index: src/mod_fastcgi.c
 ===================================================================
---- src/mod_fastcgi.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_fastcgi.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_fastcgi.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_fastcgi.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -49,6 +49,8 @@
  #include <sys/wait.h>
  #endif
@@ -2925,8 +2928,8 @@ Index: src/CMakeLists.txt
 ===================================================================
 Index: src/mod_access.c
 ===================================================================
---- src/mod_access.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_access.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_access.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_access.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -175,6 +175,7 @@
  }
  
@@ -2937,8 +2940,8 @@ Index: src/mod_access.c
  	p->name        = buffer_init_string("access");
 Index: src/mod_accesslog.c
 ===================================================================
---- src/mod_accesslog.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_accesslog.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_accesslog.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_accesslog.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -156,7 +156,7 @@
  	return p;
  }
@@ -3035,8 +3038,8 @@ Index: src/mod_accesslog.c
  	p->name        = buffer_init_string("accesslog");
 Index: src/server.c
 ===================================================================
---- src/server.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/server.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/server.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/server.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -29,6 +29,7 @@
  #include "plugin.h"
  #include "joblist.h"
@@ -3092,8 +3095,8 @@ Index: src/server.c
  		log_error_write(srv, __FILE__, __LINE__, "s",
 Index: src/mod_dirlisting.c
 ===================================================================
---- src/mod_dirlisting.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_dirlisting.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_dirlisting.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_dirlisting.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -31,6 +31,8 @@
  #include <attr/attributes.h>
  #endif
@@ -3397,8 +3400,8 @@ Index: src/mod_dirlisting.c
  	p->name        = buffer_init_string("dirlisting");
 Index: src/mod_magnet.c
 ===================================================================
---- src/mod_magnet.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/mod_magnet.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/mod_magnet.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/mod_magnet.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -365,6 +365,8 @@
  		MAGNET_ENV_REQUEST_METHOD,
  		MAGNET_ENV_REQUEST_URI,
@@ -3444,8 +3447,8 @@ Index: src/mod_magnet.c
  	return -1;
 Index: src/log.c
 ===================================================================
---- src/log.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/log.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/log.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/log.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -54,13 +54,94 @@
  	return (tmpfd != -1) ? 0 : -1;
  }
@@ -3607,8 +3610,8 @@ Index: src/log.c
  		write(srv->errorlog_fd, srv->errorlog_buf->ptr, srv->errorlog_buf->used - 1);
 Index: src/log.h
 ===================================================================
---- src/log.h	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/log.h	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/log.h	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/log.h	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -10,6 +10,8 @@
  
  #define WP() log_error_write(srv, __FILE__, __LINE__, "");
@@ -3620,8 +3623,8 @@ Index: src/log.h
  int log_error_write(server *srv, const char *filename, unsigned int line, const char *fmt, ...);
 Index: src/fdevent.c
 ===================================================================
---- src/fdevent.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ src/fdevent.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- src/fdevent.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ src/fdevent.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -92,7 +92,7 @@
  	return 0;
  }
@@ -3642,8 +3645,8 @@ Index: src/fdevent.c
  
 Index: tests/fcgi-responder.c
 ===================================================================
---- tests/fcgi-responder.c	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ tests/fcgi-responder.c	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- tests/fcgi-responder.c	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ tests/fcgi-responder.c	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -40,7 +40,13 @@
  			printf("Status: 500 Internal Foo\r\n\r\n");
  		}
@@ -3661,8 +3664,8 @@ Index: tests/fcgi-responder.c
  	return 0;
 Index: tests/mod-fastcgi.t
 ===================================================================
---- tests/mod-fastcgi.t	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ tests/mod-fastcgi.t	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- tests/mod-fastcgi.t	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ tests/mod-fastcgi.t	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -7,7 +7,7 @@
  }
  
@@ -3716,8 +3719,8 @@ Index: tests/mod-fastcgi.t
  EOF
 Index: tests/fastcgi-responder.conf
 ===================================================================
---- tests/fastcgi-responder.conf	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ tests/fastcgi-responder.conf	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- tests/fastcgi-responder.conf	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ tests/fastcgi-responder.conf	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -159,3 +159,15 @@
    server.name = "zzz.example.org"
  }
@@ -3736,8 +3739,8 @@ Index: tests/fastcgi-responder.conf
 +}
 Index: tests/LightyTest.pm
 ===================================================================
---- tests/LightyTest.pm	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ tests/LightyTest.pm	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- tests/LightyTest.pm	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ tests/LightyTest.pm	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -6,7 +6,8 @@
  use Test::More;
  use Socket;
@@ -3768,7 +3771,7 @@ Index: tests/LightyTest.pm
 Index: configure.ac
 ===================================================================
 --- configure.ac	(.../tags/lighttpd-1.4.22)	(revision 0)
-+++ configure.ac	(.../branches/lighttpd-1.4.x)	(revision 2504)
++++ configure.ac	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -0,0 +1,714 @@
 +#                                               -*- Autoconf -*-
 +# Process this file with autoconf to produce a configure script.
@@ -4486,8 +4489,8 @@ Index: configure.ac
 +$ECHO
 Index: doc/lighttpd.1
 ===================================================================
---- doc/lighttpd.1	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ doc/lighttpd.1	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- doc/lighttpd.1	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ doc/lighttpd.1	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -1,18 +0,0 @@
 -.TH LIGHTTPD 1 2003-12-21
 -.SH NAME
@@ -4509,8 +4512,8 @@ Index: doc/lighttpd.1
 -jan@kneschke.de
 Index: doc/spawn-fcgi.1
 ===================================================================
---- doc/spawn-fcgi.1	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ doc/spawn-fcgi.1	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- doc/spawn-fcgi.1	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ doc/spawn-fcgi.1	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -1,13 +0,0 @@
 -.TH SPAWNFCGI 1 2003-12-21
 -.SH NAME
@@ -4527,8 +4530,8 @@ Index: doc/spawn-fcgi.1
 -jan@kneschke.de
 Index: doc/configuration.txt
 ===================================================================
---- doc/configuration.txt	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ doc/configuration.txt	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- doc/configuration.txt	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ doc/configuration.txt	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -281,6 +281,12 @@
  server.use-ipv6
    bind to the IPv6 socket
@@ -4545,7 +4548,7 @@ Index: doc/configuration.txt
 Index: doc/lighttpd.8
 ===================================================================
 --- doc/lighttpd.8	(.../tags/lighttpd-1.4.22)	(revision 0)
-+++ doc/lighttpd.8	(.../branches/lighttpd-1.4.x)	(revision 2504)
++++ doc/lighttpd.8	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -0,0 +1,70 @@
 +.TH LIGHTTPD "8" "2009-03-07" "" ""
 +.
@@ -4619,8 +4622,8 @@ Index: doc/lighttpd.8
 +Jan Kneschke <jan@kneschke.de>
 Index: doc/evhost.txt
 ===================================================================
---- doc/evhost.txt	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ doc/evhost.txt	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- doc/evhost.txt	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ doc/evhost.txt	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -33,6 +33,7 @@
    %2 => domain name without tld
    %3 => subdomain 1 name
@@ -4631,8 +4634,8 @@ Index: doc/evhost.txt
  
 Index: doc/dirlisting.txt
 ===================================================================
---- doc/dirlisting.txt	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ doc/dirlisting.txt	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- doc/dirlisting.txt	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ doc/dirlisting.txt	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -80,3 +80,47 @@
    Example: ::
  
@@ -4683,8 +4686,8 @@ Index: doc/dirlisting.txt
 +  Default: enabled
 Index: doc/lighttpd.conf
 ===================================================================
---- doc/lighttpd.conf	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ doc/lighttpd.conf	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- doc/lighttpd.conf	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ doc/lighttpd.conf	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -16,7 +16,6 @@
  #                               "mod_redirect",
  #                               "mod_alias",
@@ -4718,8 +4721,8 @@ Index: doc/lighttpd.conf
  #bar = 1
 Index: doc/extforward.txt
 ===================================================================
---- doc/extforward.txt	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ doc/extforward.txt	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- doc/extforward.txt	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ doc/extforward.txt	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -49,11 +49,20 @@
    Default: empty
  
@@ -4745,8 +4748,8 @@ Index: doc/extforward.txt
  
 Index: doc/Makefile.am
 ===================================================================
---- doc/Makefile.am	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ doc/Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 2504)
+--- doc/Makefile.am	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ doc/Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 2505)
 @@ -1,6 +1,5 @@
 -dist_man1_MANS=lighttpd.1 spawn-fcgi.1
 +dist_man8_MANS=lighttpd.8
@@ -4759,9 +4762,9 @@ Index: SConstruct
 ===================================================================
 Index: NEWS
 ===================================================================
---- NEWS	(.../tags/lighttpd-1.4.22)	(revision 2504)
-+++ NEWS	(.../branches/lighttpd-1.4.x)	(revision 2504)
-@@ -3,7 +3,45 @@
+--- NEWS	(.../tags/lighttpd-1.4.22)	(revision 2505)
++++ NEWS	(.../branches/lighttpd-1.4.x)	(revision 2505)
+@@ -3,7 +3,46 @@
  NEWS
  ====
  
@@ -4803,6 +4806,7 @@ Index: NEWS
 +  * Fix mod_cgi environment keys mangling (fixes #1969)
 +  * Fix workaround for incorrect path info/scriptname if scgi prefix is "/" (fixes #729)
 +  * Fix max-age value in mod_expire for 'modification' (fixes #1978)
++  * Fix evasive.silent option (#1438)
 +
 +- 1.4.22 - 2009-03-07
    * Fix wrong lua type for CACHE_MISS/CACHE_HIT in mod_cml (fixes #533)
