@@ -1,16 +1,3 @@
-# TODO:
-# - test mysql (failed at this time)
-# - mysql issue: http://www.freebsd.org/cgi/query-pr.cgi?pr=76866
-# - fam over gamin is possible, just configure doesn't check other than gamin
-# - feature stat-cache-fam (doesn't work)
-# - lighttpd writes early startup messages to stderr, and if started from
-#   rc-scripts the stderr is closed which causes lighttpd to abort():
-#   2006-07-20 21:05:52: (server.c.1233) WARNING: unknown config-key: url.rewrite-final (ignored)
-#
-# NOTES:
-# - disable largefile, if you have 2.4 kernel to get sendfile() support, and don't need > 2GB file requests,
-#   see http://article.gmane.org/gmane.comp.web.lighttpd:722
-#
 # Conditional build for lighttpd:
 %bcond_without	xattr		# support of extended attributes
 %bcond_without	ipv6		# IPv4-only version (doesn't require IPv6 in kernel)
@@ -900,7 +887,6 @@ install %{SOURCE107} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_deflate.conf
 install %{SOURCE108} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_dirlisting.conf
 install %{SOURCE109} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evasive.conf
 install %{SOURCE110} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evhost.conf
-install %{SOURCE111} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_expire.conf
 install %{SOURCE112} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_fastcgi.conf
 install %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
 install %{SOURCE136} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_h264_streaming.conf
@@ -920,6 +906,8 @@ install %{SOURCE127} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_userdir.conf
 install %{SOURCE128} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_usertrack.conf
 install %{SOURCE129} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_webdav.conf
 install %{SOURCE133} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_mysql_vhost.conf
+
+install %{SOURCE111} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_expire.conf
 
 install %{SOURCE106} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/60_mod_compress.conf
 
