@@ -22,12 +22,12 @@
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.22
-Release:	7
+Version:	1.4.23
+Release:	1
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.bz2
-# Source0-md5:	ed4ca3897eadf419c893b03fee53c982
+# Source0-md5:	0ab6bb7b17bf0f515ce7dce68e5e215a
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -83,7 +83,7 @@ Source134:	%{name}-mod_magnet.conf
 Source135:	%{name}-mod_extforward.conf
 Source136:	%{name}-mod_h264_streaming.conf
 Source137:	%{name}-mod_cgi_php.conf
-Patch100:	%{name}-branch.diff
+#Patch100:	%{name}-branch.diff
 Patch0:		%{name}-use_bin_sh.patch
 Patch1:		%{name}-mod_evasive-status_code.patch
 Patch2:		%{name}-mod_h264_streaming.patch
@@ -803,7 +803,7 @@ Plik monitrc do monitorowania serwera www lighttpd.
 
 %prep
 %setup -q
-%patch100 -p0
+#%patch100 -p0
 %patch4 -p0
 %patch0 -p1
 %patch1 -p1
