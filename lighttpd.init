@@ -27,17 +27,47 @@ else
 fi
 
 configtest() {
-	out=$(env SHELL=/bin/sh lighttpd -t -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS 2>&1)
-	rc=$?
-	if [ "$rc" = 0 ]; then
-		return
+	env SHELL=/bin/sh lighttpd -t -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
+}
+
+# wrapper for configtest
+checkconfig() {
+	local details=${1:-0}
+
+	if [ $details = 1 ]; then
+		# run config test and display report (status action)
+		show "Checking %s configuration" "Lighttpd Web Server"; busy
+		local out
+		out=`configtest 2>&1`
+		RETVAL=$?
+		if [ $RETVAL = 0 ]; then
+			ok
+		else
+			fail
+		fi
+		[ "$out" ] && echo >&2 "$out"
+	else
+		# run config test and abort with nice message if failed
+		# (for actions checking status before action).
+		configtest >/dev/null 2>&1
+		RETVAL=$?
+		if [ $RETVAL != 0 ]; then
+			show "Checking %s configuration" "Lighttpd Web Server"; fail
+			nls 'Configuration test failed. See details with %s "checkconfig"' $0
+			exit $RETVAL
+		fi
 	fi
-	echo >&2 ""
-	echo >&2 "$out"
-	fail
 }
 
 start() {
+	# Check if the service is already running?
+	if [ -f /var/lock/subsys/lighttpd ]; then
+		msg_already_running "Lighttpd Web Server"
+		return
+	fi
+
+	checkconfig
+	msg_starting "Lighttpd Web Server"; busy
 	env SHELL=/bin/sh lighttpd -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
 	RETVAL=$?
 	if [ $RETVAL -eq 0 ]; then
@@ -46,95 +76,102 @@ start() {
 	else
 		fail
 	fi
-	return $RETVAL
 }
 
 stop() {
+	# Stop daemons.
+	if [ ! -f /var/lock/subsys/lighttpd ]; then
+		msg_not_running "Lighttpd Web Server"
+		return
+	fi
+
+	msg_stopping "Lighttpd Web Server"
 	killproc --pidfile /var/run/lighttpd.pid lighttpd
 	rm -f /var/lock/subsys/lighttpd >/dev/null 2>&1
 }
 
+restart() {
+	local pid
+
+	# short circuit to safe reload if pid exists and is alive
+	if [ -f /var/lock/subsys/lighttpd ] && pid=$(pidofproc lighttpd lighttpd.pid) && checkpid $pid; then
+		reload
+		return
+	fi
+
+	checkconfig
+	stop
+	start
+}
+
 reload() {
+	if [ ! -f /var/lock/subsys/lighttpd ]; then
+		msg_not_running "Lighttpd Web Server"
+		RETVAL=7
+		return
+	fi
+
+	checkconfig
+	msg_reloading "Lighttpd Web Server"
+
 	# sending INT signal will make lighttpd close all listening sockets and
 	# wait for client connections to terminate.
 	killproc --pidfile /var/run/lighttpd.pid lighttpd -INT
 	env SHELL=/bin/sh lighttpd -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
+	RETVAL=$?
+}
+
+condrestart() {
+	if [ ! -f /var/lock/subsys/lighttpd ]; then
+		msg_not_running "Lighttpd Web Server"
+		RETVAL=$1
+		return
+	fi
+
+	checkconfig
+	stop
+	start
+}
+
+flush-logs() {
+	if [ ! -f /var/lock/subsys/lighttpd ]; then
+		msg_not_running "Lighttpd Web Server"
+		RETVAL=7
+		return
+	fi
+
+	show "Rotating %s logs" lighttpd
+	killproc --pidfile /var/run/lighttpd.pid lighttpd -HUP
+	RETVAL=$?
 }
 
 RETVAL=0
 # See how we were called.
 case "$1" in
   start)
-	# Check if the service is already running?
-	if [ ! -f /var/lock/subsys/lighttpd ]; then
-		msg_starting "Lighttpd Web Server"
-		configtest || exit 1
-		start
-	else
-		msg_already_running "Lighttpd Web Server"
-	fi
+	start
 	;;
   stop)
-	# Stop daemons.
-	if [ -f /var/lock/subsys/lighttpd ]; then
-		msg_stopping "Lighttpd Web Server"
-		stop
-	else
-		msg_not_running "Lighttpd Web Server"
-	fi
+	stop
+	;;
+  restart)
+	restart
+	;;
+  try-restart)
+	condrestart 0
+	;;
+  reload|force-reload|graceful)
+	reload
+	;;
+  flush-logs)
+  	flush-logs
+	;;
+  checkconfig|configtest)
+	checkconfig 1
 	;;
   status)
 	status lighttpd
 	RETVAL=$?
-	;;
-  restart)
-	if [ -f /var/lock/subsys/lighttpd ]; then
-		configtest || exit 1
-
-		# short circuit to safe reload if pid exists and is alive
-		pid=$(pidofproc lighttpd lighttpd.pid)
-		if [ "$pid" ] && checkpid $pid; then
-			msg_reloading "Lighttpd Web Server"
-			reload
-		else
-			msg_stopping "Lighttpd Web Server"
-			stop
-			msg_starting "Lighttpd Web Server"
-			start
-		fi
-		RETVAL=$?
-	else
-		msg_not_running "Lighttpd Web Server"
-		msg_starting "Lighttpd Web Server"
-		start
-	fi
-	;;
-  reload|graceful|force-reload)
-	if [ -f /var/lock/subsys/lighttpd ]; then
-		msg_reloading "Lighttpd Web Server"
-		configtest || exit 1
-		reload
-		RETVAL=$?
-	else
-		msg_not_running "Lighttpd Web Server"
-		RETVAL=7
-	fi
-	;;
-  configtest)
-		show "Checking lighttpd config syntax"
-		configtest
-		RETVAL=$?
-		[ $RETVAL = 0 ] && ok || fail
-	;;
-  flush-logs)
-	if [ -f /var/lock/subsys/lighttpd ]; then
-		nls "Rotating %s logs" lighttpd
-		killproc --pidfile /var/run/lighttpd.pid lighttpd -HUP
-		RETVAL=$?
-	else
-		msg_not_running "Lighttpd Web Server"
-		RETVAL=7
-	fi
 	;;
   *)
 	msg_usage "$0 {start|stop|restart|reload|force-reload|graceful|configtest|flush-logs|status}"
