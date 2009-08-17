@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 svn=svn://svn.lighttpd.net/lighttpd
-tag=lighttpd-1.4.22
+tag=lighttpd-1.4.23
 branch=lighttpd-1.4.x
 
 old=$svn/tags/$tag
@@ -10,6 +10,6 @@ echo "Running diff: $old -> $new"
 LC_ALL=C svn diff --old=$old --new=$new > lighttpd-branch.diff.tmp
 
 echo "Excluding files which change version or were not in dist tarball"
-filterdiff -x 'configure.in' -x 'SConstruct' -x 'CMakeLists.txt' -x 'src/CMakeLists.txt' -x 'src/config.h.cmake' -x 'src/mod_uploadprogress.c' lighttpd-branch.diff.tmp > lighttpd-branch.diff.tmp2
+filterdiff -x ChangeLog -x .cvsignore -x src/.cvsignore -x tests/.cvsignore -x doc/.cvsignore -x 'configure.in' -x 'SConstruct' -x 'CMakeLists.txt' -x 'src/CMakeLists.txt' -x 'src/config.h.cmake' -x 'src/mod_uploadprogress.c' lighttpd-branch.diff.tmp > lighttpd-branch.diff.tmp2
 mv -f lighttpd-branch.diff.tmp2 lighttpd-branch.diff
 rm -f lighttpd-branch.diff.tmp
