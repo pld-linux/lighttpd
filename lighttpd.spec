@@ -23,7 +23,7 @@ Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.4.23
-Release:	2
+Release:	3
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.bz2
@@ -83,14 +83,13 @@ Source134:	%{name}-mod_magnet.conf
 Source135:	%{name}-mod_extforward.conf
 Source136:	%{name}-mod_h264_streaming.conf
 Source137:	%{name}-mod_cgi_php.conf
-#Patch100:	%{name}-branch.diff
+Patch100:	%{name}-branch.diff
 Patch0:		%{name}-use_bin_sh.patch
 Patch1:		%{name}-mod_evasive-status_code.patch
 Patch2:		%{name}-mod_h264_streaming.patch
 Patch3:		%{name}-branding.patch
 Patch4:		%{name}-modinit-before-fork.patch
 Patch5:		%{name}-mod_deflate.patch
-Patch6:		%{name}-bug-1836.patch
 #Patch8:		%{name}-errorlog-before-fork.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
@@ -803,16 +802,13 @@ Plik monitrc do monitorowania serwera www lighttpd.
 
 %prep
 %setup -q
-#%patch100 -p0
+%patch100 -p0
 %patch4 -p0
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %{?with_deflate:%patch5 -p1}
-cd src
-%patch6 -p0 -R
-cd ..
 
 rm -f src/mod_ssi_exprparser.h # bad patching: should be removed by is emptied instead
 
@@ -929,7 +925,7 @@ rm -f $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_mysql_vhost.conf
 rm -f $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_deflate.conf
 %endif
 
-touch $RPM_BUILD_ROOT/var/log/%{name}/{access,error}.log
+touch $RPM_BUILD_ROOT/var/log/%{name}/{access,error,breakage}.log
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -941,7 +937,7 @@ rm -rf $RPM_BUILD_ROOT
 %addusertogroup lighttpd http
 
 %post
-for a in access.log error.log; do
+for a in access.log error.log breakage.log; do
 	if [ ! -f /var/log/%{name}/$a ]; then
 		touch /var/log/%{name}/$a
 		chown lighttpd:lighttpd /var/log/%{name}/$a
@@ -1065,6 +1061,7 @@ fi
 %dir %attr(751,root,root) /var/log/%{name}
 %ghost %attr(644,lighttpd,lighttpd) /var/log/%{name}/access.log
 %ghost %attr(644,lighttpd,lighttpd) /var/log/%{name}/error.log
+%ghost %attr(644,lighttpd,lighttpd) /var/log/%{name}/breakage.log
 %dir %attr(770,root,lighttpd) /var/run/%{name}
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*

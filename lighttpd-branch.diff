@@ -2181,15 +2181,6 @@ Index: src/proc_open.c
  
 Index: tests/.cvsignore
 ===================================================================
---- tests/.cvsignore	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ tests/.cvsignore	(.../branches/lighttpd-1.4.x)	(revision 2613)
-@@ -1,6 +0,0 @@
--Makefile.in
--Makefile
--.deps
--.libs
--fcgi-auth
--fcgi-responder
 Index: tests/bug-12.conf
 ===================================================================
 --- tests/bug-12.conf	(.../tags/lighttpd-1.4.23)	(revision 2613)
@@ -2228,16 +2219,6 @@ Index: tests/bug-06.conf
  
 Index: tests/mod-extforward.conf
 ===================================================================
---- tests/mod-extforward.conf	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ tests/mod-extforward.conf	(.../branches/lighttpd-1.4.x)	(revision 2613)
-@@ -10,6 +10,7 @@
- ## bind to localhost (default: all interfaces)
- server.bind                = "localhost"
- server.errorlog            = env.SRCDIR + "/tmp/lighttpd/logs/lighttpd.error.log"
-+server.breakagelog         = env.SRCDIR + "/tmp/lighttpd/logs/lighttpd.breakage.log"
- server.name                = "www.example.org"
- server.tag                 = "Apache 1.3.29"
- 
 Index: tests/var-include.conf
 ===================================================================
 --- tests/var-include.conf	(.../tags/lighttpd-1.4.23)	(revision 2613)
@@ -2423,13 +2404,6 @@ Index: configure.ac
   AC_SUBST(LUA_LIBS)
 Index: doc/.cvsignore
 ===================================================================
---- doc/.cvsignore	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ doc/.cvsignore	(.../branches/lighttpd-1.4.x)	(revision 2613)
-@@ -1,4 +0,0 @@
--Makefile.in
--Makefile
--*.html
--*.ps.gz
 Index: doc/fastcgi.txt
 ===================================================================
 --- doc/fastcgi.txt	(.../tags/lighttpd-1.4.23)	(revision 2613)
