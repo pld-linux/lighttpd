@@ -6,8 +6,8 @@ Index: src/.cvsignore
 ===================================================================
 Index: src/configfile-glue.c
 ===================================================================
---- src/configfile-glue.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/configfile-glue.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/configfile-glue.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/configfile-glue.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -103,7 +103,6 @@
  					if (e != ds->value->ptr && !*e && l >=0 && l <= 65535) {
  						*((unsigned short *)(cv[i].destination)) = l;
@@ -60,8 +60,8 @@ Index: src/configfile-glue.c
  				data_string *ds = (data_string *)du;
 Index: src/mod_cgi.c
 ===================================================================
---- src/mod_cgi.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/mod_cgi.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/mod_cgi.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/mod_cgi.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -56,6 +56,7 @@
  
  typedef struct {
@@ -139,8 +139,8 @@ Index: src/mod_cgi.c
  
 Index: src/network_write.c
 ===================================================================
---- src/network_write.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/network_write.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/network_write.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/network_write.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -46,15 +46,27 @@
  			toSend = c->mem->used - 1 - c->offset;
  #ifdef __WIN32
@@ -251,8 +251,8 @@ Index: src/network_write.c
  
 Index: src/mod_secure_download.c
 ===================================================================
---- src/mod_secure_download.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/mod_secure_download.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/mod_secure_download.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/mod_secure_download.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -37,7 +37,7 @@
  	buffer *secret;
  	buffer *uri_prefix;
@@ -284,8 +284,8 @@ Index: src/mod_secure_download.c
  
 Index: src/base.h
 ===================================================================
---- src/base.h	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/base.h	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/base.h	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/base.h	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -84,6 +84,7 @@
  typedef enum { T_CONFIG_UNSET,
  		T_CONFIG_STRING,
@@ -331,8 +331,8 @@ Index: src/base.h
  	fdevents *ev, *ev_ins;
 Index: src/mod_rewrite.c
 ===================================================================
---- src/mod_rewrite.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/mod_rewrite.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/mod_rewrite.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/mod_rewrite.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -176,7 +176,7 @@
  	data_unset *du;
  
@@ -373,8 +373,8 @@ Index: src/mod_rewrite.c
  						buffer_append_string_len(con->request.uri, pattern+k, pattern[k] == pattern[k+1] ? 1 : 2);
 Index: src/connections.c
 ===================================================================
---- src/connections.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/connections.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/connections.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/connections.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -782,13 +782,13 @@
  	CLEAN(request.pathinfo);
  	CLEAN(request.request);
@@ -416,9 +416,64 @@ Index: src/connections.c
  				break;
 Index: src/network.c
 ===================================================================
---- src/network.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/network.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
-@@ -167,6 +167,11 @@
+--- src/network.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/network.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
+@@ -90,6 +90,7 @@
+ 
+ 	srv_socket = calloc(1, sizeof(*srv_socket));
+ 	srv_socket->fd = -1;
++	srv_socket->fde_ndx = -1;
+ 
+ 	srv_socket->srv_token = buffer_init();
+ 	buffer_copy_string_buffer(srv_socket->srv_token, host_token);
+@@ -103,7 +104,7 @@
+ 	if (NULL == (sp = strrchr(b->ptr, ':'))) {
+ 		log_error_write(srv, __FILE__, __LINE__, "sb", "value of $SERVER[\"socket\"] has to be \"ip:port\".", b);
+ 
+-		return -1;
++		goto error_free_socket;
+ 	}
+ 
+ 	host = b->ptr;
+@@ -126,7 +127,7 @@
+ 	} else if (port == 0 || port > 65535) {
+ 		log_error_write(srv, __FILE__, __LINE__, "sd", "port out of range:", port);
+ 
+-		return -1;
++		goto error_free_socket;
+ 	}
+ 
+ 	if (*host == '\0') host = NULL;
+@@ -138,12 +139,12 @@
+ 
+ 		if (-1 == (srv_socket->fd = socket(srv_socket->addr.plain.sa_family, SOCK_STREAM, 0))) {
+ 			log_error_write(srv, __FILE__, __LINE__, "ss", "socket failed:", strerror(errno));
+-			return -1;
++			goto error_free_socket;
+ 		}
+ #else
+ 		log_error_write(srv, __FILE__, __LINE__, "s",
+ 				"ERROR: Unix Domain sockets are not supported.");
+-		return -1;
++		goto error_free_socket;
+ #endif
+ 	}
+ 
+@@ -153,7 +154,7 @@
+ 
+ 		if (-1 == (srv_socket->fd = socket(srv_socket->addr.plain.sa_family, SOCK_STREAM, IPPROTO_TCP))) {
+ 			log_error_write(srv, __FILE__, __LINE__, "ss", "socket failed:", strerror(errno));
+-			return -1;
++			goto error_free_socket;
+ 		}
+ 		srv_socket->use_ipv6 = 1;
+ 	}
+@@ -163,17 +164,22 @@
+ 		srv_socket->addr.plain.sa_family = AF_INET;
+ 		if (-1 == (srv_socket->fd = socket(srv_socket->addr.plain.sa_family, SOCK_STREAM, IPPROTO_TCP))) {
+ 			log_error_write(srv, __FILE__, __LINE__, "ss", "socket failed:", strerror(errno));
+-			return -1;
++			goto error_free_socket;
  		}
  	}
  
@@ -430,16 +485,199 @@ Index: src/network.c
  	/* */
  	srv->cur_fds = srv_socket->fd;
  
-@@ -280,8 +285,6 @@
+ 	val = 1;
+ 	if (setsockopt(srv_socket->fd, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val)) < 0) {
+ 		log_error_write(srv, __FILE__, __LINE__, "ss", "socketsockopt failed:", strerror(errno));
+-		return -1;
++		goto error_free_socket;
+ 	}
+ 
+ 	switch(srv_socket->addr.plain.sa_family) {
+@@ -198,7 +204,7 @@
+ 						"sssss", "getaddrinfo failed: ",
+ 						gai_strerror(r), "'", host, "'");
+ 
+-				return -1;
++				goto error_free_socket;
+ 			}
+ 
+ 			memcpy(&(srv_socket->addr), res->ai_addr, res->ai_addrlen);
+@@ -220,17 +226,17 @@
+ 				log_error_write(srv, __FILE__, __LINE__,
+ 						"sds", "gethostbyname failed: ",
+ 						h_errno, host);
+-				return -1;
++				goto error_free_socket;
+ 			}
+ 
+ 			if (he->h_addrtype != AF_INET) {
+ 				log_error_write(srv, __FILE__, __LINE__, "sd", "addr-type != AF_INET: ", he->h_addrtype);
+-				return -1;
++				goto error_free_socket;
+ 			}
+ 
+ 			if (he->h_length != sizeof(struct in_addr)) {
+ 				log_error_write(srv, __FILE__, __LINE__, "sd", "addr-length != sizeof(in_addr): ", he->h_length);
+-				return -1;
++				goto error_free_socket;
+ 			}
+ 
+ 			memcpy(&(srv_socket->addr.ipv4.sin_addr.s_addr), he->h_addr_list[0], he->h_length);
+@@ -260,7 +266,7 @@
+ 				host);
+ 
+ 
+-			return -1;
++			goto error_free_socket;
+ 		}
+ 
+ 		/* connect failed */
+@@ -275,14 +281,12 @@
+ 				"testing socket failed:",
+ 				host, strerror(errno));
+ 
+-			return -1;
++			goto error_free_socket;
+ 		}
  
  		break;
  	default:
 -		addr_len = 0;
 -
- 		return -1;
+-		return -1;
++		goto error_free_socket;
  	}
  
-@@ -567,12 +570,8 @@
+ 	if (0 != bind(srv_socket->fd, (struct sockaddr *) &(srv_socket->addr), addr_len)) {
+@@ -298,12 +302,12 @@
+ 					host, port, strerror(errno));
+ 			break;
+ 		}
+-		return -1;
++		goto error_free_socket;
+ 	}
+ 
+ 	if (-1 == listen(srv_socket->fd, 128 * 8)) {
+ 		log_error_write(srv, __FILE__, __LINE__, "ss", "listen failed: ", strerror(errno));
+-		return -1;
++		goto error_free_socket;
+ 	}
+ 
+ 	if (s->is_ssl) {
+@@ -316,14 +320,14 @@
+ 			if (0 == RAND_status()) {
+ 				log_error_write(srv, __FILE__, __LINE__, "ss", "SSL:",
+ 						"not enough entropy in the pool");
+-				return -1;
++				goto error_free_socket;
+ 			}
+ 		}
+ 
+ 		if (NULL == (s->ssl_ctx = SSL_CTX_new(SSLv23_server_method()))) {
+ 			log_error_write(srv, __FILE__, __LINE__, "ss", "SSL:",
+ 					ERR_error_string(ERR_get_error(), NULL));
+-			return -1;
++			goto error_free_socket;
+ 		}
+ 
+ 		if (!s->ssl_use_sslv2) {
+@@ -331,7 +335,7 @@
+ 			if (SSL_OP_NO_SSLv2 != SSL_CTX_set_options(s->ssl_ctx, SSL_OP_NO_SSLv2)) {
+ 				log_error_write(srv, __FILE__, __LINE__, "ss", "SSL:",
+ 						ERR_error_string(ERR_get_error(), NULL));
+-				return -1;
++				goto error_free_socket;
+ 			}
+ 		}
+ 
+@@ -340,33 +344,33 @@
+ 			if (SSL_CTX_set_cipher_list(s->ssl_ctx, s->ssl_cipher_list->ptr) != 1) {
+ 				log_error_write(srv, __FILE__, __LINE__, "ss", "SSL:",
+ 						ERR_error_string(ERR_get_error(), NULL));
+-				return -1;
++				goto error_free_socket;
+ 			}
+ 		}
+ 
+ 		if (buffer_is_empty(s->ssl_pemfile)) {
+ 			log_error_write(srv, __FILE__, __LINE__, "s", "ssl.pemfile has to be set");
+-			return -1;
++			goto error_free_socket;
+ 		}
+ 
+ 		if (!buffer_is_empty(s->ssl_ca_file)) {
+ 			if (1 != SSL_CTX_load_verify_locations(s->ssl_ctx, s->ssl_ca_file->ptr, NULL)) {
+ 				log_error_write(srv, __FILE__, __LINE__, "ssb", "SSL:",
+ 						ERR_error_string(ERR_get_error(), NULL), s->ssl_ca_file);
+-				return -1;
++				goto error_free_socket;
+ 			}
+ 		}
+ 
+ 		if (SSL_CTX_use_certificate_file(s->ssl_ctx, s->ssl_pemfile->ptr, SSL_FILETYPE_PEM) < 0) {
+ 			log_error_write(srv, __FILE__, __LINE__, "ssb", "SSL:",
+ 					ERR_error_string(ERR_get_error(), NULL), s->ssl_pemfile);
+-			return -1;
++			goto error_free_socket;
+ 		}
+ 
+ 		if (SSL_CTX_use_PrivateKey_file (s->ssl_ctx, s->ssl_pemfile->ptr, SSL_FILETYPE_PEM) < 0) {
+ 			log_error_write(srv, __FILE__, __LINE__, "ssb", "SSL:",
+ 					ERR_error_string(ERR_get_error(), NULL), s->ssl_pemfile);
+-			return -1;
++			goto error_free_socket;
+ 		}
+ 
+ 		if (SSL_CTX_check_private_key(s->ssl_ctx) != 1) {
+@@ -374,7 +378,7 @@
+ 					"Private key does not match the certificate public key, reason:",
+ 					ERR_error_string(ERR_get_error(), NULL),
+ 					s->ssl_pemfile);
+-			return -1;
++			goto error_free_socket;
+ 		}
+ 		SSL_CTX_set_default_read_ahead(s->ssl_ctx, 1);
+ 		SSL_CTX_set_mode(s->ssl_ctx, SSL_CTX_get_mode(s->ssl_ctx) | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
+@@ -390,7 +394,7 @@
+ 		log_error_write(srv, __FILE__, __LINE__, "ss", "SSL:",
+ 				"ssl requested but openssl support is not compiled in");
+ 
+-		return -1;
++		goto error_free_socket;
+ #endif
+ #ifdef TCP_DEFER_ACCEPT
+ 	} else if (s->defer_accept) {
+@@ -414,7 +418,6 @@
+ 	}
+ 
+ 	srv_socket->is_ssl = s->is_ssl;
+-	srv_socket->fde_ndx = -1;
+ 
+ 	if (srv->srv_sockets.size == 0) {
+ 		srv->srv_sockets.size = 4;
+@@ -430,6 +433,21 @@
+ 	buffer_free(b);
+ 
+ 	return 0;
++
++error_free_socket:
++	if (srv_socket->fd != -1) {
++		/* check if server fd are already registered */
++		if (srv_socket->fde_ndx != -1) {
++			fdevent_event_del(srv->ev, &(srv_socket->fde_ndx), srv_socket->fd);
++			fdevent_unregister(srv->ev, srv_socket->fd);
++		}
++
++		close(srv_socket->fd);
++	}
++	buffer_free(srv_socket->srv_token);
++	free(srv_socket);
++
++	return -1;
+ }
+ 
+ int network_close(server *srv) {
+@@ -567,12 +585,8 @@
  		/* not our stage */
  		if (COMP_SERVER_SOCKET != dc->comp) continue;
  
@@ -455,8 +693,8 @@ Index: src/network.c
  		for (j = 0; j < srv->srv_sockets.used; j++) {
 Index: src/configfile.c
 ===================================================================
---- src/configfile.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/configfile.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/configfile.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/configfile.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -42,12 +42,12 @@
  
  		{ "server.event-handler",        NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_SERVER },      /* 10 */
@@ -529,8 +767,8 @@ Index: src/configfile.c
  #endif
 Index: src/mod_evhost.c
 ===================================================================
---- src/mod_evhost.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/mod_evhost.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/mod_evhost.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/mod_evhost.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -213,7 +213,7 @@
  		if (colon != ptr) {
  			ds = data_string_init();
@@ -555,8 +793,8 @@ Index: src/mod_evhost.c
  				if (ds->value->used) {
 Index: src/splaytree.c
 ===================================================================
---- src/splaytree.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/splaytree.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/splaytree.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/splaytree.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -61,12 +61,11 @@
   * size fields are maintained */
  splay_tree * splaytree_splay (splay_tree *t, int i) {
@@ -573,8 +811,8 @@ Index: src/splaytree.c
      for (;;) {
 Index: src/lemon.c
 ===================================================================
---- src/lemon.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/lemon.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/lemon.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/lemon.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -39,6 +39,12 @@
  #   endif
  #endif
@@ -623,7 +861,23 @@ Index: src/lemon.c
    if( argv[0] ) fprintf(err,"%s",argv[0]);
    spcnt = strlen(argv[0]) + 1;
    for(i=1; i<n && argv[i]; i++){
-@@ -2913,7 +2918,7 @@
+@@ -2336,6 +2341,7 @@
+   if( filebuf==0 ){
+     ErrorMsg(ps.filename,0,"Can't allocate %d of memory to hold this file.",
+       filesize+1);
++    fclose(fp);
+     gp->errorcnt++;
+     return;
+   }
+@@ -2343,6 +2349,7 @@
+     ErrorMsg(ps.filename,0,"Can't read in all %d bytes of this file.",
+       filesize);
+     free(filebuf);
++    fclose(fp);
+     gp->errorcnt++;
+     return;
+   }
+@@ -2913,7 +2920,7 @@
   }else if( sp->destructor ){
     cp = sp->destructor;
     fprintf(out,"#line %d \"%s\"\n{",sp->destructorln,lemp->filename);
@@ -632,7 +886,7 @@ Index: src/lemon.c
     cp = lemp->vardest;
     if( cp==0 ) return;
     fprintf(out,"#line %d \"%s\"\n{",lemp->vardestln,lemp->filename);
-@@ -3042,7 +3047,7 @@
+@@ -3042,7 +3049,7 @@
  int *plineno;               /* Pointer to the line number */
  int mhflag;                 /* True if generating makeheaders output */
  {
@@ -643,8 +897,8 @@ Index: src/lemon.c
    int maxdtlength;          /* Maximum length of any ".datatype" field. */
 Index: src/mod_scgi.c
 ===================================================================
---- src/mod_scgi.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/mod_scgi.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/mod_scgi.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/mod_scgi.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -331,8 +331,21 @@
  
  int scgi_proclist_sort_down(server *srv, scgi_extension_host *host, scgi_proc *proc);
@@ -804,8 +1058,8 @@ Index: src/mod_scgi.c
  
 Index: src/mod_mysql_vhost.c
 ===================================================================
---- src/mod_mysql_vhost.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/mod_mysql_vhost.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/mod_mysql_vhost.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/mod_mysql_vhost.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -259,8 +259,14 @@
  
  #define FOO(x) (s->x->used ? s->x->ptr : NULL)
@@ -885,8 +1139,8 @@ Index: src/mod_mysql_vhost.c
  }
 Index: src/request.c
 ===================================================================
---- src/request.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/request.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/request.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/request.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -111,7 +111,7 @@
  
  					/* check the first character at right of the dot */
@@ -917,8 +1171,8 @@ Index: src/request.c
  							con->request.request);
 Index: src/network_backends.h
 ===================================================================
---- src/network_backends.h	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/network_backends.h	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/network_backends.h	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/network_backends.h	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -45,6 +45,11 @@
  
  #include "base.h"
@@ -933,8 +1187,8 @@ Index: src/network_backends.h
  int network_write_chunkqueue_writev(server *srv, connection *con, int fd, chunkqueue *cq);
 Index: src/mod_rrdtool.c
 ===================================================================
---- src/mod_rrdtool.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/mod_rrdtool.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/mod_rrdtool.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/mod_rrdtool.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -139,10 +139,8 @@
  
  		args[i++] = p->conf.path_rrdtool_bin->ptr;
@@ -958,8 +1212,8 @@ Index: src/mod_rrdtool.c
  
 Index: src/stat_cache.c
 ===================================================================
---- src/stat_cache.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/stat_cache.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/stat_cache.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/stat_cache.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -503,12 +503,10 @@
  	}
  
@@ -978,8 +1232,8 @@ Index: src/stat_cache.c
  
 Index: src/mod_proxy.c
 ===================================================================
---- src/mod_proxy.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/mod_proxy.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/mod_proxy.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/mod_proxy.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -756,12 +756,15 @@
  
  	switch(hctx->state) {
@@ -1069,8 +1323,8 @@ Index: src/mod_proxy.c
  
 Index: src/Makefile.am
 ===================================================================
---- src/Makefile.am	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/Makefile.am	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -13,14 +13,14 @@
  versionstamp:
  	@test -f versionstamp.h || touch versionstamp.h; \
@@ -1091,8 +1345,8 @@ Index: src/Makefile.am
  		echo "#define REPO_VERSION \"-devel-$$REVISION\"" > versionstamp.h.tmp; \
 Index: src/mod_expire.c
 ===================================================================
---- src/mod_expire.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/mod_expire.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/mod_expire.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/mod_expire.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -342,7 +342,7 @@
  			buffer_copy_string_len(p->expire_tstmp, CONST_STR_LEN("max-age="));
  			buffer_append_long(p->expire_tstmp, expires - srv->cur_ts); /* as expires >= srv->cur_ts the difference is >= 0 */
@@ -1104,8 +1358,8 @@ Index: src/mod_expire.c
  		}
 Index: src/http_auth.c
 ===================================================================
---- src/http_auth.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/http_auth.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/http_auth.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/http_auth.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -918,15 +918,15 @@
  	char a1[256];
  	char a2[256];
@@ -1149,8 +1403,8 @@ Index: src/http_auth.c
  		log_error_write(srv, __FILE__, __LINE__, "s",
 Index: src/mod_redirect.c
 ===================================================================
---- src/mod_redirect.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/mod_redirect.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/mod_redirect.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/mod_redirect.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -203,7 +203,7 @@
  			}
  		} else {
@@ -1182,8 +1436,8 @@ Index: src/mod_redirect.c
  						buffer_append_string_len(p->location, pattern+k, pattern[k] == pattern[k+1] ? 1 : 2);
 Index: src/mod_webdav.c
 ===================================================================
---- src/mod_webdav.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/mod_webdav.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/mod_webdav.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/mod_webdav.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -1096,6 +1096,7 @@
  }
  #endif
@@ -1203,8 +1457,8 @@ Index: src/mod_webdav.c
   *
 Index: src/configparser.y
 ===================================================================
---- src/configparser.y	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/configparser.y	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/configparser.y	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/configparser.y	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -72,7 +72,7 @@
        op1->free(op1);
        return (data_unset *)ds;
@@ -1222,10 +1476,34 @@ Index: src/configparser.y
      }
      else {
        buffer_copy_string_buffer(du->key, A);
+@@ -470,7 +469,7 @@
+     case CONFIG_COND_MATCH: {
+ #ifdef HAVE_PCRE_H
+       const char *errptr;
+-      int erroff;
++      int erroff, captures;
+ 
+       if (NULL == (dc->regex =
+           pcre_compile(rvalue->ptr, 0, &errptr, &erroff, NULL))) {
+@@ -487,6 +486,14 @@
+         fprintf(stderr, "studying regex failed: %s -> %s\n",
+             rvalue->ptr, errptr);
+         ctx->ok = 0;
++      } else if (0 != (pcre_fullinfo(dc->regex, dc->regex_study, PCRE_INFO_CAPTURECOUNT, &captures))) {
++        fprintf(stderr, "getting capture count for regex failed: %s\n",
++            rvalue->ptr);
++        ctx->ok = 0;
++      } else if (captures > 9) {
++        fprintf(stderr, "Too many captures in regex, use (?:...) instead of (...): %s\n",
++            rvalue->ptr);
++        ctx->ok = 0;
+       } else {
+         dc->string = buffer_init_buffer(rvalue);
+       }
 Index: src/mod_status.c
 ===================================================================
---- src/mod_status.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/mod_status.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/mod_status.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/mod_status.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -438,7 +438,7 @@
  
  	buffer_append_string_len(b, CONST_STR_LEN(
@@ -1279,8 +1557,8 @@ Index: src/mod_status.c
  		/* we have nothing to send */
 Index: src/mod_ssi.c
 ===================================================================
---- src/mod_ssi.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/mod_ssi.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/mod_ssi.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/mod_ssi.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -362,7 +362,8 @@
  	switch(ssicmd) {
  	case SSI_ECHO: {
@@ -1325,8 +1603,8 @@ Index: src/mod_ssi.c
  						"ssi: unknow attribute for ",
 Index: src/mod_auth.c
 ===================================================================
---- src/mod_auth.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/mod_auth.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/mod_auth.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/mod_auth.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -468,7 +468,7 @@
  
  			if (method == NULL) {
@@ -1347,8 +1625,8 @@ Index: src/mod_auth.c
  			}
 Index: src/mod_cml_lua.c
 ===================================================================
---- src/mod_cml_lua.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/mod_cml_lua.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/mod_cml_lua.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/mod_cml_lua.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -2,6 +2,7 @@
  #include <stdio.h>
  #include <errno.h>
@@ -1359,8 +1637,8 @@ Index: src/mod_cml_lua.c
  #include "mod_cml_funcs.h"
 Index: src/http-header-glue.c
 ===================================================================
---- src/http-header-glue.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/http-header-glue.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/http-header-glue.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/http-header-glue.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -259,7 +259,7 @@
  					}
  
@@ -1420,8 +1698,8 @@ Index: src/http-header-glue.c
  			if (t_file > t_header) return HANDLER_GO_ON;
 Index: src/mod_setenv.c
 ===================================================================
---- src/mod_setenv.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/mod_setenv.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/mod_setenv.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/mod_setenv.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -215,7 +215,7 @@
  	return HANDLER_GO_ON;
  }
@@ -1442,8 +1720,8 @@ Index: src/mod_setenv.c
  
 Index: src/mod_fastcgi.c
 ===================================================================
---- src/mod_fastcgi.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/mod_fastcgi.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/mod_fastcgi.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/mod_fastcgi.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -122,24 +122,11 @@
  	 *
  	 */
@@ -1881,8 +2159,8 @@ Index: src/mod_fastcgi.c
  
 Index: src/fdevent_poll.c
 ===================================================================
---- src/fdevent_poll.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/fdevent_poll.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/fdevent_poll.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/fdevent_poll.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -132,7 +132,7 @@
  	if (poll_r & POLLNVAL) r |= FDEVENT_NVAL;
  	if (poll_r & POLLPRI) r |= FDEVENT_PRI;
@@ -1894,8 +2172,8 @@ Index: src/fdevent_poll.c
  static int fdevent_poll_event_get_fd(fdevents *ev, size_t ndx) {
 Index: src/fdevent_select.c
 ===================================================================
---- src/fdevent_select.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/fdevent_select.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/fdevent_select.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/fdevent_select.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -38,7 +38,7 @@
  	UNUSED(fde_ndx);
  
@@ -1909,8 +2187,8 @@ Index: src/CMakeLists.txt
 ===================================================================
 Index: src/server.c
 ===================================================================
---- src/server.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/server.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/server.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/server.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -187,6 +187,7 @@
  	CLEAN(cond_check_buf);
  
@@ -1994,8 +2272,8 @@ Index: src/server.c
  						"if event-handler is 'select'. Use 'poll' or something else or reduce server.max-fds.");
 Index: src/mod_dirlisting.c
 ===================================================================
---- src/mod_dirlisting.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/mod_dirlisting.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/mod_dirlisting.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/mod_dirlisting.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -198,7 +198,7 @@
  	data_unset *du;
  
@@ -2007,8 +2285,8 @@ Index: src/mod_dirlisting.c
  		if (du->type != TYPE_ARRAY) {
 Index: src/mod_magnet.c
 ===================================================================
---- src/mod_magnet.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/mod_magnet.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/mod_magnet.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/mod_magnet.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -283,17 +283,11 @@
  }
  
@@ -2029,8 +2307,8 @@ Index: src/mod_magnet.c
  	con = lua_touserdata(L, -1);
 Index: src/log.c
 ===================================================================
---- src/log.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/log.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/log.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/log.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -62,7 +62,6 @@
  		/* create write pipe and spawn process */
  
@@ -2162,8 +2440,8 @@ Index: src/log.c
  		break;
 Index: src/proc_open.c
 ===================================================================
---- src/proc_open.c	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ src/proc_open.c	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- src/proc_open.c	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ src/proc_open.c	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -309,6 +309,14 @@
  
  	if (err) {
@@ -2183,8 +2461,8 @@ Index: tests/.cvsignore
 ===================================================================
 Index: tests/bug-12.conf
 ===================================================================
---- tests/bug-12.conf	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ tests/bug-12.conf	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- tests/bug-12.conf	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ tests/bug-12.conf	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -8,6 +8,7 @@
  ## bind to localhost (default: all interfaces)
  server.bind                = "localhost"
@@ -2195,8 +2473,8 @@ Index: tests/bug-12.conf
  
 Index: tests/fastcgi-10.conf
 ===================================================================
---- tests/fastcgi-10.conf	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ tests/fastcgi-10.conf	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- tests/fastcgi-10.conf	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ tests/fastcgi-10.conf	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -6,6 +6,7 @@
  ## bind to localhost (default: all interfaces)
  server.bind                = "localhost"
@@ -2207,8 +2485,8 @@ Index: tests/fastcgi-10.conf
  
 Index: tests/bug-06.conf
 ===================================================================
---- tests/bug-06.conf	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ tests/bug-06.conf	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- tests/bug-06.conf	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ tests/bug-06.conf	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -8,6 +8,7 @@
  ## bind to localhost (default: all interfaces)
  server.bind                = "localhost"
@@ -2221,8 +2499,8 @@ Index: tests/mod-extforward.conf
 ===================================================================
 Index: tests/var-include.conf
 ===================================================================
---- tests/var-include.conf	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ tests/var-include.conf	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- tests/var-include.conf	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ tests/var-include.conf	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -10,6 +10,7 @@
  ## bind to localhost (default: all interfaces)
  server.bind                = "localhost"
@@ -2233,8 +2511,8 @@ Index: tests/var-include.conf
  
 Index: tests/404-handler.conf
 ===================================================================
---- tests/404-handler.conf	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ tests/404-handler.conf	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- tests/404-handler.conf	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ tests/404-handler.conf	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -10,6 +10,7 @@
  ## bind to localhost (default: all interfaces)
  server.bind                = "localhost"
@@ -2245,8 +2523,8 @@ Index: tests/404-handler.conf
  
 Index: tests/lowercase.conf
 ===================================================================
---- tests/lowercase.conf	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ tests/lowercase.conf	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- tests/lowercase.conf	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ tests/lowercase.conf	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -6,6 +6,7 @@
  ## bind to localhost (default: all interfaces)
  server.bind                = "localhost"
@@ -2257,8 +2535,8 @@ Index: tests/lowercase.conf
  
 Index: tests/condition.conf
 ===================================================================
---- tests/condition.conf	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ tests/condition.conf	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- tests/condition.conf	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ tests/condition.conf	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -10,6 +10,7 @@
  ## bind to localhost (default: all interfaces)
  server.bind                = "localhost"
@@ -2269,8 +2547,8 @@ Index: tests/condition.conf
  
 Index: tests/fastcgi-13.conf
 ===================================================================
---- tests/fastcgi-13.conf	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ tests/fastcgi-13.conf	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- tests/fastcgi-13.conf	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ tests/fastcgi-13.conf	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -10,6 +10,7 @@
  ## bind to localhost (default: all interfaces)
  server.bind                = "localhost"
@@ -2281,8 +2559,8 @@ Index: tests/fastcgi-13.conf
  
 Index: tests/mod-compress.conf
 ===================================================================
---- tests/mod-compress.conf	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ tests/mod-compress.conf	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- tests/mod-compress.conf	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ tests/mod-compress.conf	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -11,6 +11,7 @@
  ## bind to localhost (default: all interfaces)
  server.bind                = "localhost"
@@ -2293,8 +2571,8 @@ Index: tests/mod-compress.conf
  server.modules = (
 Index: tests/lighttpd.conf
 ===================================================================
---- tests/lighttpd.conf	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ tests/lighttpd.conf	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- tests/lighttpd.conf	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ tests/lighttpd.conf	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -13,6 +13,7 @@
  ## bind to localhost (default: all interfaces)
  server.bind                = "localhost"
@@ -2305,8 +2583,8 @@ Index: tests/lighttpd.conf
  
 Index: tests/fastcgi-responder.conf
 ===================================================================
---- tests/fastcgi-responder.conf	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ tests/fastcgi-responder.conf	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- tests/fastcgi-responder.conf	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ tests/fastcgi-responder.conf	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -15,6 +15,7 @@
  ## bind to localhost (default: all interfaces)
  server.bind                = "localhost"
@@ -2317,8 +2595,8 @@ Index: tests/fastcgi-responder.conf
  
 Index: tests/fastcgi-auth.conf
 ===================================================================
---- tests/fastcgi-auth.conf	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ tests/fastcgi-auth.conf	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- tests/fastcgi-auth.conf	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ tests/fastcgi-auth.conf	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -12,6 +12,7 @@
  ## bind to localhost (default: all interfaces)
  server.bind                = "localhost"
@@ -2329,8 +2607,8 @@ Index: tests/fastcgi-auth.conf
  
 Index: tests/proxy.conf
 ===================================================================
---- tests/proxy.conf	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ tests/proxy.conf	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- tests/proxy.conf	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ tests/proxy.conf	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -6,6 +6,7 @@
  ## bind to localhost (default: all interfaces)
  server.bind                = "localhost"
@@ -2341,8 +2619,8 @@ Index: tests/proxy.conf
  
 Index: tests/LightyTest.pm
 ===================================================================
---- tests/LightyTest.pm	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ tests/LightyTest.pm	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- tests/LightyTest.pm	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ tests/LightyTest.pm	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -87,14 +87,21 @@
  	my $self = shift;
  	my $port = shift;
@@ -2367,9 +2645,9 @@ Index: tests/LightyTest.pm
  	return 0;
 Index: configure.ac
 ===================================================================
---- configure.ac	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ configure.ac	(.../branches/lighttpd-1.4.x)	(revision 2613)
-@@ -1,7 +1,7 @@
+--- configure.ac	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ configure.ac	(.../branches/lighttpd-1.4.x)	(revision 2618)
+@@ -1,9 +1,10 @@
  #                                               -*- Autoconf -*-
  # Process this file with autoconf to produce a configure script.
  AC_PREREQ(2.57)
@@ -2377,8 +2655,11 @@ Index: configure.ac
 +AC_INIT([lighttpd], [1.4.24], [contact@lighttpd.net])
  AC_CONFIG_SRCDIR([src/server.c])
  AC_CONFIG_HEADER([config.h])
++AC_CONFIG_MACRO_DIR([m4])
  
-@@ -417,12 +417,18 @@
+ AC_CANONICAL_TARGET
+ 
+@@ -417,12 +418,18 @@
     AC_DEFINE([HAVE_LUA], [1], [liblua])
     AC_DEFINE([HAVE_LUA_H], [1], [lua.h])
   ],[
@@ -2406,8 +2687,8 @@ Index: doc/.cvsignore
 ===================================================================
 Index: doc/fastcgi.txt
 ===================================================================
---- doc/fastcgi.txt	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ doc/fastcgi.txt	(.../branches/lighttpd-1.4.x)	(revision 2613)
+--- doc/fastcgi.txt	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ doc/fastcgi.txt	(.../branches/lighttpd-1.4.x)	(revision 2618)
 @@ -95,23 +95,22 @@
        (
          ( "host" => <string> ,
@@ -2557,11 +2838,131 @@ Index: doc/fastcgi.txt
  
 Index: SConstruct
 ===================================================================
+Index: Makefile.am
+===================================================================
+--- Makefile.am	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ Makefile.am	(.../branches/lighttpd-1.4.x)	(revision 2618)
+@@ -2,4 +2,6 @@
+ 
+ EXTRA_DIST=autogen.sh SConstruct
+ 
++ACLOCAL_AMFLAGS = -I m4
++
+ distcleancheck_listfiles = find -type f -exec sh -c 'test -f $(srcdir)/{} || echo {}' ';'
+Index: autogen.sh
+===================================================================
+--- autogen.sh	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ autogen.sh	(.../branches/lighttpd-1.4.x)	(revision 2618)
+@@ -1,27 +1,92 @@
+ #!/bin/sh
+ # Run this to generate all the initial makefiles, etc.
+ 
+-LIBTOOLIZE=${LIBTOOLIZE:-libtoolize}
+ LIBTOOLIZE_FLAGS="--copy --force"
+-ACLOCAL=${ACLOCAL:-aclocal}
+-AUTOHEADER=${AUTOHEADER:-autoheader}
+-AUTOMAKE=${AUTOMAKE:-automake}
+-AUTOMAKE_FLAGS="--add-missing --copy"
+-AUTOCONF=${AUTOCONF:-autoconf}
++AUTOMAKE_FLAGS="--add-missing --copy --foreign"
+ 
+ ARGV0=$0
++ARGS="$@"
+ 
+-set -e
+ 
+-
+ run() {
+-	echo "$ARGV0: running \`$@'"
+-	$@
++	echo "$ARGV0: running \`$@' $ARGS"
++	$@ $ARGS
+ }
+ 
++## jump out if one of the programs returns 'false'
++set -e
++
++## on macosx glibtoolize, others have libtool
++if test x$LIBTOOLIZE = x; then
++  if test \! "x`which glibtoolize 2> /dev/null | grep -v '^no'`" = x; then
++    LIBTOOLIZE=glibtoolize
++  elif test \! "x`which libtoolize-1.5 2> /dev/null | grep -v '^no'`" = x; then
++    LIBTOOLIZE=libtoolize-1.5
++  elif test \! "x`which libtoolize 2> /dev/null | grep -v '^no'`" = x; then
++    LIBTOOLIZE=libtoolize
++  else 
++    echo "libtoolize 1.5.x wasn't found, exiting"; exit 0
++  fi
++fi
++
++## suse has aclocal and aclocal-1.9
++if test x$ACLOCAL = x; then
++  if test \! "x`which aclocal-1.9 2> /dev/null | grep -v '^no'`" = x; then
++    ACLOCAL=aclocal-1.9
++  elif test \! "x`which aclocal19 2> /dev/null | grep -v '^no'`" = x; then
++    ACLOCAL=aclocal19
++  elif test \! "x`which aclocal 2> /dev/null | grep -v '^no'`" = x; then
++    ACLOCAL=aclocal
++  else 
++    echo "automake 1.9.x (aclocal) wasn't found, exiting"; exit 0
++  fi
++fi
++
++if test x$AUTOMAKE = x; then
++  if test \! "x`which automake-1.9 2> /dev/null | grep -v '^no'`" = x; then
++    AUTOMAKE=automake-1.9
++  elif test \! "x`which automake19 2> /dev/null | grep -v '^no'`" = x; then
++    AUTOMAKE=automake19
++  elif test \! "x`which automake 2> /dev/null | grep -v '^no'`" = x; then
++    AUTOMAKE=automake
++  else 
++    echo "automake 1.9.x wasn't found, exiting"; exit 0
++  fi
++fi
++
++
++## macosx has autoconf-2.59 and autoconf-2.60
++if test x$AUTOCONF = x; then
++  if test \! "x`which autoconf-2.59 2> /dev/null | grep -v '^no'`" = x; then
++    AUTOCONF=autoconf-2.59
++  elif test \! "x`which autoconf259 2> /dev/null | grep -v '^no'`" = x; then
++    AUTOCONF=autoconf259
++  elif test \! "x`which autoconf 2> /dev/null | grep -v '^no'`" = x; then
++    AUTOCONF=autoconf
++  else 
++    echo "autoconf 2.59+ wasn't found, exiting"; exit 0
++  fi
++fi
++
++if test x$AUTOHEADER = x; then
++  if test \! "x`which autoheader-2.59 2> /dev/null | grep -v '^no'`" = x; then
++    AUTOHEADER=autoheader-2.59
++  elif test \! "x`which autoheader259 2> /dev/null | grep -v '^no'`" = x; then
++    AUTOHEADER=autoheader259
++  elif test \! "x`which autoheader 2> /dev/null | grep -v '^no'`" = x; then
++    AUTOHEADER=autoheader
++  else 
++    echo "autoconf 2.59+ (autoheader) wasn't found, exiting"; exit 0
++  fi
++fi
++
++mkdir -p m4
+ run $LIBTOOLIZE $LIBTOOLIZE_FLAGS
+-run $ACLOCAL $ACLOCAL_FLAGS
++run $ACLOCAL $ACLOCAL_FLAGS -I m4
+ run $AUTOHEADER
+ run $AUTOMAKE $AUTOMAKE_FLAGS
+ run $AUTOCONF
+-echo "Now type './configure ...' and 'make' to compile."
++
++if test "$ARGS" = "" ; then
++  echo "Now type './configure ...' and 'make' to compile."
++fi
 Index: NEWS
 ===================================================================
---- NEWS	(.../tags/lighttpd-1.4.23)	(revision 2613)
-+++ NEWS	(.../branches/lighttpd-1.4.x)	(revision 2613)
-@@ -3,7 +3,40 @@
+--- NEWS	(.../tags/lighttpd-1.4.23)	(revision 2618)
++++ NEWS	(.../branches/lighttpd-1.4.x)	(revision 2618)
+@@ -3,7 +3,41 @@
  NEWS
  ====
  
@@ -2598,6 +2999,7 @@ Index: NEWS
 +  * Print errors from include_shell to stderr
 +  * Set tm.tm_isdst = 0 before mktime() (fixes #2047)
 +  * Use linux-epoll by default if available (fixes #2021, thx Olaf van der Spek)
++  * Print an error if you use too many captures in a regex pattern (fixes #2059)
 +
 +- 1.4.23 - 2009-06-19
    * Added some extra warning options in cmake and fix the resulting warnings (unused/static functions)
