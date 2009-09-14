@@ -5,7 +5,7 @@
  					fcgi_reconnect(srv, hctx);
  
 -					log_error_write(srv, __FILE__, __LINE__, "ssbsbs",
-+					log_error_write(srv, __FILE__, __LINE__, "ssbsbsbs",
++					log_error_write(srv, __FILE__, __LINE__, "ssbsBSbs",
  						"response not received, request not sent",
  						"on socket:", proc->connection_name,
 -						"for", con->uri.path, ", reconnecting");
@@ -15,7 +15,7 @@
  				}
  
 -				log_error_write(srv, __FILE__, __LINE__, "sosbsbs",
-+				log_error_write(srv, __FILE__, __LINE__, "sosbsbsbs",
++				log_error_write(srv, __FILE__, __LINE__, "sosbsBSbs",
  						"response not received, request sent:", hctx->wb->bytes_out,
  						"on socket:", proc->connection_name,
 -						"for", con->uri.path, ", closing connection");
@@ -28,7 +28,7 @@
  				fcgi_connection_close(srv, hctx);
  
 -				log_error_write(srv, __FILE__, __LINE__, "ssbsbs",
-+				log_error_write(srv, __FILE__, __LINE__, "ssbsbsbs",
++				log_error_write(srv, __FILE__, __LINE__, "ssbsBSBs",
  						"response already sent out, but backend returned error",
  						"on socket:", proc->connection_name,
 -						"for", con->uri.path, ", terminating connection");
@@ -41,7 +41,7 @@
  			 */
  		} else {
 -			log_error_write(srv, __FILE__, __LINE__, "sbsbsd",
-+			log_error_write(srv, __FILE__, __LINE__, "sbsbsbsd",
++			log_error_write(srv, __FILE__, __LINE__, "sBSbsbsd",
  					"error: unexpected close of fastcgi connection for",
 -					con->uri.path,
 +					con->uri.path, "?", con->uri.query,
@@ -54,8 +54,8 @@
  
 -			log_error_write(srv, __FILE__, __LINE__, "sbsbs",
 -					"all handlers for ", con->uri.path,
-+			log_error_write(srv, __FILE__, __LINE__, "sbsbsbs",
-+					"all handlers for ", con->uri.path, "?", con->uri.query,
++			log_error_write(srv, __FILE__, __LINE__, "sBSbsbs",
++					"all handlers for", con->uri.path, "?", con->uri.query,
  					"on", extension->key,
  					"are down.");
  		}
