@@ -766,7 +766,8 @@ Summary(pl.UTF-8):	Obsługa PHP przez FastCGI, uruchamianie sterowane zewnętrzn
 Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-mod_fastcgi = %{version}-%{release}
-Requires:	php-fcgi-init
+Suggests:	php-fcgi-init
+Suggests:	php-fpm
 Obsoletes:	lighttpd-php-spawned
 
 %description php-external
