@@ -339,6 +339,7 @@ kontrolą CSS.
 Summary:	lighttpd evasive module
 Summary(pl.UTF-8):	Moduł evasive dla lighttpd
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModEvasive
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_evasive
@@ -416,7 +417,7 @@ jak Perl, PHP czy własne aplikacje.
 Summary:	lighttpd module for flv streaming
 Summary(pl.UTF-8):	Moduł lighttpd do streamingu flv
 Group:		Networking/Daemons/HTTP
-URL:		http://blog.lighttpd.net/articles/2006/03/09/flv-streaming-with-lighttpd
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModFLVStreaming
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_flv_streaming
@@ -443,6 +444,7 @@ Moduł lighttpd do pseudostreamingu plików QuickTime/MPEG-4.
 Summary:	lighttpd indexfile module
 Summary(pl.UTF-8):	Moduł indexfile dla lighttpd
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Index-file-names.Details
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(indexfile)
 
@@ -456,6 +458,7 @@ Moduł indexfile.
 Summary:	lighttpd powermagnet module
 Summary(pl.UTF-8):	Moduł powermagnet dla lighttpd
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/wiki/lighttpd/Docs:ModMagnet
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_magnet
@@ -780,7 +783,9 @@ Obsługa PHP przez FastCGI, uruchamianie sterowane zewnętrznie.
 Summary:	lighttpd support for SSLv2 and SSLv3
 Summary(pl.UTF-8):	Obsługa SSLv2 i SSLv3 dla lighttpd
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:SSL
 Requires:	%{name} = %{version}-%{release}
+Suggests:	ca-certificates
 
 %description ssl
 lighttpd support for SSLv2 and SSLv3.
