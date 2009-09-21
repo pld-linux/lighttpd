@@ -8,7 +8,20 @@ d=$-
 filter() {
 	set -$d
 	# Excluding files which change version or were not in dist tarball
-	filterdiff -x tests/mod-extforward.conf -x ChangeLog -x .cvsignore -x src/.cvsignore -x tests/.cvsignore -x doc/.cvsignore -x 'configure.in' -x 'SConstruct' -x 'CMakeLists.txt' -x 'src/CMakeLists.txt' -x 'src/config.h.cmake' -x 'src/mod_uploadprogress.c' | \
+	filterdiff \
+		-x 'ChangeLog' \
+		-x 'CMakeLists.txt' \
+		-x 'configure.in' \
+		-x '.cvsignore' \
+		-x 'doc/.cvsignore' \
+		-x 'SConstruct' \
+		-x 'src/CMakeLists.txt' \
+		-x 'src/config.h.cmake' \
+		-x 'src/.cvsignore' \
+		-x 'src/mod_uploadprogress.c' \
+		-x 'tests/.cvsignore' \
+		-x 'tests/mod-extforward.conf' \
+		| \
 	# remove revno's for smaller diffs
 	sed -e 's,^\([-+]\{3\} .*\)\t(revision [0-9]\+)$,\1,'
 }
