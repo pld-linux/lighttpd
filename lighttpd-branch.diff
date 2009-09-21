@@ -1230,6 +1230,18 @@ Index: src/stat_cache.c
  		sce = stat_cache_entry_init();
  		buffer_copy_string_buffer(sce->name, name);
  
+Index: src/response.h
+===================================================================
+--- src/response.h	(.../tags/lighttpd-1.4.23)
++++ src/response.h	(.../branches/lighttpd-1.4.x)
+@@ -10,6 +10,7 @@
+ 
+ int response_header_insert(server *srv, connection *con, const char *key, size_t keylen, const char *value, size_t vallen);
+ int response_header_overwrite(server *srv, connection *con, const char *key, size_t keylen, const char *value, size_t vallen);
++int response_header_append(server *srv, connection *con, const char *key, size_t keylen, const char *value, size_t vallen);
+ 
+ handler_t http_response_prepare(server *srv, connection *con);
+ int http_response_redirect_to_directory(server *srv, connection *con);
 Index: src/mod_proxy.c
 ===================================================================
 --- src/mod_proxy.c	(.../tags/lighttpd-1.4.23)
@@ -1352,7 +1364,7 @@ Index: src/mod_expire.c
  			buffer_append_long(p->expire_tstmp, expires - srv->cur_ts); /* as expires >= srv->cur_ts the difference is >= 0 */
  
 -			response_header_overwrite(srv, con, CONST_STR_LEN("Cache-Control"), CONST_BUF_LEN(p->expire_tstmp));
-+			response_header_insert(srv, con, CONST_STR_LEN("Cache-Control"), CONST_BUF_LEN(p->expire_tstmp));
++			response_header_append(srv, con, CONST_STR_LEN("Cache-Control"), CONST_BUF_LEN(p->expire_tstmp));
  
  			return HANDLER_GO_ON;
  		}
@@ -1639,7 +1651,29 @@ Index: src/http-header-glue.c
 ===================================================================
 --- src/http-header-glue.c	(.../tags/lighttpd-1.4.23)
 +++ src/http-header-glue.c	(.../branches/lighttpd-1.4.x)
-@@ -259,7 +259,7 @@
+@@ -104,6 +104,21 @@
+ 	return response_header_insert(srv, con, key, keylen, value, vallen);
+ }
+ 
++int response_header_append(server *srv, connection *con, const char *key, size_t keylen, const char *value, size_t vallen) {
++	data_string *ds;
++
++	UNUSED(srv);
++
++	/* if there already is a key by this name append the value */
++	if (NULL != (ds = (data_string *)array_get_element(con->response.headers, key))) {
++		buffer_append_string_len(ds->value, CONST_STR_LEN(", "));
++		buffer_append_string_len(ds->value, value, vallen);
++		return 0;
++	}
++
++	return response_header_insert(srv, con, key, keylen, value, vallen);
++}
++
+ int http_response_redirect_to_directory(server *srv, connection *con) {
+ 	buffer *o;
+ 
+@@ -259,7 +274,7 @@
  					}
  
  					if (0 == strncmp(con->request.http_if_modified_since, mtime->ptr, used_len)) {
@@ -1648,7 +1682,7 @@ Index: src/http-header-glue.c
  						return HANDLER_FINISHED;
  					} else {
  						char buf[sizeof("Sat, 23 Jul 2005 21:20:01 GMT")];
-@@ -281,15 +281,16 @@
+@@ -281,15 +296,16 @@
  						strncpy(buf, con->request.http_if_modified_since, used_len);
  						buf[used_len] = '\0';
  
@@ -1666,7 +1700,7 @@ Index: src/http-header-glue.c
  						t_file = mktime(&tm);
  
  						if (t_file > t_header) return HANDLER_GO_ON;
-@@ -318,7 +319,7 @@
+@@ -318,7 +334,7 @@
  		}
  
  		if (0 == strncmp(con->request.http_if_modified_since, mtime->ptr, used_len)) {
@@ -1675,7 +1709,7 @@ Index: src/http-header-glue.c
  			return HANDLER_FINISHED;
  		} else {
  			char buf[sizeof("Sat, 23 Jul 2005 21:20:01 GMT")];
-@@ -331,18 +332,17 @@
+@@ -331,18 +347,17 @@
  			strncpy(buf, con->request.http_if_modified_since, used_len);
  			buf[used_len] = '\0';
  
@@ -3021,7 +3055,7 @@ Index: NEWS
 ===================================================================
 --- NEWS	(.../tags/lighttpd-1.4.23)
 +++ NEWS	(.../branches/lighttpd-1.4.x)
-@@ -3,7 +3,41 @@
+@@ -3,7 +3,42 @@
  NEWS
  ====
  
@@ -3059,6 +3093,7 @@ Index: NEWS
 +  * Set tm.tm_isdst = 0 before mktime() (fixes #2047)
 +  * Use linux-epoll by default if available (fixes #2021, thx Olaf van der Spek)
 +  * Print an error if you use too many captures in a regex pattern (fixes #2059)
++  * Combine Cache-Control header value in mod_expire to existing HTTP header if header already added by other modules (fixes #2068)
 +
 +- 1.4.23 - 2009-06-19
    * Added some extra warning options in cmake and fix the resulting warnings (unused/static functions)
