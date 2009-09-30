@@ -21,6 +21,7 @@ filter() {
 		-x 'src/mod_uploadprogress.c' \
 		-x 'tests/.cvsignore' \
 		-x 'tests/mod-extforward.conf' \
+		-x 'configure.ac' \
 		| \
 	# remove revno's for smaller diffs
 	sed -e 's,^\([-+]\{3\} .*\)\t(revision [0-9]\+)$,\1,'
