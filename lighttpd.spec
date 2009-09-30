@@ -822,6 +822,12 @@ rm -f src/mod_ssi_exprparser.h # bad patching: should be removed by is emptied i
 sh %{SOURCE6} /etc/mime.types
 
 %build
+ver=$(awk '/AC_INIT/{a=$2;gsub(/[\[\],]/, "", a); print a}' configure.ac)
+if [ "$ver" != "%{version}" ]; then
+	: configure.ac specifies wrong version
+	exit 1
+fi
+
 %{__libtoolize}
 %{__aclocal}
 %{__autoconf}
