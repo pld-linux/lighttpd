@@ -23,7 +23,7 @@ Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.4.23
-Release:	7
+Release:	8
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.bz2
@@ -36,12 +36,12 @@ Source5:	%{name}.sysconfig
 Source6:	%{name}-mime.types.sh
 Source7:	http://glen.alkohol.ee/pld/lighty/favicon.ico
 # Source7-md5:	00fcac5b861a54f5eb147a589504d480
-Source8:	http://www.lighttpd.net/light_button.png
-# Source8-md5:	02330e2313fadc29144edfd6000879f8
-Source9:	http://www.lighttpd.net/light_logo.png
-# Source9-md5:	ac20784510e420d5cbe5fc1cdb53d7a7
-Source10:	http://gdl.hopto.org/~spider/pldstats/gfx/pld1.png
-# Source10-md5:	486ecec3f6f4fe7f9bf7cee757b864f4
+Source8:	light_button.png
+# Source8-md5:	3e1008ee1d3d6d390cf81fe3072b4f50
+Source9:	light_logo.png
+# Source9-md5:	cbb7f0676e51ee2e26cf004df293fc62
+Source10:	pld_button.png
+# Source10-md5:	185afa921e81bd726b9f0f9f0909dc6e
 Source11:	%{name}-pld.html
 Source12:	%{name}.monitrc
 Source13:	%{name}-branch.sh
