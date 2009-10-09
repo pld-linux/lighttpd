@@ -90,6 +90,7 @@ Patch2:		%{name}-mod_h264_streaming.patch
 Patch3:		%{name}-branding.patch
 Patch4:		%{name}-modinit-before-fork.patch
 Patch5:		%{name}-mod_deflate.patch
+Patch6:		%{name}-mod_cgi.patch
 #Patch8:		%{name}-errorlog-before-fork.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
@@ -815,6 +816,7 @@ Plik monitrc do monitorowania serwera www lighttpd.
 %patch2 -p1
 %patch3 -p1
 %{?with_deflate:%patch5 -p1}
+%patch6 -p1
 
 rm -f src/mod_ssi_exprparser.h # bad patching: should be removed by is emptied instead
 
