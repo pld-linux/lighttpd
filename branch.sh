@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 svn=svn://svn.lighttpd.net/lighttpd
-tag=lighttpd-1.4.23
+tag=lighttpd-1.4.24
 branch=lighttpd-1.4.x
 
 d=$-
@@ -11,6 +11,7 @@ filter() {
 	filterdiff \
 		-x 'ChangeLog' \
 		-x 'CMakeLists.txt' \
+		-x 'configure.ac' \
 		-x 'configure.in' \
 		-x '.cvsignore' \
 		-x 'doc/.cvsignore' \
@@ -21,7 +22,6 @@ filter() {
 		-x 'src/mod_uploadprogress.c' \
 		-x 'tests/.cvsignore' \
 		-x 'tests/mod-extforward.conf' \
-		-x 'configure.ac' \
 		| \
 	# remove revno's for smaller diffs
 	sed -e 's,^\([-+]\{3\} .*\)\t(revision [0-9]\+)$,\1,'
