@@ -23,7 +23,7 @@ Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.4.24
-Release:	2
+Release:	3
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	http://www.lighttpd.net/download/%{name}-%{version}.tar.bz2
@@ -132,6 +132,7 @@ Provides:	group(http)
 Provides:	group(lighttpd)
 Provides:	user(lighttpd)
 Provides:	webserver
+Provides:	webserver(mime)
 Conflicts:	logrotate < 3.7-4
 # for the posttrans scriptlet, conflicts because in vserver environment rpm package is not installed.
 Conflicts:	rpm < 4.4.2-0.2
