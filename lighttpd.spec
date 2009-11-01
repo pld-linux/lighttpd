@@ -1085,7 +1085,9 @@ fi
 %dir %{_lighttpddir}
 %dir %{_lighttpddir}/cgi-bin
 %dir %{_lighttpddir}/html
-%config(noreplace,missingok) %verify(not md5 mtime size) %{_lighttpddir}/html/*
+%config(noreplace,missingok) %verify(not md5 mtime size) %{_lighttpddir}/html/index.html
+%config(missingok) %verify(not md5 mtime size) %{_lighttpddir}/html/*.png
+%config(missingok) %verify(not md5 mtime size) %{_lighttpddir}/html/*.ico
 
 %dir %{_datadir}/lighttpd
 %dir %{_datadir}/lighttpd/errordocs
