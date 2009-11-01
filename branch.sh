@@ -3,6 +3,7 @@ set -e
 svn=svn://svn.lighttpd.net/lighttpd
 tag=lighttpd-1.4.24
 branch=lighttpd-1.4.x
+out=lighttpd-branch.diff
 
 d=$-
 filter() {
@@ -30,7 +31,11 @@ filter() {
 old=$svn/tags/$tag
 new=$svn/branches/$branch
 echo >&2 "Running diff: $old -> $new"
-LC_ALL=C svn diff --old=$old --new=$new | filter > lighttpd-branch.diff.tmp
+LC_ALL=C svn diff --old=$old --new=$new > $out.tmp
+revno=$(sed -ne 's,^[-+]\{3\} .*\t(revision \([0-9]\+\))$,\1,p' $out.tmp | sort -u)
+echo >&2 "Revision $revno"
+sed -i -e "1i# Revision $revno" $out.tmp
+filter < $out.tmp > $out.tmp2 && mv -f $out.{tmp2,tmp}
 
 if cmp -s lighttpd-branch.diff{,.tmp}; then
 	echo >&2 "No new diffs..."
