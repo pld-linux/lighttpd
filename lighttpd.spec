@@ -45,6 +45,7 @@ Source10:	pld_button.png
 Source11:	%{name}-pld.html
 Source12:	%{name}.monitrc
 Source13:	%{name}-branch.sh
+Source14:	TODO
 Source100:	%{name}-mod_access.conf
 Source101:	%{name}-mod_accesslog.conf
 Source102:	%{name}-mod_alias.conf
@@ -821,6 +822,7 @@ rm -f src/mod_ssi_exprparser.h # bad patching: should be removed by is emptied i
 
 # build mime.types.conf
 sh %{SOURCE6} /etc/mime.types
+cp %{SOURCE14} PLD-TODO
 
 %build
 ver=$(awk '/AC_INIT/{a=$2;gsub(/[\[\],]/, "", a); print a}' configure.ac)
@@ -1061,7 +1063,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc NEWS README doc/lighttpd.conf doc/*.txt doc/rrdtool-graph.sh
+%doc NEWS README doc/lighttpd.conf doc/*.txt doc/rrdtool-graph.sh PLD-TODO
 %dir %attr(751,root,lighttpd) %{_sysconfdir}
 %dir %attr(750,root,root) %{_sysconfdir}/webapps.d
 %dir %attr(750,root,root) %{_sysconfdir}/conf.d
