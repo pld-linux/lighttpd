@@ -1,4 +1,16 @@
-# Revision 2686
+# Revision 2692
+Index: src/base.h
+===================================================================
+--- src/base.h	(.../tags/lighttpd-1.4.24)
++++ src/base.h	(.../branches/lighttpd-1.4.x)
+@@ -280,6 +280,7 @@
+ 	unsigned short ssl_verifyclient_enforce;
+ 	unsigned short ssl_verifyclient_depth;
+ 	buffer *ssl_verifyclient_username;
++	unsigned short ssl_verifyclient_export_cert;
+ 
+ 	unsigned short use_ipv6;
+ 	unsigned short defer_accept;
 Index: src/mod_rewrite.c
 ===================================================================
 --- src/mod_rewrite.c	(.../tags/lighttpd-1.4.24)
@@ -237,7 +249,17 @@ Index: src/connections.c
 ===================================================================
 --- src/connections.c	(.../tags/lighttpd-1.4.24)
 +++ src/connections.c	(.../branches/lighttpd-1.4.x)
-@@ -1250,8 +1250,10 @@
+@@ -807,6 +807,9 @@
+ 	CLEAN(authed_user);
+ 	CLEAN(server_name);
+ 	CLEAN(error_handler);
++#if defined USE_OPENSSL && ! defined OPENSSL_NO_TLSEXT
++	CLEAN(tlsext_server_name);
++#endif
+ #undef CLEAN
+ 
+ #define CLEAN(x) \
+@@ -1250,8 +1253,10 @@
  
  		if (b > 0) {
  			char buf[1024];
@@ -248,7 +270,7 @@ Index: src/connections.c
  
  			/* */
  			read(con->fd, buf, sizeof(buf));
-@@ -1621,8 +1623,10 @@
+@@ -1621,8 +1626,10 @@
  			}
  			if (b > 0) {
  				char buf[1024];
@@ -259,6 +281,51 @@ Index: src/connections.c
  
  				/* */
  				read(con->fd, buf, sizeof(buf));
+Index: src/configfile.c
+===================================================================
+--- src/configfile.c	(.../tags/lighttpd-1.4.24)
++++ src/configfile.c	(.../branches/lighttpd-1.4.x)
+@@ -99,6 +99,7 @@
+ 		{ "ssl.verifyclient.enforce",    NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_SERVER },     /* 57 */
+ 		{ "ssl.verifyclient.depth",      NULL, T_CONFIG_SHORT,   T_CONFIG_SCOPE_SERVER },     /* 58 */
+ 		{ "ssl.verifyclient.username",   NULL, T_CONFIG_STRING,  T_CONFIG_SCOPE_SERVER },     /* 59 */
++		{ "ssl.verifyclient.exportcert", NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_SERVER },     /* 60 */
+ 		{ "server.host",                 "use server.bind instead", T_CONFIG_DEPRECATED, T_CONFIG_SCOPE_UNSET },
+ 		{ "server.docroot",              "use server.document-root instead", T_CONFIG_DEPRECATED, T_CONFIG_SCOPE_UNSET },
+ 		{ "server.virtual-root",         "load mod_simple_vhost and use simple-vhost.server-root instead", T_CONFIG_DEPRECATED, T_CONFIG_SCOPE_UNSET },
+@@ -187,6 +188,7 @@
+ 		s->ssl_verifyclient_enforce = 1;
+ 		s->ssl_verifyclient_username = buffer_init();
+ 		s->ssl_verifyclient_depth = 9;
++		s->ssl_verifyclient_export_cert = 0;
+ 
+ 		cv[2].destination = s->errorfile_prefix;
+ 
+@@ -238,6 +240,7 @@
+ 		cv[57].destination = &(s->ssl_verifyclient_enforce);
+ 		cv[58].destination = &(s->ssl_verifyclient_depth);
+ 		cv[59].destination = s->ssl_verifyclient_username;
++		cv[60].destination = &(s->ssl_verifyclient_export_cert);
+ 
+ 		srv->config_storage[i] = s;
+ 
+@@ -325,6 +328,7 @@
+ 	PATCH(ssl_verifyclient_enforce);
+ 	PATCH(ssl_verifyclient_depth);
+ 	PATCH(ssl_verifyclient_username);
++	PATCH(ssl_verifyclient_export_cert);
+ 
+ 	return 0;
+ }
+@@ -425,6 +429,8 @@
+ 				PATCH(ssl_verifyclient_depth);
+ 			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("ssl.verifyclient.username"))) {
+ 				PATCH(ssl_verifyclient_username);
++			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN("ssl.verifyclient.exportcert"))) {
++				PATCH(ssl_verifyclient_export_cert);
+ 			}
+ 		}
+ 	}
 Index: src/mod_rrdtool.c
 ===================================================================
 --- src/mod_rrdtool.c	(.../tags/lighttpd-1.4.24)
@@ -279,6 +346,213 @@ Index: src/mod_rrdtool.c
  	}
  
  	/* create a new one */
+Index: src/response.c
+===================================================================
+--- src/response.c	(.../tags/lighttpd-1.4.24)
++++ src/response.c	(.../branches/lighttpd-1.4.x)
+@@ -131,8 +131,77 @@
+ 	return 0;
+ }
+ 
++#ifdef USE_OPENSSL
++static void https_add_ssl_entries(connection *con) {
++	X509 *xs;
++	X509_NAME *xn;
++	X509_NAME_ENTRY *xe;
++	if (
++		SSL_get_verify_result(con->ssl) != X509_V_OK
++		|| !(xs = SSL_get_peer_certificate(con->ssl))
++	) {
++		return;
++	}
+ 
++	xn = X509_get_subject_name(xs);
++	for (int i = 0, nentries = X509_NAME_entry_count(xn); i < nentries; ++i) {
++		int xobjnid;
++		const char * xobjsn;
++		data_string *envds;
+ 
++		if (!(xe = X509_NAME_get_entry(xn, i))) {
++			continue;
++		}
++		xobjnid = OBJ_obj2nid((ASN1_OBJECT*)X509_NAME_ENTRY_get_object(xe));
++		xobjsn = OBJ_nid2sn(xobjnid);
++		if (!xobjsn) {
++			continue;
++		}
++
++		if (NULL == (envds = (data_string *)array_get_unused_element(con->environment, TYPE_STRING))) {
++			envds = data_string_init();
++		}
++		buffer_copy_string_len(envds->key, CONST_STR_LEN("SSL_CLIENT_S_DN_"));
++		buffer_append_string(envds->key, xobjsn);
++		buffer_copy_string_len(
++			envds->value,
++			(const char *)xe->value->data, xe->value->length
++		);
++		/* pick one of the exported values as "authed user", for example
++		 * ssl.verifyclient.username   = "SSL_CLIENT_S_DN_UID" or "SSL_CLIENT_S_DN_emailAddress"
++		 */
++		if (buffer_is_equal(con->conf.ssl_verifyclient_username, envds->key)) {
++			buffer_copy_string_buffer(con->authed_user, envds->value);
++		}
++		array_insert_unique(con->environment, (data_unset *)envds);
++	}
++	if (con->conf.ssl_verifyclient_export_cert) {
++		BIO *bio;
++		if (NULL != (bio = BIO_new(BIO_s_mem()))) {
++			data_string *envds;
++			int n;
++
++			PEM_write_bio_X509(bio, xs);
++			n = BIO_pending(bio);
++
++			if (NULL == (envds = (data_string *)array_get_unused_element(con->environment, TYPE_STRING))) {
++				envds = data_string_init();
++			}
++
++			buffer_copy_string_len(envds->key, CONST_STR_LEN("SSL_CLIENT_CERT"));
++			buffer_prepare_copy(envds->value, n+1);
++			BIO_read(bio, envds->value->ptr, n);
++			BIO_free(bio);
++			envds->value->ptr[n] = '\0';
++			envds->value->used = n+1;
++			array_insert_unique(con->environment, (data_unset *)envds);
++		}
++	}
++	X509_free(xs);
++}
++#endif
++
++
+ handler_t http_response_prepare(server *srv, connection *con) {
+ 	handler_t r;
+ 
+@@ -279,6 +348,12 @@
+ 			log_error_write(srv, __FILE__, __LINE__,  "sb", "URI-path     : ", con->uri.path);
+ 		}
+ 
++#ifdef USE_OPENSSL
++		if (con->conf.is_ssl && con->conf.ssl_verifyclient) {
++			https_add_ssl_entries(con);
++		}
++#endif
++
+ 		/**
+ 		 *
+ 		 * call plugins
+Index: src/mod_fastcgi.c
+===================================================================
+--- src/mod_fastcgi.c	(.../tags/lighttpd-1.4.24)
++++ src/mod_fastcgi.c	(.../branches/lighttpd-1.4.x)
+@@ -2416,8 +2416,8 @@
+ 
+ static int fastcgi_get_packet(server *srv, handler_ctx *hctx, fastcgi_response_packet *packet) {
+ 	chunk *	c;
+-	size_t offset = 0;
+-	size_t toread = 0;
++	size_t offset;
++	size_t toread;
+ 	FCGI_Header *header;
+ 
+ 	if (!hctx->rb->first) return -1;
+@@ -2428,20 +2428,22 @@
+ 	packet->padding = 0;
+ 	packet->request_id = 0;
+ 
++	offset = 0; toread = 8;
+ 	/* get at least the FastCGI header */
+ 	for (c = hctx->rb->first; c; c = c->next) {
+-		size_t weWant = sizeof(*header) - (packet->b->used - 1);
+ 		size_t weHave = c->mem->used - c->offset - 1;
+ 
+-		if (weHave > weWant) weHave = weWant;
++		if (weHave > toread) weHave = toread;
+ 
+ 		if (packet->b->used == 0) {
+ 			buffer_copy_string_len(packet->b, c->mem->ptr + c->offset, weHave);
+ 		} else {
+ 			buffer_append_string_len(packet->b, c->mem->ptr + c->offset, weHave);
+ 		}
++		toread -= weHave;
++		offset = weHave; /* skip offset bytes in chunk for "real" data */
+ 
+-		if (packet->b->used >= sizeof(*header) + 1) break;
++		if (0 == toread) break;
+ 	}
+ 
+ 	if ((packet->b->used == 0) ||
+@@ -2449,7 +2451,9 @@
+ 		/* no header */
+ 		buffer_free(packet->b);
+ 
+-		log_error_write(srv, __FILE__, __LINE__, "sdsds", "FastCGI: header too small:", packet->b->used, "bytes <", sizeof(FCGI_Header), "bytes");
++		if (hctx->plugin_data->conf.debug) {
++			log_error_write(srv, __FILE__, __LINE__, "sdsds", "FastCGI: header too small:", packet->b->used, "bytes <", sizeof(FCGI_Header), "bytes, waiting for more data");
++		}
+ 		return -1;
+ 	}
+ 
+@@ -2461,9 +2465,6 @@
+ 	packet->type = header->type;
+ 	packet->padding = header->paddingLength;
+ 
+-	/* the first bytes in packet->b are the header */
+-	offset = sizeof(*header);
+-
+ 	/* ->b should only be the content */
+ 	buffer_copy_string_len(packet->b, CONST_STR_LEN("")); /* used == 1 */
+ 
+@@ -2477,7 +2478,7 @@
+ 
+ 			buffer_append_string_len(packet->b, c->mem->ptr + c->offset + offset, weHave);
+ 
+-			/* we only skipped the first 8 bytes as they are the fcgi header */
++			/* we only skipped the first bytes as they belonged to the fcgi header */
+ 			offset = 0;
+ 		}
+ 
+@@ -3080,34 +3081,17 @@
+ 
+ 		if (ret < 0) {
+ 			switch(errno) {
++			case EPIPE:
+ 			case ENOTCONN:
++			case ECONNRESET:
+ 				/* the connection got dropped after accept()
+-				 *
+-				 * this is most of the time a PHP which dies
+-				 * after PHP_FCGI_MAX_REQUESTS
+-				 *
++				 * we don't care about that - if you accept() it, you have to handle it.
+ 				 */
+-				if (hctx->wb->bytes_out == 0 &&
+-				    hctx->reconnects < 5) {
+-					usleep(10000); /* take away the load of the webserver
+-							* to give the php a chance to restart
+-							*/
+ 
+-					fcgi_reconnect(srv, hctx);
+-
+-					return HANDLER_WAIT_FOR_FD;
+-				}
+-
+-				/* not reconnected ... why
+-				 *
+-				 * far@#lighttpd report this for FreeBSD
+-				 *
+-				 */
+-
+-				log_error_write(srv, __FILE__, __LINE__, "ssosd",
+-						"[REPORT ME] connection was dropped after accept(). reconnect() denied:",
++				log_error_write(srv, __FILE__, __LINE__, "ssosb",
++							"connection was dropped after accept() (perhaps the fastcgi process died),",
+ 						"write-offset:", hctx->wb->bytes_out,
+-						"reconnect attempts:", hctx->reconnects);
++						"socket:", hctx->proc->connection_name);
+ 
+ 				return HANDLER_ERROR;
+ 			default:
 Index: src/mod_magnet.c
 ===================================================================
 --- src/mod_magnet.c	(.../tags/lighttpd-1.4.24)
@@ -355,7 +629,7 @@ Index: NEWS
 ===================================================================
 --- NEWS	(.../tags/lighttpd-1.4.24)
 +++ NEWS	(.../branches/lighttpd-1.4.x)
-@@ -3,7 +3,14 @@
+@@ -3,7 +3,18 @@
  NEWS
  ====
  
@@ -366,6 +640,10 @@ Index: NEWS
 +  * mod_rewrite: fix compile error if compiled without pcre
 +  * disable warning "CLOSE-read" (fixes #2091)
 +  * mod_rrdtool: fix creating file if it doesn't exist (#1788)
++  * reset tlsext_server_name in connection_reset - fixes random hostnames in the $HTTP["host"] conditional
++  * export some SSL_CLIENT_* vars for client cert validation (fixes #1288, thx presbrey)
++  * mod_fastcgi: fix mod_fastcgi packet parsing
++  * mod_fastcgi: Don't reconnect after connect() succeeded (fixes #2096)
 +
 +- 1.4.24 - 2009-10-25
    * Add T_CONFIG_INT for bigger integers from the config (needed for #1966)
