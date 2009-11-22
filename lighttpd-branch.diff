@@ -1,4 +1,4 @@
-# Revision 2692
+# Revision 2695
 Index: src/base.h
 ===================================================================
 --- src/base.h	(.../tags/lighttpd-1.4.24)
@@ -623,18 +623,34 @@ Index: src/mod_magnet.c
  	assert(lua_gettop(L) == 2);
 Index: configure.ac
 ===================================================================
+Index: doc/Makefile.am
+===================================================================
+--- doc/Makefile.am	(.../tags/lighttpd-1.4.24)
++++ doc/Makefile.am	(.../branches/lighttpd-1.4.x)
+@@ -89,7 +89,7 @@
+ 	rst2html $^ > $@
+ 
+ 
+-html: $(HTMLDOCS)
++html-local: $(HTMLDOCS)
+ 
+ #%.ps.gz: %.ps
+ #	gzip $^
 Index: SConstruct
 ===================================================================
 Index: NEWS
 ===================================================================
 --- NEWS	(.../tags/lighttpd-1.4.24)
 +++ NEWS	(.../branches/lighttpd-1.4.x)
-@@ -3,7 +3,18 @@
+@@ -3,7 +3,22 @@
  NEWS
  ====
  
 -- 1.4.24 -
-+- 1.4.25 -
++- 1.4.26 -
++  *
++
++- 1.4.25 - 2009-11-21
 +  * mod_magnet: fix pairs() for normal tables and strings (fixes #1307)
 +  * mod_magnet: add traceback for printing lua errors
 +  * mod_rewrite: fix compile error if compiled without pcre
@@ -644,6 +660,7 @@ Index: NEWS
 +  * export some SSL_CLIENT_* vars for client cert validation (fixes #1288, thx presbrey)
 +  * mod_fastcgi: fix mod_fastcgi packet parsing
 +  * mod_fastcgi: Don't reconnect after connect() succeeded (fixes #2096)
++  * Fix configure.ac to allow autoreconf, also enables make V=0
 +
 +- 1.4.24 - 2009-10-25
    * Add T_CONFIG_INT for bigger integers from the config (needed for #1966)
