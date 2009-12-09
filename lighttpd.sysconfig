@@ -3,6 +3,11 @@
 # Define nice level for lighttpd
 #SERVICE_RUN_NICE_LEVEL="+0"
 
+# Use lighttpd-angel
+# Allows gracefull restart and crash recovery.
+# Off by default but consider enabling
+#LIGHT_ANGEL="yes"
+
 # Give it 4096 fd's.
 #SERVICE_LIMITS="$DEFAULT_SERVICE_LIMITS -n 4096"
 
