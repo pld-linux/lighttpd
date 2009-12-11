@@ -128,7 +128,7 @@ Requires(pre):	/usr/sbin/usermod
 Requires:	%{name}-mod_dirlisting = %{version}-%{release}
 Requires:	%{name}-mod_indexfile = %{version}-%{release}
 Requires:	%{name}-mod_staticfile = %{version}-%{release}
-Requires:	rc-scripts
+Requires:	rc-scripts >= 0.4.1.26-2
 Requires:	rpm-whiteout >= 1.5
 Provides:	group(http)
 Provides:	group(lighttpd)
