@@ -78,7 +78,7 @@ start() {
 	RETVAL=$?
 	if [ $RETVAL -eq 0 ]; then
 		ok
-	   	touch /var/lock/subsys/lighttpd
+		touch /var/lock/subsys/lighttpd
 	else
 		fail
 	fi
@@ -187,13 +187,13 @@ case "$1" in
 	reload
 	;;
   flush-logs)
-  	flush-logs
+	flush-logs
 	;;
   checkconfig|configtest)
 	checkconfig 1
 	;;
   status)
-  	status lighttpd-angel
+	status lighttpd-angel
 	status lighttpd
 	RETVAL=$?
 	;;
