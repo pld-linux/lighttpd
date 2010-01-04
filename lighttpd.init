@@ -68,17 +68,11 @@ start() {
 
 	checkconfig
 	msg_starting "Lighttpd Web Server"; busy
-	if is_yes "${LIGHT_ANGEL}"; then
-		daemon --fork --pidfile /var/run/lighttpd-angel.pid --makepid \
-			env SHELL=/bin/sh lighttpd-angel -D -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS 1>&2
-
-	else
-		env SHELL=/bin/sh lighttpd -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
-	fi
+	env SHELL=/bin/sh lighttpd -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
 	RETVAL=$?
 	if [ $RETVAL -eq 0 ]; then
 		ok
-		touch /var/lock/subsys/lighttpd
+	   	touch /var/lock/subsys/lighttpd
 	else
 		fail
 	fi
@@ -94,23 +88,15 @@ stop() {
 	msg_stopping "Lighttpd Web Server"
 	killproc --pidfile /var/run/lighttpd.pid lighttpd
 	rm -f /var/lock/subsys/lighttpd >/dev/null 2>&1
-	rm -f /var/run/lighttpd*.pid >/dev/null 2>&1
 }
 
 restart() {
 	local pid
 
 	# short circuit to safe reload if pid exists and is alive
-	if is_yes "${LIGHT_ANGEL}"; then
-		if [ -f /var/lock/subsys/lighttpd ] && pid=$(pidofproc lighttpd-angel lighttpd-angel.pid) && checkpid $pid; then
-			reload
-			return
-		fi
-	else
-		if [ -f /var/lock/subsys/lighttpd ] && pid=$(pidofproc lighttpd lighttpd.pid) && checkpid $pid; then
-			reload
-			return
-		fi
+	if [ -f /var/lock/subsys/lighttpd ] && pid=$(pidofproc lighttpd lighttpd.pid) && checkpid $pid; then
+		reload
+		return
 	fi
 
 	checkconfig
@@ -119,7 +105,6 @@ restart() {
 }
 
 reload() {
-	# TODO: check if process is running. Start it in this case.
 	if [ ! -f /var/lock/subsys/lighttpd ]; then
 		msg_not_running "Lighttpd Web Server"
 		RETVAL=7
@@ -129,17 +114,10 @@ reload() {
 	checkconfig
 	msg_reloading "Lighttpd Web Server"
 
-	if is_yes "${LIGHT_ANGEL}"; then
-		# sending HUP signal to angel will make lighttpd close all listening
-		# sockets and wait for client connections to terminate. After that new
-		# child will be started
-		killproc lighttpd-angel -HUP
-	else
-		# sending INT signal will make lighttpd close all listening sockets and
-		# wait for client connections to terminate.
-		killproc --pidfile /var/run/lighttpd.pid lighttpd -INT
-		env SHELL=/bin/sh lighttpd -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
-	fi
+	# sending INT signal will make lighttpd close all listening sockets and
+	# wait for client connections to terminate.
+	killproc --pidfile /var/run/lighttpd.pid lighttpd -INT
+	env SHELL=/bin/sh lighttpd -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
 	RETVAL=$?
 }
 
@@ -163,7 +141,6 @@ flush-logs() {
 	fi
 
 	show "Rotating %s logs" lighttpd
-	# send HUP to main lighttpd (not angel) process to rotate logs:
 	killproc --pidfile /var/run/lighttpd.pid lighttpd -HUP
 	RETVAL=$?
 }
@@ -187,13 +164,12 @@ case "$1" in
 	reload
 	;;
   flush-logs)
-	flush-logs
+  	flush-logs
 	;;
   checkconfig|configtest)
 	checkconfig 1
 	;;
   status)
-	status lighttpd-angel
 	status lighttpd
 	RETVAL=$?
 	;;
