@@ -193,9 +193,10 @@ case "$1" in
 	checkconfig 1
 	;;
   status)
-	status lighttpd-angel
-	status lighttpd
-	RETVAL=$?
+	if is_yes "${LIGHT_ANGEL}"; then
+		status lighttpd-angel || RETVAL=$?
+	fi
+	status lighttpd || RETVAL=$?
 	;;
   *)
 	msg_usage "$0 {start|stop|restart|reload|force-reload|graceful|configtest|flush-logs|status}"
