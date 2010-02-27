@@ -1075,9 +1075,9 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/%{name}
 %attr(750,root,root) %dir /var/log/archive/%{name}
 %dir %attr(751,root,root) /var/log/%{name}
-%ghost %attr(644,lighttpd,lighttpd) /var/log/%{name}/access.log
-%ghost %attr(644,lighttpd,lighttpd) /var/log/%{name}/error.log
-%ghost %attr(644,lighttpd,lighttpd) /var/log/%{name}/breakage.log
+%attr(644,lighttpd,lighttpd) %ghost /var/log/%{name}/access.log
+%attr(644,lighttpd,lighttpd) %ghost /var/log/%{name}/error.log
+%attr(644,lighttpd,lighttpd) %ghost /var/log/%{name}/breakage.log
 %dir %attr(770,root,lighttpd) /var/run/%{name}
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
@@ -1224,7 +1224,7 @@ fi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_rrdtool.conf
 %attr(755,root,root) %{_libdir}/mod_rrdtool.so
-%ghost %attr(640,lighttpd,stats) /var/lib/lighttpd/lighttpd.rrd
+%attr(640,lighttpd,stats) %ghost /var/lib/lighttpd/lighttpd.rrd
 
 %files mod_scgi
 %defattr(644,root,root,755)
