@@ -902,7 +902,6 @@ install %{SOURCE112} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_fastcgi.conf
 install %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
 install %{SOURCE136} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_h264_streaming.conf
 install %{SOURCE114} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_indexfile.conf
-install %{SOURCE134} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_magnet.conf
 install %{SOURCE115} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy.conf
 install %{SOURCE118} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_rrdtool.conf
 install %{SOURCE119} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_scgi.conf
@@ -918,6 +917,7 @@ install %{SOURCE128} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_usertrack.conf
 install %{SOURCE129} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_webdav.conf
 install %{SOURCE133} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_mysql_vhost.conf
 
+install %{SOURCE134} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_magnet.conf
 install %{SOURCE111} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_expire.conf
 
 install %{SOURCE106} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/60_mod_compress.conf
