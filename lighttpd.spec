@@ -114,6 +114,7 @@ BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.268
 %{?with_webdav_props:BuildRequires:	sqlite3-devel}
 %{?with_valgrind:BuildRequires:	valgrind}
+BuildRequires:	which
 BuildRequires:	zlib-devel
 Requires(post,preun):	/sbin/chkconfig
 Requires(postun):	/usr/sbin/groupdel
