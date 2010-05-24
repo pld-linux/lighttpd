@@ -95,6 +95,7 @@ Patch4:		%{name}-modinit-before-fork.patch
 Patch5:		%{name}-mod_deflate.patch
 Patch6:		etag-32bit-overflow.patch
 Patch7:		mod_auth-ip-info.patch
+Patch8:		data_string_print_escape.patch
 #Patch8:		%{name}-errorlog-before-fork.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
@@ -824,6 +825,7 @@ Plik monitrc do monitorowania serwera www lighttpd.
 %{?with_deflate:%patch5 -p1}
 %patch6 -p1
 %patch7 -p1
+%patch8 -p1
 
 rm -f src/mod_ssi_exprparser.h # bad patching: should be removed by is emptied instead
 
