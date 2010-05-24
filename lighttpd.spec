@@ -1,4 +1,6 @@
-# Conditional build for lighttpd:
+#
+# Conditional build:
+%bcond_with	tests		# build with tests
 %bcond_without	xattr		# support of extended attributes
 %bcond_without	ipv6		# IPv4-only version (doesn't require IPv6 in kernel)
 %bcond_without	largefile	# largefile support (see notes above)
@@ -858,6 +860,10 @@ fi
 
 # -j1 as src/mod_ssi_exprparser.h regeneration deps are broken
 %{__make} -j1
+
+%if %{with tests}
+%{__make} check
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
