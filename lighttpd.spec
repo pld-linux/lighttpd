@@ -44,7 +44,7 @@ Source10:	pld_button.png
 # Source10-md5:	185afa921e81bd726b9f0f9f0909dc6e
 Source11:	%{name}-pld.html
 Source12:	%{name}.monitrc
-Source13:	%{name}-branch.sh
+Source13:	branch.sh
 Source14:	TODO
 Source100:	%{name}-mod_access.conf
 Source101:	%{name}-mod_accesslog.conf
