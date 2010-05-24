@@ -1,0 +1,23 @@
+--- lighttpd-1.4.26/src/data_string.c~	2010-05-25 00:53:55.000000000 +0300
++++ lighttpd-1.4.26/src/data_string.c	2010-05-25 00:53:59.407739779 +0300
+@@ -70,8 +70,19 @@
+ static void data_string_print(const data_unset *d, int depth) {
+ 	data_string *ds = (data_string *)d;
+ 	UNUSED(depth);
++	unsigned int i = 0;
+ 
+-	fprintf(stdout, "\"%s\"", ds->value->used ? ds->value->ptr : "");
++	// print out the string as is, except prepend " with backslash
++	putc('"', stdout);
++	for (i = 0; i < ds->value->used - 1; i++) {
++		unsigned char c = ds->value->ptr[i];
++		if (c == '"') {
++			fputs("\\\"", stdout);
++		} else {
++			putc(c, stdout);
++		}
++	}
++	putc('"', stdout);
+ }
+ 
+ 
