@@ -1,9 +1,35 @@
-# Revision 2717
+# Revision 2724
+Index: src/connections.c
+===================================================================
+--- src/connections.c	(.../tags/lighttpd-1.4.26)
++++ src/connections.c	(.../branches/lighttpd-1.4.x)
+@@ -82,6 +82,11 @@
+ 
+ 	if (-1 == con->ndx) return -1;
+ 
++	buffer_reset(con->uri.authority);
++	buffer_reset(con->uri.path);
++	buffer_reset(con->uri.query);
++	buffer_reset(con->request.orig_uri);
++
+ 	i = con->ndx;
+ 
+ 	/* not last element */
 Index: src/network.c
 ===================================================================
 --- src/network.c	(.../tags/lighttpd-1.4.26)
 +++ src/network.c	(.../branches/lighttpd-1.4.x)
-@@ -525,7 +525,7 @@
+@@ -82,6 +82,9 @@
+ 	buffer_copy_string(con->tlsext_server_name, servername);
+ 	buffer_to_lower(con->tlsext_server_name);
+ 
++	/* Sometimes this is still set, confusing COMP_HTTP_HOST */
++	buffer_reset(con->uri.authority);
++
+ 	config_cond_cache_reset(srv, con);
+ 	config_setup_connection(srv, con);
+ 
+@@ -525,7 +528,7 @@
  
  		if (!s->ssl_use_sslv2) {
  			/* disable SSLv2 */
@@ -12,6 +38,187 @@ Index: src/network.c
  				log_error_write(srv, __FILE__, __LINE__, "ss", "SSL:",
  						ERR_error_string(ERR_get_error(), NULL));
  				return -1;
+Index: src/response.c
+===================================================================
+--- src/response.c	(.../tags/lighttpd-1.4.26)
++++ src/response.c	(.../branches/lighttpd-1.4.x)
+@@ -136,6 +136,8 @@
+ 	X509 *xs;
+ 	X509_NAME *xn;
+ 	X509_NAME_ENTRY *xe;
++	int i, nentries;
++
+ 	if (
+ 		SSL_get_verify_result(con->ssl) != X509_V_OK
+ 		|| !(xs = SSL_get_peer_certificate(con->ssl))
+@@ -144,7 +146,7 @@
+ 	}
+ 
+ 	xn = X509_get_subject_name(xs);
+-	for (int i = 0, nentries = X509_NAME_entry_count(xn); i < nentries; ++i) {
++	for (i = 0, nentries = X509_NAME_entry_count(xn); i < nentries; ++i) {
+ 		int xobjnid;
+ 		const char * xobjsn;
+ 		data_string *envds;
+@@ -581,7 +583,7 @@
+ 			};
+ #endif
+ 			if (S_ISDIR(sce->st.st_mode)) {
+-				if (con->physical.path->ptr[con->physical.path->used - 2] != '/') {
++				if (con->uri.path->ptr[con->uri.path->used - 2] != '/') {
+ 					/* redirect to .../ */
+ 
+ 					http_response_redirect_to_directory(srv, con);
+Index: src/mod_proxy.c
+===================================================================
+--- src/mod_proxy.c	(.../tags/lighttpd-1.4.26)
++++ src/mod_proxy.c	(.../branches/lighttpd-1.4.x)
+@@ -349,6 +349,10 @@
+ 		srv->cur_fds--;
+ 	}
+ 
++	if (hctx->host) {
++		hctx->host->usage--;
++	}
++
+ 	handler_ctx_free(hctx);
+ 	con->plugin_ctx[p->id] = NULL;
+ }
+@@ -848,11 +852,11 @@
+ 		if (-1 == ret) { /* error on our side */
+ 			log_error_write(srv, __FILE__, __LINE__, "ssd", "write failed:", strerror(errno), errno);
+ 
+-			return HANDLER_WAIT_FOR_EVENT;
++			return HANDLER_ERROR;
+ 		} else if (-2 == ret) { /* remote close */
+ 			log_error_write(srv, __FILE__, __LINE__, "ssd", "write failed, remote connection close:", strerror(errno), errno);
+ 
+-			return HANDLER_WAIT_FOR_EVENT;
++			return HANDLER_ERROR;
+ 		}
+ 
+ 		if (hctx->wb->bytes_out == hctx->wb->bytes_in) {
+@@ -989,8 +993,6 @@
+ 		case 0:
+ 			break;
+ 		case 1:
+-			hctx->host->usage--;
+-
+ 			/* we are done */
+ 			proxy_connection_close(srv, hctx);
+ 
+@@ -1077,8 +1079,11 @@
+ 			return HANDLER_FINISHED;
+ 		}
+ 
++		if (!con->file_finished) {
++			http_chunk_append_mem(srv, con, NULL, 0);
++		}
++
+ 		con->file_finished = 1;
+-
+ 		proxy_connection_close(srv, hctx);
+ 		joblist_append(srv, con);
+ 	} else if (revents & FDEVENT_ERR) {
+@@ -1086,6 +1091,7 @@
+ 
+ 		log_error_write(srv, __FILE__, __LINE__, "sd", "proxy-FDEVENT_ERR, but no HUP", revents);
+ 
++		con->file_finished = 1;
+ 		joblist_append(srv, con);
+ 		proxy_connection_close(srv, hctx);
+ 	}
+Index: src/Makefile.am
+===================================================================
+--- src/Makefile.am	(.../tags/lighttpd-1.4.26)
++++ src/Makefile.am	(.../branches/lighttpd-1.4.x)
+@@ -19,7 +19,7 @@
+ 			REVISION=""; \
+ 		fi; \
+ 	fi; \
+-	if test -z "$$REVISION" -a -x "`which git`"; then \
++	if test -z "$$REVISION" -a -d "$(top_srcdir)/.git" -a -x "`which git`"; then \
+ 		REVISION="$$(cd "$(top_srcdir)"; LANG= LC_ALL=C git describe --always 2>/dev/null || echo)"; \
+ 	fi; \
+ 	if test -n "$$REVISION"; then \
+Index: src/mod_compress.c
+===================================================================
+--- src/mod_compress.c	(.../tags/lighttpd-1.4.26)
++++ src/mod_compress.c	(.../branches/lighttpd-1.4.x)
+@@ -744,6 +744,7 @@
+ 				int accept_encoding = 0;
+ 				char *value = ds->value->ptr;
+ 				int matched_encodings = 0;
++				int use_etag = sce->etag != NULL && sce->etag->ptr != NULL;
+ 
+ 				/* get client side support encodings */
+ #ifdef USE_ZLIB
+@@ -770,12 +771,14 @@
+ 					mtime = strftime_cache_get(srv, sce->st.st_mtime);
+ 
+ 					/* try matching original etag of uncompressed version */
+-					etag_mutate(con->physical.etag, sce->etag);
+-					if (HANDLER_FINISHED == http_response_handle_cachable(srv, con, mtime)) {
+-						response_header_overwrite(srv, con, CONST_STR_LEN("Content-Type"), CONST_BUF_LEN(sce->content_type));
+-						response_header_overwrite(srv, con, CONST_STR_LEN("Last-Modified"), CONST_BUF_LEN(mtime));
+-						response_header_overwrite(srv, con, CONST_STR_LEN("ETag"), CONST_BUF_LEN(con->physical.etag));
+-						return HANDLER_FINISHED;
++					if (use_etag) {
++						etag_mutate(con->physical.etag, sce->etag);
++						if (HANDLER_FINISHED == http_response_handle_cachable(srv, con, mtime)) {
++							response_header_overwrite(srv, con, CONST_STR_LEN("Content-Type"), CONST_BUF_LEN(sce->content_type));
++							response_header_overwrite(srv, con, CONST_STR_LEN("Last-Modified"), CONST_BUF_LEN(mtime));
++							response_header_overwrite(srv, con, CONST_STR_LEN("ETag"), CONST_BUF_LEN(con->physical.etag));
++							return HANDLER_FINISHED;
++						}
+ 					}
+ 
+ 					/* select best matching encoding */
+@@ -790,22 +793,26 @@
+ 						compression_name = dflt_deflate;
+ 					}
+ 
+-					/* try matching etag of compressed version */
+-					buffer_copy_string_buffer(srv->tmp_buf, sce->etag);
+-					buffer_append_string_len(srv->tmp_buf, CONST_STR_LEN("-"));
+-					buffer_append_string(srv->tmp_buf, compression_name);
+-					etag_mutate(con->physical.etag, srv->tmp_buf);
++					if (use_etag) {
++						/* try matching etag of compressed version */
++						buffer_copy_string_buffer(srv->tmp_buf, sce->etag);
++						buffer_append_string_len(srv->tmp_buf, CONST_STR_LEN("-"));
++						buffer_append_string(srv->tmp_buf, compression_name);
++						etag_mutate(con->physical.etag, srv->tmp_buf);
++					}
+ 
+ 					if (HANDLER_FINISHED == http_response_handle_cachable(srv, con, mtime)) {
+ 						response_header_overwrite(srv, con, CONST_STR_LEN("Content-Encoding"), compression_name, strlen(compression_name));
+ 						response_header_overwrite(srv, con, CONST_STR_LEN("Content-Type"), CONST_BUF_LEN(sce->content_type));
+ 						response_header_overwrite(srv, con, CONST_STR_LEN("Last-Modified"), CONST_BUF_LEN(mtime));
+-						response_header_overwrite(srv, con, CONST_STR_LEN("ETag"), CONST_BUF_LEN(con->physical.etag));
++						if (use_etag) {
++							response_header_overwrite(srv, con, CONST_STR_LEN("ETag"), CONST_BUF_LEN(con->physical.etag));
++						}
+ 						return HANDLER_FINISHED;
+ 					}
+ 
+ 					/* deflate it */
+-					if (p->conf.compress_cache_dir->used) {
++					if (use_etag && p->conf.compress_cache_dir->used) {
+ 						if (0 != deflate_file_to_file(srv, con, p, con->physical.path, sce, compression_type))
+ 							return HANDLER_GO_ON;
+ 					} else {
+@@ -814,7 +821,9 @@
+ 					}
+ 					response_header_overwrite(srv, con, CONST_STR_LEN("Content-Encoding"), compression_name, strlen(compression_name));
+ 					response_header_overwrite(srv, con, CONST_STR_LEN("Last-Modified"), CONST_BUF_LEN(mtime));
+-					response_header_overwrite(srv, con, CONST_STR_LEN("ETag"), CONST_BUF_LEN(con->physical.etag));
++					if (use_etag) {
++						response_header_overwrite(srv, con, CONST_STR_LEN("ETag"), CONST_BUF_LEN(con->physical.etag));
++					}
+ 					response_header_overwrite(srv, con, CONST_STR_LEN("Content-Type"), CONST_BUF_LEN(sce->content_type));
+ 					/* let mod_staticfile handle the cached compressed files, physical path was modified */
+ 					return p->conf.compress_cache_dir->used ? HANDLER_GO_ON : HANDLER_FINISHED;
 Index: configure.ac
 ===================================================================
 Index: SConstruct
@@ -20,13 +227,19 @@ Index: NEWS
 ===================================================================
 --- NEWS	(.../tags/lighttpd-1.4.26)
 +++ NEWS	(.../branches/lighttpd-1.4.x)
-@@ -3,7 +3,10 @@
+@@ -3,7 +3,16 @@
  NEWS
  ====
  
 -- 1.4.26 -
 +- 1.4.27 -
 +  * Fix handling return value of SSL_CTX_set_options (fixes #2157, thx mlcreech)
++  * Fix mod_proxy HUP handling (send final chunk, fix usage counter)
++  * mod_proxy: close connection on write error (fixes #2114)
++  * Check uri instead of physical path for directory redirect
++  * Fix detecting git repository (fixes #2173, thx ncopa)
++  * [mod_compress] Fix segfault when etags are disabled (fixes #2169)
++  * Reset uri.authority before TLS servername handling, reset all "keep-alive" data in connection_del (fixes #2125)
 +
 +- 1.4.26 - 2010-02-07
    * Fix request parser to handle packets with splitted \r\n\r\n (fixes #2105)
