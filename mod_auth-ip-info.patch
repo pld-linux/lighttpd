@@ -9,3 +9,14 @@
  		}
  
  		return 0;
+--- lighttpd-1.4.26/src/http_auth.c~	2010-05-24 23:39:16.000000000 +0300
++++ lighttpd-1.4.26/src/http_auth.c	2010-05-24 23:39:25.761721926 +0300
+@@ -877,7 +877,7 @@
+ 
+ 	/* password doesn't match */
+ 	if (http_auth_basic_password_compare(srv, p, req, username, realm->value, password, pw)) {
+-		log_error_write(srv, __FILE__, __LINE__, "sbbss", "password doesn't match for ", con->uri.path, username, ", IP:", inet_ntop_cache_get_ip(srv, &(con->dst_addr)));
++		log_error_write(srv, __FILE__, __LINE__, "sbsBss", "password doesn't match for", con->uri.path, "username:", username, ", IP:", inet_ntop_cache_get_ip(srv, &(con->dst_addr)));
+ 
+ 		buffer_free(username);
+ 		buffer_free(password);
