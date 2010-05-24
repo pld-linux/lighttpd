@@ -1,11 +1,11 @@
---- http_auth.c.bak	2010-05-24 21:54:12.000000000 +0200
-+++ http_auth.c	2010-05-24 22:11:52.000000000 +0200
+--- lighttpd-1.4.26/src/http_auth.c.bak	2010-05-24 21:54:12.000000000 +0200
++++ lighttpd-1.4.26/src/http_auth.c	2010-05-24 22:11:52.000000000 +0200
 @@ -869,7 +869,7 @@
  		if (AUTH_BACKEND_UNSET == p->conf.auth_backend) {
  			log_error_write(srv, __FILE__, __LINE__, "s", "auth.backend is not set");
  		} else {
 -			log_error_write(srv, __FILE__, __LINE__, "s", "get_password failed");
-+			log_error_write(srv, __FILE__, __LINE__, "s", "get_password failed", "IP:" inet_ntop_cache_get_ip (srv, & (con-> dst_addr)) );
++			log_error_write(srv, __FILE__, __LINE__, "ss", "get_password failed, IP:", inet_ntop_cache_get_ip(srv, &(con->dst_addr)));
  		}
  
  		return 0;
