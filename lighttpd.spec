@@ -24,12 +24,12 @@
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.26
-Release:	7
+Version:	1.4.28
+Release:	1
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	http://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.bz2
-# Source0-md5:	a682c8efce47a2f4263a247ba0813c9b
+# Source0-md5:	586eb535d31ac299652495b058dd87c4
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -86,16 +86,13 @@ Source134:	%{name}-mod_magnet.conf
 Source135:	%{name}-mod_extforward.conf
 Source136:	%{name}-mod_h264_streaming.conf
 Source137:	%{name}-mod_cgi_php.conf
-Patch100:	%{name}-branch.diff
+#Patch100:	%{name}-branch.diff
 Patch0:		%{name}-use_bin_sh.patch
 Patch1:		%{name}-mod_evasive-status_code.patch
 Patch2:		%{name}-mod_h264_streaming.patch
 Patch3:		%{name}-branding.patch
-Patch4:		%{name}-modinit-before-fork.patch
+#Patch4:		%{name}-modinit-before-fork.patch
 Patch5:		%{name}-mod_deflate.patch
-Patch6:		etag-32bit-overflow.patch
-Patch7:		mod_auth-ip-info.patch
-Patch8:		data_string_print_escape.patch
 #Patch8:		%{name}-errorlog-before-fork.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
@@ -816,16 +813,13 @@ Plik monitrc do monitorowania serwera www lighttpd.
 
 %prep
 %setup -q
-%patch100 -p0
-%patch4 -p0
+#%patch100 -p0
+#%patch4 -p0
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %{?with_deflate:%patch5 -p1}
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
 
 rm -f src/mod_ssi_exprparser.h # bad patching: should be removed by is emptied instead
 
@@ -1076,7 +1070,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc NEWS README doc/lighttpd.conf doc/*.txt doc/rrdtool-graph.sh PLD-TODO
+%doc NEWS README doc/*.txt PLD-TODO
 %dir %attr(751,root,lighttpd) %{_sysconfdir}
 %dir %attr(750,root,root) %{_sysconfdir}/conf.d
 %dir %attr(750,root,root) %{_sysconfdir}/vhosts.d
