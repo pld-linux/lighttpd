@@ -132,6 +132,7 @@ Requires:	%{name}-mod_indexfile = %{version}-%{release}
 Requires:	%{name}-mod_staticfile = %{version}-%{release}
 Requires:	rc-scripts >= 0.4.1.26-2
 Requires:	rpm-whiteout >= 1.5
+Suggests:	%{name}-mod_accesslog
 Provides:	group(http)
 Provides:	group(lighttpd)
 Provides:	user(lighttpd)
