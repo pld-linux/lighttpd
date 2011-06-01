@@ -1,3 +1,7 @@
+
+# TODO:
+# - provide or autogenerate self signed cert in post, so after installing
+#   lighttpd-ssl server will still work
 #
 # Conditional build:
 %bcond_without	tests		# build with tests
