@@ -28,12 +28,12 @@
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.28
-Release:	6
+Version:	1.4.29
+Release:	1
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	http://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.bz2
-# Source0-md5:	586eb535d31ac299652495b058dd87c4
+# Source0-md5:	e6e67b09986cb504db630b5a86b2dd76
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -991,7 +991,7 @@ fi
 #
 # 1. at the end of transaction. (posttrans, feature from rpm 4.4.2)
 # 2. first install of module (post: $1 = 1)
-# 2. uninstall of module (postun: $1 == 0)
+# 2. uninstall of module (postun: $1 = 0)
 #
 # the strict internal deps between lighttpd modules and
 # main package are very important for all this to work.
@@ -1075,7 +1075,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc NEWS README doc/*.txt PLD-TODO
+%doc NEWS README PLD-TODO
 %dir %attr(751,root,lighttpd) %{_sysconfdir}
 %dir %attr(750,root,root) %{_sysconfdir}/conf.d
 %dir %attr(750,root,root) %{_sysconfdir}/vhosts.d
