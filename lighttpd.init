@@ -192,6 +192,9 @@ case "$1" in
   checkconfig|configtest)
 	checkconfig 1
 	;;
+  show-config)
+	env SHELL=/bin/sh lighttpd -p -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
+	;;
   status)
 	if is_yes "${LIGHT_ANGEL}"; then
 		status lighttpd-angel || RETVAL=$?
@@ -199,7 +202,7 @@ case "$1" in
 	status lighttpd || RETVAL=$?
 	;;
   *)
-	msg_usage "$0 {start|stop|restart|reload|force-reload|graceful|configtest|flush-logs|status}"
+	msg_usage "$0 {start|stop|restart|reload|force-reload|graceful|configtest|flush-logs|show-config|status}"
 	exit 3
 	;;
 esac
