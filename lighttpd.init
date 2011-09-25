@@ -10,6 +10,8 @@
 # Source function library
 . /etc/rc.d/init.d/functions
 
+upstart_controlled
+
 # Get network config
 . /etc/sysconfig/network
 

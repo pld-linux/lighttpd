@@ -29,7 +29,7 @@ Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.4.29
-Release:	2
+Release:	3
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	http://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.bz2
@@ -52,6 +52,7 @@ Source11:	%{name}-pld.html
 Source12:	%{name}.monitrc
 Source13:	branch.sh
 Source14:	TODO
+Source15:	%{name}.upstart
 Source100:	%{name}-mod_access.conf
 Source101:	%{name}-mod_accesslog.conf
 Source102:	%{name}-mod_alias.conf
@@ -870,7 +871,7 @@ fi
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d/init.d,sysconfig,monit}} \
+install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d/init.d,sysconfig,init,monit}} \
 	$RPM_BUILD_ROOT%{_sysconfdir}/{conf,vhosts,webapps}.d \
 	$RPM_BUILD_ROOT{/var/log/{%{name},archive/%{name}},/var/run/%{name}} \
 	$RPM_BUILD_ROOT%{_datadir}/lighttpd/errordocs \
@@ -881,75 +882,76 @@ install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d
 	DESTDIR=$RPM_BUILD_ROOT
 
 install -p %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
-cp -a %{SOURCE2} %{SOURCE3} mime.types.conf $RPM_BUILD_ROOT%{_sysconfdir}
-cp -a %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
-cp -a %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
-cp -a %{SOURCE12} $RPM_BUILD_ROOT/etc/monit/%{name}.monitrc
+cp -p %{SOURCE2} %{SOURCE3} mime.types.conf $RPM_BUILD_ROOT%{_sysconfdir}
+cp -p %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
+cp -p %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
+cp -p %{SOURCE12} $RPM_BUILD_ROOT/etc/monit/%{name}.monitrc
+cp -p %{SOURCE15} $RPM_BUILD_ROOT/etc/init/%{name}.conf
 
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 
 # Install lighttpd images
-cp -a %{SOURCE7} %{SOURCE8} %{SOURCE9} $RPM_BUILD_ROOT%{_lighttpddir}/html
-cp -a %{SOURCE10} $RPM_BUILD_ROOT%{_lighttpddir}/html/pld_button.png
-cp -a %{SOURCE11} $RPM_BUILD_ROOT%{_lighttpddir}/html/index.html
+cp -p %{SOURCE7} %{SOURCE8} %{SOURCE9} $RPM_BUILD_ROOT%{_lighttpddir}/html
+cp -p %{SOURCE10} $RPM_BUILD_ROOT%{_lighttpddir}/html/pld_button.png
+cp -p %{SOURCE11} $RPM_BUILD_ROOT%{_lighttpddir}/html/index.html
 
 # NOTE: the order of the modules is somewhat important as the modules are
 # handled in the way they are specified. mod_rewrite should always be the first
 # module, mod_accesslog always the last.
 
-cp -a %{SOURCE117} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/10_mod_rewrite.conf
-cp -a %{SOURCE116} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/11_mod_redirect.conf
+cp -p %{SOURCE117} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/10_mod_rewrite.conf
+cp -p %{SOURCE116} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/11_mod_redirect.conf
 
-cp -a %{SOURCE100} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_access.conf
-cp -a %{SOURCE102} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_alias.conf
-cp -a %{SOURCE103} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_auth.conf
-cp -a %{SOURCE104} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_cgi.conf
-cp -a %{SOURCE137} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_cgi_php.conf
-cp -a %{SOURCE105} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_cml.conf
-cp -a %{SOURCE107} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_deflate.conf
-cp -a %{SOURCE108} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_dirlisting.conf
-cp -a %{SOURCE109} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evasive.conf
-cp -a %{SOURCE110} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evhost.conf
-cp -a %{SOURCE112} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_fastcgi.conf
-cp -a %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
-cp -a %{SOURCE136} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_h264_streaming.conf
-cp -a %{SOURCE114} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_indexfile.conf
-cp -a %{SOURCE115} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy.conf
-cp -a %{SOURCE118} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_rrdtool.conf
-cp -a %{SOURCE119} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_scgi.conf
-cp -a %{SOURCE120} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_secdownload.conf
-cp -a %{SOURCE121} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_setenv.conf
-cp -a %{SOURCE122} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_simple_vhost.conf
-cp -a %{SOURCE123} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_ssi.conf
-cp -a %{SOURCE124} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_staticfile.conf
-cp -a %{SOURCE125} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_status.conf
-cp -a %{SOURCE126} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_trigger_b4_dl.conf
-cp -a %{SOURCE127} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_userdir.conf
-cp -a %{SOURCE128} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_usertrack.conf
-cp -a %{SOURCE129} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_webdav.conf
-cp -a %{SOURCE133} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_mysql_vhost.conf
+cp -p %{SOURCE100} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_access.conf
+cp -p %{SOURCE102} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_alias.conf
+cp -p %{SOURCE103} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_auth.conf
+cp -p %{SOURCE104} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_cgi.conf
+cp -p %{SOURCE137} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_cgi_php.conf
+cp -p %{SOURCE105} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_cml.conf
+cp -p %{SOURCE107} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_deflate.conf
+cp -p %{SOURCE108} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_dirlisting.conf
+cp -p %{SOURCE109} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evasive.conf
+cp -p %{SOURCE110} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evhost.conf
+cp -p %{SOURCE112} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_fastcgi.conf
+cp -p %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
+cp -p %{SOURCE136} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_h264_streaming.conf
+cp -p %{SOURCE114} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_indexfile.conf
+cp -p %{SOURCE115} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy.conf
+cp -p %{SOURCE118} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_rrdtool.conf
+cp -p %{SOURCE119} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_scgi.conf
+cp -p %{SOURCE120} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_secdownload.conf
+cp -p %{SOURCE121} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_setenv.conf
+cp -p %{SOURCE122} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_simple_vhost.conf
+cp -p %{SOURCE123} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_ssi.conf
+cp -p %{SOURCE124} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_staticfile.conf
+cp -p %{SOURCE125} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_status.conf
+cp -p %{SOURCE126} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_trigger_b4_dl.conf
+cp -p %{SOURCE127} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_userdir.conf
+cp -p %{SOURCE128} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_usertrack.conf
+cp -p %{SOURCE129} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_webdav.conf
+cp -p %{SOURCE133} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_mysql_vhost.conf
 
-cp -a %{SOURCE134} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_magnet.conf
-cp -a %{SOURCE111} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_expire.conf
+cp -p %{SOURCE134} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_magnet.conf
+cp -p %{SOURCE111} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_expire.conf
 
-cp -a %{SOURCE106} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/60_mod_compress.conf
+cp -p %{SOURCE106} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/60_mod_compress.conf
 
-cp -a %{SOURCE101} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/90_mod_accesslog.conf
-cp -a %{SOURCE135} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/91_mod_extforward.conf
+cp -p %{SOURCE101} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/90_mod_accesslog.conf
+cp -p %{SOURCE135} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/91_mod_extforward.conf
 
-cp -a %{SOURCE130} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/php-spawned.conf
-cp -a %{SOURCE131} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/php-external.conf
-cp -a %{SOURCE132} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/ssl.conf
+cp -p %{SOURCE130} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/php-spawned.conf
+cp -p %{SOURCE131} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/php-external.conf
+cp -p %{SOURCE132} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/ssl.conf
 
 touch $RPM_BUILD_ROOT/var/lib/lighttpd/lighttpd.rrd
 
 %if %{without mysql}
 # avoid packaging dummy module
-rm -f $RPM_BUILD_ROOT%{_libdir}/mod_mysql_vhost.so
-rm -f $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_mysql_vhost.conf
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/mod_mysql_vhost.so
+%{__rm} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_mysql_vhost.conf
 %endif
 %if %{without deflate}
-rm -f $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_deflate.conf
+%{__rm} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_deflate.conf
 %endif
 
 touch $RPM_BUILD_ROOT/var/log/%{name}/{access,error,breakage}.log
@@ -1083,6 +1085,7 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}.conf
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mime.types.conf
 %attr(640,root,lighttpd) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.user
+%config(noreplace) %verify(not md5 mtime size) /etc/init/%{name}.conf
 
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/%{name}
 %attr(750,root,root) %dir /var/log/archive/%{name}
