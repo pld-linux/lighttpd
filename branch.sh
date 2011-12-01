@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 svn=svn://svn.lighttpd.net/lighttpd
-tag=lighttpd-1.4.26
+tag=lighttpd-1.4.29
 branch=lighttpd-1.4.x
 out=lighttpd-branch.diff
 
