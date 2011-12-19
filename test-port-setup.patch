@@ -1,0 +1,11 @@
+--- lighttpd-1.4.30/tests/LightyTest.pm~	2010-02-02 01:28:20.000000000 +0200
++++ lighttpd-1.4.30/tests/LightyTest.pm	2011-12-19 14:37:44.255526606 +0200
+@@ -43,7 +43,7 @@
+ 		$self->{MODULES_PATH} = $self->{BASEDIR}.'/build';
+ 	}
+ 	$self->{LIGHTTPD_PATH} = $self->{BINDIR}.'/lighttpd';
+-	$self->{PORT} = 2048;
++	$self->{PORT} = $ENV{LIGHTTPD_TEST_PORT} ? int($ENV{LIGHTTPD_TEST_PORT}) : 2048;
+ 
+ 	my ($name, $aliases, $addrtype, $net) = gethostbyaddr(inet_aton("127.0.0.1"), AF_INET);
+ 
