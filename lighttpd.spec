@@ -65,17 +65,17 @@ Source3:	%{name}.user
 Source4:	%{name}.logrotate
 Source5:	%{name}.sysconfig
 Source6:	%{name}-mime.types.sh
-Source7:	http://www.lighttpd.net/favicon.ico
-# Source7-md5:	a358994becabd4060393a5454bde505d
-Source8:	http://www.lighttpd.net/light_button.png
-# Source8-md5:	02330e2313fadc29144edfd6000879f8
-Source9:	http://www.lighttpd.net/light_logo.png
-# Source9-md5:	ac20784510e420d5cbe5fc1cdb53d7a7
-Source10:	http://gdl.hopto.org/~spider/pldstats/gfx/pld1.png
-# Source10-md5:	486ecec3f6f4fe7f9bf7cee757b864f4
+Source7:	http://glen.alkohol.ee/pld/lighty/favicon.ico
+# Source7-md5:	00fcac5b861a54f5eb147a589504d480
+Source8:	light_button.png
+# Source8-md5:	3e1008ee1d3d6d390cf81fe3072b4f50
+Source9:	light_logo.png
+# Source9-md5:	cbb7f0676e51ee2e26cf004df293fc62
+Source10:	pld_button.png
+# Source10-md5:	185afa921e81bd726b9f0f9f0909dc6e
 Source11:	%{name}-pld.html
 Source12:	%{name}.monitrc
-Source13:	%{name}-branch.sh
+Source13:	branch.sh
 Source100:	%{name}-mod_access.conf
 Source101:	%{name}-mod_accesslog.conf
 Source102:	%{name}-mod_alias.conf
@@ -136,13 +136,14 @@ BuildRequires:	libuuid-devel
 %{?with_lua:BuildRequires:	lua51-devel}
 BuildRequires:	mailcap >= 2.1.14-4.4
 %{?with_mysql:BuildRequires:	mysql-devel}
-%{?with_ldap:BuildRequires:	openldap-devel >= 2.4.6}
+%{?with_ldap:BuildRequires:	openldap-devel}
 %{?with_ssl:BuildRequires:	openssl-devel}
 BuildRequires:	pcre-devel
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.268
 %{?with_webdav_props:BuildRequires:	sqlite3-devel}
 %{?with_valgrind:BuildRequires:	valgrind}
+BuildRequires:	which
 BuildRequires:	zlib-devel
 Requires(post,preun):	/sbin/chkconfig
 Requires(postun):	/usr/sbin/groupdel
@@ -164,6 +165,7 @@ Provides:	group(http)
 Provides:	group(lighttpd)
 Provides:	user(lighttpd)
 Provides:	webserver
+Provides:	webserver(mime)
 Conflicts:	logrotate < 3.7-4
 # for the posttrans scriptlet, conflicts because in vserver environment rpm package is not installed.
 Conflicts:	rpm < 4.4.2-0.2
@@ -196,6 +198,7 @@ powodu problemów z obciążeniem.
 Summary:	lighttpd module for making access restrictions
 Summary(pl.UTF-8):	Moduł lighttpd ograniczający dostęp
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModAccess
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(access)
 
@@ -211,6 +214,7 @@ Moduł access służy do ograniczania dostępu do plików o podanych
 Summary:	lighttpd module to record access logs
 Summary(pl.UTF-8):	Moduł lighttpd do zapisu logów dostępu
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModAccessLog
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_accesslog
@@ -223,6 +227,7 @@ Domyślnie podobny do CLF, elastyczny jak Apache.
 Summary:	lighttpd module for making URL aliasing
 Summary(pl.UTF-8):	Moduł lighttpd odpowiadający za aliasy URL-i
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModAlias
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(alias)
 
@@ -238,6 +243,7 @@ dla podanego podzbioru URL-i.
 Summary:	lighttpd module for authentication support
 Summary(pl.UTF-8):	Moduł lighttpd do obsługi uwierzytelniania
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModAuth
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(auth)
 
@@ -253,6 +259,7 @@ basic i digest.
 Summary:	lighttpd module for CGI handling
 Summary(pl.UTF-8):	Moduł lighttpd do obsługi CGI
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModCGI
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-mod_alias = %{version}-%{release}
 Provides:	webserver(cgi)
@@ -273,6 +280,7 @@ prosty i naturalny sposób.
 Summary:	lighttpd module for Cache Meta Language
 Summary(pl.UTF-8):	Moduł Cache Meta Language
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModCML
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_cml
@@ -288,6 +296,7 @@ z drugiej strony do budowania strony z fragmentów przy użyciu LUA.
 Summary:	lighttpd module for output compression
 Summary(pl.UTF-8):	Moduł lighttpd do kompresji wyjścia
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModCompress
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_compress
@@ -312,7 +321,7 @@ Obsługiwane są gzip, deflate i bzip.
 Summary:	lighttpd module for output compression using deflate method
 Summary(pl.UTF-8):	Moduł lighttpd do kompresji wyjścia metodą deflate
 Group:		Networking/Daemons/HTTP
-URL:		http://trac.lighttpd.net/trac/wiki/Mod_Deflate
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Mod_Deflate
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_deflate
@@ -328,6 +337,7 @@ mod_compress.
 Summary:	lighttpd module for directory listings
 Summary(pl.UTF-8):	Moduł lighttpd do tworzenia listingów katalogów
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModDirlisting
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_dirlisting
@@ -342,6 +352,7 @@ kontrolą CSS.
 Summary:	lighttpd evasive module
 Summary(pl.UTF-8):	Moduł evasive dla lighttpd
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModEvasive
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_evasive
@@ -354,6 +365,7 @@ Moduł evasive dla lighttpd.
 Summary:	lighttpd module for enhanced virtual-hosting
 Summary(pl.UTF-8):	Moduł lighttpd rozszerzający obsługę hostów wirtualnych
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModEVhost
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_evhost
@@ -370,7 +382,9 @@ nazwy hosta.
 Summary:	lighttpd module for controlling the expiration of content in caches
 Summary(pl.UTF-8):	Moduł lighttpd sterujący wygasaniem treści w cache'ach
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModExpire
 Requires:	%{name} = %{version}-%{release}
+Provides:	webserver(expires)
 
 %description mod_expire
 mod_expire controls the setting of the the Expire response header.
@@ -382,6 +396,7 @@ mod_expire steruje ustawianiem nagłówka odpowiedzi Expire.
 Summary:	lighttpd module to extract the client's "real" IP from X-Forwarded-For header
 Summary(pl.UTF-8):	Moduł lighttpd wyciągający "prawdziwy" IP klienta z nagłówka X-Forwarded-For
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/DocsModExtForward
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_extforward
@@ -398,6 +413,7 @@ serwerów stojących za odwrotnymi serwerami proxy.
 Summary:	lighttpd module for flv streaming
 Summary(pl.UTF-8):	Moduł lighttpd do streamingu flv
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModFLVStreaming
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_flv_streaming
@@ -410,6 +426,7 @@ Moduł lighttpd do streamingu flv.
 Summary:	lighttpd indexfile module
 Summary(pl.UTF-8):	Moduł indexfile dla lighttpd
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Index-file-names.Details
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(indexfile)
 
@@ -423,6 +440,7 @@ Moduł indexfile.
 Summary:	lighttpd powermagnet module
 Summary(pl.UTF-8):	Moduł powermagnet dla lighttpd
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/wiki/lighttpd/Docs:ModMagnet
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_magnet
@@ -435,6 +453,7 @@ mod_magnet to moduł sterujący obsługą żądań w lighty.
 Summary:	lighttpd module for MySQL based vhosting
 Summary(pl.UTF-8):	Moduł lighttpd obsługujący vhosty oparte na MySQL-u
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModMySQLVhost
 Requires:	%{name} = %{version}-%{release}
 Conflicts:	%{name}-mod_simple_vhost
 
@@ -531,6 +550,7 @@ Pythona z WSGI.
 Summary:	lighttpd module for URL redirects
 Summary(pl.UTF-8):	Moduł lighttpd do przekierowań URL-i
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModRedirect
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_redirect
@@ -544,7 +564,9 @@ zewnątrz.
 Summary:	lighttpd module for internal redirects, URL rewrite
 Summary(pl.UTF-8):	Moduł lighttpd do wewnętrznych przekierowań i przepisywania URL-i
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModRewrite
 Requires:	%{name} = %{version}-%{release}
+Provides:	webserver(rewrite)
 
 %description mod_rewrite
 This module allows you rewrite a set of URLs interally in the
@@ -558,6 +580,7 @@ WWW _przed_ ich obsługą.
 Summary:	lighttpd module for monitoring traffic and server load
 Summary(pl.UTF-8):	Moduł lighttpd do monitorowania ruchu i obciążenia serwera
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModRRDTool
 Requires:	%{name} = %{version}-%{release}
 Requires:	rrdtool
 
@@ -580,6 +603,7 @@ WWW.
 Summary:	lighttpd module for secure and fast downloading
 Summary(pl.UTF-8):	Moduł lighttpd do bezpiecznego i szybkiego ściągania danych
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModSecDownload
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_secdownload
@@ -594,7 +618,9 @@ uwierzytelnieniem i zapobiec używaniu bezpośrednich odnośników.
 Summary:	lighttpd module for setting conditional request headers
 Summary(pl.UTF-8):	Moduł lighttpd do ustawiania warunkowych nagłówków żądań
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModSetEnv
 Requires:	%{name} = %{version}-%{release}
+Provides:	webserver(setenv)
 
 %description mod_setenv
 mod_setenv is used to add request headers.
@@ -606,6 +632,7 @@ mod_setenv służy do dodawania nagłówków żądań.
 Summary:	lighttpd module for simple virtual-hosting
 Summary(pl.UTF-8):	Moduł lighttpd do prostych hostów wirtualnych
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModSimpleVhost
 Requires:	%{name} = %{version}-%{release}
 Conflicts:	%{name}-mod_mysql_vhost
 
@@ -619,6 +646,7 @@ Moduł lighttpd do prostych hostów wirtualnych.
 Summary:	lighttpd module for server-side includes
 Summary(pl.UTF-8):	Moduł lighttpd do SSI (server-side includes)
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModSSI
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_ssi
@@ -645,6 +673,7 @@ Moduł lighttpd do serwowania statycznych plików.
 Summary:	lighttpd module for displaying server status
 Summary(pl.UTF-8):	Moduł lighttpd do wyświetlania stanu serwera
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModStatus
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_status
@@ -657,6 +686,7 @@ mod_status wyświetla stan i konfigurację serwera.
 Summary:	Trigger before Download
 Summary(pl.UTF-8):	Wyzwalacz przed ściąganiem
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModTriggerBeforeDownload
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_trigger_b4_dl
@@ -677,6 +707,7 @@ Upload progress module.
 Summary:	lighttpd module for user homedirs
 Summary(pl.UTF-8):	Moduł lighttpd obsługujący katalogi domowe użytkowników
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModUserDir
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_userdir
@@ -691,6 +722,7 @@ użytkowników do globalnej przestrzeni nazw serwera WWW.
 Summary:	lighttpd usertrack module
 Summary(pl.UTF-8):	Moduł usertrack dla lighttpd
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModUserTrack
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_usertrack
@@ -703,6 +735,7 @@ Moduł usertrack dla lighttpd.
 Summary:	WebDAV module for lighttpd
 Summary(pl.UTF-8):	Moduł WebDAV dla libghttpd
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModWebDAV
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_webdav
@@ -738,19 +771,6 @@ oraz zwykłe GET, POST, HEAD z HTTP/1.1.
 Jak na razie montowanie zasobu webdav pod Windows XP działa i
 podstawowe testy lakmusowe przechodzą.
 
-%package -n spawn-fcgi
-Summary:	Spawn fcgi-process directly
-Summary(pl.UTF-8):	Bezpośrednie uruchamianie procesów fcgi
-Group:		Applications
-
-%description -n spawn-fcgi
-spawn-fcgi is used to spawn fcgi-process directly without the help of
-a webserver or the programm itself.
-
-%description -n spawn-fcgi -l pl.UTF-8
-spawn-fcgi służy do uruchamiania procesów fcgi bezpośrednio, bez
-pomocy serwera WWW ani samego programu.
-
 %package php-spawned
 Summary:	PHP support via FastCGI, spawned by lighttpd
 Summary(pl.UTF-8):	Obsługa PHP przez FastCGI, uruchamiane przez lighttpd
@@ -785,7 +805,9 @@ Obsługa PHP przez FastCGI, uruchamianie sterowane zewnętrznie.
 Summary:	lighttpd support for SSLv2 and SSLv3
 Summary(pl.UTF-8):	Obsługa SSLv2 i SSLv3 dla lighttpd
 Group:		Networking/Daemons/HTTP
+URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:SSL
 Requires:	%{name} = %{version}-%{release}
+Suggests:	ca-certificates
 
 %description ssl
 lighttpd support for SSLv2 and SSLv3.
@@ -862,79 +884,76 @@ install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
-install %{SOURCE2} %{SOURCE3} mime.types.conf $RPM_BUILD_ROOT%{_sysconfdir}
-install %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
-install %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
-install %{SOURCE12} $RPM_BUILD_ROOT/etc/monit/%{name}.monitrc
+install -p %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
+cp -p %{SOURCE2} %{SOURCE3} mime.types.conf $RPM_BUILD_ROOT%{_sysconfdir}
+cp -p %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
+cp -p %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
+cp -p %{SOURCE12} $RPM_BUILD_ROOT/etc/monit/%{name}.monitrc
 
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 
-# could use automake patch, but automake generation fails...
-mv $RPM_BUILD_ROOT%{_bindir}/spawn-fcgi $RPM_BUILD_ROOT%{_sbindir}/spawn-fcgi
-
 # Install lighttpd images
-install %{SOURCE7} %{SOURCE8} %{SOURCE9} $RPM_BUILD_ROOT%{_lighttpddir}/html
-install %{SOURCE10} $RPM_BUILD_ROOT%{_lighttpddir}/html/pld_button.png
-install %{SOURCE11} $RPM_BUILD_ROOT%{_lighttpddir}/html/index.html
+cp -p %{SOURCE7} %{SOURCE8} %{SOURCE9} $RPM_BUILD_ROOT%{_lighttpddir}/html
+cp -p %{SOURCE10} $RPM_BUILD_ROOT%{_lighttpddir}/html/pld_button.png
+cp -p %{SOURCE11} $RPM_BUILD_ROOT%{_lighttpddir}/html/index.html
 
 # NOTE: the order of the modules is somewhat important as the modules are
 # handled in the way they are specified. mod_rewrite should always be the first
 # module, mod_accesslog always the last.
 
-install %{SOURCE117} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/10_mod_rewrite.conf
-install %{SOURCE116} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/11_mod_redirect.conf
+cp -p %{SOURCE117} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/10_mod_rewrite.conf
+cp -p %{SOURCE116} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/11_mod_redirect.conf
 
-install %{SOURCE100} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_access.conf
-install %{SOURCE102} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_alias.conf
-install %{SOURCE103} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_auth.conf
-install %{SOURCE104} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_cgi.conf
-install %{SOURCE105} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_cml.conf
-install %{SOURCE106} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_compress.conf
-install %{SOURCE107} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_deflate.conf
-install %{SOURCE108} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_dirlisting.conf
-install %{SOURCE109} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evasive.conf
-install %{SOURCE110} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evhost.conf
-install %{SOURCE111} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_expire.conf
-install %{SOURCE135} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_extforward.conf
-install %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
-install %{SOURCE114} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_indexfile.conf
-install %{SOURCE134} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_magnet.conf
-install %{SOURCE118} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_rrdtool.conf
-install %{SOURCE137} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_core.conf
-install %{SOURCE138} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_proxy_backend_fastcgi.conf
-install %{SOURCE139} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_proxy_backend_ajp13.conf
-install %{SOURCE140} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_proxy_backend_http.conf
-install %{SOURCE119} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_proxy_backend_scgi.conf
-install %{SOURCE120} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_secdownload.conf
-install %{SOURCE121} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_setenv.conf
-install %{SOURCE122} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_simple_vhost.conf
-install %{SOURCE123} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_ssi.conf
-install %{SOURCE124} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_staticfile.conf
-install %{SOURCE125} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_status.conf
-install %{SOURCE126} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_trigger_b4_dl.conf
-install %{SOURCE136} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_uploadprogress.conf
-install %{SOURCE127} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_userdir.conf
-install %{SOURCE128} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_usertrack.conf
-install %{SOURCE129} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_webdav.conf
-install %{SOURCE133} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_mysql_vhost.conf
+cp -p %{SOURCE100} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_access.conf
+cp -p %{SOURCE102} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_alias.conf
+cp -p %{SOURCE103} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_auth.conf
+cp -p %{SOURCE104} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_cgi.conf
+cp -p %{SOURCE105} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_cml.conf
+cp -p %{SOURCE106} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_compress.conf
+cp -p %{SOURCE107} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_deflate.conf
+cp -p %{SOURCE108} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_dirlisting.conf
+cp -p %{SOURCE109} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evasive.conf
+cp -p %{SOURCE110} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evhost.conf
+cp -p %{SOURCE111} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_expire.conf
+cp -p %{SOURCE135} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_extforward.conf
+cp -p %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
+cp -p %{SOURCE114} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_indexfile.conf
+cp -p %{SOURCE134} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_magnet.conf
+cp -p %{SOURCE118} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_rrdtool.conf
+cp -p %{SOURCE137} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy_core.conf
+cp -p %{SOURCE138} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_proxy_backend_fastcgi.conf
+cp -p %{SOURCE139} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_proxy_backend_ajp13.conf
+cp -p %{SOURCE140} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_proxy_backend_http.conf
+cp -p %{SOURCE119} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_proxy_backend_scgi.conf
+cp -p %{SOURCE120} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_secdownload.conf
+cp -p %{SOURCE121} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_setenv.conf
+cp -p %{SOURCE122} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_simple_vhost.conf
+cp -p %{SOURCE123} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_ssi.conf
+cp -p %{SOURCE124} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_staticfile.conf
+cp -p %{SOURCE125} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_status.conf
+cp -p %{SOURCE126} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_trigger_b4_dl.conf
+cp -p %{SOURCE136} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_uploadprogress.conf
+cp -p %{SOURCE127} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_userdir.conf
+cp -p %{SOURCE128} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_usertrack.conf
+cp -p %{SOURCE129} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_webdav.conf
+cp -p %{SOURCE133} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_mysql_vhost.conf
 
-install %{SOURCE101} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/90_mod_accesslog.conf
+cp -p %{SOURCE101} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/90_mod_accesslog.conf
 
-install %{SOURCE130} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/php-spawned.conf
-install %{SOURCE131} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/php-external.conf
-install %{SOURCE132} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/ssl.conf
+cp -p %{SOURCE130} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/php-spawned.conf
+cp -p %{SOURCE131} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/php-external.conf
+cp -p %{SOURCE132} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/ssl.conf
 
 touch $RPM_BUILD_ROOT/var/lib/lighttpd/lighttpd.rrd
 
 %if %{without mysql}
 # avoid packaging dummy module
-rm -f $RPM_BUILD_ROOT%{_libdir}/mod_mysql_vhost.so
-rm -f $RPM_BUILD_ROOT%{_libdir}/mod_sql_vhost_core.so
-rm -f $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_mysql_vhost.conf
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/mod_mysql_vhost.so
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/mod_sql_vhost_core.so
+%{__rm} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_mysql_vhost.conf
 %endif
 %if %{without deflate}
-rm -f $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_deflate.conf
+%{__rm} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_deflate.conf
 %endif
 
 touch $RPM_BUILD_ROOT/var/log/%{name}/{access,error}.log
@@ -945,7 +964,7 @@ rm -rf $RPM_BUILD_ROOT
 %pre
 %groupadd -g 109 lighttpd
 %groupadd -g 51 http
-%useradd -u 116 -d %{_lighttpddir} -c "LigHTTPd User" -g lighttpd lighttpd
+%useradd -u 116 -d %{_lighttpddir} -c "Lighttpd User" -g lighttpd lighttpd
 %addusertogroup lighttpd http
 
 %post
@@ -976,11 +995,11 @@ fi
 #
 # 1. at the end of transaction. (posttrans, feature from rpm 4.4.2)
 # 2. first install of module (post: $1 = 1)
-# 2. uninstall of module (postun: $1 == 0)
+# 2. uninstall of module (postun: $1 = 0)
 #
 # the strict internal deps between lighttpd modules and
 # main package are very important for all this to work.
-%service %{name} restart "LigHTTPd webserver"
+%service %{name} restart "Lighttpd webserver"
 exit 0
 
 # macro called at module post scriptlet
@@ -1051,12 +1070,6 @@ fi
 
 %module_scripts php-spawned
 %module_scripts php-external
-
-%triggerpostun -- %{name} <= 1.3.6-2
-%banner %{name} -e <<EOF
-spawn-fcgi program is now available separately from spawn-fcgi package.
-
-EOF
 
 %files
 %defattr(644,root,root,755)
@@ -1289,11 +1302,6 @@ EOF
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_webdav.conf
 %attr(755,root,root) %{_libdir}/mod_webdav.so
-
-%files -n spawn-fcgi
-%defattr(644,root,root,755)
-%doc doc/spawn-php.sh
-%attr(755,root,root) %{_sbindir}/spawn-fcgi
 
 %files php-spawned
 %defattr(644,root,root,755)
