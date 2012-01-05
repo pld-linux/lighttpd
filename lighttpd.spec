@@ -65,17 +65,17 @@ Source3:	%{name}.user
 Source4:	%{name}.logrotate
 Source5:	%{name}.sysconfig
 Source6:	%{name}-mime.types.sh
-Source7:	http://glen.alkohol.ee/pld/lighty/favicon.ico
-# Source7-md5:	00fcac5b861a54f5eb147a589504d480
-Source8:	light_button.png
-# Source8-md5:	3e1008ee1d3d6d390cf81fe3072b4f50
-Source9:	light_logo.png
-# Source9-md5:	cbb7f0676e51ee2e26cf004df293fc62
-Source10:	pld_button.png
-# Source10-md5:	185afa921e81bd726b9f0f9f0909dc6e
+Source7:	http://www.lighttpd.net/favicon.ico
+# Source7-md5:	a358994becabd4060393a5454bde505d
+Source8:	http://www.lighttpd.net/light_button.png
+# Source8-md5:	02330e2313fadc29144edfd6000879f8
+Source9:	http://www.lighttpd.net/light_logo.png
+# Source9-md5:	ac20784510e420d5cbe5fc1cdb53d7a7
+Source10:	http://gdl.hopto.org/~spider/pldstats/gfx/pld1.png
+# Source10-md5:	486ecec3f6f4fe7f9bf7cee757b864f4
 Source11:	%{name}-pld.html
 Source12:	%{name}.monitrc
-Source13:	branch.sh
+Source13:	%{name}-branch.sh
 Source100:	%{name}-mod_access.conf
 Source101:	%{name}-mod_accesslog.conf
 Source102:	%{name}-mod_alias.conf
@@ -136,14 +136,13 @@ BuildRequires:	libuuid-devel
 %{?with_lua:BuildRequires:	lua51-devel}
 BuildRequires:	mailcap >= 2.1.14-4.4
 %{?with_mysql:BuildRequires:	mysql-devel}
-%{?with_ldap:BuildRequires:	openldap-devel}
+%{?with_ldap:BuildRequires:	openldap-devel >= 2.4.6}
 %{?with_ssl:BuildRequires:	openssl-devel}
 BuildRequires:	pcre-devel
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.268
 %{?with_webdav_props:BuildRequires:	sqlite3-devel}
 %{?with_valgrind:BuildRequires:	valgrind}
-BuildRequires:	which
 BuildRequires:	zlib-devel
 Requires(post,preun):	/sbin/chkconfig
 Requires(postun):	/usr/sbin/groupdel
@@ -197,7 +196,6 @@ powodu problemów z obciążeniem.
 Summary:	lighttpd module for making access restrictions
 Summary(pl.UTF-8):	Moduł lighttpd ograniczający dostęp
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModAccess
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(access)
 
@@ -213,7 +211,6 @@ Moduł access służy do ograniczania dostępu do plików o podanych
 Summary:	lighttpd module to record access logs
 Summary(pl.UTF-8):	Moduł lighttpd do zapisu logów dostępu
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModAccessLog
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_accesslog
@@ -226,7 +223,6 @@ Domyślnie podobny do CLF, elastyczny jak Apache.
 Summary:	lighttpd module for making URL aliasing
 Summary(pl.UTF-8):	Moduł lighttpd odpowiadający za aliasy URL-i
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModAlias
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(alias)
 
@@ -242,7 +238,6 @@ dla podanego podzbioru URL-i.
 Summary:	lighttpd module for authentication support
 Summary(pl.UTF-8):	Moduł lighttpd do obsługi uwierzytelniania
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModAuth
 Requires:	%{name} = %{version}-%{release}
 Provides:	webserver(auth)
 
@@ -258,7 +253,6 @@ basic i digest.
 Summary:	lighttpd module for CGI handling
 Summary(pl.UTF-8):	Moduł lighttpd do obsługi CGI
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModCGI
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-mod_alias = %{version}-%{release}
 Provides:	webserver(cgi)
@@ -294,7 +288,6 @@ z drugiej strony do budowania strony z fragmentów przy użyciu LUA.
 Summary:	lighttpd module for output compression
 Summary(pl.UTF-8):	Moduł lighttpd do kompresji wyjścia
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModCompress
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_compress
@@ -319,7 +312,7 @@ Obsługiwane są gzip, deflate i bzip.
 Summary:	lighttpd module for output compression using deflate method
 Summary(pl.UTF-8):	Moduł lighttpd do kompresji wyjścia metodą deflate
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Mod_Deflate
+URL:		http://trac.lighttpd.net/trac/wiki/Mod_Deflate
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_deflate
@@ -335,7 +328,6 @@ mod_compress.
 Summary:	lighttpd module for directory listings
 Summary(pl.UTF-8):	Moduł lighttpd do tworzenia listingów katalogów
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModDirlisting
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_dirlisting
@@ -350,7 +342,6 @@ kontrolą CSS.
 Summary:	lighttpd evasive module
 Summary(pl.UTF-8):	Moduł evasive dla lighttpd
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModEvasive
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_evasive
@@ -363,7 +354,6 @@ Moduł evasive dla lighttpd.
 Summary:	lighttpd module for enhanced virtual-hosting
 Summary(pl.UTF-8):	Moduł lighttpd rozszerzający obsługę hostów wirtualnych
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModEVhost
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_evhost
@@ -380,9 +370,7 @@ nazwy hosta.
 Summary:	lighttpd module for controlling the expiration of content in caches
 Summary(pl.UTF-8):	Moduł lighttpd sterujący wygasaniem treści w cache'ach
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModExpire
 Requires:	%{name} = %{version}-%{release}
-Provides:	webserver(expires)
 
 %description mod_expire
 mod_expire controls the setting of the the Expire response header.
@@ -394,7 +382,6 @@ mod_expire steruje ustawianiem nagłówka odpowiedzi Expire.
 Summary:	lighttpd module to extract the client's "real" IP from X-Forwarded-For header
 Summary(pl.UTF-8):	Moduł lighttpd wyciągający "prawdziwy" IP klienta z nagłówka X-Forwarded-For
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/DocsModExtForward
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_extforward
@@ -436,7 +423,6 @@ Moduł indexfile.
 Summary:	lighttpd powermagnet module
 Summary(pl.UTF-8):	Moduł powermagnet dla lighttpd
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/wiki/lighttpd/Docs:ModMagnet
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_magnet
@@ -449,7 +435,6 @@ mod_magnet to moduł sterujący obsługą żądań w lighty.
 Summary:	lighttpd module for MySQL based vhosting
 Summary(pl.UTF-8):	Moduł lighttpd obsługujący vhosty oparte na MySQL-u
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModMySQLVhost
 Requires:	%{name} = %{version}-%{release}
 Conflicts:	%{name}-mod_simple_vhost
 
@@ -559,9 +544,7 @@ zewnątrz.
 Summary:	lighttpd module for internal redirects, URL rewrite
 Summary(pl.UTF-8):	Moduł lighttpd do wewnętrznych przekierowań i przepisywania URL-i
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModRewrite
 Requires:	%{name} = %{version}-%{release}
-Provides:	webserver(rewrite)
 
 %description mod_rewrite
 This module allows you rewrite a set of URLs interally in the
@@ -575,7 +558,6 @@ WWW _przed_ ich obsługą.
 Summary:	lighttpd module for monitoring traffic and server load
 Summary(pl.UTF-8):	Moduł lighttpd do monitorowania ruchu i obciążenia serwera
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModRRDTool
 Requires:	%{name} = %{version}-%{release}
 Requires:	rrdtool
 
@@ -612,9 +594,7 @@ uwierzytelnieniem i zapobiec używaniu bezpośrednich odnośników.
 Summary:	lighttpd module for setting conditional request headers
 Summary(pl.UTF-8):	Moduł lighttpd do ustawiania warunkowych nagłówków żądań
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModSetEnv
 Requires:	%{name} = %{version}-%{release}
-Provides:	webserver(setenv)
 
 %description mod_setenv
 mod_setenv is used to add request headers.
@@ -626,7 +606,6 @@ mod_setenv służy do dodawania nagłówków żądań.
 Summary:	lighttpd module for simple virtual-hosting
 Summary(pl.UTF-8):	Moduł lighttpd do prostych hostów wirtualnych
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModSimpleVhost
 Requires:	%{name} = %{version}-%{release}
 Conflicts:	%{name}-mod_mysql_vhost
 
@@ -640,7 +619,6 @@ Moduł lighttpd do prostych hostów wirtualnych.
 Summary:	lighttpd module for server-side includes
 Summary(pl.UTF-8):	Moduł lighttpd do SSI (server-side includes)
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModSSI
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_ssi
@@ -667,7 +645,6 @@ Moduł lighttpd do serwowania statycznych plików.
 Summary:	lighttpd module for displaying server status
 Summary(pl.UTF-8):	Moduł lighttpd do wyświetlania stanu serwera
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModStatus
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_status
@@ -680,7 +657,6 @@ mod_status wyświetla stan i konfigurację serwera.
 Summary:	Trigger before Download
 Summary(pl.UTF-8):	Wyzwalacz przed ściąganiem
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModTriggerBeforeDownload
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_trigger_b4_dl
@@ -715,7 +691,6 @@ użytkowników do globalnej przestrzeni nazw serwera WWW.
 Summary:	lighttpd usertrack module
 Summary(pl.UTF-8):	Moduł usertrack dla lighttpd
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModUserTrack
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_usertrack
@@ -728,7 +703,6 @@ Moduł usertrack dla lighttpd.
 Summary:	WebDAV module for lighttpd
 Summary(pl.UTF-8):	Moduł WebDAV dla libghttpd
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModWebDAV
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_webdav
@@ -811,9 +785,7 @@ Obsługa PHP przez FastCGI, uruchamianie sterowane zewnętrznie.
 Summary:	lighttpd support for SSLv2 and SSLv3
 Summary(pl.UTF-8):	Obsługa SSLv2 i SSLv3 dla lighttpd
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:SSL
 Requires:	%{name} = %{version}-%{release}
-Suggests:	ca-certificates
 
 %description ssl
 lighttpd support for SSLv2 and SSLv3.
@@ -1004,11 +976,11 @@ fi
 #
 # 1. at the end of transaction. (posttrans, feature from rpm 4.4.2)
 # 2. first install of module (post: $1 = 1)
-# 2. uninstall of module (postun: $1 = 0)
+# 2. uninstall of module (postun: $1 == 0)
 #
 # the strict internal deps between lighttpd modules and
 # main package are very important for all this to work.
-%service %{name} restart "Lighttpd webserver"
+%service %{name} restart "LigHTTPd webserver"
 exit 0
 
 # macro called at module post scriptlet
