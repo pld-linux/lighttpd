@@ -43,7 +43,7 @@
 %bcond_with	linux_aio	# Async IO support for Linux via libaio
 
 # SVN snapshot
-%define		svn	2371
+%define		svn	2825
 
 %if %{with webdav_locks}
 %define		webdav_progs	1
@@ -57,8 +57,8 @@ Version:	1.5.0
 Release:	%{rel}%{?snap:.%(echo %{snap}|tr - _)}%{?svn:.%{svn}}
 License:	BSD
 Group:		Networking/Daemons/HTTP
-Source0:	%{name}-%{version}.tar.gz
-# Source0-md5:	e9396859e2b2f9be7291b5636ae4195a
+Source0:	lighttpd-r%{svn}.tar.bz2
+# Source0-md5:	f3d639579cc10841a995334a1394382c
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -829,7 +829,7 @@ monitrc file for monitoring lighttpd web server.
 Plik monitrc do monitorowania serwera www lighttpd.
 
 %prep
-%setup -q
+%setup -q -n %{name}-1.5
 #%patch100 -p1
 %patch0 -p1
 #%patch1 -p1
@@ -851,10 +851,10 @@ EOF
 %{__libtoolize}
 %{__aclocal}
 %{__autoconf}
+%{__autoheader}
 %{__automake}
 
 %configure \
-	--enable-maintainer-mode \
 	%{!?with_ipv6:--disable-ipv6} \
 	%{!?with_largefile:--disable-lfs} \
 	%{?with_valgrind:--with-valgrind} \
