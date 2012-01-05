@@ -49,7 +49,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		rel 0.8
+%define		rel 0.9
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -76,6 +76,7 @@ Source10:	pld_button.png
 Source11:	%{name}-pld.html
 Source12:	%{name}.monitrc
 Source13:	branch.sh
+Source15:	%{name}.upstart
 Source100:	%{name}-mod_access.conf
 Source101:	%{name}-mod_accesslog.conf
 Source102:	%{name}-mod_alias.conf
@@ -874,7 +875,7 @@ EOF
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d/init.d,sysconfig,monit}} \
+install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d/init.d,sysconfig,init,monit}} \
 	$RPM_BUILD_ROOT%{_sysconfdir}/{conf,webapps}.d \
 	$RPM_BUILD_ROOT{/var/log/{%{name},archive/%{name}},/var/run/%{name}} \
 	$RPM_BUILD_ROOT%{_datadir}/lighttpd/errordocs \
@@ -889,6 +890,7 @@ cp -p %{SOURCE2} %{SOURCE3} mime.types.conf $RPM_BUILD_ROOT%{_sysconfdir}
 cp -p %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
 cp -p %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 cp -p %{SOURCE12} $RPM_BUILD_ROOT/etc/monit/%{name}.monitrc
+cp -p %{SOURCE15} $RPM_BUILD_ROOT/etc/init/%{name}.conf
 
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 
