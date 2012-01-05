@@ -958,7 +958,7 @@ touch $RPM_BUILD_ROOT/var/lib/lighttpd/lighttpd.rrd
 %{__rm} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_deflate.conf
 %endif
 
-touch $RPM_BUILD_ROOT/var/log/%{name}/{access,error}.log
+touch $RPM_BUILD_ROOT/var/log/%{name}/{access,error,breakage}.log
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -970,7 +970,7 @@ rm -rf $RPM_BUILD_ROOT
 %addusertogroup lighttpd http
 
 %post
-for a in access.log error.log; do
+for a in access.log error.log breakage.log; do
 	if [ ! -f /var/log/%{name}/$a ]; then
 		touch /var/log/%{name}/$a
 		chown lighttpd:lighttpd /var/log/%{name}/$a
@@ -1082,12 +1082,14 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}.conf
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mime.types.conf
 %attr(640,root,lighttpd) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.user
+%config(noreplace) %verify(not md5 mtime size) /etc/init/%{name}.conf
 
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/%{name}
 %attr(750,root,root) %dir /var/log/archive/%{name}
 %dir %attr(751,root,root) /var/log/%{name}
-%ghost %attr(644,lighttpd,lighttpd) /var/log/%{name}/access.log
-%ghost %attr(644,lighttpd,lighttpd) /var/log/%{name}/error.log
+%attr(644,lighttpd,lighttpd) %ghost /var/log/%{name}/access.log
+%attr(644,lighttpd,lighttpd) %ghost /var/log/%{name}/error.log
+%attr(644,lighttpd,lighttpd) %ghost /var/log/%{name}/breakage.log
 %dir %attr(770,root,lighttpd) /var/run/%{name}
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
