@@ -49,7 +49,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		rel 0.9
+%define		rel 0.10
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -57,7 +57,7 @@ Version:	1.5.0
 Release:	%{rel}%{?snap:.%(echo %{snap}|tr - _)}%{?svn:.%{svn}}
 License:	BSD
 Group:		Networking/Daemons/HTTP
-Source0:	lighttpd-r%{svn}.tar.bz2
+Source0:	%{name}-r%{svn}.tar.bz2
 # Source0-md5:	f3d639579cc10841a995334a1394382c
 Source1:	%{name}.init
 Source2:	%{name}.conf
@@ -161,7 +161,7 @@ Requires:	%{name}-mod_staticfile = %{version}-%{release}
 Requires:	libaio
 Requires:	rc-scripts
 Requires:	rpm-whiteout >= 1.5
-Requires:	webapps
+Suggests:	%{name}-mod_accesslog
 Provides:	group(http)
 Provides:	group(lighttpd)
 Provides:	user(lighttpd)
@@ -779,6 +779,7 @@ Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-mod_proxy_backend_fastcgi = %{version}-%{release}
 Requires:	php-fcgi
+Provides:	webserver(php)
 Obsoletes:	lighttpd-php-external
 
 %description php-spawned
@@ -793,7 +794,8 @@ Summary(pl.UTF-8):	Obsługa PHP przez FastCGI, uruchamianie sterowane zewnętrzn
 Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-mod_proxy_backend_fastcgi = %{version}-%{release}
-Requires:	php-fcgi-init
+Suggests:	php-fcgi-init
+Suggests:	php-fpm
 Obsoletes:	lighttpd-php-spawned
 
 %description php-external
@@ -876,7 +878,7 @@ EOF
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d/init.d,sysconfig,init,monit}} \
-	$RPM_BUILD_ROOT%{_sysconfdir}/{conf,webapps}.d \
+	$RPM_BUILD_ROOT%{_sysconfdir}/{conf,vhosts,webapps}.d \
 	$RPM_BUILD_ROOT{/var/log/{%{name},archive/%{name}},/var/run/%{name}} \
 	$RPM_BUILD_ROOT%{_datadir}/lighttpd/errordocs \
 	$RPM_BUILD_ROOT/var/lib/lighttpd \
@@ -1077,8 +1079,9 @@ fi
 %defattr(644,root,root,755)
 %doc NEWS README ChangeLog doc/lighttpd.conf doc/*.txt doc/rrdtool-graph.sh doc/convert-1.5.sh
 %dir %attr(750,root,lighttpd) %{_sysconfdir}
-%dir %attr(750,root,root) %{_sysconfdir}/webapps.d
 %dir %attr(750,root,root) %{_sysconfdir}/conf.d
+%dir %attr(750,root,root) %{_sysconfdir}/vhosts.d
+%dir %attr(750,root,root) %{_sysconfdir}/webapps.d
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}.conf
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mime.types.conf
 %attr(640,root,lighttpd) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.user
@@ -1096,11 +1099,13 @@ fi
 %attr(755,root,root) %{_sbindir}/lighttpd
 %dir %{_libdir}
 %attr(755,root,root) %{_libdir}/mod_chunked.so
-%{_mandir}/man?/*
+%{_mandir}/man8/lighttpd.8*
 %dir %{_lighttpddir}
 %dir %{_lighttpddir}/cgi-bin
 %dir %{_lighttpddir}/html
-%config(noreplace,missingok) %verify(not md5 mtime size) %{_lighttpddir}/html/*
+%config(noreplace,missingok) %verify(not md5 mtime size) %{_lighttpddir}/html/index.html
+%config(missingok) %verify(not md5 mtime size) %{_lighttpddir}/html/*.png
+%config(missingok) %verify(not md5 mtime size) %{_lighttpddir}/html/*.ico
 
 %dir %{_datadir}/lighttpd
 %dir %{_datadir}/lighttpd/errordocs
