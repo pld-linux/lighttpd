@@ -13,7 +13,19 @@ awk '{for (a=2; a <= NF; a++) {printf("%s\t%s\n", $1, $a)}}' | \
 LC_ALL=C sort -u > mime.types
 
 # build lighttpd.conf fragment
-awk '{ printf("\t\".%s\"%s=> \"%s\",\n", $2, (length($2) > 4 ? "\t" : "\t\t"), $1)}' \
+awk '{
+	ext = $2;
+	type = $1;
+	charset = "";
+	# add charset for "text/*" types
+	if (type ~ "text/") {
+		type = "\"" type "; charset=\" + mimetype_textcharset"
+	} else {
+		type = "\"" type "\""
+	}
+
+	printf("\t\".%s\"%s=> %s,\n", ext, (length(ext) > 4 ? "\t" : "\t\t"), type);
+}' \
 	< mime.types | LC_ALL=C sort -r > mime.types.conf
 
 # sanity check. there can't be more than one mime type mapping for same extension
@@ -28,6 +40,8 @@ mv -f mime.types.conf mime.types.conf.tmp
 
 # header
 cat >> mime.types.conf <<EOF
+# charset used for "text/*" mimetypes
+mimetype_textcharset = "utf-8"
 # mimetype mapping
 mimetype.assign = (
 EOF
