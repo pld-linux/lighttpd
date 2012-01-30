@@ -1,0 +1,212 @@
+#!/bin/sh
+#
+# lighttpd	lighttpd Web Server
+#
+# chkconfig:	345 85 15
+# description:	lighttpd is a World Wide Web server.  It is used to serve \
+#		HTML files and CGI.
+#
+
+# Source function library
+. /etc/rc.d/init.d/functions
+
+upstart_controlled
+
+# Get network config
+. /etc/sysconfig/network
+
+# Get service config
+[ -f /etc/sysconfig/lighttpd ] && . /etc/sysconfig/lighttpd
+
+# Check that networking is up.
+if is_yes "${NETWORKING}"; then
+	if [ ! -f /var/lock/subsys/network -a "$1" != stop -a "$1" != status ]; then
+		msg_network_down "Lighttpd Web Server"
+		exit 1
+	fi
+else
+	exit 0
+fi
+
+configtest() {
+	env SHELL=/bin/sh lighttpd -t -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
+}
+
+# wrapper for configtest
+checkconfig() {
+	local details=${1:-0}
+
+	if [ $details = 1 ]; then
+		# run config test and display report (status action)
+		show "Checking %s configuration" "Lighttpd Web Server"; busy
+		local out
+		out=`configtest 2>&1`
+		RETVAL=$?
+		if [ $RETVAL = 0 ]; then
+			ok
+		else
+			fail
+		fi
+		[ "$out" ] && echo >&2 "$out"
+	else
+		# run config test and abort with nice message if failed
+		# (for actions checking status before action).
+		configtest >/dev/null 2>&1
+		RETVAL=$?
+		if [ $RETVAL != 0 ]; then
+			show "Checking %s configuration" "Lighttpd Web Server"; fail
+			nls 'Configuration test failed. See details with %s "checkconfig"' $0
+			exit $RETVAL
+		fi
+	fi
+}
+
+start() {
+	# Check if the service is already running?
+	if [ -f /var/lock/subsys/lighttpd ]; then
+		msg_already_running "Lighttpd Web Server"
+		return
+	fi
+
+	checkconfig
+	msg_starting "Lighttpd Web Server"; busy
+	if is_yes "${LIGHT_ANGEL}"; then
+		daemon --fork --pidfile /var/run/lighttpd-angel.pid --makepid \
+			env SHELL=/bin/sh lighttpd-angel -D -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS 1>&2
+
+	else
+		env SHELL=/bin/sh lighttpd -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
+	fi
+	RETVAL=$?
+	if [ $RETVAL -eq 0 ]; then
+		ok
+		touch /var/lock/subsys/lighttpd
+	else
+		fail
+	fi
+}
+
+stop() {
+	# Stop daemons.
+	if [ ! -f /var/lock/subsys/lighttpd ]; then
+		msg_not_running "Lighttpd Web Server"
+		return
+	fi
+
+	msg_stopping "Lighttpd Web Server"
+	killproc --pidfile /var/run/lighttpd.pid lighttpd
+	rm -f /var/lock/subsys/lighttpd >/dev/null 2>&1
+	rm -f /var/run/lighttpd*.pid >/dev/null 2>&1
+}
+
+restart() {
+	local pid
+
+	# short circuit to safe reload if pid exists and is alive
+	if is_yes "${LIGHT_ANGEL}"; then
+		if [ -f /var/lock/subsys/lighttpd ] && pid=$(pidofproc lighttpd-angel lighttpd-angel.pid) && checkpid $pid; then
+			reload
+			return
+		fi
+	else
+		if [ -f /var/lock/subsys/lighttpd ] && pid=$(pidofproc lighttpd lighttpd.pid) && checkpid $pid; then
+			reload
+			return
+		fi
+	fi
+
+	checkconfig
+	stop
+	start
+}
+
+reload() {
+	# TODO: check if process is running. Start it in this case.
+	if [ ! -f /var/lock/subsys/lighttpd ]; then
+		msg_not_running "Lighttpd Web Server"
+		RETVAL=7
+		return
+	fi
+
+	checkconfig
+	msg_reloading "Lighttpd Web Server"
+
+	if is_yes "${LIGHT_ANGEL}"; then
+		# sending HUP signal to angel will make lighttpd close all listening
+		# sockets and wait for client connections to terminate. After that new
+		# child will be started
+		killproc lighttpd-angel -HUP
+	else
+		# sending INT signal will make lighttpd close all listening sockets and
+		# wait for client connections to terminate.
+		killproc --pidfile /var/run/lighttpd.pid lighttpd -INT
+		env SHELL=/bin/sh lighttpd -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
+	fi
+	RETVAL=$?
+}
+
+condrestart() {
+	if [ ! -f /var/lock/subsys/lighttpd ]; then
+		msg_not_running "Lighttpd Web Server"
+		RETVAL=$1
+		return
+	fi
+
+	checkconfig
+	stop
+	start
+}
+
+flush-logs() {
+	if [ ! -f /var/lock/subsys/lighttpd ]; then
+		msg_not_running "Lighttpd Web Server"
+		RETVAL=7
+		return
+	fi
+
+	show "Rotating %s logs" lighttpd
+	# send HUP to main lighttpd (not angel) process to rotate logs:
+	killproc --pidfile /var/run/lighttpd.pid lighttpd -HUP
+	RETVAL=$?
+}
+
+RETVAL=0
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  restart)
+	restart
+	;;
+  try-restart)
+	condrestart 0
+	;;
+  reload|force-reload|graceful)
+	reload
+	;;
+  flush-logs)
+	flush-logs
+	;;
+  checkconfig|configtest)
+	checkconfig 1
+	;;
+  show-config)
+	env SHELL=/bin/sh lighttpd -p -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
+	;;
+  status)
+	if is_yes "${LIGHT_ANGEL}"; then
+		status lighttpd-angel || RETVAL=$?
+	fi
+	status lighttpd || RETVAL=$?
+	;;
+  *)
+	msg_usage "$0 {start|stop|restart|reload|force-reload|graceful|configtest|flush-logs|show-config|status}"
+	exit 3
+	;;
+esac
+
+exit $RETVAL
