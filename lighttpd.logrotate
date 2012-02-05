@@ -1,6 +1,7 @@
 /var/log/lighttpd/access.log
 /var/log/lighttpd/error.log
 {
+	su lighttpd lighttpd
 	olddir /var/log/archive/lighttpd
 
 	create 640 lighttpd logs
