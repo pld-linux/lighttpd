@@ -19,7 +19,7 @@ awk '{
 	charset = "";
 	# add charset for "text/*" types
 	if (type ~ "text/") {
-		type = "\"" type "; charset=\" + mimetype_textcharset"
+		type = "\"" type "\" + mimetype_textcharsetheader"
 	} else {
 		type = "\"" type "\""
 	}
@@ -41,7 +41,13 @@ mv -f mime.types.conf mime.types.conf.tmp
 # header
 cat >> mime.types.conf <<EOF
 # charset used for "text/*" mimetypes
-mimetype_textcharset = "utf-8"
+# Apache's AddCharset equivalent. Leave empty to add no charset.
+# AddCharset "utf-8" would be "; charset=\"utf-8\""
+# See this post about what it affects:
+# http://lists.pld-linux.org/mailman/pipermail/pld-devel-en/2012-February/022499.html
+mimetype_textcharsetheader = ""
+#mimetype_textcharsetheader = "; charset=\"utf-8\""
+
 # mimetype mapping
 mimetype.assign = (
 EOF
