@@ -49,7 +49,7 @@
 %define		webdav_progs	1
 %endif
 
-%define		rel 0.10
+%define		rel 0.11
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
@@ -77,6 +77,7 @@ Source11:	%{name}-pld.html
 Source12:	%{name}.monitrc
 Source13:	branch.sh
 Source15:	%{name}.upstart
+Source16:	%{name}.tmpfiles
 Source100:	%{name}-mod_access.conf
 Source101:	%{name}-mod_accesslog.conf
 Source102:	%{name}-mod_alias.conf
@@ -141,7 +142,7 @@ BuildRequires:	mailcap >= 2.1.14-4.4
 %{?with_ssl:BuildRequires:	openssl-devel}
 BuildRequires:	pcre-devel
 BuildRequires:	pkgconfig
-BuildRequires:	rpmbuild(macros) >= 1.268
+BuildRequires:	rpmbuild(macros) >= 1.647
 %{?with_webdav_props:BuildRequires:	sqlite3-devel}
 %{?with_valgrind:BuildRequires:	valgrind}
 BuildRequires:	which
@@ -882,7 +883,8 @@ install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d
 	$RPM_BUILD_ROOT{/var/log/{%{name},archive/%{name}},/var/run/%{name}} \
 	$RPM_BUILD_ROOT%{_datadir}/lighttpd/errordocs \
 	$RPM_BUILD_ROOT/var/lib/lighttpd \
-	$RPM_BUILD_ROOT/var/cache/lighttpd/mod_compress
+	$RPM_BUILD_ROOT/var/cache/lighttpd/mod_compress \
+	$RPM_BUILD_ROOT%{systemdtmpfilesdir}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
@@ -893,6 +895,7 @@ cp -p %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
 cp -p %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 cp -p %{SOURCE12} $RPM_BUILD_ROOT/etc/monit/%{name}.monitrc
 cp -p %{SOURCE15} $RPM_BUILD_ROOT/etc/init/%{name}.conf
+install %{SOURCE16} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/%{name}.conf
 
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 
@@ -1094,6 +1097,7 @@ fi
 %attr(644,lighttpd,lighttpd) %ghost /var/log/%{name}/error.log
 %attr(644,lighttpd,lighttpd) %ghost /var/log/%{name}/breakage.log
 %dir %attr(770,root,lighttpd) /var/run/%{name}
+%{systemdtmpfilesdir}/%{name}.conf
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
 %attr(755,root,root) %{_sbindir}/lighttpd
