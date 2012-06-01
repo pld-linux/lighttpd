@@ -28,12 +28,12 @@
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.30
-Release:	8
+Version:	1.4.31
+Release:	1
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	http://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.bz2
-# Source0-md5:	63f9df52dcae0ab5689a95c99c54e48a
+# Source0-md5:	c718cc27658240d307b8a1d1c7c4bb54
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -99,7 +99,6 @@ Patch2:		%{name}-mod_h264_streaming.patch
 Patch3:		%{name}-branding.patch
 Patch5:		%{name}-mod_deflate.patch
 Patch6:		test-port-setup.patch
-Patch7:		%{name}-openssl_TLSEXT_SNI.patch
 #Patch:		%{name}-modinit-before-fork.patch
 #Patch:		%{name}-errorlog-before-fork.patch
 URL:		http://www.lighttpd.net/
@@ -121,7 +120,7 @@ BuildRequires:	mailcap >= 2.1.14-4.4
 %{?with_ssl:BuildRequires:	openssl-devel}
 BuildRequires:	pcre-devel
 BuildRequires:	pkgconfig
-BuildRequires:	rpmbuild(macros) >= 1.268
+BuildRequires:	rpmbuild(macros) >= 1.647
 %{?with_webdav_props:BuildRequires:	sqlite3-devel}
 %{?with_valgrind:BuildRequires:	valgrind}
 BuildRequires:	which
@@ -830,7 +829,6 @@ Plik monitrc do monitorowania serwera www lighttpd.
 %patch3 -p1
 %{?with_deflate:%patch5 -p1}
 %patch6 -p1
-%patch7 -p1
 
 rm -f src/mod_ssi_exprparser.h # bad patching: should be removed by is emptied instead
 
@@ -851,8 +849,6 @@ fi
 %{__automake}
 
 %configure \
-	--enable-maintainer-mode \
-	--with-distribution="PLD Linux" \
 	%{!?with_ipv6:--disable-ipv6} \
 	%{!?with_largefile:--disable-lfs} \
 	%{?with_valgrind:--with-valgrind} \
@@ -883,7 +879,7 @@ install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d
 	$RPM_BUILD_ROOT%{_datadir}/lighttpd/errordocs \
 	$RPM_BUILD_ROOT/var/lib/lighttpd \
 	$RPM_BUILD_ROOT/var/cache/lighttpd/mod_compress \
-	$RPM_BUILD_ROOT/usr/lib/tmpfiles.d
+	$RPM_BUILD_ROOT%{systemdtmpfilesdir}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
@@ -894,7 +890,7 @@ cp -p %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
 cp -p %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 cp -p %{SOURCE12} $RPM_BUILD_ROOT/etc/monit/%{name}.monitrc
 cp -p %{SOURCE15} $RPM_BUILD_ROOT/etc/init/%{name}.conf
-install %{SOURCE16} $RPM_BUILD_ROOT/usr/lib/tmpfiles.d/%{name}.conf
+install %{SOURCE16} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/%{name}.conf
 
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 
@@ -1102,7 +1098,7 @@ fi
 %attr(644,lighttpd,lighttpd) %ghost /var/log/%{name}/error.log
 %attr(644,lighttpd,lighttpd) %ghost /var/log/%{name}/breakage.log
 %dir %attr(770,root,lighttpd) /var/run/%{name}
-/usr/lib/tmpfiles.d/%{name}.conf
+%{systemdtmpfilesdir}/%{name}.conf
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
 %attr(755,root,root) %{_sbindir}/lighttpd
