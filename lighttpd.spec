@@ -28,12 +28,12 @@
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.30
-Release:	10
+Version:	1.4.31
+Release:	1
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	http://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.bz2
-# Source0-md5:	63f9df52dcae0ab5689a95c99c54e48a
+# Source0-md5:	c718cc27658240d307b8a1d1c7c4bb54
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -99,7 +99,6 @@ Patch2:		%{name}-mod_h264_streaming.patch
 Patch3:		%{name}-branding.patch
 Patch5:		%{name}-mod_deflate.patch
 Patch6:		test-port-setup.patch
-Patch7:		%{name}-openssl_TLSEXT_SNI.patch
 #Patch:		%{name}-modinit-before-fork.patch
 #Patch:		%{name}-errorlog-before-fork.patch
 URL:		http://www.lighttpd.net/
@@ -830,7 +829,6 @@ Plik monitrc do monitorowania serwera www lighttpd.
 %patch3 -p1
 %{?with_deflate:%patch5 -p1}
 %patch6 -p1
-%patch7 -p1
 
 rm -f src/mod_ssi_exprparser.h # bad patching: should be removed by is emptied instead
 
@@ -851,8 +849,6 @@ fi
 %{__automake}
 
 %configure \
-	--enable-maintainer-mode \
-	--with-distribution="PLD Linux" \
 	%{!?with_ipv6:--disable-ipv6} \
 	%{!?with_largefile:--disable-lfs} \
 	%{?with_valgrind:--with-valgrind} \
