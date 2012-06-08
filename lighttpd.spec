@@ -99,6 +99,7 @@ Patch2:		%{name}-mod_h264_streaming.patch
 Patch3:		%{name}-branding.patch
 Patch5:		%{name}-mod_deflate.patch
 Patch6:		test-port-setup.patch
+Patch7:		%{name}-automake_1.12.patch
 #Patch:		%{name}-modinit-before-fork.patch
 #Patch:		%{name}-errorlog-before-fork.patch
 URL:		http://www.lighttpd.net/
