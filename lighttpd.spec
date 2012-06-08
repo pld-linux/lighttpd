@@ -830,6 +830,7 @@ Plik monitrc do monitorowania serwera www lighttpd.
 %patch3 -p1
 %{?with_deflate:%patch5 -p1}
 %patch6 -p1
+%patch7 -p1
 
 rm -f src/mod_ssi_exprparser.h # bad patching: should be removed by is emptied instead
 
