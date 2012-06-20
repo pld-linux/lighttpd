@@ -11,3 +11,11 @@ diff -dur lighttpd-1.4.31.orig/configure.ac lighttpd-1.4.31/configure.ac
  dnl libtool
  AC_DISABLE_STATIC
  AC_ENABLE_SHARED
+@@ -23,6 +23,7 @@
+ dnl AC_PROG_CXX
+ AC_PROG_LN_S
+ AC_PROG_MAKE_SET
++AM_PROG_AR
+ 
+ dnl check environment
+ AC_AIX
