@@ -18,6 +18,8 @@ upstart_controlled
 # Get service config
 [ -f /etc/sysconfig/lighttpd ] && . /etc/sysconfig/lighttpd
 
+DAEMON=/usr/sbin/lighttpd
+ANGEL_DAEMON=/usr/sbin/lighttpd-angel
 CONFIGFILE=/etc/lighttpd/lighttpd.conf
 
 # Check that networking is up.
@@ -31,7 +33,7 @@ else
 fi
 
 configtest() {
-	env SHELL=/bin/sh lighttpd -t -f $CONFIGFILE $HTTPD_OPTS
+	env SHELL=/bin/sh $DAEMON -t -f $CONFIGFILE $HTTPD_OPTS
 }
 
 # wrapper for configtest
@@ -42,7 +44,7 @@ checkconfig() {
 		# run config test and display report (status action)
 		show "Checking %s configuration" "Lighttpd Web Server"; busy
 		local out
-		out=`configtest 2>&1`
+		out=$(configtest 2>&1)
 		RETVAL=$?
 		if [ $RETVAL = 0 ]; then
 			ok
@@ -74,10 +76,10 @@ start() {
 	msg_starting "Lighttpd Web Server"; busy
 	if is_yes "${LIGHT_ANGEL}"; then
 		daemon --fork --pidfile /var/run/lighttpd-angel.pid --makepid \
-			env SHELL=/bin/sh lighttpd-angel -D -f $CONFIGFILE $HTTPD_OPTS 1>&2
+			env SHELL=/bin/sh $ANGEL_DAEMON -D -f $CONFIGFILE $HTTPD_OPTS
 
 	else
-		env SHELL=/bin/sh lighttpd -f $CONFIGFILE $HTTPD_OPTS
+		env SHELL=/bin/sh $DAEMON -f $CONFIGFILE $HTTPD_OPTS
 	fi
 	RETVAL=$?
 	if [ $RETVAL -eq 0 ]; then
@@ -197,7 +199,7 @@ case "$1" in
 	checkconfig 1
 	;;
   show-config)
-	env SHELL=/bin/sh lighttpd -p -f $CONFIGFILE $HTTPD_OPTS
+	env SHELL=/bin/sh $DAEMON -p -f $CONFIGFILE $HTTPD_OPTS
 	;;
   status)
 	if is_yes "${LIGHT_ANGEL}"; then
