@@ -33,6 +33,16 @@ else
 fi
 
 configtest() {
+	# check for deprecated config options that cause bad side effects
+	# TODO: should remove the deprecated options in pld after some time being warned out
+	local out
+	out=$(env SHELL=/bin/sh $DAEMON -f $CONFIGFILE $HTTPD_OPTS -p 2>&1 | grep -oE '(url.rewrite|url.rewrite-final)[[:space:]]')
+	if [ -n "$out" ]; then
+		# make it unique, format nicely
+		out=$(echo "$out" | sort -u | xargs | sed -e 's/ /, /g')
+		echo >&2 "WARNING: found deprecated '$out', convert to 'url.rewrite-final' recommented, See http://redmine.lighttpd.net/issues/2379"
+	fi
+
 	env SHELL=/bin/sh $DAEMON -t -f $CONFIGFILE $HTTPD_OPTS
 }
 
@@ -132,7 +142,7 @@ reload() {
 		return
 	fi
 
-	checkconfig
+	checkconfig 1
 	msg_reloading "Lighttpd Web Server"
 
 	if is_yes "${LIGHT_ANGEL}"; then
