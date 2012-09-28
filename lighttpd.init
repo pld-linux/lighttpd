@@ -18,6 +18,8 @@ upstart_controlled
 # Get service config
 [ -f /etc/sysconfig/lighttpd ] && . /etc/sysconfig/lighttpd
 
+CONFIGFILE=/etc/lighttpd/lighttpd.conf
+
 # Check that networking is up.
 if is_yes "${NETWORKING}"; then
 	if [ ! -f /var/lock/subsys/network -a "$1" != stop -a "$1" != status ]; then
@@ -29,7 +31,7 @@ else
 fi
 
 configtest() {
-	env SHELL=/bin/sh lighttpd -t -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
+	env SHELL=/bin/sh lighttpd -t -f $CONFIGFILE $HTTPD_OPTS
 }
 
 # wrapper for configtest
@@ -72,10 +74,10 @@ start() {
 	msg_starting "Lighttpd Web Server"; busy
 	if is_yes "${LIGHT_ANGEL}"; then
 		daemon --fork --pidfile /var/run/lighttpd-angel.pid --makepid \
-			env SHELL=/bin/sh lighttpd-angel -D -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS 1>&2
+			env SHELL=/bin/sh lighttpd-angel -D -f $CONFIGFILE $HTTPD_OPTS 1>&2
 
 	else
-		env SHELL=/bin/sh lighttpd -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
+		env SHELL=/bin/sh lighttpd -f $CONFIGFILE $HTTPD_OPTS
 	fi
 	RETVAL=$?
 	if [ $RETVAL -eq 0 ]; then
@@ -140,7 +142,7 @@ reload() {
 		# sending INT signal will make lighttpd close all listening sockets and
 		# wait for client connections to terminate.
 		killproc --pidfile /var/run/lighttpd.pid lighttpd -INT
-		env SHELL=/bin/sh lighttpd -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
+		env SHELL=/bin/sh lighttpd -f $CONFIGFILE $HTTPD_OPTS
 	fi
 	RETVAL=$?
 }
@@ -195,7 +197,7 @@ case "$1" in
 	checkconfig 1
 	;;
   show-config)
-	env SHELL=/bin/sh lighttpd -p -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
+	env SHELL=/bin/sh lighttpd -p -f $CONFIGFILE $HTTPD_OPTS
 	;;
   status)
 	if is_yes "${LIGHT_ANGEL}"; then
