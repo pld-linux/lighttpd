@@ -4,7 +4,7 @@
 #   lighttpd-ssl server will still work
 #
 # Conditional build:
-%bcond_without	tests		# build with tests
+%bcond_with		tests		# build with tests
 %bcond_without	xattr		# support of extended attributes
 %bcond_without	ipv6		# IPv4-only version (doesn't require IPv6 in kernel)
 %bcond_without	largefile	# largefile support (see notes above)
