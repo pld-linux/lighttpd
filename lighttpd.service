@@ -1,0 +1,12 @@
+[Unit]
+Description=Lighttpd Daemon
+After=network.target
+
+[Service]
+EnvironmentFile=-/etc/sysconfig/lighttpd
+ExecStartPre=/usr/sbin/lighttpd-angel -t -f /etc/lighttpd/lighttpd.conf
+ExecStart=/usr/sbin/lighttpd-angel -D -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target
