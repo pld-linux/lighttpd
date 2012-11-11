@@ -54,6 +54,7 @@ Source13:	branch.sh
 Source14:	TODO
 Source15:	%{name}.upstart
 Source16:	%{name}.tmpfiles
+Source17:	%{name}.service
 Source100:	%{name}-mod_access.conf
 Source101:	%{name}-mod_accesslog.conf
 Source102:	%{name}-mod_alias.conf
@@ -145,6 +146,7 @@ Requires:	%{name}-mod_indexfile = %{version}-%{release}
 Requires:	%{name}-mod_staticfile = %{version}-%{release}
 Requires:	rc-scripts >= 0.4.3.0
 Requires:	rpm-whiteout >= 1.5
+Requires:	systemd-units >= 38
 Suggests:	%{name}-mod_accesslog
 Provides:	group(http)
 Provides:	group(lighttpd)
@@ -888,7 +890,7 @@ install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d
 	$RPM_BUILD_ROOT%{_datadir}/lighttpd/errordocs \
 	$RPM_BUILD_ROOT/var/lib/lighttpd \
 	$RPM_BUILD_ROOT/var/cache/lighttpd/mod_compress \
-	$RPM_BUILD_ROOT%{systemdtmpfilesdir}
+	$RPM_BUILD_ROOT{%{systemdtmpfilesdir},%{systemdunitdir}}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
@@ -900,6 +902,7 @@ cp -p %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 cp -p %{SOURCE12} $RPM_BUILD_ROOT/etc/monit/%{name}.monitrc
 cp -p %{SOURCE15} $RPM_BUILD_ROOT/etc/init/%{name}.conf
 install %{SOURCE16} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/%{name}.conf
+install %{SOURCE17} $RPM_BUILD_ROOT%{systemdunitdir}/%{name}.service
 
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 
@@ -987,12 +990,14 @@ for a in access.log error.log breakage.log; do
 	fi
 done
 /sbin/chkconfig --add %{name}
+%systemd_post %{name}.service
 
 %preun
 if [ "$1" = "0" ]; then
 	%service %{name} stop
 	/sbin/chkconfig --del %{name}
 fi
+%systemd_preun %{name}.service
 
 %postun
 if [ "$1" = "0" ]; then
@@ -1000,6 +1005,7 @@ if [ "$1" = "0" ]; then
 	%groupremove lighttpd
 	%groupremove http
 fi
+%systemd_reload
 
 %posttrans
 # minimizing lighttpd restarts logics. we restart webserver:
@@ -1108,6 +1114,7 @@ fi
 %attr(644,lighttpd,lighttpd) %ghost /var/log/%{name}/breakage.log
 %dir %attr(770,root,lighttpd) /var/run/%{name}
 %{systemdtmpfilesdir}/%{name}.conf
+%{systemdunitdir}/%{name}.service
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
 %attr(755,root,root) %{_sbindir}/lighttpd
