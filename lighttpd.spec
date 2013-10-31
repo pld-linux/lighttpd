@@ -2,6 +2,7 @@
 # TODO:
 # - provide or autogenerate self signed cert in post, so after installing
 #   lighttpd-ssl server will still work
+# - patch with mod_websocket: https://github.com/Juniper/lighttpd-for-juise
 #
 # Conditional build:
 %bcond_with		tests		# build with tests
