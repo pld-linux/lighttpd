@@ -29,12 +29,12 @@
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.33
+Version:	1.4.34
 Release:	1
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	http://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.bz2
-# Source0-md5:	e66b8164e5fc5a6beec0823b697fbe1d
+# Source0-md5:	1071c172ccdd3ba31b56292661236d4b
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -898,8 +898,8 @@ cp -p %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
 cp -p %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 cp -p %{SOURCE12} $RPM_BUILD_ROOT/etc/monit/%{name}.monitrc
 cp -p %{SOURCE15} $RPM_BUILD_ROOT/etc/init/%{name}.conf
-install %{SOURCE16} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/%{name}.conf
-install %{SOURCE17} $RPM_BUILD_ROOT%{systemdunitdir}/%{name}.service
+cp -p %{SOURCE16} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/%{name}.conf
+cp -p %{SOURCE17} $RPM_BUILD_ROOT%{systemdunitdir}/%{name}.service
 
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 
@@ -911,6 +911,9 @@ cp -p %{SOURCE11} $RPM_BUILD_ROOT%{_lighttpddir}/html/index.html
 # NOTE: the order of the modules is somewhat important as the modules are
 # handled in the way they are specified. mod_rewrite should always be the first
 # module, mod_accesslog always the last.
+
+conf_available=$RPM_BUILD_ROOT%{_sysconfdir}/conf.d
+conf_enabled=../
 
 cp -p %{SOURCE117} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/10_mod_rewrite.conf
 cp -p %{SOURCE116} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/11_mod_redirect.conf
