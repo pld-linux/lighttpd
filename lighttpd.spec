@@ -30,7 +30,7 @@ Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.4.34
-Release:	1
+Release:	2
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	http://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.bz2
@@ -94,6 +94,7 @@ Source134:	%{name}-mod_magnet.conf
 Source135:	%{name}-mod_extforward.conf
 Source136:	%{name}-mod_h264_streaming.conf
 Source137:	%{name}-mod_cgi_php.conf
+Source138:	%{name}-mod_compress.tmpwatch
 #Patch100:	%{name}-branch.diff
 Patch0:		%{name}-use_bin_sh.patch
 Patch1:		%{name}-mod_evasive-status_code.patch
@@ -961,6 +962,9 @@ cp -p %{SOURCE132} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/ssl.conf
 
 touch $RPM_BUILD_ROOT/var/lib/lighttpd/lighttpd.rrd
 
+install -d $RPM_BUILD_ROOT/etc/tmpwatch
+cp -p %{SOURCE138} $RPM_BUILD_ROOT/etc/tmpwatch/lighttpd-mod_compress.conf
+
 %if %{without mysql}
 # avoid packaging dummy module
 %{__rm} $RPM_BUILD_ROOT%{_libdir}/mod_mysql_vhost.so
@@ -1173,6 +1177,7 @@ fi
 
 %files mod_compress
 %defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/tmpwatch/lighttpd-mod_compress.conf
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_compress.conf
 %attr(755,root,root) %{_libdir}/mod_compress.so
 %dir %attr(775,root,lighttpd) /var/cache/lighttpd/mod_compress
