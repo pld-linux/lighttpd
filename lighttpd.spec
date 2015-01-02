@@ -845,7 +845,11 @@ rm -f src/mod_ssi_exprparser.h # bad patching: should be removed by is emptied i
 
 # build mime.types.conf
 sh %{SOURCE6} /etc/mime.types
-cp -a %{SOURCE14} PLD-TODO
+cp -p %{SOURCE14} PLD-TODO
+
+%if "%{pld_release}" == "ac"
+%{__sed} -i -e 's/ serial_tests//' configure.ac
+%endif
 
 %build
 ver=$(awk '/AC_INIT/{a=$2;gsub(/[\[\],]/, "", a); print a}' configure.ac)
