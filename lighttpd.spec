@@ -30,7 +30,7 @@ Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.4.35
-Release:	4
+Release:	5
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	http://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.bz2
@@ -154,6 +154,7 @@ Provides:	group(http)
 Provides:	group(lighttpd)
 Provides:	user(lighttpd)
 Provides:	webserver
+Provides:	webserver(headers)
 Provides:	webserver(mime)
 Conflicts:	logrotate < 3.7-4
 # for the posttrans scriptlet, conflicts because in vserver environment rpm package is not installed.
@@ -792,8 +793,8 @@ Summary(pl.UTF-8):	Obsługa PHP przez FastCGI, uruchamianie sterowane zewnętrzn
 Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-mod_fastcgi = %{version}-%{release}
+Suggests:	php(fpm)
 Suggests:	php-fcgi-init
-Suggests:	php-fpm
 Obsoletes:	lighttpd-php-spawned
 
 %description php-external
