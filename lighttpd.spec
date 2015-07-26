@@ -852,7 +852,7 @@ cp -p %{SOURCE14} PLD-TODO
 
 %if "%{pld_release}" == "ac"
 %{__sed} -i -e 's/ serial_tests//' configure.ac
-%{__sed} -i -e 's/dist-xz/dist-bz2/' configure.ac
+%{__sed} -i -e 's/dist-xz/dist-bzip2/' configure.ac
 %endif
 
 %build
