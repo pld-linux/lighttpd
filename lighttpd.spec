@@ -29,12 +29,12 @@
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.35
-Release:	6
+Version:	1.4.36
+Release:	1
 License:	BSD
 Group:		Networking/Daemons/HTTP
-Source0:	http://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.bz2
-# Source0-md5:	f7a88130ee9984b421ad8aa80629750a
+Source0:	http://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.xz
+# Source0-md5:	1843daffcb018aa528f6d15d43544654
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -131,8 +131,10 @@ BuildRequires:	pkgconfig
 BuildRequires:	rpm >= 4.4.9-56
 BuildRequires:	rpmbuild(macros) >= 1.647
 %{?with_webdav_props:BuildRequires:	sqlite3-devel}
+BuildRequires:	tar >= 1:1.22
 %{?with_valgrind:BuildRequires:	valgrind}
 BuildRequires:	which
+BuildRequires:	xz
 BuildRequires:	zlib-devel
 Requires(post,preun):	/sbin/chkconfig
 Requires(postun):	/usr/sbin/groupdel
@@ -840,7 +842,7 @@ Plik monitrc do monitorowania serwera www lighttpd.
 %patch3 -p1
 %{?with_deflate:%patch5 -p1}
 %patch6 -p1
-%patch7 -p0
+%patch7 -p1
 
 rm -f src/mod_ssi_exprparser.h # bad patching: should be removed by is emptied instead
 
