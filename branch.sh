@@ -42,3 +42,5 @@ if cmp -s $out{,.tmp}; then
 	exit 0
 fi
 mv -f $out{.tmp,}
+
+../md5 *.spec
