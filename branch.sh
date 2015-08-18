@@ -21,6 +21,12 @@ fi
 d=$-
 filter() {
 	set -$d
+	# Excluding files which change version or were not in dist tarball
+	filterdiff \
+		-x 'CMakeLists.txt' \
+		-x 'configure.ac' \
+		-x 'SConstruct' \
+		| \
 	# remove revno's for smaller diffs
 	sed -e 's,^\([-+]\{3\} .*\)\t(revision [0-9]\+)$,\1,'
 }
