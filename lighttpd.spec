@@ -30,7 +30,7 @@ Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.4.36
-Release:	2
+Release:	3
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	http://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.xz
@@ -53,7 +53,6 @@ Source11:	%{name}-pld.html
 Source12:	%{name}.monitrc
 Source13:	branch.sh
 Source14:	TODO
-Source15:	%{name}.upstart
 Source16:	%{name}.tmpfiles
 Source17:	%{name}.service
 Source100:	%{name}-mod_access.conf
@@ -892,7 +891,7 @@ export LIGHTTPD_TEST_PORT=$((2048 + RANDOM % 10))
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d/init.d,sysconfig,init,monit}} \
+install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d/init.d,sysconfig,monit}} \
 	$RPM_BUILD_ROOT%{_sysconfdir}/{conf,vhosts,webapps}.d \
 	$RPM_BUILD_ROOT{/var/log/{%{name},archive/%{name}},/var/run/%{name}} \
 	$RPM_BUILD_ROOT%{_datadir}/lighttpd/errordocs \
@@ -908,7 +907,6 @@ cp -p %{SOURCE2} %{SOURCE3} mime.types.conf $RPM_BUILD_ROOT%{_sysconfdir}
 cp -p %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
 cp -p %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 cp -p %{SOURCE12} $RPM_BUILD_ROOT/etc/monit/%{name}.monitrc
-cp -p %{SOURCE15} $RPM_BUILD_ROOT/etc/init/%{name}.conf
 cp -p %{SOURCE16} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/%{name}.conf
 cp -p %{SOURCE17} $RPM_BUILD_ROOT%{systemdunitdir}/%{name}.service
 
@@ -1118,7 +1116,6 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}.conf
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mime.types.conf
 %attr(640,root,lighttpd) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.user
-%config(noreplace) %verify(not md5 mtime size) /etc/init/%{name}.conf
 
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/%{name}
 %attr(750,root,root) %dir /var/log/archive/%{name}
