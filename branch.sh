@@ -49,4 +49,5 @@ if cmp -s $out{,.tmp}; then
 fi
 mv -f $out{.tmp,}
 
-../md5 *.spec
+../md5 $package.spec
+../dropin $out
