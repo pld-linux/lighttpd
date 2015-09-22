@@ -43,7 +43,7 @@
 %bcond_with	linux_aio	# Async IO support for Linux via libaio
 
 # SVN snapshot
-%define		svn	2825
+%define		svn	3039
 
 %if %{with webdav_locks}
 %define		webdav_progs	1
@@ -58,7 +58,7 @@ Release:	%{rel}%{?snap:.%(echo %{snap}|tr - _)}%{?svn:.%{svn}}
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	%{name}-r%{svn}.tar.bz2
-# Source0-md5:	f3d639579cc10841a995334a1394382c
+# Source0-md5:	345befb831fce83844ba1f64f22834a1
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user

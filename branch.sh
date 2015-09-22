@@ -1,14 +1,17 @@
 #!/bin/sh
 set -e
 svn=svn://svn.lighttpd.net/lighttpd
-tag=lighttpd-1.4.20
+package=lighttpd
+tag=lighttpd-1.4.36
 branch=lighttpd-1.4.x
+out=lighttpd-branch.diff
 
-old=$svn/tags/$tag
-new=$svn/branches/$branch
-echo "Running diff: $old -> $new"
-LC_ALL=C svn diff --old=$old --new=$new > lighttpd-branch.diff
+v=1.5
+# last rev of 1.5 before it's moved to "dead" branch
+rev=3039
 
-echo "Excluding files which change version or were not in dist tarball"
-filterdiff -x 'configure.in' lighttpd-branch.diff > lighttpd-branch.diff.tmp
-mv -f lighttpd-branch.diff.tmp lighttpd-branch.diff
+svn co $svn/trunk${rev:+@$rev} $package-$v
+r=$(svnversion $package-$v)
+t=$package-r$r.tar.bz2
+tar -cjf $t --exclude-vcs $package-$v
+../dropin $t &
