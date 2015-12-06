@@ -21,6 +21,7 @@
 %bcond_with	webdav_locks	# webdav locks with extra efsprogs deps
 %bcond_with	valgrind	# compile code with valgrind support.
 %bcond_with	deflate		# build deflate module (needs patch update with current svn)
+%bcond_with	h264_streaming		# build h264_streaming module
 
 %if %{with webdav_locks}
 %define		webdav_progs	1
@@ -838,7 +839,7 @@ Plik monitrc do monitorowania serwera www lighttpd.
 #%patch100 -p0
 %patch0 -p1
 %patch1 -p1
-%patch2 -p1
+%{?with_h264_streaming:%patch2 -p1}
 %patch3 -p1
 %{?with_deflate:%patch5 -p1}
 %patch6 -p1
@@ -940,7 +941,9 @@ cp -p %{SOURCE109} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evasive.conf
 cp -p %{SOURCE110} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evhost.conf
 cp -p %{SOURCE112} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_fastcgi.conf
 cp -p %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
+%if %{with h264_streaming}
 cp -p %{SOURCE136} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_h264_streaming.conf
+%endif
 cp -p %{SOURCE114} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_indexfile.conf
 cp -p %{SOURCE115} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy.conf
 cp -p %{SOURCE118} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_rrdtool.conf
@@ -1232,10 +1235,12 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_flv_streaming.conf
 %attr(755,root,root) %{_libdir}/mod_flv_streaming.so
 
+%if %{with h264_streaming}
 %files mod_h264_streaming
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_h264_streaming.conf
 %attr(755,root,root) %{_libdir}/mod_h264_streaming.so
+%endif
 
 %files mod_indexfile
 %defattr(644,root,root,755)
