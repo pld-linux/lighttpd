@@ -864,6 +864,7 @@ if [ "$ver" != "%{version}" ]; then
 fi
 
 %{__libtoolize}
+%{__autoheader}
 %{__aclocal}
 %{__autoconf}
 %{__automake}
