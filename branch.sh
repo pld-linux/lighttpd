@@ -1,9 +1,10 @@
 #!/bin/sh
 set -e
 svn=svn://svn.lighttpd.net/lighttpd
+url=https://github.com/lighttpd/lighttpd1.4
 package=lighttpd
-tag=lighttpd-1.4.36
-branch=lighttpd-1.4.x
+tag=lighttpd-1.4.40
+branch=master
 out=lighttpd-branch.diff
 
 # old version of this code used to create tarball.
@@ -26,20 +27,12 @@ filter() {
 		-x 'CMakeLists.txt' \
 		-x 'configure.ac' \
 		-x 'SConstruct' \
-		| \
-	# remove revno's for smaller diffs
-	sed -e 's,^\([-+]\{3\} .*\)\t(revision [0-9]\+)$,\1,'
+	| cat
 }
 
-old=$svn/tags/$tag
-new=$svn/branches/$branch
-echo >&2 "Running diff: $old -> $new"
-LC_ALL=C svn diff --old=$old --new=$new > $out.tmp
-revno=$(sed -ne 's,^[-+]\{3\} .*\t(revision \([0-9]\+\))$,\1,p' $out.tmp | sort -urn | head -n1)
-echo >&2 "Revision $revno"
-[ "$revno" -gt 0 ] || exit 1
+echo >&2 "Running diff: $tag...$branch"
+LC_ALL=C curl -Ss $url/compare/$tag...$branch.patch > $out.tmp
 
-sed -i -e "1i# Revision $revno" $out.tmp
 filter < $out.tmp > $out.tmp2 && mv -f $out.{tmp2,tmp}
 
 if cmp -s $out{,.tmp}; then
