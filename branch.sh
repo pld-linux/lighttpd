@@ -1,11 +1,12 @@
 #!/bin/sh
 set -e
 svn=svn://svn.lighttpd.net/lighttpd
-url=https://github.com/lighttpd/lighttpd1.4
+url=https://git.lighttpd.net/lighttpd/lighttpd1.4.git
 package=lighttpd
 tag=lighttpd-1.4.40
 branch=master
-out=lighttpd-branch.diff
+out=$package-branch.diff
+repo=$package.git
 
 # old version of this code used to create tarball.
 # leave it around
@@ -30,10 +31,14 @@ filter() {
 	| cat
 }
 
-echo >&2 "Running diff: $tag...$branch"
-LC_ALL=C curl -Ss $url/compare/$tag...$branch.patch > $out.tmp
+if [ ! -d $repo ]; then
+	git clone --bare $url -b $branch $repo
+fi
 
-filter < $out.tmp > $out.tmp2 && mv -f $out.{tmp2,tmp}
+cd $repo
+	git fetch
+	git diff $tag..$branch | filter > ../$out.tmp
+cd ..
 
 if cmp -s $out{,.tmp}; then
 	echo >&2 "No new diffs..."
