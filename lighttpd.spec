@@ -97,7 +97,7 @@ Source137:	%{name}-mod_cgi_php.conf
 Source138:	%{name}-mod_compress.tmpwatch
 # use branch.sh script to create branch.diff
 Patch100:	%{name}-branch.diff
-## Patch100-md5:	cdcde8cb4632a42c5ae21d73aae9d34b
+# Patch100-md5:	7bd09235304c8bcb16f34d49d480c0fb
 Patch0:		%{name}-use_bin_sh.patch
 Patch1:		%{name}-mod_evasive-status_code.patch
 Patch2:		%{name}-mod_h264_streaming.patch
