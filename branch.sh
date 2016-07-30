@@ -38,7 +38,7 @@ fi
 
 cd $repo
 	git fetch
-	git diff $tag..$branch | filter > ../$out.tmp
+	git log -p --reverse $tag..$branch | filter > ../$out.tmp
 cd ..
 
 if cmp -s $out{,.tmp}; then
