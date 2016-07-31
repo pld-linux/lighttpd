@@ -30,12 +30,12 @@
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.40
-Release:	2
+Version:	1.4.41
+Release:	1
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	http://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.xz
-# Source0-md5:	89e0da2b6b8a2c4592d549ff10094068
+# Source0-md5:	1df2e4dbc965cfe6f99f008ac3db4d8d
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -96,8 +96,8 @@ Source136:	%{name}-mod_h264_streaming.conf
 Source137:	%{name}-mod_cgi_php.conf
 Source138:	%{name}-mod_compress.tmpwatch
 # use branch.sh script to create branch.diff
-Patch100:	%{name}-branch.diff
-# Patch100-md5:	7bd09235304c8bcb16f34d49d480c0fb
+#Patch100:	%{name}-branch.diff
+## Patch100-md5:	7bd09235304c8bcb16f34d49d480c0fb
 Patch0:		%{name}-use_bin_sh.patch
 Patch1:		%{name}-mod_evasive-status_code.patch
 Patch2:		%{name}-mod_h264_streaming.patch
@@ -836,7 +836,7 @@ Plik monitrc do monitorowania serwera www lighttpd.
 
 %prep
 %setup -q
-%patch100 -p1
+#%patch100 -p1
 %patch0 -p1
 #%patch1 -p1 UPDATE (and submit upstream!) if you need this
 %{?with_h264_streaming:%patch2 -p1}
@@ -852,7 +852,7 @@ sh %{SOURCE6} /etc/mime.types
 cp -p %{SOURCE14} PLD-TODO
 
 %if "%{pld_release}" == "ac"
-%{__sed} -i -e 's/ serial_tests//' configure.ac
+#%{__sed} -i -e 's/ serial_tests//' configure.ac
 %{__sed} -i -e 's/dist-xz/dist-bzip2/' configure.ac
 %endif
 
