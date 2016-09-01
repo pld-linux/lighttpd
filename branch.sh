@@ -3,8 +3,8 @@ set -e
 svn=svn://svn.lighttpd.net/lighttpd
 url=https://git.lighttpd.net/lighttpd/lighttpd1.4.git
 package=lighttpd
-tag=lighttpd-1.4.40
-branch=personal/gstrauss/master
+tag=lighttpd-1.4.41
+branch=master
 out=$package-branch.diff
 repo=$package.git
 
@@ -37,7 +37,7 @@ if [ ! -d $repo ]; then
 fi
 
 cd $repo
-	git fetch origin +$branch:$branch +refs/tags/$tag:refs/tags/$tag
+	git fetch origin +$branch:refs/remotes/origin/$branch +refs/tags/$tag:refs/tags/$tag
 	git log -p --reverse $tag..$branch | filter > ../$out.tmp
 cd ..
 
