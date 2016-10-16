@@ -11,6 +11,7 @@
 %bcond_without	largefile	# largefile support (see notes above)
 %bcond_without	ssl		# ssl support
 %bcond_without	mysql		# mysql support in mod_mysql_vhost
+%bcond_without	geoip		# GeoIP support
 %bcond_without	ldap		# ldap support in mod_auth
 %bcond_without	lua		# LUA support in mod_cml (needs LUA >= 5.1)
 %bcond_with	memcache	# memcached support in mod_cml / mod_trigger_b4_dl
@@ -109,6 +110,7 @@ Patch7:		env-documentroot.patch
 #Patch:		%{name}-errorlog-before-fork.patch
 URL:		http://www.lighttpd.net/
 %{?with_xattr:BuildRequires:	attr-devel}
+%{?with_geoip:BuildRequires:	GeoIP-devel}
 BuildRequires:	autoconf >= 2.57
 %if "%{pld_release}" != "ac"
 BuildRequires:	automake >= 1:1.11.2
@@ -933,6 +935,7 @@ fi
 	%{!?with_largefile:--disable-lfs} \
 	%{?with_valgrind:--with-valgrind} \
 	%{?with_xattr:--with-attr} \
+	%{?with_geoip:--with-geoip} \
 	%{?with_mysql:--with-mysql} \
 	%{?with_ldap:--with-ldap} \
 	%{?with_ssl:--with-openssl} \
@@ -1039,10 +1042,14 @@ touch $RPM_BUILD_ROOT/var/lib/lighttpd/lighttpd.rrd
 install -d $RPM_BUILD_ROOT/etc/tmpwatch
 cp -p %{SOURCE138} $RPM_BUILD_ROOT/etc/tmpwatch/lighttpd-mod_compress.conf
 
+# avoid packaging dummy modules
 %if %{without mysql}
-# avoid packaging dummy module
 %{__rm} $RPM_BUILD_ROOT%{_libexecdir}/mod_mysql_vhost.so
 %{__rm} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_mysql_vhost.conf
+%endif
+%if %{without geoip}
+%{__rm} $RPM_BUILD_ROOT%{_libexecdir}/mod_geoip.so
+%{__rm} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_geoip.conf
 %endif
 
 touch $RPM_BUILD_ROOT/var/log/%{name}/{access,error,breakage}.log
@@ -1314,10 +1321,12 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_flv_streaming.conf
 %attr(755,root,root) %{_libexecdir}/mod_flv_streaming.so
 
+%if %{with geoip}
 %files mod_geoip
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_geoip.conf
 %attr(755,root,root) %{_libexecdir}/mod_geoip.so
+%endif
 
 %if %{with h264_streaming}
 %files mod_h264_streaming
