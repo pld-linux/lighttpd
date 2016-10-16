@@ -249,6 +249,38 @@ basic and digest.
 lighttpd obsługuje obie metody uwierzytelniania opisane w RFC 2617:
 basic i digest.
 
+%package mod_authn_file
+Summary:	lighttpd authn_file module
+Group:		Networking/Daemons/HTTP
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_authn_file
+lighttpd authn_file module.
+
+%package mod_authn_gssapi
+Summary:	lighttpd authn_gssapi module
+Group:		Networking/Daemons/HTTP
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_authn_gssapi
+lighttpd authn_gssapi module.
+
+%package mod_authn_ldap
+Summary:	lighttpd authn_ldap module
+Group:		Networking/Daemons/HTTP
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_authn_ldap
+lighttpd authn_ldap module.
+
+%package mod_authn_mysql
+Summary:	lighttpd authn_mysql module
+Group:		Networking/Daemons/HTTP
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_authn_mysql
+lighttpd authn_mysql module.
+
 %package mod_cgi
 Summary:	lighttpd module for CGI handling
 Summary(pl.UTF-8):	Moduł lighttpd do obsługi CGI
@@ -453,6 +485,15 @@ lighttpd module for flv streaming.
 
 %description mod_flv_streaming -l pl.UTF-8
 Moduł lighttpd do streamingu flv.
+
+%package mod_geoip
+Summary:	lighttpd module for IP Based Geographic Lookups
+Group:		Networking/Daemons/HTTP
+URL:		https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_ModGeoip
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_geoip
+lighttpd module for IP Based Geographic Lookups.
 
 %package mod_h264_streaming
 Summary:	lighttpd module for h264 streaming
@@ -706,6 +747,15 @@ Another anti hot-linking module.
 
 %description mod_trigger_b4_dl -l pl.UTF-8
 Jeszcze jeden moduł blokujący bezpośrednie linkowanie.
+
+%package mod_uploadprogress
+Summary:	lighttpd module for upload progress
+Group:		Networking/Daemons/HTTP
+URL:		https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_ModUploadProgress
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_uploadprogress
+This module can be used to track the progress of a current upload.
 
 %package mod_userdir
 Summary:	lighttpd module for user homedirs
@@ -1061,6 +1111,10 @@ fi
 %module_scripts mod_accesslog
 %module_scripts mod_alias
 %module_scripts mod_auth
+%module_scripts mod_authn_file
+%module_scripts mod_authn_mysql
+%module_scripts mod_authn_gssapi
+%module_scripts mod_authn_ldap
 %module_scripts mod_cgi
 %module_scripts mod_cml
 %module_scripts mod_compress
@@ -1072,6 +1126,7 @@ fi
 %module_scripts mod_extforward
 %module_scripts mod_fastcgi
 %module_scripts mod_flv_streaming
+%module_scripts mod_geoip
 %module_scripts mod_h264_streaming
 %module_scripts mod_indexfile
 %module_scripts mod_magnet
@@ -1099,6 +1154,7 @@ fi
 %module_scripts mod_staticfile
 %module_scripts mod_status
 %module_scripts mod_trigger_b4_dl
+%module_scripts mod_uploadprogress
 %module_scripts mod_userdir
 %module_scripts mod_usertrack
 %module_scripts mod_webdav
@@ -1174,6 +1230,22 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_auth.conf
 %attr(755,root,root) %{_libexecdir}/mod_auth.so
 
+%files mod_authn_file
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libexecdir}/mod_authn_file.so
+
+%files mod_authn_gssapi
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libexecdir}/mod_authn_gssapi.so
+
+%files mod_authn_ldap
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libexecdir}/mod_authn_ldap.so
+
+%files mod_authn_mysql
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libexecdir}/mod_authn_mysql.so
+
 %files mod_cgi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_cgi.conf
@@ -1236,6 +1308,10 @@ fi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_flv_streaming.conf
 %attr(755,root,root) %{_libexecdir}/mod_flv_streaming.so
+
+%files mod_geoip
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libexecdir}/mod_geoip.so
 
 %if %{with h264_streaming}
 %files mod_h264_streaming
@@ -1321,6 +1397,10 @@ fi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_trigger_b4_dl.conf
 %attr(755,root,root) %{_libexecdir}/mod_trigger_b4_dl.so
+
+%files mod_uploadprogress
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libexecdir}/mod_uploadprogress.so
 
 %files mod_userdir
 %defattr(644,root,root,755)
