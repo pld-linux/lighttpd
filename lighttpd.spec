@@ -243,6 +243,7 @@ URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModAuth
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-mod_authn_file = %{version}-%{release}
 # TODO: ldap and mysql should be optional
+# https://github.com/lighttpd/lighttpd1.4/blob/lighttpd-1.4.42/src/configfile.c#L426-L428
 Requires:	%{name}-mod_authn_ldap = %{version}-%{release}
 Requires:	%{name}-mod_authn_mysql = %{version}-%{release}
 Provides:	webserver(auth)
