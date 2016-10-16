@@ -20,7 +20,6 @@
 %bcond_with	webdav_props	# properties in mod_webdav (includes extra sqlite3/libxml deps)
 %bcond_with	webdav_locks	# webdav locks with extra efsprogs deps
 %bcond_with	valgrind	# compile code with valgrind support.
-%bcond_with	deflate		# build deflate module (needs patch update with current svn)
 %bcond_with	h264_streaming		# build h264_streaming module
 
 %if %{with webdav_locks}
@@ -102,7 +101,6 @@ Patch0:		%{name}-use_bin_sh.patch
 Patch1:		%{name}-mod_evasive-status_code.patch
 Patch2:		%{name}-mod_h264_streaming.patch
 Patch3:		%{name}-branding.patch
-Patch5:		%{name}-mod_deflate.patch
 Patch6:		test-port-setup.patch
 Patch7:		env-documentroot.patch
 #Patch:		%{name}-modinit-before-fork.patch
@@ -891,7 +889,6 @@ Plik monitrc do monitorowania serwera www lighttpd.
 #%patch1 -p1 UPDATE (and submit upstream!) if you need this
 %{?with_h264_streaming:%patch2 -p1}
 %patch3 -p1
-%{?with_deflate:%patch5 -p1}
 %patch6 -p1
 #%patch7 -p1 probably fixed upstream
 
@@ -1033,9 +1030,6 @@ cp -p %{SOURCE138} $RPM_BUILD_ROOT/etc/tmpwatch/lighttpd-mod_compress.conf
 # avoid packaging dummy module
 %{__rm} $RPM_BUILD_ROOT%{_libexecdir}/mod_mysql_vhost.so
 %{__rm} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_mysql_vhost.conf
-%endif
-%if %{without deflate}
-%{__rm} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_deflate.conf
 %endif
 
 touch $RPM_BUILD_ROOT/var/log/%{name}/{access,error,breakage}.log
@@ -1267,12 +1261,10 @@ fi
 %attr(755,root,root) %{_libexecdir}/mod_compress.so
 %dir %attr(775,root,lighttpd) /var/cache/lighttpd/mod_compress
 
-%if %{with deflate}
 %files mod_deflate
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_deflate.conf
 %attr(755,root,root) %{_libexecdir}/mod_deflate.so
-%endif
 
 %files mod_dirlisting
 %defattr(644,root,root,755)
