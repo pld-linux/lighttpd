@@ -13,6 +13,7 @@
 %bcond_without	ssl		# ssl support
 %bcond_without	mysql		# mysql support in mod_mysql_vhost
 %bcond_without	geoip		# GeoIP support
+%bcond_with	krb5		# krb5 support (does not work with heimdal)
 %bcond_without	ldap		# ldap support in mod_auth
 %bcond_without	lua		# LUA support in mod_cml (needs LUA >= 5.1)
 %bcond_with	memcache	# memcached support in mod_cml / mod_trigger_b4_dl
@@ -120,6 +121,7 @@ BuildRequires:	bzip2-devel
 BuildRequires:	fcgi-devel
 %{?with_gamin:BuildRequires:	gamin-devel}
 %{?with_gdbm:BuildRequires:	gdbm-devel}
+%{?with_krb5:BuildRequires:	krb5-devel}
 %{?with_memcache:BuildRequires:	libmemcache-devel}
 BuildRequires:	libtool
 BuildRequires:	libuuid-devel
@@ -935,6 +937,7 @@ fi
 	%{!?with_largefile:--disable-lfs} \
 	%{?with_valgrind:--with-valgrind} \
 	%{?with_xattr:--with-attr} \
+	%{?with_krb5:--with-krb5} \
 	%{?with_geoip:--with-geoip} \
 	%{?with_mysql:--with-mysql} \
 	%{?with_ldap:--with-ldap} \
@@ -1050,6 +1053,9 @@ cp -p %{SOURCE138} $RPM_BUILD_ROOT/etc/tmpwatch/lighttpd-mod_compress.conf
 %if %{without geoip}
 %{__rm} $RPM_BUILD_ROOT%{pkglibdir}/mod_geoip.so
 %{__rm} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_geoip.conf
+%endif
+%if %{without krb5}
+%{__rm} $RPM_BUILD_ROOT%{pkglibdir}/mod_authn_gssapi.so
 %endif
 
 touch $RPM_BUILD_ROOT/var/log/%{name}/{access,error,breakage}.log
@@ -1248,9 +1254,11 @@ fi
 %defattr(644,root,root,755)
 %attr(755,root,root) %{pkglibdir}/mod_authn_file.so
 
+%if %{with krb5}
 %files mod_authn_gssapi
 %defattr(644,root,root,755)
 %attr(755,root,root) %{pkglibdir}/mod_authn_gssapi.so
+%endif
 
 %files mod_authn_ldap
 %defattr(644,root,root,755)
