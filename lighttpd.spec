@@ -3,6 +3,7 @@
 # - provide or autogenerate self signed cert in post, so after installing
 #   lighttpd-ssl server will still work
 # - patch with mod_websocket: https://github.com/Juniper/lighttpd-for-juise
+# - lighttpd-mod_fd_transfer: https://redmine.lighttpd.net/boards/3/topics/4992
 #
 # Conditional build:
 %bcond_with		tests		# build with tests
