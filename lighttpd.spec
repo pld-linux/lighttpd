@@ -165,7 +165,7 @@ Conflicts:	logrotate < 3.7-4
 Conflicts:	rpm < 4.4.2-0.2
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		_libdir		%{_prefix}/%{_lib}/%{name}
+%define		_libexecdir		%{_libdir}/%{name}
 %define		_lighttpddir	/home/services/%{name}
 %define		_sysconfdir	/etc/%{name}
 
@@ -870,6 +870,7 @@ fi
 %{__automake}
 
 %configure \
+	--libdir=%{_libexecdir} \
 	%{!?with_ipv6:--disable-ipv6} \
 	%{!?with_largefile:--disable-lfs} \
 	%{?with_valgrind:--with-valgrind} \
@@ -913,7 +914,7 @@ cp -p %{SOURCE12} $RPM_BUILD_ROOT/etc/monit/%{name}.monitrc
 cp -p %{SOURCE16} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/%{name}.conf
 cp -p %{SOURCE17} $RPM_BUILD_ROOT%{systemdunitdir}/%{name}.service
 
-rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
+rm -f $RPM_BUILD_ROOT%{_libexecdir}/*.la
 
 # Install lighttpd images
 cp -p %{SOURCE7} %{SOURCE8} %{SOURCE9} $RPM_BUILD_ROOT%{_lighttpddir}/html
@@ -980,7 +981,7 @@ cp -p %{SOURCE138} $RPM_BUILD_ROOT/etc/tmpwatch/lighttpd-mod_compress.conf
 
 %if %{without mysql}
 # avoid packaging dummy module
-%{__rm} $RPM_BUILD_ROOT%{_libdir}/mod_mysql_vhost.so
+%{__rm} $RPM_BUILD_ROOT%{_libexecdir}/mod_mysql_vhost.so
 %{__rm} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_mysql_vhost.conf
 %endif
 %if %{without deflate}
@@ -1135,7 +1136,7 @@ fi
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
 %attr(755,root,root) %{_sbindir}/lighttpd
 %attr(755,root,root) %{_sbindir}/lighttpd-angel
-%dir %{_libdir}
+%dir %{_libexecdir}
 %{_mandir}/man8/lighttpd.8*
 %dir %{_lighttpddir}
 %dir %{_lighttpddir}/cgi-bin
@@ -1156,27 +1157,27 @@ fi
 %files mod_access
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_access.conf
-%attr(755,root,root) %{_libdir}/mod_access.so
+%attr(755,root,root) %{_libexecdir}/mod_access.so
 
 %files mod_accesslog
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_accesslog.conf
-%attr(755,root,root) %{_libdir}/mod_accesslog.so
+%attr(755,root,root) %{_libexecdir}/mod_accesslog.so
 
 %files mod_alias
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_alias.conf
-%attr(755,root,root) %{_libdir}/mod_alias.so
+%attr(755,root,root) %{_libexecdir}/mod_alias.so
 
 %files mod_auth
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_auth.conf
-%attr(755,root,root) %{_libdir}/mod_auth.so
+%attr(755,root,root) %{_libexecdir}/mod_auth.so
 
 %files mod_cgi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_cgi.conf
-%attr(755,root,root) %{_libdir}/mod_cgi.so
+%attr(755,root,root) %{_libexecdir}/mod_cgi.so
 
 %files mod_cgi_php
 %defattr(644,root,root,755)
@@ -1185,156 +1186,156 @@ fi
 %files mod_cml
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_cml.conf
-%attr(755,root,root) %{_libdir}/mod_cml.so
+%attr(755,root,root) %{_libexecdir}/mod_cml.so
 
 %files mod_compress
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/tmpwatch/lighttpd-mod_compress.conf
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_compress.conf
-%attr(755,root,root) %{_libdir}/mod_compress.so
+%attr(755,root,root) %{_libexecdir}/mod_compress.so
 %dir %attr(775,root,lighttpd) /var/cache/lighttpd/mod_compress
 
 %if %{with deflate}
 %files mod_deflate
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_deflate.conf
-%attr(755,root,root) %{_libdir}/mod_deflate.so
+%attr(755,root,root) %{_libexecdir}/mod_deflate.so
 %endif
 
 %files mod_dirlisting
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_dirlisting.conf
-%attr(755,root,root) %{_libdir}/mod_dirlisting.so
+%attr(755,root,root) %{_libexecdir}/mod_dirlisting.so
 
 %files mod_evasive
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_evasive.conf
-%attr(755,root,root) %{_libdir}/mod_evasive.so
+%attr(755,root,root) %{_libexecdir}/mod_evasive.so
 
 %files mod_evhost
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_evhost.conf
-%attr(755,root,root) %{_libdir}/mod_evhost.so
+%attr(755,root,root) %{_libexecdir}/mod_evhost.so
 
 %files mod_expire
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_expire.conf
-%attr(755,root,root) %{_libdir}/mod_expire.so
+%attr(755,root,root) %{_libexecdir}/mod_expire.so
 
 %files mod_extforward
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_extforward.conf
-%attr(755,root,root) %{_libdir}/mod_extforward.so
+%attr(755,root,root) %{_libexecdir}/mod_extforward.so
 
 %files mod_fastcgi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_fastcgi.conf
-%attr(755,root,root) %{_libdir}/mod_fastcgi.so
+%attr(755,root,root) %{_libexecdir}/mod_fastcgi.so
 
 %files mod_flv_streaming
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_flv_streaming.conf
-%attr(755,root,root) %{_libdir}/mod_flv_streaming.so
+%attr(755,root,root) %{_libexecdir}/mod_flv_streaming.so
 
 %if %{with h264_streaming}
 %files mod_h264_streaming
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_h264_streaming.conf
-%attr(755,root,root) %{_libdir}/mod_h264_streaming.so
+%attr(755,root,root) %{_libexecdir}/mod_h264_streaming.so
 %endif
 
 %files mod_indexfile
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_indexfile.conf
-%attr(755,root,root) %{_libdir}/mod_indexfile.so
+%attr(755,root,root) %{_libexecdir}/mod_indexfile.so
 
 %files mod_magnet
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_magnet.conf
-%attr(755,root,root) %{_libdir}/mod_magnet.so
+%attr(755,root,root) %{_libexecdir}/mod_magnet.so
 
 %if %{with mysql}
 %files mod_mysql_vhost
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_mysql_vhost.conf
-%attr(755,root,root) %{_libdir}/mod_mysql_vhost.so
+%attr(755,root,root) %{_libexecdir}/mod_mysql_vhost.so
 %endif
 
 %files mod_proxy
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy.conf
-%attr(755,root,root) %{_libdir}/mod_proxy.so
+%attr(755,root,root) %{_libexecdir}/mod_proxy.so
 
 %files mod_redirect
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_redirect.conf
-%attr(755,root,root) %{_libdir}/mod_redirect.so
+%attr(755,root,root) %{_libexecdir}/mod_redirect.so
 
 %files mod_rewrite
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_rewrite.conf
-%attr(755,root,root) %{_libdir}/mod_rewrite.so
+%attr(755,root,root) %{_libexecdir}/mod_rewrite.so
 
 %files mod_rrdtool
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_rrdtool.conf
-%attr(755,root,root) %{_libdir}/mod_rrdtool.so
+%attr(755,root,root) %{_libexecdir}/mod_rrdtool.so
 %attr(640,lighttpd,stats) %ghost /var/lib/lighttpd/lighttpd.rrd
 
 %files mod_scgi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_scgi.conf
-%attr(755,root,root) %{_libdir}/mod_scgi.so
+%attr(755,root,root) %{_libexecdir}/mod_scgi.so
 
 %files mod_secdownload
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_secdownload.conf
-%attr(755,root,root) %{_libdir}/mod_secdownload.so
+%attr(755,root,root) %{_libexecdir}/mod_secdownload.so
 
 %files mod_setenv
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_setenv.conf
-%attr(755,root,root) %{_libdir}/mod_setenv.so
+%attr(755,root,root) %{_libexecdir}/mod_setenv.so
 
 %files mod_simple_vhost
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_simple_vhost.conf
-%attr(755,root,root) %{_libdir}/mod_simple_vhost.so
+%attr(755,root,root) %{_libexecdir}/mod_simple_vhost.so
 
 %files mod_ssi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_ssi.conf
-%attr(755,root,root) %{_libdir}/mod_ssi.so
+%attr(755,root,root) %{_libexecdir}/mod_ssi.so
 
 %files mod_staticfile
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_staticfile.conf
-%attr(755,root,root) %{_libdir}/mod_staticfile.so
+%attr(755,root,root) %{_libexecdir}/mod_staticfile.so
 
 %files mod_status
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_status.conf
-%attr(755,root,root) %{_libdir}/mod_status.so
+%attr(755,root,root) %{_libexecdir}/mod_status.so
 
 %files mod_trigger_b4_dl
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_trigger_b4_dl.conf
-%attr(755,root,root) %{_libdir}/mod_trigger_b4_dl.so
+%attr(755,root,root) %{_libexecdir}/mod_trigger_b4_dl.so
 
 %files mod_userdir
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_userdir.conf
-%attr(755,root,root) %{_libdir}/mod_userdir.so
+%attr(755,root,root) %{_libexecdir}/mod_userdir.so
 
 %files mod_usertrack
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_usertrack.conf
-%attr(755,root,root) %{_libdir}/mod_usertrack.so
+%attr(755,root,root) %{_libexecdir}/mod_usertrack.so
 
 %files mod_webdav
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_webdav.conf
-%attr(755,root,root) %{_libdir}/mod_webdav.so
+%attr(755,root,root) %{_libexecdir}/mod_webdav.so
 
 %files php-spawned
 %defattr(644,root,root,755)
