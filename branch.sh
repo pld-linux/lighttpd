@@ -3,7 +3,7 @@ set -e
 svn=svn://svn.lighttpd.net/lighttpd
 url=https://git.lighttpd.net/lighttpd/lighttpd1.4.git
 package=lighttpd
-tag=lighttpd-1.4.41
+tag=lighttpd-1.4.42
 branch=master
 out=$package-branch.diff
 repo=$package.git
@@ -40,6 +40,12 @@ cd $repo
 	git fetch origin +$branch:refs/remotes/origin/$branch +refs/tags/$tag:refs/tags/$tag
 	git log -p --reverse $tag..$branch | filter > ../$out.tmp
 cd ..
+
+if ! test -s $out.tmp; then
+	echo >&2 "No diffs..."
+	rm -f $out.tmp
+	exit 0
+fi
 
 if cmp -s $out{,.tmp}; then
 	echo >&2 "No new diffs..."
