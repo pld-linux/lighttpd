@@ -95,6 +95,7 @@ Source136:	%{name}-mod_h264_streaming.conf
 Source137:	%{name}-mod_cgi_php.conf
 Source138:	%{name}-mod_compress.tmpwatch
 Source139:	%{name}-mod_uploadprogress.conf
+Source140:	%{name}-mod_geoip.conf
 # use branch.sh script to create branch.diff
 #Patch100:	%{name}-branch.diff
 ## Patch100-md5:	7bd09235304c8bcb16f34d49d480c0fb
@@ -492,7 +493,12 @@ URL:		https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_ModGeoip
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_geoip
-lighttpd module for IP Based Geographic Lookups.
+mod_geoip is a module for fast ip/location lookups. It uses MaxMind
+GeoIP / GeoCity databases.
+
+If the ip was found in the database the module sets the appropriate
+environment variables to the request, thus making other modules/fcgi
+be informed.
 
 %package mod_h264_streaming
 Summary:	lighttpd module for h264 streaming
@@ -991,6 +997,7 @@ cp -p %{SOURCE109} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evasive.conf
 cp -p %{SOURCE110} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evhost.conf
 cp -p %{SOURCE112} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_fastcgi.conf
 cp -p %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
+cp -p %{SOURCE140} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_geoip.conf
 %if %{with h264_streaming}
 cp -p %{SOURCE136} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_h264_streaming.conf
 %endif
@@ -1305,6 +1312,7 @@ fi
 
 %files mod_geoip
 %defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_geoip.conf
 %attr(755,root,root) %{_libexecdir}/mod_geoip.so
 
 %if %{with h264_streaming}
