@@ -30,7 +30,7 @@ Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.4.42
-Release:	0.1
+Release:	0.2
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	http://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.xz
@@ -239,6 +239,7 @@ Summary(pl.UTF-8):	Moduł lighttpd do obsługi uwierzytelniania
 Group:		Networking/Daemons/HTTP
 URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModAuth
 Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}-mod_authn_file = %{version}-%{release}
 Provides:	webserver(auth)
 
 %description mod_auth
