@@ -107,11 +107,9 @@ Patch2:		%{name}-mod_h264_streaming.patch
 Patch3:		%{name}-branding.patch
 Patch6:		test-port-setup.patch
 Patch7:		env-documentroot.patch
-#Patch:		%{name}-modinit-before-fork.patch
-#Patch:		%{name}-errorlog-before-fork.patch
 URL:		http://www.lighttpd.net/
-%{?with_xattr:BuildRequires:	attr-devel}
 %{?with_geoip:BuildRequires:	GeoIP-devel}
+%{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf >= 2.57
 %if "%{pld_release}" != "ac"
 BuildRequires:	automake >= 1:1.11.2
