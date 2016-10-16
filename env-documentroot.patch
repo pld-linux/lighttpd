@@ -1,6 +1,9 @@
 revert:
 
 -  * [*cgi] Use physical base dir (alias, userdir) as DOCUMENT_ROOT in cgi environments (fixes #2216)
+
+probably fixed in
+https://github.com/lighttpd/lighttpd1.4/commit/7fa5bfc9381764d6c35ac29674bd830e8e5fee33
  
 --- lighttpd-1.4.36/src/mod_fastcgi.c~	2015-07-26 18:30:29.000000000 +0300
 +++ lighttpd-1.4.36/src/mod_fastcgi.c	2015-07-26 18:31:50.285226477 +0300
