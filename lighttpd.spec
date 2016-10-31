@@ -1215,6 +1215,7 @@ fi
 %attr(755,root,root) %{_sbindir}/lighttpd-angel
 %dir %{pkglibdir}
 %{_mandir}/man8/lighttpd.8*
+%{_mandir}/man8/lighttpd-angel.8*
 %dir %{_lighttpddir}
 %dir %{_lighttpddir}/cgi-bin
 %dir %{_lighttpddir}/html
