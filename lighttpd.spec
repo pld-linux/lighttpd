@@ -20,6 +20,7 @@
 %bcond_with	gamin		# gamin for reducing number of stat() calls.
 				# NOTE:	must be enabled in config: server.stat-cache-engine = "fam"
 %bcond_with	gdbm		# gdbm in mod_trigger_b4_dl
+%bcond_without	mod_trigger_b4_dl		# mod_trigger_b4_dl
 %bcond_with	webdav_props	# properties in mod_webdav (includes extra sqlite3/libxml deps)
 %bcond_with	webdav_locks	# webdav locks with extra efsprogs deps
 %bcond_with	valgrind	# compile code with valgrind support.
@@ -27,6 +28,11 @@
 
 %if %{with webdav_locks}
 %define		webdav_progs	1
+%endif
+
+# if(WITH_PCRE AND (WITH_MEMCACHED OR WITH_GDBM))
+%if %{without memcached} && %{without gdbm}
+%undefine	with_mod_trigger_b4_dl
 %endif
 
 Summary:	Fast and light HTTP server
@@ -246,7 +252,9 @@ Requires:	%{name}-mod_authn_file = %{version}-%{release}
 # TODO: ldap and mysql should be optional
 # https://github.com/lighttpd/lighttpd1.4/blob/lighttpd-1.4.42/src/configfile.c#L426-L428
 Requires:	%{name}-mod_authn_ldap = %{version}-%{release}
+%if %{with mysql}
 Requires:	%{name}-mod_authn_mysql = %{version}-%{release}
+%endif
 Provides:	webserver(auth)
 
 %description mod_auth
@@ -1007,7 +1015,9 @@ cp -p %{SOURCE109} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evasive.conf
 cp -p %{SOURCE110} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evhost.conf
 cp -p %{SOURCE112} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_fastcgi.conf
 cp -p %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
+%if %{with geoip}
 cp -p %{SOURCE140} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_geoip.conf
+%endif
 %if %{with h264_streaming}
 cp -p %{SOURCE136} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_h264_streaming.conf
 %endif
@@ -1021,12 +1031,16 @@ cp -p %{SOURCE122} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_simple_vhost.conf
 cp -p %{SOURCE123} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_ssi.conf
 cp -p %{SOURCE124} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_staticfile.conf
 cp -p %{SOURCE125} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_status.conf
+%if %{with mod_trigger_b4_dl}
 cp -p %{SOURCE126} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_trigger_b4_dl.conf
+%endif
 cp -p %{SOURCE139} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_uploadprogress.conf
 cp -p %{SOURCE127} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_userdir.conf
 cp -p %{SOURCE128} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_usertrack.conf
 cp -p %{SOURCE129} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_webdav.conf
+%if %{with mysql}
 cp -p %{SOURCE133} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_mysql_vhost.conf
+%endif
 
 cp -p %{SOURCE134} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_magnet.conf
 cp -p %{SOURCE111} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_expire.conf
@@ -1044,19 +1058,6 @@ touch $RPM_BUILD_ROOT/var/lib/lighttpd/lighttpd.rrd
 
 install -d $RPM_BUILD_ROOT/etc/tmpwatch
 cp -p %{SOURCE138} $RPM_BUILD_ROOT/etc/tmpwatch/lighttpd-mod_compress.conf
-
-# avoid packaging dummy modules
-%if %{without mysql}
-%{__rm} $RPM_BUILD_ROOT%{pkglibdir}/mod_mysql_vhost.so
-%{__rm} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_mysql_vhost.conf
-%endif
-%if %{without geoip}
-%{__rm} $RPM_BUILD_ROOT%{pkglibdir}/mod_geoip.so
-%{__rm} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/*_mod_geoip.conf
-%endif
-%if %{without krb5}
-%{__rm} $RPM_BUILD_ROOT%{pkglibdir}/mod_authn_gssapi.so
-%endif
 
 touch $RPM_BUILD_ROOT/var/log/%{name}/{access,error,breakage}.log
 
@@ -1264,9 +1265,11 @@ fi
 %defattr(644,root,root,755)
 %attr(755,root,root) %{pkglibdir}/mod_authn_ldap.so
 
+%if %{with mysql}
 %files mod_authn_mysql
 %defattr(644,root,root,755)
 %attr(755,root,root) %{pkglibdir}/mod_authn_mysql.so
+%endif
 
 %files mod_cgi
 %defattr(644,root,root,755)
@@ -1416,10 +1419,12 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_status.conf
 %attr(755,root,root) %{pkglibdir}/mod_status.so
 
+%if %{with mod_trigger_b4_dl}
 %files mod_trigger_b4_dl
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_trigger_b4_dl.conf
 %attr(755,root,root) %{pkglibdir}/mod_trigger_b4_dl.so
+%endif
 
 %files mod_uploadprogress
 %defattr(644,root,root,755)
