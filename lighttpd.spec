@@ -933,8 +933,8 @@ if [ "$ver" != "%{version}" ]; then
 	exit 1
 fi
 
-%{__libtoolize}
 %{__aclocal} -I scripts/m4
+%{__libtoolize}
 %{__autoheader}
 %{__autoconf}
 %{__automake}
