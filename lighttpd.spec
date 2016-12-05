@@ -934,7 +934,7 @@ if [ "$ver" != "%{version}" ]; then
 fi
 
 %{__libtoolize}
-%{__aclocal}
+%{__aclocal} -I scripts/m4
 %{__autoheader}
 %{__autoconf}
 %{__automake}
