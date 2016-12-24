@@ -63,7 +63,6 @@ Source12:	%{name}.monitrc
 Source13:	branch.sh
 Source14:	TODO
 Source16:	%{name}.tmpfiles
-Source17:	%{name}.service
 Source100:	%{name}-mod_access.conf
 Source101:	%{name}-mod_accesslog.conf
 Source102:	%{name}-mod_alias.conf
@@ -112,6 +111,7 @@ Patch0:		%{name}-use_bin_sh.patch
 Patch1:		%{name}-mod_evasive-status_code.patch
 Patch2:		%{name}-mod_h264_streaming.patch
 Patch3:		%{name}-branding.patch
+Patch4:		systemd.patch
 Patch6:		test-port-setup.patch
 Patch7:		env-documentroot.patch
 URL:		http://www.lighttpd.net/
@@ -912,6 +912,7 @@ Plik monitrc do monitorowania serwera www lighttpd.
 #%patch1 -p1 UPDATE (and submit upstream!) if you need this
 %{?with_h264_streaming:%patch2 -p1}
 %patch3 -p1
+%patch4 -p1
 %patch6 -p1
 #%patch7 -p1 probably fixed upstream
 
@@ -984,7 +985,7 @@ cp -p %{SOURCE4} $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
 cp -p %{SOURCE5} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 cp -p %{SOURCE12} $RPM_BUILD_ROOT/etc/monit/%{name}.monitrc
 cp -p %{SOURCE16} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/%{name}.conf
-cp -p %{SOURCE17} $RPM_BUILD_ROOT%{systemdunitdir}/%{name}.service
+cp -p doc/systemd/lighttpd.service $RPM_BUILD_ROOT%{systemdunitdir}/%{name}.service
 
 rm -f $RPM_BUILD_ROOT%{pkglibdir}/*.la
 
