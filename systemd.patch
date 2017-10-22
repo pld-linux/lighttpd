@@ -1,14 +1,14 @@
---- lighttpd-1.4.44/doc/systemd/lighttpd.service~	2016-12-24 07:26:55.000000000 +0200
-+++ lighttpd-1.4.44/doc/systemd/lighttpd.service	2016-12-24 19:29:16.649733870 +0200
-@@ -4,8 +4,9 @@
- 
+--- lighttpd-1.4.45/doc/systemd/lighttpd.service~	2017-10-14 19:59:01.000000000 +0300
++++ lighttpd-1.4.45/doc/systemd/lighttpd.service	2017-10-14 19:59:43.077416066 +0300
+@@ -5,8 +5,9 @@
  [Service]
  Type=simple
+ PIDFile=/var/run/lighttpd.pid
 -ExecStartPre=/usr/sbin/lighttpd -tt -f /etc/lighttpd/lighttpd.conf
 -ExecStart=/usr/sbin/lighttpd -D -f /etc/lighttpd/lighttpd.conf
 +EnvironmentFile=-/etc/sysconfig/lighttpd
 +ExecStartPre=/usr/sbin/lighttpd-angel -tt -f /etc/lighttpd/lighttpd.conf
 +ExecStart=/usr/sbin/lighttpd-angel -D -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
+ ExecReload=/bin/kill -USR1 $MAINPID
  Restart=on-failure
  
- [Install]
