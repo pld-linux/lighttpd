@@ -1,9 +1,9 @@
-
 # TODO:
 # - provide or autogenerate self signed cert in post, so after installing
 #   lighttpd-ssl server will still work
 # - patch with mod_websocket: https://github.com/Juniper/lighttpd-for-juise
 # - lighttpd-mod_fd_transfer: https://redmine.lighttpd.net/boards/3/topics/4992
+# - add db specific mod_vhostdb_* - packages
 #
 # Conditional build:
 %bcond_with		tests		# build with tests
@@ -11,10 +11,10 @@
 %bcond_without	ipv6		# IPv4-only version (doesn't require IPv6 in kernel)
 %bcond_without	largefile	# largefile support (see notes above)
 %bcond_without	ssl		# ssl support
-%bcond_without	mysql		# mysql support in mod_mysql_vhost
+%bcond_without	mysql		# mysql support in mod_mysql_vhost, mod_vhostdb_mysql
 %bcond_without	geoip		# GeoIP support
 %bcond_with	krb5		# krb5 support (does not work with heimdal)
-%bcond_without	ldap		# ldap support in mod_auth
+%bcond_without	ldap		# ldap support in mod_auth, mod_vhostdb_ldap
 %bcond_without	lua		# LUA support in mod_cml (needs LUA >= 5.1)
 %bcond_with	memcache	# memcached support in mod_cml / mod_trigger_b4_dl
 %bcond_with	gamin		# gamin for reducing number of stat() calls.
@@ -38,12 +38,12 @@
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.45
-Release:	2
+Version:	1.4.46
+Release:	1
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	http://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.xz
-# Source0-md5:	a128e1eda76899ce3fd115efae5fe631
+# Source0-md5:	b774558e0c07f9eae91105c4132383cb
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -105,6 +105,10 @@ Source138:	mod_compress.tmpwatch
 Source139:	mod_uploadprogress.conf
 Source140:	mod_geoip.conf
 Source141:	mod_authn_ldap.conf
+Source142:	mod_openssl.conf
+Source143:	mod_vhostdb.conf
+Source144:	mod_wstunnel.conf
+Source145:	mod_authn_mysql.conf
 # use branch.sh script to create branch.diff
 #Patch100:	%{name}-branch.diff
 ## Patch100-md5:	7bd09235304c8bcb16f34d49d480c0fb
@@ -250,11 +254,11 @@ Group:		Networking/Daemons/HTTP
 URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModAuth
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{name}-mod_authn_file = %{version}-%{release}
-# TODO: ldap and mysql should be optional
-# https://github.com/lighttpd/lighttpd1.4/blob/lighttpd-1.4.42/src/configfile.c#L426-L428
-Requires:	%{name}-mod_authn_ldap = %{version}-%{release}
+%if %{with ldap}
+Suggests:	%{name}-mod_authn_ldap = %{version}-%{release}
+%endif
 %if %{with mysql}
-Requires:	%{name}-mod_authn_mysql = %{version}-%{release}
+Suggests:	%{name}-mod_authn_mysql = %{version}-%{release}
 %endif
 Provides:	webserver(auth)
 
@@ -572,6 +576,15 @@ This module provides virtual hosts (vhosts) based on a MySQL table.
 %description mod_mysql_vhost -l pl.UTF-8
 Ten moduł udostępnia wirtualne hosty (vhosty) oparte na tabeli MySQL.
 
+%package mod_openssl
+Summary:	TLS/SSL for lighttpd
+Group:		Networking/Daemons/HTTP
+URL:		https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_SSL
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_openssl
+TLS/SSL for lighttpd.
+
 %package mod_proxy
 Summary:	lighttpd module for proxying requests
 Summary(pl.UTF-8):	Moduł lighttpd do przekazywania żądań
@@ -807,6 +820,15 @@ lighttpd usertrack module.
 %description mod_usertrack -l pl.UTF-8
 Moduł usertrack dla lighttpd.
 
+%package mod_vhostdb
+Summary:	Virtual host database to provide vhost docroot
+Group:		Networking/Daemons/HTTP
+URL:		https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_ModVhostDB
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_vhostdb
+Virtual host database to provide vhost docroot.
+
 %package mod_webdav
 Summary:	WebDAV module for lighttpd
 Summary(pl.UTF-8):	Moduł WebDAV dla libghttpd
@@ -847,6 +869,18 @@ oraz zwykłe GET, POST, HEAD z HTTP/1.1.
 Jak na razie montowanie zasobu webdav pod Windows XP działa i
 podstawowe testy lakmusowe przechodzą.
 
+%package mod_wstunnel
+Summary:	WebSocket tunnel endpoint
+Group:		Networking/Daemons/HTTP
+URL:		https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_ModWSTunnel
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_wstunnel
+WebSocket tunnel endpoint. This module terminates the websocket tunnel
+from a client. This module then passes data (without websocket frames)
+to a backend and encodes responses from backend in websocket frames
+before sending responses to client.
+
 %package php-spawned
 Summary:	PHP support via FastCGI, spawned by lighttpd
 Summary(pl.UTF-8):	Obsługa PHP przez FastCGI, uruchamiane przez lighttpd
@@ -885,6 +919,7 @@ Summary(pl.UTF-8):	Obsługa SSLv2 i SSLv3 dla lighttpd
 Group:		Networking/Daemons/HTTP
 URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:SSL
 Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}-mod_openssl = %{version}-%{release}
 Suggests:	ca-certificates
 
 %description ssl
@@ -935,10 +970,10 @@ if [ "$ver" != "%{version}" ]; then
 	exit 1
 fi
 
-%{__aclocal} -I scripts/m4
+%{__aclocal} -I m4 -I scripts/m4
 %{__libtoolize}
-%{__autoheader}
 %{__autoconf}
+%{__autoheader}
 %{__automake}
 
 %configure \
@@ -1023,10 +1058,14 @@ cp -p %{SOURCE140} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_geoip.conf
 %if %{with ldap}
 cp -p %{SOURCE141} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_authn_ldap.conf
 %endif
+%if %{with ldap}
+cp -p %{SOURCE145} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_authn_mysql.conf
+%endif
 %if %{with h264_streaming}
 cp -p %{SOURCE136} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_h264_streaming.conf
 %endif
 cp -p %{SOURCE114} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_indexfile.conf
+cp -p %{SOURCE142} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_openssl.conf
 cp -p %{SOURCE115} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy.conf
 cp -p %{SOURCE118} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_rrdtool.conf
 cp -p %{SOURCE119} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_scgi.conf
@@ -1042,7 +1081,9 @@ cp -p %{SOURCE126} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_trigger_b4_dl.con
 cp -p %{SOURCE139} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_uploadprogress.conf
 cp -p %{SOURCE127} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_userdir.conf
 cp -p %{SOURCE128} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_usertrack.conf
+cp -p %{SOURCE143} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_vhostdb.conf
 cp -p %{SOURCE129} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_webdav.conf
+cp -p %{SOURCE144} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_wstunnel.conf
 %if %{with mysql}
 cp -p %{SOURCE133} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_mysql_vhost.conf
 %endif
@@ -1138,9 +1179,9 @@ fi
 %module_scripts mod_alias
 %module_scripts mod_auth
 %module_scripts mod_authn_file
-%module_scripts mod_authn_mysql
 %module_scripts mod_authn_gssapi
 %module_scripts mod_authn_ldap
+%module_scripts mod_authn_mysql
 %module_scripts mod_cgi
 %module_scripts mod_cml
 %module_scripts mod_compress
@@ -1157,9 +1198,27 @@ fi
 %module_scripts mod_indexfile
 %module_scripts mod_magnet
 %module_scripts mod_mysql_vhost
+%module_scripts mod_openssl
 %module_scripts mod_proxy
 %module_scripts mod_redirect
 %module_scripts mod_rewrite
+%module_scripts mod_scgi
+%module_scripts mod_secdownload
+%module_scripts mod_setenv
+%module_scripts mod_simple_vhost
+%module_scripts mod_ssi
+%module_scripts mod_staticfile
+%module_scripts mod_status
+%module_scripts mod_trigger_b4_dl
+%module_scripts mod_uploadprogress
+%module_scripts mod_userdir
+%module_scripts mod_usertrack
+%module_scripts mod_vhostdb
+%module_scripts mod_webdav
+%module_scripts mod_wstunnel
+
+%module_scripts php-spawned
+%module_scripts php-external
 
 %post mod_rrdtool
 if [ ! -f /var/lib/lighttpd/lighttpd.rrd ]; then
@@ -1172,21 +1231,6 @@ fi
 %postun mod_rrdtool
 %module_postun
 
-%module_scripts mod_scgi
-%module_scripts mod_secdownload
-%module_scripts mod_setenv
-%module_scripts mod_simple_vhost
-%module_scripts mod_ssi
-%module_scripts mod_staticfile
-%module_scripts mod_status
-%module_scripts mod_trigger_b4_dl
-%module_scripts mod_uploadprogress
-%module_scripts mod_userdir
-%module_scripts mod_usertrack
-%module_scripts mod_webdav
-
-%module_scripts php-spawned
-%module_scripts php-external
 
 %triggerpostun -- %{name} < 1.4.18-10.1
 if [ -f /etc/lighttpd/conf.d/50_mod_extforward.conf.rpmsave ]; then
@@ -1267,14 +1311,17 @@ fi
 %attr(755,root,root) %{pkglibdir}/mod_authn_gssapi.so
 %endif
 
+%if %{with ldap}
 %files mod_authn_ldap
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_authn_ldap.conf
 %attr(755,root,root) %{pkglibdir}/mod_authn_ldap.so
+%endif
 
 %if %{with mysql}
 %files mod_authn_mysql
 %defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_authn_mysql.conf
 %attr(755,root,root) %{pkglibdir}/mod_authn_mysql.so
 %endif
 
@@ -1375,6 +1422,11 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy.conf
 %attr(755,root,root) %{pkglibdir}/mod_proxy.so
 
+%files mod_openssl
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_openssl.conf
+%attr(755,root,root) %{pkglibdir}/mod_openssl.so
+
 %files mod_redirect
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_redirect.conf
@@ -1448,10 +1500,26 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_usertrack.conf
 %attr(755,root,root) %{pkglibdir}/mod_usertrack.so
 
+%files mod_vhostdb
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_vhostdb.conf
+%attr(755,root,root) %{pkglibdir}/mod_vhostdb.so
+%if %{with ldap}
+%attr(755,root,root) %{pkglibdir}/mod_vhostdb_ldap.so
+%endif
+%if %{with mysql}
+%attr(755,root,root) %{pkglibdir}/mod_vhostdb_mysql.so
+%endif
+
 %files mod_webdav
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_webdav.conf
 %attr(755,root,root) %{pkglibdir}/mod_webdav.so
+
+%files mod_wstunnel
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_wstunnel.conf
+%attr(755,root,root) %{pkglibdir}/mod_wstunnel.so
 
 %files php-spawned
 %defattr(644,root,root,755)

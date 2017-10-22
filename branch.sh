@@ -3,7 +3,7 @@ set -e
 svn=svn://svn.lighttpd.net/lighttpd
 url=https://git.lighttpd.net/lighttpd/lighttpd1.4.git
 package=lighttpd
-tag=lighttpd-1.4.42
+tag=lighttpd-1.4.45
 branch=master
 out=$package-branch.diff
 repo=$package.git
@@ -25,9 +25,10 @@ filter() {
 	set -$d
 	# Excluding files which change version or were not in dist tarball
 	filterdiff -p1 \
+		-x '.gitignore' \
 		-x 'CMakeLists.txt' \
-		-x 'configure.ac' \
 		-x 'SConstruct' \
+		-x 'configure.ac' \
 		-x 'packdist.sh' \
 	| cat
 }
