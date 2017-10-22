@@ -105,6 +105,9 @@ Source138:	mod_compress.tmpwatch
 Source139:	mod_uploadprogress.conf
 Source140:	mod_geoip.conf
 Source141:	mod_authn_ldap.conf
+Source142:	mod_openssl.conf
+Source143:	mod_vhostdb.conf
+Source144:	mod_wstunnel.conf
 # use branch.sh script to create branch.diff
 #Patch100:	%{name}-branch.diff
 ## Patch100-md5:	7bd09235304c8bcb16f34d49d480c0fb
@@ -1058,6 +1061,7 @@ cp -p %{SOURCE141} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_authn_ldap.conf
 cp -p %{SOURCE136} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_h264_streaming.conf
 %endif
 cp -p %{SOURCE114} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_indexfile.conf
+cp -p %{SOURCE142} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_openssl.conf
 cp -p %{SOURCE115} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy.conf
 cp -p %{SOURCE118} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_rrdtool.conf
 cp -p %{SOURCE119} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_scgi.conf
@@ -1073,7 +1077,9 @@ cp -p %{SOURCE126} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_trigger_b4_dl.con
 cp -p %{SOURCE139} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_uploadprogress.conf
 cp -p %{SOURCE127} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_userdir.conf
 cp -p %{SOURCE128} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_usertrack.conf
+cp -p %{SOURCE143} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_vhostdb.conf
 cp -p %{SOURCE129} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_webdav.conf
+cp -p %{SOURCE144} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_wstunnel.conf
 %if %{with mysql}
 cp -p %{SOURCE133} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_mysql_vhost.conf
 %endif
@@ -1411,6 +1417,7 @@ fi
 
 %files mod_openssl
 %defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_openssl.conf
 %attr(755,root,root) %{pkglibdir}/mod_openssl.so
 
 %files mod_redirect
@@ -1488,6 +1495,7 @@ fi
 
 %files mod_vhostdb
 %defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_vhostdb.conf
 %attr(755,root,root) %{pkglibdir}/mod_vhostdb.so
 %attr(755,root,root) %{pkglibdir}/mod_vhostdb_ldap.so
 %attr(755,root,root) %{pkglibdir}/mod_vhostdb_mysql.so
@@ -1499,6 +1507,7 @@ fi
 
 %files mod_wstunnel
 %defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_wstunnel.conf
 %attr(755,root,root) %{pkglibdir}/mod_wstunnel.so
 
 %files php-spawned
