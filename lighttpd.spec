@@ -1,9 +1,9 @@
-
 # TODO:
 # - provide or autogenerate self signed cert in post, so after installing
 #   lighttpd-ssl server will still work
 # - patch with mod_websocket: https://github.com/Juniper/lighttpd-for-juise
 # - lighttpd-mod_fd_transfer: https://redmine.lighttpd.net/boards/3/topics/4992
+# - add db specific mod_vhostdb_* - packages
 #
 # Conditional build:
 %bcond_with		tests		# build with tests
@@ -11,10 +11,10 @@
 %bcond_without	ipv6		# IPv4-only version (doesn't require IPv6 in kernel)
 %bcond_without	largefile	# largefile support (see notes above)
 %bcond_without	ssl		# ssl support
-%bcond_without	mysql		# mysql support in mod_mysql_vhost
+%bcond_without	mysql		# mysql support in mod_mysql_vhost, mod_vhostdb_mysql
 %bcond_without	geoip		# GeoIP support
 %bcond_with	krb5		# krb5 support (does not work with heimdal)
-%bcond_without	ldap		# ldap support in mod_auth
+%bcond_without	ldap		# ldap support in mod_auth, mod_vhostdb_ldap
 %bcond_without	lua		# LUA support in mod_cml (needs LUA >= 5.1)
 %bcond_with	memcache	# memcached support in mod_cml / mod_trigger_b4_dl
 %bcond_with	gamin		# gamin for reducing number of stat() calls.
@@ -1497,8 +1497,12 @@ fi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_vhostdb.conf
 %attr(755,root,root) %{pkglibdir}/mod_vhostdb.so
+%if %{with ldap}
 %attr(755,root,root) %{pkglibdir}/mod_vhostdb_ldap.so
+%endif
+%if %{with mysql}
 %attr(755,root,root) %{pkglibdir}/mod_vhostdb_mysql.so
+%endif
 
 %files mod_webdav
 %defattr(644,root,root,755)
