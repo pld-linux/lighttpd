@@ -1307,10 +1307,12 @@ fi
 %attr(755,root,root) %{pkglibdir}/mod_authn_gssapi.so
 %endif
 
+%if %{with ldap}
 %files mod_authn_ldap
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_authn_ldap.conf
 %attr(755,root,root) %{pkglibdir}/mod_authn_ldap.so
+%endif
 
 %if %{with mysql}
 %files mod_authn_mysql
