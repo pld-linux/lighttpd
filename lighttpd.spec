@@ -39,7 +39,7 @@ Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.4.46
-Release:	0.1
+Release:	0.2
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	http://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.xz
@@ -108,6 +108,7 @@ Source141:	mod_authn_ldap.conf
 Source142:	mod_openssl.conf
 Source143:	mod_vhostdb.conf
 Source144:	mod_wstunnel.conf
+Source145:	mod_authn_mysql.conf
 # use branch.sh script to create branch.diff
 #Patch100:	%{name}-branch.diff
 ## Patch100-md5:	7bd09235304c8bcb16f34d49d480c0fb
@@ -1057,6 +1058,9 @@ cp -p %{SOURCE140} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_geoip.conf
 %if %{with ldap}
 cp -p %{SOURCE141} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_authn_ldap.conf
 %endif
+%if %{with ldap}
+cp -p %{SOURCE145} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_authn_mysql.conf
+%endif
 %if %{with h264_streaming}
 cp -p %{SOURCE136} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_h264_streaming.conf
 %endif
@@ -1317,6 +1321,7 @@ fi
 %if %{with mysql}
 %files mod_authn_mysql
 %defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_authn_mysql.conf
 %attr(755,root,root) %{pkglibdir}/mod_authn_mysql.so
 %endif
 
