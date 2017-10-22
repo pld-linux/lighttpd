@@ -572,6 +572,15 @@ This module provides virtual hosts (vhosts) based on a MySQL table.
 %description mod_mysql_vhost -l pl.UTF-8
 Ten moduł udostępnia wirtualne hosty (vhosty) oparte na tabeli MySQL.
 
+%package mod_openssl
+Summary:	TLS/SSL for lighttpd
+Group:		Networking/Daemons/HTTP
+URL:		https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_SSL
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_openssl
+TLS/SSL for lighttpd.
+
 %package mod_proxy
 Summary:	lighttpd module for proxying requests
 Summary(pl.UTF-8):	Moduł lighttpd do przekazywania żądań
@@ -807,6 +816,15 @@ lighttpd usertrack module.
 %description mod_usertrack -l pl.UTF-8
 Moduł usertrack dla lighttpd.
 
+%package mod_vhostdb
+Summary:	Virtual host database to provide vhost docroot
+Group:		Networking/Daemons/HTTP
+URL:		https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_ModVhostDB
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_vhostdb
+Virtual host database to provide vhost docroot.
+
 %package mod_webdav
 Summary:	WebDAV module for lighttpd
 Summary(pl.UTF-8):	Moduł WebDAV dla libghttpd
@@ -847,6 +865,18 @@ oraz zwykłe GET, POST, HEAD z HTTP/1.1.
 Jak na razie montowanie zasobu webdav pod Windows XP działa i
 podstawowe testy lakmusowe przechodzą.
 
+%package mod_wstunnel
+Summary:	WebSocket tunnel endpoint
+Group:		Networking/Daemons/HTTP
+URL:		https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_ModWSTunnel
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_wstunnel
+WebSocket tunnel endpoint. This module terminates the websocket tunnel
+from a client. This module then passes data (without websocket frames)
+to a backend and encodes responses from backend in websocket frames
+before sending responses to client.
+
 %package php-spawned
 Summary:	PHP support via FastCGI, spawned by lighttpd
 Summary(pl.UTF-8):	Obsługa PHP przez FastCGI, uruchamiane przez lighttpd
@@ -885,6 +915,7 @@ Summary(pl.UTF-8):	Obsługa SSLv2 i SSLv3 dla lighttpd
 Group:		Networking/Daemons/HTTP
 URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:SSL
 Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}-mod_openssl = %{version}-%{release}
 Suggests:	ca-certificates
 
 %description ssl
@@ -1138,9 +1169,9 @@ fi
 %module_scripts mod_alias
 %module_scripts mod_auth
 %module_scripts mod_authn_file
-%module_scripts mod_authn_mysql
 %module_scripts mod_authn_gssapi
 %module_scripts mod_authn_ldap
+%module_scripts mod_authn_mysql
 %module_scripts mod_cgi
 %module_scripts mod_cml
 %module_scripts mod_compress
@@ -1157,9 +1188,27 @@ fi
 %module_scripts mod_indexfile
 %module_scripts mod_magnet
 %module_scripts mod_mysql_vhost
+%module_scripts mod_openssl
 %module_scripts mod_proxy
 %module_scripts mod_redirect
 %module_scripts mod_rewrite
+%module_scripts mod_scgi
+%module_scripts mod_secdownload
+%module_scripts mod_setenv
+%module_scripts mod_simple_vhost
+%module_scripts mod_ssi
+%module_scripts mod_staticfile
+%module_scripts mod_status
+%module_scripts mod_trigger_b4_dl
+%module_scripts mod_uploadprogress
+%module_scripts mod_userdir
+%module_scripts mod_usertrack
+%module_scripts mod_vhostdb
+%module_scripts mod_webdav
+%module_scripts mod_wstunnel
+
+%module_scripts php-spawned
+%module_scripts php-external
 
 %post mod_rrdtool
 if [ ! -f /var/lib/lighttpd/lighttpd.rrd ]; then
@@ -1172,21 +1221,6 @@ fi
 %postun mod_rrdtool
 %module_postun
 
-%module_scripts mod_scgi
-%module_scripts mod_secdownload
-%module_scripts mod_setenv
-%module_scripts mod_simple_vhost
-%module_scripts mod_ssi
-%module_scripts mod_staticfile
-%module_scripts mod_status
-%module_scripts mod_trigger_b4_dl
-%module_scripts mod_uploadprogress
-%module_scripts mod_userdir
-%module_scripts mod_usertrack
-%module_scripts mod_webdav
-
-%module_scripts php-spawned
-%module_scripts php-external
 
 %triggerpostun -- %{name} < 1.4.18-10.1
 if [ -f /etc/lighttpd/conf.d/50_mod_extforward.conf.rpmsave ]; then
@@ -1375,6 +1409,10 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_proxy.conf
 %attr(755,root,root) %{pkglibdir}/mod_proxy.so
 
+%files mod_openssl
+%defattr(644,root,root,755)
+%attr(755,root,root) %{pkglibdir}/mod_openssl.so
+
 %files mod_redirect
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_redirect.conf
@@ -1448,10 +1486,20 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_usertrack.conf
 %attr(755,root,root) %{pkglibdir}/mod_usertrack.so
 
+%files mod_vhostdb
+%defattr(644,root,root,755)
+%attr(755,root,root) %{pkglibdir}/mod_vhostdb.so
+%attr(755,root,root) %{pkglibdir}/mod_vhostdb_ldap.so
+%attr(755,root,root) %{pkglibdir}/mod_vhostdb_mysql.so
+
 %files mod_webdav
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_webdav.conf
 %attr(755,root,root) %{pkglibdir}/mod_webdav.so
+
+%files mod_wstunnel
+%defattr(644,root,root,755)
+%attr(755,root,root) %{pkglibdir}/mod_wstunnel.so
 
 %files php-spawned
 %defattr(644,root,root,755)
