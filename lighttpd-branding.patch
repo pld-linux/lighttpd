@@ -1,13 +1,5 @@
 --- lighttpd-1.4.40/src/response.c~	2016-07-16 13:06:16.000000000 +0300
 +++ lighttpd-1.4.40/src/response.c	2016-07-25 14:16:59.131926942 +0300
-@@ -5,6 +5,7 @@
- #include "log.h"
- #include "stat_cache.h"
- #include "chunk.h"
-+#include "version.h"
- 
- #include "configfile.h"
- 
 @@ -111,6 +111,8 @@
  		if (!buffer_string_is_empty(con->conf.server_tag)) {
  			buffer_append_string_len(b, CONST_STR_LEN("\r\nServer: "));
