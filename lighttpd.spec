@@ -1005,7 +1005,7 @@ export LIGHTTPD_TEST_PORT=$((2048 + RANDOM % 10))
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d/init.d,sysconfig,monit}} \
-	$RPM_BUILD_ROOT%{_sysconfdir}/{conf,vhosts,webapps}.d \
+	$RPM_BUILD_ROOT%{_sysconfdir}/{{conf,vhosts,webapps}.d,ssl} \
 	$RPM_BUILD_ROOT{/var/log/{%{name},archive/%{name}},/var/run/%{name}} \
 	$RPM_BUILD_ROOT%{_datadir}/lighttpd/errordocs \
 	$RPM_BUILD_ROOT/var/lib/lighttpd \
@@ -1245,6 +1245,7 @@ fi
 %dir %attr(750,root,root) %{_sysconfdir}/conf.d
 %dir %attr(750,root,root) %{_sysconfdir}/vhosts.d
 %dir %attr(750,root,root) %{_sysconfdir}/webapps.d
+%dir %attr(700,root,root) %{_sysconfdir}/ssl
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/%{name}.conf
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/mime.types.conf
 %attr(640,root,lighttpd) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/*.user
