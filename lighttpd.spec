@@ -13,6 +13,7 @@
 %bcond_without	dbi		# libdbi, enables mod_vhostdb_dbi
 %bcond_without	ssl		# ssl support
 %bcond_without	mysql		# mysql support in mod_mysql_vhost, mod_vhostdb_mysql
+%bcond_without	pgsql		# PgSQL, enables mod_vhostdb_pgsql
 %bcond_without	geoip		# GeoIP support
 %bcond_with	krb5		# krb5 support (does not work with heimdal)
 %bcond_without	ldap		# ldap support in mod_auth, mod_vhostdb_ldap
@@ -141,6 +142,7 @@ BuildRequires:	libuuid-devel
 %{?with_lua:BuildRequires:	lua51-devel}
 BuildRequires:	mailcap >= 2.1.14-4.4
 %{?with_mysql:BuildRequires:	mysql-devel}
+%{?with_pgsql:BuildRequires:	postgresql-devel}
 %{?with_ldap:BuildRequires:	openldap-devel}
 %{?with_ssl:BuildRequires:	openssl-devel}
 BuildRequires:	pcre-devel
@@ -989,6 +991,7 @@ fi
 	%{?with_mysql:--with-mysql} \
 	%{?with_ldap:--with-ldap} \
 	%{?with_ssl:--with-openssl} \
+	%{?with_pgsql:--with-pgsql} \
 	%{?with_lua:--with-lua=lua51} \
 	%{?with_storage_memcached:--with-memcached} \
 	%{?with_webdav_props:--with-webdav-props} \
@@ -1516,6 +1519,9 @@ fi
 %endif
 %if %{with mysql}
 %attr(755,root,root) %{pkglibdir}/mod_vhostdb_mysql.so
+%endif
+%if %{with pgsql}
+%attr(755,root,root) %{pkglibdir}/mod_vhostdb_pgsql.so
 %endif
 
 %files mod_webdav
