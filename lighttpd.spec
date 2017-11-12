@@ -38,19 +38,19 @@
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.47
+Version:	1.4.48
 Release:	1
 License:	BSD
 Group:		Networking/Daemons/HTTP
-Source0:	http://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.xz
-# Source0-md5:	ee839b5c7fb26dba7328f9f4989d90fe
+Source0:	https://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.xz
+# Source0-md5:	1e3a9eb5078f481e3a8a1d0aaac8c3c8
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
 Source4:	%{name}.logrotate
 Source5:	%{name}.sysconfig
 Source6:	%{name}-mime.types.sh
-Source7:	http://glen.alkohol.ee/pld/lighty/favicon.ico
+Source7:	https://glen.alkohol.ee/pld/lighty/favicon.ico
 # Source7-md5:	00fcac5b861a54f5eb147a589504d480
 Source8:	light_button.png
 # Source8-md5:	3e1008ee1d3d6d390cf81fe3072b4f50
@@ -119,7 +119,7 @@ Patch3:		%{name}-branding.patch
 Patch4:		systemd.patch
 Patch6:		test-port-setup.patch
 Patch7:		env-documentroot.patch
-URL:		http://www.lighttpd.net/
+URL:		https://www.lighttpd.net/
 %{?with_geoip:BuildRequires:	GeoIP-devel}
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf >= 2.57
