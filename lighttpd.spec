@@ -16,21 +16,21 @@
 %bcond_with	krb5		# krb5 support (does not work with heimdal)
 %bcond_without	ldap		# ldap support in mod_auth, mod_vhostdb_ldap
 %bcond_without	lua		# LUA support in mod_cml (needs LUA >= 5.1)
-%bcond_with	memcache	# memcached support in mod_cml / mod_trigger_b4_dl
 %bcond_with	gamin		# gamin for reducing number of stat() calls. must be enabled in config: server.stat-cache-engine = "fam"
-%bcond_without	storage_gdbm		# gdbm storage for mod_trigger_b4_dl
 %bcond_without	mod_trigger_b4_dl		# mod_trigger_b4_dl
 %bcond_with	webdav_props	# properties in mod_webdav (includes extra sqlite3/libxml deps)
 %bcond_with	webdav_locks	# webdav locks with extra efsprogs deps
 %bcond_with	valgrind	# compile code with valgrind support.
 %bcond_with	h264_streaming		# build h264_streaming module
+%bcond_without	storage_memcached	# memcached storage for mod_trigger_b4_dl/mod_cml
+%bcond_without	storage_gdbm		# gdbm storage for mod_trigger_b4_dl
 
 %if %{with webdav_locks}
 %define		webdav_progs	1
 %endif
 
 # if(WITH_PCRE AND (WITH_MEMCACHED OR WITH_GDBM))
-%if %{without memcached} && %{without storage_gdbm}
+%if %{without storage_memcached} && %{without storage_gdbm}
 %undefine	with_mod_trigger_b4_dl
 %endif
 
@@ -132,7 +132,7 @@ BuildRequires:	fcgi-devel
 %{?with_gamin:BuildRequires:	gamin-devel}
 %{?with_storage_gdbm:BuildRequires:	gdbm-devel}
 %{?with_krb5:BuildRequires:	krb5-devel}
-%{?with_memcache:BuildRequires:	libmemcache-devel}
+%{?with_storage_memcached:BuildRequires:	libmemcached-devel}
 BuildRequires:	libtool
 BuildRequires:	libuuid-devel
 %{?with_webdav_props:BuildRequires:	libxml2-devel}
@@ -987,7 +987,7 @@ fi
 	%{?with_ldap:--with-ldap} \
 	%{?with_ssl:--with-openssl} \
 	%{?with_lua:--with-lua=lua51} \
-	%{?with_memcache:--with-memcache} \
+	%{?with_storage_memcached:--with-memcached} \
 	%{?with_webdav_props:--with-webdav-props} \
 	%{?with_webdav_locks:--with-webdav-locks} \
 	%{?with_gamin:--with-gamin} \
