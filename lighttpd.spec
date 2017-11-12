@@ -17,9 +17,8 @@
 %bcond_without	ldap		# ldap support in mod_auth, mod_vhostdb_ldap
 %bcond_without	lua		# LUA support in mod_cml (needs LUA >= 5.1)
 %bcond_with	memcache	# memcached support in mod_cml / mod_trigger_b4_dl
-%bcond_with	gamin		# gamin for reducing number of stat() calls.
-				# NOTE:	must be enabled in config: server.stat-cache-engine = "fam"
-%bcond_with	gdbm		# gdbm in mod_trigger_b4_dl
+%bcond_with	gamin		# gamin for reducing number of stat() calls. must be enabled in config: server.stat-cache-engine = "fam"
+%bcond_without	storage_gdbm		# gdbm storage for mod_trigger_b4_dl
 %bcond_without	mod_trigger_b4_dl		# mod_trigger_b4_dl
 %bcond_with	webdav_props	# properties in mod_webdav (includes extra sqlite3/libxml deps)
 %bcond_with	webdav_locks	# webdav locks with extra efsprogs deps
@@ -31,7 +30,7 @@
 %endif
 
 # if(WITH_PCRE AND (WITH_MEMCACHED OR WITH_GDBM))
-%if %{without memcached} && %{without gdbm}
+%if %{without memcached} && %{without storage_gdbm}
 %undefine	with_mod_trigger_b4_dl
 %endif
 
@@ -131,7 +130,7 @@ BuildRequires:	automake
 BuildRequires:	bzip2-devel
 BuildRequires:	fcgi-devel
 %{?with_gamin:BuildRequires:	gamin-devel}
-%{?with_gdbm:BuildRequires:	gdbm-devel}
+%{?with_storage_gdbm:BuildRequires:	gdbm-devel}
 %{?with_krb5:BuildRequires:	krb5-devel}
 %{?with_memcache:BuildRequires:	libmemcache-devel}
 BuildRequires:	libtool
@@ -992,7 +991,7 @@ fi
 	%{?with_webdav_props:--with-webdav-props} \
 	%{?with_webdav_locks:--with-webdav-locks} \
 	%{?with_gamin:--with-gamin} \
-	%{?with_gdbm:--with-gdbm}
+	%{?with_storage_gdbm:--with-gdbm}
 
 # -j1 as src/mod_ssi_exprparser.h regeneration deps are broken
 %{__make} -j1
