@@ -1,0 +1,31 @@
+From e21906b3b41cda3cefebcc8b96ae6ad08549e504 Mon Sep 17 00:00:00 2001
+From: Glenn Strauss <gstrauss@gluelogic.com>
+Date: Thu, 15 Mar 2018 23:21:37 -0400
+Subject: [PATCH] [core] fix crash if 'host' empty in config (fixes #2876)
+
+x-ref:
+ "segfault with fastcgi app"
+  https://redmine.lighttpd.net/issues/2876
+---
+ src/gw_backend.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/src/gw_backend.c b/src/gw_backend.c
+index dbef6328..7b5ef190 100644
+--- a/src/gw_backend.c
++++ b/src/gw_backend.c
+@@ -1399,8 +1399,12 @@ int gw_set_defaults_backend(server *srv, gw_plugin_data *p, data_unset *du, size
+                     host->port = 80;
+                 }
+ 
+-                host->family = (!buffer_string_is_empty(host->host)
+-                                && NULL != strchr(host->host->ptr, ':'))
++                if (buffer_string_is_empty(host->host)) {
++                    buffer_copy_string_len(host->host,
++                                           CONST_STR_LEN("127.0.0.1"));
++                }
++
++                host->family = (NULL != strchr(host->host->ptr, ':'))
+                   ? AF_INET6
+                   : AF_INET;
+             }
