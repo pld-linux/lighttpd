@@ -955,6 +955,7 @@ Plik monitrc do monitorowania serwera www lighttpd.
 %patch4 -p1
 %patch6 -p1
 #%patch7 -p1 probably fixed upstream
+%patch8 -p1
 
 rm -f src/mod_ssi_exprparser.h # bad patching: should be removed by is emptied instead
 
