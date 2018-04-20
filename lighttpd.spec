@@ -40,7 +40,7 @@ Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.4.49
-Release:	2
+Release:	3
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	https://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.xz
@@ -121,6 +121,7 @@ Patch4:		systemd.patch
 Patch6:		test-port-setup.patch
 Patch7:		env-documentroot.patch
 Patch8:		lighttpd-bug-2876.patch
+Patch9:		bug-2882.patch
 URL:		https://www.lighttpd.net/
 %{?with_geoip:BuildRequires:	GeoIP-devel}
 %{?with_xattr:BuildRequires:	attr-devel}
@@ -956,6 +957,7 @@ Plik monitrc do monitorowania serwera www lighttpd.
 %patch6 -p1
 #%patch7 -p1 probably fixed upstream
 %patch8 -p1
+%patch9 -p1
 
 rm -f src/mod_ssi_exprparser.h # bad patching: should be removed by is emptied instead
 
