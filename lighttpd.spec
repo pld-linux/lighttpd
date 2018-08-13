@@ -44,7 +44,7 @@ Release:	1
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	https://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.xz
-# Source0-md5:	cc23eba4e8eef1100aad0bbd36c4699a
+# Source0-md5:	0547831efda8492648b7f0c652865dfd
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -113,14 +113,12 @@ Source145:	mod_authn_mysql.conf
 # use branch.sh script to create branch.diff
 #Patch100:	%{name}-branch.diff
 ## Patch100-md5:	7bd09235304c8bcb16f34d49d480c0fb
-Patch0:		%{name}-use_bin_sh.patch
 Patch1:		%{name}-mod_evasive-status_code.patch
 Patch2:		%{name}-mod_h264_streaming.patch
 Patch3:		%{name}-branding.patch
 Patch4:		systemd.patch
 Patch6:		test-port-setup.patch
 Patch7:		env-documentroot.patch
-Patch9:		bug-2882.patch
 URL:		https://www.lighttpd.net/
 %{?with_geoip:BuildRequires:	GeoIP-devel}
 %{?with_xattr:BuildRequires:	attr-devel}
@@ -948,14 +946,12 @@ Plik monitrc do monitorowania serwera www lighttpd.
 %prep
 %setup -q
 #%patch100 -p1
-%patch0 -p1
 #%patch1 -p1 UPDATE (and submit upstream!) if you need this
 %{?with_h264_streaming:%patch2 -p1}
 %patch3 -p1
 %patch4 -p1
 %patch6 -p1
 #%patch7 -p1 probably fixed upstream
-%patch9 -p1
 
 rm -f src/mod_ssi_exprparser.h # bad patching: should be removed by is emptied instead
 
