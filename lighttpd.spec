@@ -4,6 +4,8 @@
 # - patch with mod_websocket: https://github.com/Juniper/lighttpd-for-juise
 # - lighttpd-mod_fd_transfer: https://redmine.lighttpd.net/boards/3/topics/4992
 # - add db specific mod_vhostdb_* sub-packages
+# - package mod_sockproxy
+#   https://github.com/lighttpd/lighttpd1.4/commit/c4d743bb4d0cc045d41322169a4e36a151e247f1
 #
 # Conditional build:
 %bcond_with		tests		# build with tests
