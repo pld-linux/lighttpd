@@ -119,8 +119,7 @@ Patch1:		%{name}-mod_evasive-status_code.patch
 Patch2:		%{name}-mod_h264_streaming.patch
 Patch3:		%{name}-branding.patch
 Patch4:		systemd.patch
-Patch6:		test-port-setup.patch
-Patch7:		env-documentroot.patch
+Patch5:		test-port-setup.patch
 URL:		https://www.lighttpd.net/
 %{?with_geoip:BuildRequires:	GeoIP-devel}
 %{?with_xattr:BuildRequires:	attr-devel}
@@ -952,8 +951,7 @@ Plik monitrc do monitorowania serwera www lighttpd.
 %{?with_h264_streaming:%patch2 -p1}
 %patch3 -p1
 %patch4 -p1
-%patch6 -p1
-#%patch7 -p1 probably fixed upstream
+%patch5 -p1
 
 rm -f src/mod_ssi_exprparser.h # bad patching: should be removed by is emptied instead
 
