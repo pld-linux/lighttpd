@@ -112,6 +112,7 @@ Source142:	mod_openssl.conf
 Source143:	mod_vhostdb.conf
 Source144:	mod_wstunnel.conf
 Source145:	mod_authn_mysql.conf
+Source146:	mod_sockproxy.conf
 # use branch.sh script to create branch.diff
 #Patch100:	%{name}-branch.diff
 ## Patch100-md5:	7bd09235304c8bcb16f34d49d480c0fb
@@ -733,6 +734,17 @@ lighttpd module for simple virtual-hosting.
 %description mod_simple_vhost -l pl.UTF-8
 Moduł lighttpd do prostych hostów wirtualnych.
 
+%package mod_sockproxy
+Summary:	Transparent socket proxy
+Group:		Networking/Daemons/HTTP
+URL:		https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_ModSockProxy
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_sockproxy
+mod_sockproxy is a transparent socket proxy. For a given $SERVER["socket"]
+config, connections will be forwarded to backend(s) without any
+interpretation of the protocol.
+
 %package mod_ssi
 Summary:	lighttpd module for server-side includes
 Summary(pl.UTF-8):	Moduł lighttpd do SSI (server-side includes)
@@ -1090,6 +1102,7 @@ cp -p %{SOURCE144} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_wstunnel.conf
 %if %{with mysql}
 cp -p %{SOURCE133} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_mysql_vhost.conf
 %endif
+cp -p %{SOURCE146} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_sockproxy.conf
 
 cp -p %{SOURCE134} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_magnet.conf
 cp -p %{SOURCE111} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_expire.conf
@@ -1209,6 +1222,7 @@ fi
 %module_scripts mod_secdownload
 %module_scripts mod_setenv
 %module_scripts mod_simple_vhost
+%module_scripts mod_sockproxy
 %module_scripts mod_ssi
 %module_scripts mod_staticfile
 %module_scripts mod_status
@@ -1466,6 +1480,11 @@ fi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_simple_vhost.conf
 %attr(755,root,root) %{pkglibdir}/mod_simple_vhost.so
+
+%files mod_sockproxy
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_sockproxy.conf
+%attr(755,root,root) %{pkglibdir}/mod_sockproxy.so
 
 %files mod_ssi
 %defattr(644,root,root,755)
