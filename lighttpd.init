@@ -40,7 +40,7 @@ configtest() {
 	if [ -n "$out" ]; then
 		# make it unique, format nicely
 		out=$(echo "$out" | sort -u | xargs | sed -e 's/ /, /g')
-		echo >&2 "WARNING: found deprecated '$out', convert to 'url.rewrite-final' recommended, See http://redmine.lighttpd.net/issues/2379"
+		echo >&2 "WARNING: found deprecated '$out', convert to 'url.rewrite-once' recommended, See https://redmine.lighttpd.net/issues/2379"
 	fi
 
 	env SHELL=/bin/sh $DAEMON -t -f $CONFIGFILE $HTTPD_OPTS
