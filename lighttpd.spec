@@ -17,6 +17,7 @@
 %bcond_without	mysql		# mysql support in mod_mysql_vhost, mod_vhostdb_mysql
 %bcond_without	pgsql		# PgSQL, enables mod_vhostdb_pgsql
 %bcond_without	geoip		# GeoIP support
+%bcond_without	maxminddb	# MaxMind GeoIP2 module
 %bcond_with	krb5		# krb5 support (does not work with heimdal)
 %bcond_without	ldap		# ldap support in mod_auth, mod_vhostdb_ldap
 %bcond_without	lua		# LUA support in mod_cml (needs LUA >= 5.1)
@@ -42,7 +43,7 @@ Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.4.54
-Release:	1
+Release:	2
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	https://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.xz
@@ -113,6 +114,7 @@ Source143:	mod_vhostdb.conf
 Source144:	mod_wstunnel.conf
 Source145:	mod_authn_mysql.conf
 Source146:	mod_sockproxy.conf
+Source147:	mod_maxminddb.conf
 # use branch.sh script to create branch.diff
 #Patch100:	%{name}-branch.diff
 ## Patch100-md5:	7bd09235304c8bcb16f34d49d480c0fb
@@ -123,6 +125,7 @@ Patch4:		systemd.patch
 Patch5:		test-port-setup.patch
 URL:		https://www.lighttpd.net/
 %{?with_geoip:BuildRequires:	GeoIP-devel}
+%{?with_maxminddb:BuildRequires:	libmaxminddb-devel}
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf >= 2.57
 %if "%{pld_release}" != "ac"
@@ -566,6 +569,14 @@ mod_magnet is a module to control the request handling in lighty.
 %description mod_magnet -l pl.UTF-8
 mod_magnet to moduł sterujący obsługą żądań w lighty.
 
+%package mod_maxminddb
+Summary:	lighttpd module
+Group:		Networking/Daemons/HTTP
+#URL:		https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_ModGeoip
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_maxminddb
+
 %package mod_mysql_vhost
 Summary:	lighttpd module for MySQL based vhosting
 Summary(pl.UTF-8):	Moduł lighttpd obsługujący vhosty oparte na MySQL-u
@@ -998,6 +1009,7 @@ fi
 	%{?with_dbi:--with-dbi} \
 	%{?with_krb5:--with-krb5} \
 	%{?with_geoip:--with-geoip} \
+	%{?with_maxminddb:--with-maxminddb} \
 	%{?with_mysql:--with-mysql} \
 	%{?with_ldap:--with-ldap} \
 	%{?with_ssl:--with-openssl} \
@@ -1069,6 +1081,9 @@ cp -p %{SOURCE112} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_fastcgi.conf
 cp -p %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
 %if %{with geoip}
 cp -p %{SOURCE140} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_geoip.conf
+%endif
+%if %{with maxminddb}
+cp -p %{SOURCE147} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_maxminddb.conf
 %endif
 %if %{with ldap}
 cp -p %{SOURCE141} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_authn_ldap.conf
@@ -1213,6 +1228,7 @@ fi
 %module_scripts mod_h264_streaming
 %module_scripts mod_indexfile
 %module_scripts mod_magnet
+%module_scripts mod_maxminddb
 %module_scripts mod_mysql_vhost
 %module_scripts mod_openssl
 %module_scripts mod_proxy
@@ -1427,6 +1443,13 @@ fi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_magnet.conf
 %attr(755,root,root) %{pkglibdir}/mod_magnet.so
+
+%if %{with maxminddb}
+%files mod_maxminddb
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_maxminddb.conf
+%attr(755,root,root) %{pkglibdir}/mod_maxminddb.so
+%endif
 
 %if %{with mysql}
 %files mod_mysql_vhost
