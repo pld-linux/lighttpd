@@ -1,9 +1,9 @@
---- lighttpd-1.4.45/doc/systemd/lighttpd.service~	2017-10-14 19:59:01.000000000 +0300
-+++ lighttpd-1.4.45/doc/systemd/lighttpd.service	2017-10-14 19:59:43.077416066 +0300
+--- lighttpd-1.4.55/doc/systemd/lighttpd.service~	2020-02-01 04:49:09.000000000 +0200
++++ lighttpd-1.4.55/doc/systemd/lighttpd.service	2020-02-01 14:28:00.972414996 +0200
 @@ -5,8 +5,9 @@
  [Service]
  Type=simple
- PIDFile=/var/run/lighttpd.pid
+ PIDFile=/run/lighttpd.pid
 -ExecStartPre=/usr/sbin/lighttpd -tt -f /etc/lighttpd/lighttpd.conf
 -ExecStart=/usr/sbin/lighttpd -D -f /etc/lighttpd/lighttpd.conf
 +EnvironmentFile=-/etc/sysconfig/lighttpd
