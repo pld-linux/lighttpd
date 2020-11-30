@@ -7,6 +7,13 @@
 # - add db specific mod_vhostdb_* sub-packages
 # - package mod_sockproxy
 #   https://github.com/lighttpd/lighttpd1.4/commit/c4d743bb4d0cc045d41322169a4e36a151e247f1
+# - TLS library options
+#    - mod_openssl (existing)
+#    - mod_mbedtls (experimental)
+#    - mod_wolfssl (experimental)
+#    - mod_gnutls  (experimental)
+#    - mod_nss     (experimental)
+# - mod_deflate brotli support
 #
 # Conditional build:
 %bcond_with		tests		# build with tests
@@ -43,12 +50,12 @@
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.55
+Version:	1.4.56
 Release:	1
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	https://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.xz
-# Source0-md5:	be4bda2c28bcbdac6eb941528f6edf03
+# Source0-md5:	9d94f68c8106bfcdfe7aafa0a13f45a8
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user

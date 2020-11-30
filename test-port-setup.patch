@@ -2,12 +2,12 @@
 TODO: upstream it:
 https://github.com/lighttpd/lighttpd1.4/pull/69
 
---- lighttpd-1.4.30/tests/LightyTest.pm~	2010-02-02 01:28:20.000000000 +0200
-+++ lighttpd-1.4.30/tests/LightyTest.pm	2011-12-19 14:37:44.255526606 +0200
-@@ -43,7 +43,7 @@
- 		$self->{MODULES_PATH} = $self->{BASEDIR}.'/build';
+--- lighttpd-1.4.56/tests/LightyTest.pm~	2020-11-30 00:32:01.000000000 +0200
++++ lighttpd-1.4.56/tests/LightyTest.pm	2020-11-30 08:31:44.175860280 +0200
+@@ -81,7 +81,7 @@
+ 	if (exists $ENV{LIGHTTPD_EXE_PATH}) {
+ 		$self->{LIGHTTPD_PATH} = $ENV{LIGHTTPD_EXE_PATH};
  	}
- 	$self->{LIGHTTPD_PATH} = $self->{BINDIR}.'/lighttpd';
 -	$self->{PORT} = 2048;
 +	$self->{PORT} = $ENV{LIGHTTPD_TEST_PORT} ? int($ENV{LIGHTTPD_TEST_PORT}) : 2048;
  
