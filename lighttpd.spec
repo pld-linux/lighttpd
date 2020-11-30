@@ -13,7 +13,6 @@
 #    - mod_wolfssl (experimental)
 #    - mod_gnutls  (experimental)
 #    - mod_nss     (experimental)
-# - mod_deflate brotli support
 #
 # Conditional build:
 %bcond_with		tests		# build with tests
@@ -24,6 +23,8 @@
 %bcond_without	ssl		# ssl support
 %bcond_without	mysql		# mysql support in mod_mysql_vhost, mod_vhostdb_mysql
 %bcond_without	pgsql		# PgSQL, enables mod_vhostdb_pgsql
+%bcond_without	bzip2		# Enable bzip2 support for mod_deflate
+%bcond_without	brotli		# Enable brotli support for mod_deflate
 %bcond_without	geoip		# GeoIP support
 %bcond_without	maxminddb	# MaxMind GeoIP2 module
 %bcond_with	krb5		# krb5 support (does not work with heimdal)
@@ -131,19 +132,20 @@ Patch4:		systemd.patch
 Patch5:		test-port-setup.patch
 URL:		https://www.lighttpd.net/
 %{?with_geoip:BuildRequires:	GeoIP-devel}
-%{?with_maxminddb:BuildRequires:	libmaxminddb-devel}
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf >= 2.57
+%{?with_maxminddb:BuildRequires:	libmaxminddb-devel}
 %if "%{pld_release}" != "ac"
 BuildRequires:	automake >= 1:1.11.2
 %else
 BuildRequires:	automake
 %endif
-BuildRequires:	bzip2-devel
+%{?with_bzip2:BuildRequires:	bzip2-devel}
 BuildRequires:	fcgi-devel
 %{?with_gamin:BuildRequires:	gamin-devel}
 %{?with_storage_gdbm:BuildRequires:	gdbm-devel}
 %{?with_krb5:BuildRequires:	krb5-devel}
+%{?with_brotli:BuildRequires:	libbrotli-devel}
 %{?with_dbi:BuildRequires:	libdbi-devel}
 %{?with_storage_memcached:BuildRequires:	libmemcached-devel}
 BuildRequires:	libtool
@@ -152,11 +154,11 @@ BuildRequires:	libuuid-devel
 %{?with_lua:BuildRequires:	lua51-devel}
 BuildRequires:	mailcap >= 2.1.14-4.4
 %{?with_mysql:BuildRequires:	mysql-devel}
-%{?with_pgsql:BuildRequires:	postgresql-devel}
 %{?with_ldap:BuildRequires:	openldap-devel}
 %{?with_ssl:BuildRequires:	openssl-devel}
 BuildRequires:	pcre-devel
 BuildRequires:	pkgconfig
+%{?with_pgsql:BuildRequires:	postgresql-devel}
 BuildRequires:	rpm >= 4.4.9-56
 BuildRequires:	rpmbuild(macros) >= 1.647
 %{?with_webdav_props:BuildRequires:	sqlite3-devel}
@@ -406,6 +408,9 @@ URL:		https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_ModDeflate
 Requires:	%{name} = %{version}-%{release}
 Obsoletes:	lighttpd-mod_deflate < 1.4.56
 
+%define	_deflate_encodings deflate gzip %{?with_bzip2:bzip2} %{?with_brotli:brotli}
+%define	deflate_encodings %(echo %_deflate_encodings | sed -e 's/ /, /g')
+
 %description mod_deflate
 mod_deflate enables output compression of responses
 (Content-Encoding).
@@ -414,6 +419,13 @@ Output compression reduces the network load and can improve the
 overall throughput of the webserver. All major http-clients support
 compression by announcing it in the Accept-Encoding header. This is
 used to negotiate the most suitable compression method.
+
+This module supports %{deflate_encodings} encodings.
+
+deflate (RFC1950, RFC1951) and gzip (RFC1952) depend on zlib while
+bzip2 depends on libbzip2. bzip2 is only supported by lynx and some
+other console text-browsers. brotli (RFC7932) is supported in most
+popular browsers.
 
 Since lighttpd 1.4.56, mod_deflate subsumes and replaces mod_compress.
 mod_deflate can compress static and dynamic responses, while
@@ -1020,6 +1032,8 @@ fi
 	--libdir=%{pkglibdir} \
 	%{!?with_ipv6:--disable-ipv6} \
 	%{!?with_largefile:--disable-lfs} \
+	%{?with_brotli:--with-brotli} \
+	%{?with_bzip2:--with-bzip2} \
 	%{?with_valgrind:--with-valgrind} \
 	%{?with_xattr:--with-attr} \
 	%{?with_dbi:--with-dbi} \
