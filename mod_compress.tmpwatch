@@ -1,2 +1,0 @@
-# Cleanup lighttpd-mod_compress cache files:
-/var/cache/lighttpd/mod_compress -u 10d

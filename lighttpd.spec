@@ -81,7 +81,6 @@ Source102:	mod_alias.conf
 Source103:	mod_auth.conf
 Source104:	mod_cgi.conf
 Source105:	mod_cml.conf
-Source106:	mod_compress.conf
 Source107:	mod_deflate.conf
 Source108:	mod_dirlisting.conf
 Source109:	mod_evasive.conf
@@ -113,7 +112,6 @@ Source134:	mod_magnet.conf
 Source135:	mod_extforward.conf
 Source136:	mod_h264_streaming.conf
 Source137:	mod_cgi_php.conf
-Source138:	mod_compress.tmpwatch
 Source139:	mod_uploadprogress.conf
 Source140:	mod_geoip.conf
 Source141:	mod_authn_ldap.conf
@@ -404,12 +402,22 @@ Obsługiwane są gzip, deflate i bzip.
 Summary:	lighttpd module for output compression using deflate method
 Summary(pl.UTF-8):	Moduł lighttpd do kompresji wyjścia metodą deflate
 Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Mod_Deflate
+URL:		https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_ModDeflate
 Requires:	%{name} = %{version}-%{release}
+Obsoletes:	lighttpd-mod_deflate < 1.4.56
 
 %description mod_deflate
-mod_deflate can compress any output from lighttpd static or dynamic.
-It doesn't support caching compressed output like mod_compress.
+mod_deflate enables output compression of responses
+(Content-Encoding).
+
+Output compression reduces the network load and can improve the
+overall throughput of the webserver. All major http-clients support
+compression by announcing it in the Accept-Encoding header. This is
+used to negotiate the most suitable compression method.
+
+Since lighttpd 1.4.56, mod_deflate subsumes and replaces mod_compress.
+mod_deflate can compress static and dynamic responses, while
+mod_compress could compress only static files.
 
 %description mod_deflate -l pl.UTF-8
 mod_deflate potrafi kompresować statyczne i dynamiczne wyjście z
@@ -1044,7 +1052,6 @@ install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d
 	$RPM_BUILD_ROOT{/var/log/{%{name},archive/%{name}},/var/run/%{name}} \
 	$RPM_BUILD_ROOT%{_datadir}/lighttpd/errordocs \
 	$RPM_BUILD_ROOT/var/lib/lighttpd \
-	$RPM_BUILD_ROOT/var/cache/lighttpd/mod_compress \
 	$RPM_BUILD_ROOT{%{systemdtmpfilesdir},%{systemdunitdir}}
 
 %{__make} install \
@@ -1130,8 +1137,6 @@ cp -p %{SOURCE146} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_sockproxy.conf
 cp -p %{SOURCE134} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_magnet.conf
 cp -p %{SOURCE111} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_expire.conf
 
-cp -p %{SOURCE106} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/60_mod_compress.conf
-
 cp -p %{SOURCE101} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/90_mod_accesslog.conf
 cp -p %{SOURCE135} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/91_mod_extforward.conf
 
@@ -1142,7 +1147,6 @@ cp -p %{SOURCE132} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/ssl.conf
 touch $RPM_BUILD_ROOT/var/lib/lighttpd/lighttpd.rrd
 
 install -d $RPM_BUILD_ROOT/etc/tmpwatch
-cp -p %{SOURCE138} $RPM_BUILD_ROOT/etc/tmpwatch/lighttpd-mod_compress.conf
 
 touch $RPM_BUILD_ROOT/var/log/%{name}/{access,error,breakage}.log
 
@@ -1223,7 +1227,6 @@ fi
 %module_scripts mod_authn_mysql
 %module_scripts mod_cgi
 %module_scripts mod_cml
-%module_scripts mod_compress
 %module_scripts mod_deflate
 %module_scripts mod_dirlisting
 %module_scripts mod_evasive
@@ -1320,9 +1323,6 @@ fi
 # rrdtool database is stored there
 %dir %attr(771,root,lighttpd) /var/lib/lighttpd
 
-# mod_compress can put cached files there
-%dir /var/cache/lighttpd
-
 %files mod_access
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_access.conf
@@ -1380,13 +1380,6 @@ fi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_cml.conf
 %attr(755,root,root) %{pkglibdir}/mod_cml.so
-
-%files mod_compress
-%defattr(644,root,root,755)
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/tmpwatch/lighttpd-mod_compress.conf
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_compress.conf
-%attr(755,root,root) %{pkglibdir}/mod_compress.so
-%dir %attr(775,root,lighttpd) /var/cache/lighttpd/mod_compress
 
 %files mod_deflate
 %defattr(644,root,root,755)
