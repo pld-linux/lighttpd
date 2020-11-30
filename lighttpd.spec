@@ -1029,27 +1029,27 @@ fi
 %{__automake}
 
 %configure \
-	--libdir=%{pkglibdir} \
 	%{!?with_ipv6:--disable-ipv6} \
 	%{!?with_largefile:--disable-lfs} \
 	%{?with_brotli:--with-brotli} \
 	%{?with_bzip2:--with-bzip2} \
-	%{?with_valgrind:--with-valgrind} \
-	%{?with_xattr:--with-attr} \
 	%{?with_dbi:--with-dbi} \
-	%{?with_krb5:--with-krb5} \
+	%{?with_gamin:--with-gamin} \
 	%{?with_geoip:--with-geoip} \
+	%{?with_krb5:--with-krb5} \
+	%{?with_ldap:--with-ldap} \
+	%{?with_lua:--with-lua=lua51} \
 	%{?with_maxminddb:--with-maxminddb} \
 	%{?with_mysql:--with-mysql} \
-	%{?with_ldap:--with-ldap} \
-	%{?with_ssl:--with-openssl} \
 	%{?with_pgsql:--with-pgsql} \
-	%{?with_lua:--with-lua=lua51} \
+	%{?with_ssl:--with-openssl} \
+	%{?with_storage_gdbm:--with-gdbm} \
 	%{?with_storage_memcached:--with-memcached} \
-	%{?with_webdav_props:--with-webdav-props} \
+	%{?with_valgrind:--with-valgrind} \
 	%{?with_webdav_locks:--with-webdav-locks} \
-	%{?with_gamin:--with-gamin} \
-	%{?with_storage_gdbm:--with-gdbm}
+	%{?with_webdav_props:--with-webdav-props} \
+	%{?with_xattr:--with-attr} \
+	--libdir=%{pkglibdir}
 
 # -j1 as src/mod_ssi_exprparser.h regeneration deps are broken
 %{__make} -j1
