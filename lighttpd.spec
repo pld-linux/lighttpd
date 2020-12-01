@@ -52,7 +52,7 @@ Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
 Version:	1.4.56
-Release:	1
+Release:	2
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	https://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.xz
@@ -406,7 +406,7 @@ Summary(pl.UTF-8):	Moduł lighttpd do kompresji wyjścia metodą deflate
 Group:		Networking/Daemons/HTTP
 URL:		https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_ModDeflate
 Requires:	%{name} = %{version}-%{release}
-Obsoletes:	lighttpd-mod_deflate < 1.4.56
+Obsoletes:	lighttpd-mod_compress < 1.4.56
 
 %define	_deflate_encodings deflate gzip %{?with_bzip2:bzip2} %{?with_brotli:brotli}
 %define	deflate_encodings %(echo %_deflate_encodings | sed -e 's/ /, /g')
