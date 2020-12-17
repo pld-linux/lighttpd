@@ -317,6 +317,10 @@ Requires:	%{name} = %{version}-%{release}
 %description mod_authn_mysql
 lighttpd authn_mysql module.
 
+mod_authn_mysql is DEPRECATED; use mod_authn_dbi.
+
+Note: mod_authn_mysql will be removed from a future lighttpd release.
+
 %package mod_cgi
 Summary:	lighttpd module for CGI handling
 Summary(pl.UTF-8):	Moduł lighttpd do obsługi CGI
@@ -371,6 +375,10 @@ CML is a Meta language to describe the dependencies of a page at one
 side and building a page from its fragments on the other side using
 LUA.
 
+mod_cml is DEPRECATED; use mod_magnet.
+
+Note: mod_cml will be removed from a future lighttpd release.
+
 %description mod_cml -l pl.UTF-8
 CML to metajęzyk służący z jednej strony do opisu zależności strony i
 z drugiej strony do budowania strony z fragmentów przy użyciu LUA.
@@ -390,6 +398,11 @@ Only static content is supported up to now.
 
 The server negotiates automatically which compression method is used.
 Supported are gzip, deflate, bzip.
+
+mod_compress is DEPRECATED; use mod_deflate. mod_compress has been
+subsumed by mod_deflate.
+
+Note: mod_compress config options may be removed in a future release.
 
 %description mod_compress -l pl.UTF-8
 Kompresja wyjścia zmniejsza obciążenie sieci i może poprawić całkowitą
@@ -556,6 +569,10 @@ If the ip was found in the database the module sets the appropriate
 environment variables to the request, thus making other modules/fcgi
 be informed.
 
+mod_geoip is DEPRECATED; use mod_maxminddb.
+
+Note: mod_geoip will be removed from a future lighttpd release.
+
 %package mod_h264_streaming
 Summary:	lighttpd module for h264 streaming
 Summary(pl.UTF-8):	Moduł lighttpd do emisji strumieni h264
@@ -615,6 +632,11 @@ Conflicts:	%{name}-mod_simple_vhost
 
 %description mod_mysql_vhost
 This module provides virtual hosts (vhosts) based on a MySQL table.
+
+mod_mysql_vhost is DEPRECATED; use mod_vhostdb_dbi or
+mod_vhostdb_mysql.
+
+Note: mod_mysql_vhost will be removed from a future lighttpd release.
 
 %description mod_mysql_vhost -l pl.UTF-8
 Ten moduł udostępnia wirtualne hosty (vhosty) oparte na tabeli MySQL.
