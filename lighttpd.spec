@@ -51,12 +51,12 @@
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.57
+Version:	1.4.58
 Release:	1
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	https://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.xz
-# Source0-md5:	d2a38f6b360ba8cf5c9b8fdfc2f8598f
+# Source0-md5:	8d12a31bd3fdd7eab85cf9a6d2cfa92e
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
