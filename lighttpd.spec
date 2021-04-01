@@ -261,6 +261,16 @@ given URL-subset.
 Modul alias służy do określania specjalnego drzewa (document-roota)
 dla podanego podzbioru URL-i.
 
+%package mod_ajp13
+Summary:	Apache JServ Protocol version 1.3 (AJP13) gateway
+Group:		Networking/Daemons/HTTP
+URL:		https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_ModAJP13
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_ajp13
+lighttpd mod_ajp13 is a gateway implementing Apache JServ Protocol
+version 1.3 (AJP13).
+
 %package mod_auth
 Summary:	lighttpd module for authentication support
 Summary(pl.UTF-8):	Moduł lighttpd do obsługi uwierzytelniania
@@ -1262,6 +1272,7 @@ fi
 
 %module_scripts mod_access
 %module_scripts mod_accesslog
+%module_scripts mod_ajp13
 %module_scripts mod_alias
 %module_scripts mod_auth
 %module_scripts mod_authn_dbi
@@ -1381,6 +1392,10 @@ fi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_alias.conf
 %attr(755,root,root) %{pkglibdir}/mod_alias.so
+
+%files mod_ajp13
+%defattr(644,root,root,755)
+%attr(755,root,root) %{pkglibdir}/mod_ajp13.so
 
 %files mod_auth
 %defattr(644,root,root,755)
