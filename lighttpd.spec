@@ -19,7 +19,7 @@
 %bcond_without	xattr		# support of extended attributes
 %bcond_without	ipv6		# IPv4-only version (doesn't require IPv6 in kernel)
 %bcond_without	largefile	# largefile support (see notes above)
-%bcond_without	dbi		# libdbi, enables mod_vhostdb_dbi
+%bcond_without	dbi		# libdbi, enables mod_vhostdb_dbi, mod_authn_dbi
 %bcond_without	ssl		# ssl support
 %bcond_without	mysql		# mysql support in mod_mysql_vhost, mod_vhostdb_mysql
 %bcond_without	pgsql		# PgSQL, enables mod_vhostdb_pgsql
@@ -283,6 +283,15 @@ basic and digest.
 %description mod_auth -l pl.UTF-8
 lighttpd obsługuje obie metody uwierzytelniania opisane w RFC 2617:
 basic i digest.
+
+%package mod_authn_dbi
+Summary:	lighttpd authn_dbi module
+Group:		Networking/Daemons/HTTP
+URL:		https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_ModAuth
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_authn_dbi
+lighttpd authn_dbi module.
 
 %package mod_authn_file
 Summary:	lighttpd authn_file module
@@ -1255,6 +1264,7 @@ fi
 %module_scripts mod_accesslog
 %module_scripts mod_alias
 %module_scripts mod_auth
+%module_scripts mod_authn_dbi
 %module_scripts mod_authn_file
 %module_scripts mod_authn_gssapi
 %module_scripts mod_authn_ldap
@@ -1376,6 +1386,12 @@ fi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_auth.conf
 %attr(755,root,root) %{pkglibdir}/mod_auth.so
+
+%if %{with dbi}
+%files mod_authn_dbi
+%defattr(644,root,root,755)
+%attr(755,root,root) %{pkglibdir}/mod_authn_dbi.so
+%endif
 
 %files mod_authn_file
 %defattr(644,root,root,755)
