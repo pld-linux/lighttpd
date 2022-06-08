@@ -21,42 +21,33 @@
 %bcond_without	largefile	# largefile support (see notes above)
 %bcond_without	dbi		# libdbi, enables mod_vhostdb_dbi, mod_authn_dbi
 %bcond_without	ssl		# ssl support
-%bcond_without	mysql		# mysql support in mod_mysql_vhost, mod_vhostdb_mysql
+%bcond_without	mysql		# mysql support in mod_vhostdb_mysql
 %bcond_without	pgsql		# PgSQL, enables mod_vhostdb_pgsql
 %bcond_without	bzip2		# Enable bzip2 support for mod_deflate
 %bcond_without	brotli		# Enable brotli support for mod_deflate
-%bcond_without	geoip		# GeoIP support
 %bcond_without	maxminddb	# MaxMind GeoIP2 module
 %bcond_with	krb5		# krb5 support (does not work with heimdal)
 %bcond_without	ldap		# ldap support in mod_auth, mod_vhostdb_ldap
-%bcond_without	lua		# LUA support in mod_cml (needs LUA >= 5.1)
+%bcond_without	lua		# LUA support (needs LUA >= 5.1)
 %bcond_with	gamin		# gamin for reducing number of stat() calls. must be enabled in config: server.stat-cache-engine = "fam"
-%bcond_without	mod_trigger_b4_dl		# mod_trigger_b4_dl
 %bcond_with	webdav_props	# properties in mod_webdav (includes extra sqlite3/libxml deps)
 %bcond_with	webdav_locks	# webdav locks with extra efsprogs deps
 %bcond_with	valgrind	# compile code with valgrind support.
 %bcond_with	h264_streaming		# build h264_streaming module
-%bcond_without	storage_memcached	# memcached storage for mod_trigger_b4_dl/mod_cml
-%bcond_without	storage_gdbm		# gdbm storage for mod_trigger_b4_dl
 
 %if %{with webdav_locks}
 %define		webdav_progs	1
 %endif
 
-# if(WITH_PCRE AND (WITH_MEMCACHED OR WITH_GDBM))
-%if %{without storage_memcached} && %{without storage_gdbm}
-%undefine	with_mod_trigger_b4_dl
-%endif
-
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.63
+Version:	1.4.65
 Release:	1
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	https://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.xz
-# Source0-md5:	f4ad032b4b861f42a5df5f900ec6457b
+# Source0-md5:	dfb8b3d624e0f70e82c8aea39777f3fb
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -81,14 +72,14 @@ Source101:	mod_accesslog.conf
 Source102:	mod_alias.conf
 Source103:	mod_auth.conf
 Source104:	mod_cgi.conf
-Source105:	mod_cml.conf
+
 Source107:	mod_deflate.conf
 Source108:	mod_dirlisting.conf
 Source109:	mod_evasive.conf
 Source110:	mod_evhost.conf
 Source111:	mod_expire.conf
 Source112:	mod_fastcgi.conf
-Source113:	mod_flv_streaming.conf
+
 Source114:	mod_indexfile.conf
 Source115:	mod_proxy.conf
 Source116:	mod_redirect.conf
@@ -101,25 +92,25 @@ Source122:	mod_simple_vhost.conf
 Source123:	mod_ssi.conf
 Source124:	mod_staticfile.conf
 Source125:	mod_status.conf
-Source126:	mod_trigger_b4_dl.conf
+
 Source127:	mod_userdir.conf
 Source128:	mod_usertrack.conf
 Source129:	mod_webdav.conf
 Source130:	php-spawned.conf
 Source131:	php-external.conf
 Source132:	ssl.conf
-Source133:	mod_mysql_vhost.conf
+
 Source134:	mod_magnet.conf
 Source135:	mod_extforward.conf
 Source136:	mod_h264_streaming.conf
 Source137:	mod_cgi_php.conf
 Source139:	mod_uploadprogress.conf
-Source140:	mod_geoip.conf
+
 Source141:	mod_authn_ldap.conf
 Source142:	mod_openssl.conf
 Source143:	mod_vhostdb.conf
 Source144:	mod_wstunnel.conf
-Source145:	mod_authn_mysql.conf
+
 Source146:	mod_sockproxy.conf
 Source147:	mod_maxminddb.conf
 # use branch.sh script to create branch.diff
@@ -130,7 +121,6 @@ Patch2:		%{name}-mod_h264_streaming.patch
 Patch3:		%{name}-branding.patch
 Patch4:		systemd.patch
 URL:		https://www.lighttpd.net/
-%{?with_geoip:BuildRequires:	GeoIP-devel}
 %{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf >= 2.57
 %{?with_maxminddb:BuildRequires:	libmaxminddb-devel}
@@ -155,7 +145,7 @@ BuildRequires:	mailcap >= 2.1.14-4.4
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?with_ldap:BuildRequires:	openldap-devel}
 %{?with_ssl:BuildRequires:	openssl-devel}
-BuildRequires:	pcre-devel
+BuildRequires:	pcre2-8-devel
 BuildRequires:	pkgconfig
 %{?with_pgsql:BuildRequires:	postgresql-devel}
 BuildRequires:	rpm >= 4.4.9-56
@@ -281,9 +271,6 @@ Requires:	%{name}-mod_authn_file = %{version}-%{release}
 %if %{with ldap}
 Suggests:	%{name}-mod_authn_ldap = %{version}-%{release}
 %endif
-%if %{with mysql}
-Suggests:	%{name}-mod_authn_mysql = %{version}-%{release}
-%endif
 Provides:	webserver(auth)
 
 %description mod_auth
@@ -327,18 +314,6 @@ Requires:	%{name} = %{version}-%{release}
 %description mod_authn_ldap
 lighttpd authn_ldap module.
 
-%package mod_authn_mysql
-Summary:	lighttpd authn_mysql module
-Group:		Networking/Daemons/HTTP
-Requires:	%{name} = %{version}-%{release}
-
-%description mod_authn_mysql
-lighttpd authn_mysql module.
-
-mod_authn_mysql is DEPRECATED; use mod_authn_dbi.
-
-Note: mod_authn_mysql will be removed from a future lighttpd release.
-
 %package mod_cgi
 Summary:	lighttpd module for CGI handling
 Summary(pl.UTF-8):	Moduł lighttpd do obsługi CGI
@@ -380,26 +355,6 @@ PHP.
 
 Programy CGI pozwalają rozszerzać funkcjonalność serwera w bardzo
 prosty i naturalny sposób.
-
-%package mod_cml
-Summary:	lighttpd module for Cache Meta Language
-Summary(pl.UTF-8):	Moduł Cache Meta Language
-Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModCML
-Requires:	%{name} = %{version}-%{release}
-
-%description mod_cml
-CML is a Meta language to describe the dependencies of a page at one
-side and building a page from its fragments on the other side using
-LUA.
-
-mod_cml is DEPRECATED; use mod_magnet.
-
-Note: mod_cml will be removed from a future lighttpd release.
-
-%description mod_cml -l pl.UTF-8
-CML to metajęzyk służący z jednej strony do opisu zależności strony i
-z drugiej strony do budowania strony z fragmentów przy użyciu LUA.
 
 %package mod_compress
 Summary:	lighttpd module for output compression
@@ -560,37 +515,6 @@ Interfejs FastCGI to najszybszy i najbezpieczniejszy sposób
 komunikacji z zewnętrznymi programami obsługującymi procesy, takimi
 jak Perl, PHP czy własne aplikacje.
 
-%package mod_flv_streaming
-Summary:	lighttpd module for flv streaming
-Summary(pl.UTF-8):	Moduł lighttpd do streamingu flv
-Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModFLVStreaming
-Requires:	%{name} = %{version}-%{release}
-
-%description mod_flv_streaming
-lighttpd module for flv streaming.
-
-%description mod_flv_streaming -l pl.UTF-8
-Moduł lighttpd do streamingu flv.
-
-%package mod_geoip
-Summary:	lighttpd module for IP Based Geographic Lookups
-Group:		Networking/Daemons/HTTP
-URL:		https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_ModGeoip
-Requires:	%{name} = %{version}-%{release}
-
-%description mod_geoip
-mod_geoip is a module for fast ip/location lookups. It uses MaxMind
-GeoIP / GeoCity databases.
-
-If the ip was found in the database the module sets the appropriate
-environment variables to the request, thus making other modules/fcgi
-be informed.
-
-mod_geoip is DEPRECATED; use mod_maxminddb.
-
-Note: mod_geoip will be removed from a future lighttpd release.
-
 %package mod_h264_streaming
 Summary:	lighttpd module for h264 streaming
 Summary(pl.UTF-8):	Moduł lighttpd do emisji strumieni h264
@@ -639,25 +563,6 @@ Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
 
 %description mod_maxminddb
-
-%package mod_mysql_vhost
-Summary:	lighttpd module for MySQL based vhosting
-Summary(pl.UTF-8):	Moduł lighttpd obsługujący vhosty oparte na MySQL-u
-Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModMySQLVhost
-Requires:	%{name} = %{version}-%{release}
-Conflicts:	%{name}-mod_simple_vhost
-
-%description mod_mysql_vhost
-This module provides virtual hosts (vhosts) based on a MySQL table.
-
-mod_mysql_vhost is DEPRECATED; use mod_vhostdb_dbi or
-mod_vhostdb_mysql.
-
-Note: mod_mysql_vhost will be removed from a future lighttpd release.
-
-%description mod_mysql_vhost -l pl.UTF-8
-Ten moduł udostępnia wirtualne hosty (vhosty) oparte na tabeli MySQL.
 
 %package mod_openssl
 Summary:	TLS/SSL for lighttpd
@@ -864,19 +769,6 @@ mod_status displays the server's status and configuration.
 %description mod_status -l pl.UTF-8
 mod_status wyświetla stan i konfigurację serwera.
 
-%package mod_trigger_b4_dl
-Summary:	Trigger before Download
-Summary(pl.UTF-8):	Wyzwalacz przed ściąganiem
-Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModTriggerBeforeDownload
-Requires:	%{name} = %{version}-%{release}
-
-%description mod_trigger_b4_dl
-Another anti hot-linking module.
-
-%description mod_trigger_b4_dl -l pl.UTF-8
-Jeszcze jeden moduł blokujący bezpośrednie linkowanie.
-
 %package mod_uploadprogress
 Summary:	lighttpd module for upload progress
 Group:		Networking/Daemons/HTTP
@@ -1074,7 +966,6 @@ fi
 	%{?with_bzip2:--with-bzip2} \
 	%{?with_dbi:--with-dbi} \
 	%{?with_gamin:--with-gamin} \
-	%{?with_geoip:--with-geoip} \
 	%{?with_krb5:--with-krb5} \
 	%{?with_ldap:--with-ldap} \
 	%{?with_lua:--with-lua=lua51} \
@@ -1082,8 +973,6 @@ fi
 	%{?with_mysql:--with-mysql} \
 	%{?with_pgsql:--with-pgsql} \
 	%{?with_ssl:--with-openssl} \
-	%{?with_storage_gdbm:--with-gdbm} \
-	%{?with_storage_memcached:--with-memcached} \
 	%{?with_valgrind:--with-valgrind} \
 	%{?with_webdav_locks:--with-webdav-locks} \
 	%{?with_webdav_props:--with-webdav-props} \
@@ -1140,24 +1029,17 @@ cp -p %{SOURCE102} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_alias.conf
 cp -p %{SOURCE103} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_auth.conf
 cp -p %{SOURCE104} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_cgi.conf
 cp -p %{SOURCE137} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_cgi_php.conf
-cp -p %{SOURCE105} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_cml.conf
+
 cp -p %{SOURCE107} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_deflate.conf
 cp -p %{SOURCE108} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_dirlisting.conf
 cp -p %{SOURCE109} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evasive.conf
 cp -p %{SOURCE110} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evhost.conf
 cp -p %{SOURCE112} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_fastcgi.conf
-cp -p %{SOURCE113} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_flv_streaming.conf
-%if %{with geoip}
-cp -p %{SOURCE140} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_geoip.conf
-%endif
 %if %{with maxminddb}
 cp -p %{SOURCE147} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_maxminddb.conf
 %endif
 %if %{with ldap}
 cp -p %{SOURCE141} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_authn_ldap.conf
-%endif
-%if %{with ldap}
-cp -p %{SOURCE145} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_authn_mysql.conf
 %endif
 %if %{with h264_streaming}
 cp -p %{SOURCE136} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_h264_streaming.conf
@@ -1173,18 +1055,12 @@ cp -p %{SOURCE122} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_simple_vhost.conf
 cp -p %{SOURCE123} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_ssi.conf
 cp -p %{SOURCE124} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_staticfile.conf
 cp -p %{SOURCE125} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_status.conf
-%if %{with mod_trigger_b4_dl}
-cp -p %{SOURCE126} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_trigger_b4_dl.conf
-%endif
 cp -p %{SOURCE139} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_uploadprogress.conf
 cp -p %{SOURCE127} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_userdir.conf
 cp -p %{SOURCE128} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_usertrack.conf
 cp -p %{SOURCE143} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_vhostdb.conf
 cp -p %{SOURCE129} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_webdav.conf
 cp -p %{SOURCE144} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_wstunnel.conf
-%if %{with mysql}
-cp -p %{SOURCE133} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_mysql_vhost.conf
-%endif
 cp -p %{SOURCE146} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_sockproxy.conf
 
 cp -p %{SOURCE134} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/55_mod_magnet.conf
@@ -1279,9 +1155,7 @@ fi
 %module_scripts mod_authn_file
 %module_scripts mod_authn_gssapi
 %module_scripts mod_authn_ldap
-%module_scripts mod_authn_mysql
 %module_scripts mod_cgi
-%module_scripts mod_cml
 %module_scripts mod_deflate
 %module_scripts mod_dirlisting
 %module_scripts mod_evasive
@@ -1289,13 +1163,10 @@ fi
 %module_scripts mod_expire
 %module_scripts mod_extforward
 %module_scripts mod_fastcgi
-%module_scripts mod_flv_streaming
-%module_scripts mod_geoip
 %module_scripts mod_h264_streaming
 %module_scripts mod_indexfile
 %module_scripts mod_magnet
 %module_scripts mod_maxminddb
-%module_scripts mod_mysql_vhost
 %module_scripts mod_openssl
 %module_scripts mod_proxy
 %module_scripts mod_redirect
@@ -1308,7 +1179,6 @@ fi
 %module_scripts mod_ssi
 %module_scripts mod_staticfile
 %module_scripts mod_status
-%module_scripts mod_trigger_b4_dl
 %module_scripts mod_uploadprogress
 %module_scripts mod_userdir
 %module_scripts mod_usertrack
@@ -1425,13 +1295,6 @@ fi
 %attr(755,root,root) %{pkglibdir}/mod_authn_ldap.so
 %endif
 
-%if %{with mysql}
-%files mod_authn_mysql
-%defattr(644,root,root,755)
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_authn_mysql.conf
-%attr(755,root,root) %{pkglibdir}/mod_authn_mysql.so
-%endif
-
 %files mod_cgi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_cgi.conf
@@ -1440,11 +1303,6 @@ fi
 %files mod_cgi_php
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_cgi_php.conf
-
-%files mod_cml
-%defattr(644,root,root,755)
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_cml.conf
-%attr(755,root,root) %{pkglibdir}/mod_cml.so
 
 %files mod_deflate
 %defattr(644,root,root,755)
@@ -1481,18 +1339,6 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_fastcgi.conf
 %attr(755,root,root) %{pkglibdir}/mod_fastcgi.so
 
-%files mod_flv_streaming
-%defattr(644,root,root,755)
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_flv_streaming.conf
-%attr(755,root,root) %{pkglibdir}/mod_flv_streaming.so
-
-%if %{with geoip}
-%files mod_geoip
-%defattr(644,root,root,755)
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_geoip.conf
-%attr(755,root,root) %{pkglibdir}/mod_geoip.so
-%endif
-
 %if %{with h264_streaming}
 %files mod_h264_streaming
 %defattr(644,root,root,755)
@@ -1515,13 +1361,6 @@ fi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_maxminddb.conf
 %attr(755,root,root) %{pkglibdir}/mod_maxminddb.so
-%endif
-
-%if %{with mysql}
-%files mod_mysql_vhost
-%defattr(644,root,root,755)
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_mysql_vhost.conf
-%attr(755,root,root) %{pkglibdir}/mod_mysql_vhost.so
 %endif
 
 %files mod_proxy
@@ -1589,13 +1428,6 @@ fi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_status.conf
 %attr(755,root,root) %{pkglibdir}/mod_status.so
-
-%if %{with mod_trigger_b4_dl}
-%files mod_trigger_b4_dl
-%defattr(644,root,root,755)
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_trigger_b4_dl.conf
-%attr(755,root,root) %{pkglibdir}/mod_trigger_b4_dl.so
-%endif
 
 %files mod_uploadprogress
 %defattr(644,root,root,755)
