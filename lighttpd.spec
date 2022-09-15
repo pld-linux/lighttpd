@@ -286,6 +286,7 @@ Summary:	lighttpd authn_dbi module
 Group:		Networking/Daemons/HTTP
 URL:		https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_ModAuth
 Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}-auth = %{version}-%{release}
 
 %description mod_authn_dbi
 lighttpd authn_dbi module.
@@ -294,6 +295,7 @@ lighttpd authn_dbi module.
 Summary:	lighttpd authn_file module
 Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}-auth = %{version}-%{release}
 
 %description mod_authn_file
 lighttpd authn_file module.
@@ -302,6 +304,7 @@ lighttpd authn_file module.
 Summary:	lighttpd authn_gssapi module
 Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}-auth = %{version}-%{release}
 
 %description mod_authn_gssapi
 lighttpd authn_gssapi module.
@@ -310,6 +313,7 @@ lighttpd authn_gssapi module.
 Summary:	lighttpd authn_ldap module
 Group:		Networking/Daemons/HTTP
 Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}-auth = %{version}-%{release}
 
 %description mod_authn_ldap
 lighttpd authn_ldap module.
