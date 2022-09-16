@@ -360,36 +360,6 @@ PHP.
 Programy CGI pozwalają rozszerzać funkcjonalność serwera w bardzo
 prosty i naturalny sposób.
 
-%package mod_compress
-Summary:	lighttpd module for output compression
-Summary(pl.UTF-8):	Moduł lighttpd do kompresji wyjścia
-Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModCompress
-Requires:	%{name} = %{version}-%{release}
-
-%description mod_compress
-Output compression reduces the network load and can improve the
-overall throughput of the webserver.
-
-Only static content is supported up to now.
-
-The server negotiates automatically which compression method is used.
-Supported are gzip, deflate, bzip.
-
-mod_compress is DEPRECATED; use mod_deflate. mod_compress has been
-subsumed by mod_deflate.
-
-Note: mod_compress config options may be removed in a future release.
-
-%description mod_compress -l pl.UTF-8
-Kompresja wyjścia zmniejsza obciążenie sieci i może poprawić całkowitą
-przepustowość serwera WWW.
-
-Jak na razie obsługiwana jest tylko statyczna treść.
-
-Serwer automatycznie negocjuje, która metoda kompresji jest używana.
-Obsługiwane są gzip, deflate i bzip.
-
 %package mod_deflate
 Summary:	lighttpd module for output compression using deflate method
 Summary(pl.UTF-8):	Moduł lighttpd do kompresji wyjścia metodą deflate
