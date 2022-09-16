@@ -968,6 +968,7 @@ install -d $RPM_BUILD_ROOT{%{_lighttpddir}/{cgi-bin,html},/etc/{logrotate.d,rc.d
 	$RPM_BUILD_ROOT{/var/log/{%{name},archive/%{name}},/var/run/%{name}} \
 	$RPM_BUILD_ROOT%{_datadir}/lighttpd/errordocs \
 	$RPM_BUILD_ROOT/var/lib/lighttpd \
+	$RPM_BUILD_ROOT/var/cache/lighttpd/mod_deflate \
 	$RPM_BUILD_ROOT{%{systemdtmpfilesdir},%{systemdunitdir}}
 
 %{__make} install \
@@ -1222,6 +1223,9 @@ fi
 # rrdtool database is stored there
 %dir %attr(771,root,lighttpd) /var/lib/lighttpd
 
+# mod_deflate can put cached files there
+%dir /var/cache/lighttpd
+
 %files mod_access
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_access.conf
@@ -1282,6 +1286,7 @@ fi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_deflate.conf
 %attr(755,root,root) %{pkglibdir}/mod_deflate.so
+%dir %attr(775,root,lighttpd) /var/cache/lighttpd/mod_deflate
 
 %files mod_dirlisting
 %defattr(644,root,root,755)
