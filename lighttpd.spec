@@ -42,12 +42,12 @@
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.67
-Release:	3
+Version:	1.4.68
+Release:	1
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	https://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.xz
-# Source0-md5:	64822c5061001673162cf9775d91a80b
+# Source0-md5:	07f42c05bc2df869ac58b12e7e21d92e
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -75,7 +75,6 @@ Source104:	mod_cgi.conf
 
 Source107:	mod_deflate.conf
 Source108:	mod_dirlisting.conf
-Source109:	mod_evasive.conf
 Source110:	mod_evhost.conf
 Source111:	mod_expire.conf
 Source112:	mod_fastcgi.conf
@@ -86,7 +85,6 @@ Source116:	mod_redirect.conf
 Source117:	mod_rewrite.conf
 Source118:	mod_rrdtool.conf
 Source119:	mod_scgi.conf
-Source120:	mod_secdownload.conf
 Source121:	mod_setenv.conf
 Source122:	mod_simple_vhost.conf
 Source123:	mod_ssi.conf
@@ -94,7 +92,6 @@ Source124:	mod_staticfile.conf
 Source125:	mod_status.conf
 
 Source127:	mod_userdir.conf
-Source128:	mod_usertrack.conf
 Source129:	mod_webdav.conf
 Source130:	php-spawned.conf
 Source131:	php-external.conf
@@ -104,7 +101,6 @@ Source134:	mod_magnet.conf
 Source135:	mod_extforward.conf
 Source136:	mod_h264_streaming.conf
 Source137:	mod_cgi_php.conf
-Source139:	mod_uploadprogress.conf
 
 Source141:	mod_authn_ldap.conf
 Source142:	mod_openssl.conf
@@ -116,7 +112,6 @@ Source147:	mod_maxminddb.conf
 # use branch.sh script to create branch.diff
 #Patch100:	%{name}-branch.diff
 ## Patch100-md5:	7bd09235304c8bcb16f34d49d480c0fb
-Patch1:		%{name}-mod_evasive-status_code.patch
 Patch2:		%{name}-mod_h264_streaming.patch
 Patch3:		%{name}-branding.patch
 Patch4:		systemd.patch
@@ -411,19 +406,6 @@ control.
 mod_dirlisting tworzy listingi katalogów w formacie HTML z pełną
 kontrolą CSS.
 
-%package mod_evasive
-Summary:	lighttpd evasive module
-Summary(pl.UTF-8):	Moduł evasive dla lighttpd
-Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModEvasive
-Requires:	%{name} = %{version}-%{release}
-
-%description mod_evasive
-lighttpd evasive module.
-
-%description mod_evasive -l pl.UTF-8
-Moduł evasive dla lighttpd.
-
 %package mod_evhost
 Summary:	lighttpd module for enhanced virtual-hosting
 Summary(pl.UTF-8):	Moduł lighttpd rozszerzający obsługę hostów wirtualnych
@@ -649,21 +631,6 @@ Python + WSGI.
 SCGI to szybki i uproszczony interfejs CGI. Jest używany głównie przez
 Pythona z WSGI.
 
-%package mod_secdownload
-Summary:	lighttpd module for secure and fast downloading
-Summary(pl.UTF-8):	Moduł lighttpd do bezpiecznego i szybkiego ściągania danych
-Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModSecDownload
-Requires:	%{name} = %{version}-%{release}
-
-%description mod_secdownload
-With this module you can easily achieve authenticated file requests
-and a countermeasure against deep-linking.
-
-%description mod_secdownload -l pl.UTF-8
-Przy użyciu tego modułu można łatwo umożliwić ściąganie plików z
-uwierzytelnieniem i zapobiec używaniu bezpośrednich odnośników.
-
 %package mod_setenv
 Summary:	lighttpd module for setting conditional request headers
 Summary(pl.UTF-8):	Moduł lighttpd do ustawiania warunkowych nagłówków żądań
@@ -743,15 +710,6 @@ mod_status displays the server's status and configuration.
 %description mod_status -l pl.UTF-8
 mod_status wyświetla stan i konfigurację serwera.
 
-%package mod_uploadprogress
-Summary:	lighttpd module for upload progress
-Group:		Networking/Daemons/HTTP
-URL:		https://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_ModUploadProgress
-Requires:	%{name} = %{version}-%{release}
-
-%description mod_uploadprogress
-This module can be used to track the progress of a current upload.
-
 %package mod_userdir
 Summary:	lighttpd module for user homedirs
 Summary(pl.UTF-8):	Moduł lighttpd obsługujący katalogi domowe użytkowników
@@ -766,19 +724,6 @@ directories into the global namespace of the webserver.
 %description mod_userdir -l pl.UTF-8
 Moduł userdir udostępnia prosty sposób włączenia katalogów
 użytkowników do globalnej przestrzeni nazw serwera WWW.
-
-%package mod_usertrack
-Summary:	lighttpd usertrack module
-Summary(pl.UTF-8):	Moduł usertrack dla lighttpd
-Group:		Networking/Daemons/HTTP
-URL:		http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ModUserTrack
-Requires:	%{name} = %{version}-%{release}
-
-%description mod_usertrack
-lighttpd usertrack module.
-
-%description mod_usertrack -l pl.UTF-8
-Moduł usertrack dla lighttpd.
 
 %package mod_vhostdb
 Summary:	Virtual host database to provide vhost docroot
@@ -904,7 +849,6 @@ Plik monitrc do monitorowania serwera www lighttpd.
 %prep
 %setup -q
 #%patch100 -p1
-#%patch1 -p1 UPDATE (and submit upstream!) if you need this
 %{?with_h264_streaming:%patch2 -p1}
 %patch3 -p1
 %patch4 -p1
@@ -1007,7 +951,6 @@ cp -p %{SOURCE137} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_cgi_php.conf
 
 cp -p %{SOURCE107} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_deflate.conf
 cp -p %{SOURCE108} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_dirlisting.conf
-cp -p %{SOURCE109} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evasive.conf
 cp -p %{SOURCE110} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_evhost.conf
 cp -p %{SOURCE112} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_fastcgi.conf
 %if %{with maxminddb}
@@ -1024,15 +967,12 @@ cp -p %{SOURCE142} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_openssl.conf
 cp -p %{SOURCE115} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_proxy.conf
 cp -p %{SOURCE118} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_rrdtool.conf
 cp -p %{SOURCE119} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_scgi.conf
-cp -p %{SOURCE120} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_secdownload.conf
 cp -p %{SOURCE121} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_setenv.conf
 cp -p %{SOURCE122} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_simple_vhost.conf
 cp -p %{SOURCE123} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_ssi.conf
 cp -p %{SOURCE124} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_staticfile.conf
 cp -p %{SOURCE125} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_status.conf
-cp -p %{SOURCE139} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_uploadprogress.conf
 cp -p %{SOURCE127} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_userdir.conf
-cp -p %{SOURCE128} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_usertrack.conf
 cp -p %{SOURCE143} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_vhostdb.conf
 cp -p %{SOURCE129} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_webdav.conf
 cp -p %{SOURCE144} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_wstunnel.conf
@@ -1133,7 +1073,6 @@ fi
 %module_scripts mod_cgi
 %module_scripts mod_deflate
 %module_scripts mod_dirlisting
-%module_scripts mod_evasive
 %module_scripts mod_evhost
 %module_scripts mod_expire
 %module_scripts mod_extforward
@@ -1147,16 +1086,13 @@ fi
 %module_scripts mod_redirect
 %module_scripts mod_rewrite
 %module_scripts mod_scgi
-%module_scripts mod_secdownload
 %module_scripts mod_setenv
 %module_scripts mod_simple_vhost
 %module_scripts mod_sockproxy
 %module_scripts mod_ssi
 %module_scripts mod_staticfile
 %module_scripts mod_status
-%module_scripts mod_uploadprogress
 %module_scripts mod_userdir
-%module_scripts mod_usertrack
 %module_scripts mod_vhostdb
 %module_scripts mod_webdav
 %module_scripts mod_wstunnel
@@ -1293,11 +1229,6 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_dirlisting.conf
 %attr(755,root,root) %{pkglibdir}/mod_dirlisting.so
 
-%files mod_evasive
-%defattr(644,root,root,755)
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_evasive.conf
-%attr(755,root,root) %{pkglibdir}/mod_evasive.so
-
 %files mod_evhost
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_evhost.conf
@@ -1373,11 +1304,6 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_scgi.conf
 %attr(755,root,root) %{pkglibdir}/mod_scgi.so
 
-%files mod_secdownload
-%defattr(644,root,root,755)
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_secdownload.conf
-%attr(755,root,root) %{pkglibdir}/mod_secdownload.so
-
 %files mod_setenv
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_setenv.conf
@@ -1408,20 +1334,10 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_status.conf
 %attr(755,root,root) %{pkglibdir}/mod_status.so
 
-%files mod_uploadprogress
-%defattr(644,root,root,755)
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_uploadprogress.conf
-%attr(755,root,root) %{pkglibdir}/mod_uploadprogress.so
-
 %files mod_userdir
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_userdir.conf
 %attr(755,root,root) %{pkglibdir}/mod_userdir.so
-
-%files mod_usertrack
-%defattr(644,root,root,755)
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_usertrack.conf
-%attr(755,root,root) %{pkglibdir}/mod_usertrack.so
 
 %files mod_vhostdb
 %defattr(644,root,root,755)
