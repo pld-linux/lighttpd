@@ -73,6 +73,7 @@ Source101:	mod_accesslog.conf
 Source102:	mod_alias.conf
 Source103:	mod_auth.conf
 Source104:	mod_cgi.conf
+Source105:	mod_h2.conf
 
 Source107:	mod_deflate.conf
 Source108:	mod_dirlisting.conf
@@ -162,6 +163,7 @@ Requires(pre):	/usr/sbin/groupadd
 Requires(pre):	/usr/sbin/useradd
 Requires(pre):	/usr/sbin/usermod
 Requires:	%{name}-mod_dirlisting = %{version}-%{release}
+Requires:	%{name}-mod_h2 = %{version}-%{release}
 Requires:	%{name}-mod_indexfile = %{version}-%{release}
 Requires:	%{name}-mod_staticfile = %{version}-%{release}
 Requires:	rc-scripts >= 0.4.3.0
@@ -471,6 +473,14 @@ applications.
 Interfejs FastCGI to najszybszy i najbezpieczniejszy sposób
 komunikacji z zewnętrznymi programami obsługującymi procesy, takimi
 jak Perl, PHP czy własne aplikacje.
+
+%package mod_h2
+Summary:	lighttpd h2 module
+Group:		Networking/Daemons/HTTP
+Requires:	%{name} = %{version}-%{release}
+
+%description mod_h2
+lighttpd http 2 module
 
 %package mod_h264_streaming
 Summary:	lighttpd module for h264 streaming
@@ -948,6 +958,7 @@ cp -p %{SOURCE100} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_access.conf
 cp -p %{SOURCE102} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_alias.conf
 cp -p %{SOURCE103} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_auth.conf
 cp -p %{SOURCE104} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_cgi.conf
+cp -p %{SOURCE105} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_h2.conf
 cp -p %{SOURCE137} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_cgi_php.conf
 
 cp -p %{SOURCE107} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/50_mod_deflate.conf
@@ -1078,6 +1089,7 @@ fi
 %module_scripts mod_expire
 %module_scripts mod_extforward
 %module_scripts mod_fastcgi
+%module_scripts mod_h2
 %module_scripts mod_h264_streaming
 %module_scripts mod_indexfile
 %module_scripts mod_magnet
@@ -1244,6 +1256,11 @@ fi
 %files mod_fastcgi
 %defattr(644,root,root,755)
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_fastcgi.conf
+
+%files mod_h2
+%defattr(644,root,root,755)
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*mod_h2.conf
+%attr(755,root,root) %{pkglibdir}/mod_h2.so
 
 %if %{with h264_streaming}
 %files mod_h264_streaming
