@@ -137,7 +137,7 @@ BuildRequires:	fcgi-devel
 BuildRequires:	libtool
 BuildRequires:	libuuid-devel
 %{?with_webdav_props:BuildRequires:	libxml2-devel}
-%{?with_lua:BuildRequires:	lua51-devel}
+%{?with_lua:BuildRequires:	lua54-devel}
 BuildRequires:	mailcap >= 2.1.14-4.4
 %{?with_mysql:BuildRequires:	mysql-devel}
 %{?with_ldap:BuildRequires:	openldap-devel}
@@ -897,7 +897,7 @@ fi
 	%{?with_gamin:--with-gamin} \
 	%{?with_krb5:--with-krb5} \
 	%{?with_ldap:--with-ldap} \
-	%{?with_lua:--with-lua=lua51} \
+	%{?with_lua:--with-lua=lua5.4} \
 	%{?with_maxminddb:--with-maxminddb} \
 	%{?with_mysql:--with-mysql} \
 	%{?with_pgsql:--with-pgsql} \
