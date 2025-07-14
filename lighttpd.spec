@@ -861,8 +861,8 @@ Plik monitrc do monitorowania serwera www lighttpd.
 %setup -q
 #%patch100 -p1
 %{?with_h264_streaming:%patch2 -p1}
-%patch3 -p1
-%patch4 -p1
+%patch -P3 -p1
+%patch -P4 -p1
 
 rm -f src/mod_ssi_exprparser.h # bad patching: should be removed by is emptied instead
 
