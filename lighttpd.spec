@@ -859,7 +859,7 @@ Plik monitrc do monitorowania serwera www lighttpd.
 
 %prep
 %setup -q
-#%patch100 -p1
+#%%patch100 -p1
 %{?with_h264_streaming:%patch2 -p1}
 %patch -P3 -p1
 %patch -P4 -p1
