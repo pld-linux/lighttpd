@@ -1,14 +1,16 @@
---- lighttpd-1.4.55/doc/systemd/lighttpd.service~	2020-02-01 04:49:09.000000000 +0200
-+++ lighttpd-1.4.55/doc/systemd/lighttpd.service	2020-02-01 14:28:00.972414996 +0200
-@@ -5,8 +5,9 @@
+--- lighttpd-1.4.81/doc/systemd/lighttpd.service.org	2025-08-22 10:09:31.986585211 +0200
++++ lighttpd-1.4.81/doc/systemd/lighttpd.service	2025-08-22 10:09:39.566152904 +0200
+@@ -15,9 +15,10 @@ WantedBy=multi-user.target
  [Service]
  Type=simple
  PIDFile=/run/lighttpd.pid
 -ExecStartPre=/usr/sbin/lighttpd -tt -f /etc/lighttpd/lighttpd.conf
 -ExecStart=/usr/sbin/lighttpd -D -f /etc/lighttpd/lighttpd.conf
+-ExecReload=/usr/sbin/lighttpd -tt -f /etc/lighttpd/lighttpd.conf
 +EnvironmentFile=-/etc/sysconfig/lighttpd
 +ExecStartPre=/usr/sbin/lighttpd-angel -tt -f /etc/lighttpd/lighttpd.conf
 +ExecStart=/usr/sbin/lighttpd-angel -D -f /etc/lighttpd/lighttpd.conf $HTTPD_OPTS
++ExecReload=/usr/sbin/lighttpd-angel -tt -f /etc/lighttpd/lighttpd.conf
  ExecReload=/bin/kill -USR1 $MAINPID
  Restart=on-failure
  

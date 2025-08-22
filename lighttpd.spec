@@ -43,12 +43,12 @@
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.76
+Version:	1.4.81
 Release:	1
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	https://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.xz
-# Source0-md5:	f9018cda389b1aa6dae4c5f962c20825
+# Source0-md5:	f7a6187732169fad75f2189ff5c967b1
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -882,7 +882,9 @@ if [ "$ver" != "%{version}" ]; then
 	exit 1
 fi
 
-%{__aclocal} -I m4 -I scripts/m4
+# unused but aclocal wants it
+install -d m4
+%{__aclocal} -I scripts/m4
 %{__libtoolize}
 %{__autoconf}
 %{__autoheader}
