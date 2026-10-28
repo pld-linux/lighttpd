@@ -43,12 +43,12 @@
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
 Name:		lighttpd
-Version:	1.4.81
-Release:	2
+Version:	1.4.85
+Release:	1
 License:	BSD
 Group:		Networking/Daemons/HTTP
 Source0:	https://download.lighttpd.net/lighttpd/releases-1.4.x/%{name}-%{version}.tar.xz
-# Source0-md5:	f7a6187732169fad75f2189ff5c967b1
+# Source0-md5:	d8b436e0688a09594fc292ad18fb6eb5
 Source1:	%{name}.init
 Source2:	%{name}.conf
 Source3:	%{name}.user
@@ -127,7 +127,6 @@ BuildRequires:	automake >= 1:1.11.2
 BuildRequires:	automake
 %endif
 %{?with_bzip2:BuildRequires:	bzip2-devel}
-BuildRequires:	fcgi-devel
 %{?with_gamin:BuildRequires:	gamin-devel}
 %{?with_storage_gdbm:BuildRequires:	gdbm-devel}
 %{?with_krb5:BuildRequires:	krb5-devel}
@@ -135,7 +134,6 @@ BuildRequires:	fcgi-devel
 %{?with_dbi:BuildRequires:	libdbi-devel}
 %{?with_storage_memcached:BuildRequires:	libmemcached-devel}
 BuildRequires:	libtool
-BuildRequires:	libuuid-devel
 %{?with_webdav_props:BuildRequires:	libxml2-devel}
 %{?with_lua:BuildRequires:	lua54-devel}
 BuildRequires:	mailcap >= 2.1.14-4.4
