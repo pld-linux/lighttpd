@@ -30,15 +30,9 @@
 %bcond_with	krb5		# krb5 support (does not work with heimdal)
 %bcond_without	ldap		# ldap support in mod_auth, mod_vhostdb_ldap
 %bcond_without	lua		# LUA support (needs LUA >= 5.1)
-%bcond_with	gamin		# gamin for reducing number of stat() calls. must be enabled in config: server.stat-cache-engine = "fam"
-%bcond_with	webdav_props	# properties in mod_webdav (includes extra sqlite3/libxml deps)
-%bcond_with	webdav_locks	# webdav locks with extra efsprogs deps
+%bcond_with	webdav_props	# properties and locks in mod_webdav (includes extra sqlite3/libxml deps)
 %bcond_with	valgrind	# compile code with valgrind support.
 %bcond_with	h264_streaming		# build h264_streaming module
-
-%if %{with webdav_locks}
-%define		webdav_progs	1
-%endif
 
 Summary:	Fast and light HTTP server
 Summary(pl.UTF-8):	Szybki i lekki serwer HTTP
@@ -118,7 +112,6 @@ Patch2:		%{name}-mod_h264_streaming.patch
 Patch3:		%{name}-branding.patch
 Patch4:		systemd.patch
 URL:		https://www.lighttpd.net/
-%{?with_xattr:BuildRequires:	attr-devel}
 BuildRequires:	autoconf >= 2.57
 %{?with_maxminddb:BuildRequires:	libmaxminddb-devel}
 %if "%{pld_release}" != "ac"
@@ -127,12 +120,9 @@ BuildRequires:	automake >= 1:1.11.2
 BuildRequires:	automake
 %endif
 %{?with_bzip2:BuildRequires:	bzip2-devel}
-%{?with_gamin:BuildRequires:	gamin-devel}
-%{?with_storage_gdbm:BuildRequires:	gdbm-devel}
 %{?with_krb5:BuildRequires:	krb5-devel}
 %{?with_brotli:BuildRequires:	libbrotli-devel}
 %{?with_dbi:BuildRequires:	libdbi-devel}
-%{?with_storage_memcached:BuildRequires:	libmemcached-devel}
 BuildRequires:	libtool
 %{?with_webdav_props:BuildRequires:	libxml2-devel}
 %{?with_lua:BuildRequires:	lua54-devel}
@@ -862,8 +852,6 @@ Plik monitrc do monitorowania serwera www lighttpd.
 %patch -P3 -p1
 %patch -P4 -p1
 
-rm -f src/mod_ssi_exprparser.h # bad patching: should be removed by is emptied instead
-
 # build mime.types.conf
 sh %{SOURCE6} /etc/mime.types
 cp -p %{SOURCE14} PLD-TODO
@@ -894,7 +882,6 @@ install -d m4
 	%{?with_brotli:--with-brotli} \
 	%{?with_bzip2:--with-bzip2} \
 	%{?with_dbi:--with-dbi} \
-	%{?with_gamin:--with-gamin} \
 	%{?with_krb5:--with-krb5} \
 	%{?with_ldap:--with-ldap} \
 	%{?with_lua:--with-lua=lua5.4} \
@@ -903,13 +890,11 @@ install -d m4
 	%{?with_pgsql:--with-pgsql} \
 	%{?with_ssl:--with-openssl} \
 	%{?with_valgrind:--with-valgrind} \
-	%{?with_webdav_locks:--with-webdav-locks} \
 	%{?with_webdav_props:--with-webdav-props} \
 	%{?with_xattr:--with-attr} \
 	--libdir=%{pkglibdir}
 
-# -j1 as src/mod_ssi_exprparser.h regeneration deps are broken
-%{__make} -j1
+%{__make}
 
 %if %{with tests}
 export LIGHTTPD_TEST_PORT=$((2048 + RANDOM % 10))
